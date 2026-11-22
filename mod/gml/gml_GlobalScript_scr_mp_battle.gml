@@ -66,6 +66,8 @@ function mp_battle_reset()
     global.mp_mn_pend = 0;
     global.mp_prev_mnfight = -99;
     global.mp_tension_b0 = 0;
+    global.mp_act_wn = 0;
+    global.mp_act_wr = false;
     global.mp_t_mine = 0;           // TP my own SOUL earned (grazes) or lost (hits while down) this bullet phase
     global.mp_t_shown = 0;
     global.mp_t_sent = -99999;
@@ -631,6 +633,18 @@ function mp_battle_input()
     // some ACTs roll dice after text that takes a different time to read for each player.
     if (global.myfight == 1 && (global.myfight != global.mp_prev_myfight || global.charturn != global.mp_prev_charturn))
         mp_battle_seed(10 + global.charturn);
+    // ...and again each time one of its text boxes opens or closes: an ACT that rolls once its
+    // text is read rolls the same everywhere, however long each player took to read it.
+    var acting = global.myfight != 0 && global.mnfight == 0;
+    var wr = acting && instance_exists(obj_writer);
+    if (acting && global.myfight != global.mp_prev_myfight)
+        global.mp_act_wn = 0;
+    if (acting && wr != global.mp_act_wr)
+    {
+        global.mp_act_wn += 1;
+        mp_battle_seed(20 + global.charturn + (global.mp_act_wn * 3));
+    }
+    global.mp_act_wr = wr;
     global.mp_prev_myfight = global.myfight;
     global.mp_prev_charturn = global.charturn;
     // Waiting for everyone at the end of a turn: nobody acts in their own game meanwhile,

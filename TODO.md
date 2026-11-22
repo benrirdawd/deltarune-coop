@@ -318,16 +318,18 @@ keep the last writer's value instead of adding up.
 
 ## Priority 1 — quick wins that make things feel right
 
-| Issue | Fix | Effort |
-|---|---|---|
-| Waiting on slow readers: a player can sit at the turn barrier for a while, and only the host can see who they're waiting on. | Show exactly who everyone is waiting on, for clients too. After ~20 s, offer "Skip their text" to the waiting player. | S |
-| Downed players' SOUL still appears and dodges, but nothing happens when hit — feels broken. | Draw it greyed out with a "DOWN" label, or make it a ghost SOUL that can still graze for TP. | S |
-| Teleport after watching a cutscene: players who only watched get dropped at the leader's final position abruptly. | Fade out/in around the warp, like a door transition. | S |
-| Moving to the next chapter disconnects everyone; the session has to be re-hosted. | Save session details (host address, character) when a chapter ends; the next chapter auto-reconnects on start. | S |
-| Game Over: after Continue, each player reloads their own save and can end up in different rooms. | After Continue, pull everyone to the host's position once the host has reloaded. | S |
-| Same character twice: the second player silently becomes a battle spectator. | Block picking a character someone else already has in the F9 menu (sharing by alternating turns could come later, M). | S |
-| Puzzles and set pieces (Queen's mansion acid, chase sequences, timed puzzles) run separately per player; one player solving it can change the room under another and leave them stuck. | "Teleport to host" hotkey: warps you to the host's room and position (with a fade). Fixes stuck players anywhere, not just in puzzles. | S |
-| Random ACT outcomes can briefly differ (some ACTs use randomness after locally-timed text). | Re-seed the RNG right before each ACT resolves, not just at phase starts. | S |
+All done on 2026-11-22 (built, **not tested in game yet**):
+
+| Issue | What was done |
+|---|---|
+| Waiting on slow readers at the turn barrier. | Already solved (confirmed in play). |
+| Downed players' SOUL did nothing when hit. | It stays playable, darker, grazes for TP; a hit costs 2x the bullet's graze TP (see "Battles: live TP..."). |
+| Players who only watched a cutscene were dropped at the leader's final position abruptly. | The screen fades out (about 1/3 s) before the move and fades back in after it (`mp_cs_end_fade_tick`). |
+| Moving to the next chapter disconnects everyone. | IP sessions already resumed (`mp_resume_save/load`, within 15 minutes). Steam sessions now do too: the host opens a lobby with the same code and the others search for it again for about a minute (`drs_lobby_get` gives joiners the code). |
+| Game Over: after Continue, players can end up in different rooms. | Clients already went to the host after Continue; they now wait (up to 2 minutes) until the host has reloaded too and is in a normal room, not still on the Game Over screen. |
+| Same character twice: the second player silently became a spectator. | Kept, but on purpose: the host numbers character picks; whoever picked a character first plays it, the others watch that player's SOUL in fights and take over, first come first, when they change character or leave. F9 says so when you pick a taken character. (Overworld: both still walk around as that character.) |
+| Puzzles/set pieces can leave a player stuck. | Already there: F8 goes to the host (twice within 5 s also frees a stuck state), Shift+F8 brings everyone to the host; arrival fades in. |
+| Random ACT outcomes could briefly differ. | Besides the seed at each hero's action, the RNG is now re-seeded identically each time one of the action's text boxes opens or closes. |
 
 ## Priority 2 — protect progress
 
