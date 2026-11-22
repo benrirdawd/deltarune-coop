@@ -443,6 +443,9 @@ function mp_test_input()
     // mashevery:<n> presses every n frames instead of 10 (a slow reader), mashfrom:<n> starts n frames into the room.
     var mash_every = mp_test_arg("mashevery") != "" ? real(mp_test_arg("mashevery")) : 10;
     var mash_from = mp_test_arg("mashfrom") != "" ? real(mp_test_arg("mashfrom")) : 15;
+    // holdx: hold X all the time (speeds text up; set in the input state, so it works unfocused).
+    if (mp_test_has("holdx"))
+        global.input_held[5] = 1;
     // failz: press Continue on the Game Over screen.
     if (mp_test_has("failz") && string_pos("room_gameover", room_get_name(room)) == 1 && (f mod 4) == 0)
         global.input_pressed[4] = 1;
@@ -628,6 +631,9 @@ function mp_filelog_flush()
 
 function mp_test_battle_created()
 {
+    // fragile: my hero starts the fight at 1 HP (to test a downed player's SOUL).
+    if (global.mp_test != "" && mp_test_has("fragile"))
+        global.hp[global.mp_pchar[global.mp_myid]] = 1;
     if (global.mp_test != "" && mp_test_has("weak"))
     {
         // weak: enemies have 1 HP, so the fight ends after the first hits (tests what comes after a battle).

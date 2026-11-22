@@ -79,6 +79,8 @@ function mp_sync_init()
     global.mp_end_fade = -1;
     global.mp_end_fade_a = 0;
     global.mp_dlg_skip_sent = 0;
+    global.mp_dlg_skip_n = -1;
+    global.mp_dlg_skip_log = -1;
     global.mp_dlg_ready = 0;
     global.mp_dlg_ready_sent = -1;
     global.mp_pdlg_t = array_create(8, -99999);
@@ -136,8 +138,13 @@ function mp_sync_input()
 {
     if (global.mp_sstate == 5 || global.mp_sstate == 4 || global.mp_sstate == 3 || (global.mp_sstate == 2 && instance_exists(obj_choicer_neo)))
     {
+        // (Watching a copy of the leader's scene: Z / Enter still turn the page and X still
+        // speeds the text, for everyone, mp_dlg_input. Choices stay the leader's.)
+        var keep_text = global.mp_sstate == 5 && !instance_exists(obj_choicer_neo);
         for (var i = 0; i < 10; i++)
         {
+            if (keep_text && (i == 4 || i == 5 || i == 7))
+                continue;
             global.input_pressed[i] = 0;
             global.input_held[i] = 0;
         }
@@ -1367,17 +1374,33 @@ function mp_dlg_input()
         global.mp_dlg_pre = 0;
         global.mp_dlg_sent = -1;
         global.mp_dlg_block_since = 0;
+        global.mp_dlg_skip_n = -1;
     }
     global.mp_dlg_ready = mp_dlg_box_waiting();
-    // X (held) types the box out at once: for everyone on the same box.
-    global.mp_dlg_skip = !global.mp_dlg_ready && global.input_held[5] && instance_exists(obj_writer);
+    // X (held) types the box out at once: for everyone on the same box. (Kept for the whole box:
+    // X types my own copy out in a frame, and a flag that short could be gone before anyone reads it.)
+    if (!global.mp_dlg_ready && global.input_held[5] && instance_exists(obj_writer) && global.mp_dlg_skip_n != global.mp_dlg_n)
+    {
+        global.mp_dlg_skip_n = global.mp_dlg_n;
+        mp_log("cutscene text " + string(global.mp_dlg_n) + ": X held");
+    }
+    global.mp_dlg_skip = global.mp_dlg_skip_n == global.mp_dlg_n;
     if ((global.mp_dlg_sent != global.mp_dlg_n) || global.mp_dlg_ready_sent != global.mp_dlg_ready || global.mp_dlg_skip_sent != global.mp_dlg_skip || (current_time - global.mp_dlg_sent_t) > 1000)
         mp_dlg_send();
     if (!global.mp_dlg_ready && instance_exists(obj_writer))
     {
         for (var s = 0; s < 8; s++)
+        {
             if (mp_dlg_counted(s) && global.mp_pdlg_skip[s] && global.mp_pdlg_n[s] == global.mp_dlg_n)
+            {
                 global.input_held[5] = 1;
+                if (global.mp_dlg_skip_log != global.mp_dlg_n)
+                {
+                    global.mp_dlg_skip_log = global.mp_dlg_n;
+                    mp_log("cutscene text " + string(global.mp_dlg_n) + " typed out: X from " + global.mp_pname[s]);
+                }
+            }
+        }
     }
     // How far the leader is (followers only; -1 when they aren't counted).
     var ln = (!lead && mp_dlg_counted(global.mp_slead)) ? global.mp_pdlg_n[global.mp_slead] : -1;
@@ -1395,6 +1418,13 @@ function mp_dlg_input()
         // Someone already turned this page: finish typing it at once, the way X does, and follow.
         if (ln > global.mp_dlg_n && instance_exists(obj_writer))
             global.input_held[5] = 1;
+        // (Z does nothing to a box that is still typing, but a box that finishes typing during this
+        // frame would take it and close without it being counted: hold it back until it's ready.)
+        if (instance_exists(obj_writer))
+        {
+            global.input_pressed[4] = 0;
+            global.input_pressed[7] = 0;
+        }
         global.mp_dlg_block_since = 0;
         return;
     }

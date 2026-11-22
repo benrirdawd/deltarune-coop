@@ -68,6 +68,7 @@ function mp_battle_reset()
     global.mp_tension_b0 = 0;
     global.mp_act_wn = 0;
     global.mp_act_wr = false;
+    global.mp_susie_lock_log = -1;
     global.mp_t_mine = 0;           // TP my own SOUL earned (grazes) or lost (hits while down) this bullet phase
     global.mp_t_shown = 0;
     global.mp_t_sent = -99999;
@@ -173,6 +174,11 @@ function mp_susie_lock()
     if (!global.mp_susie_lent || global.mp_chapter != 1 || global.char[global.charturn] != 2)
         return;
     var ct = global.charturn;
+    if (global.mp_susie_lock_log != global.mp_bturn)
+    {
+        global.mp_susie_lock_log = global.mp_bturn;
+        mp_log("susie lock turn " + string(global.mp_bturn));
+    }
     if (global.bmenuno == 0)
     {
         global.bmenucoord[0][ct] = 0;
@@ -924,6 +930,7 @@ function mp_damage_spectator()
     global.inv = global.invc * 40;
     global.mp_down_hit_f = global.mp_frame;
     global.mp_down_hit_n = cost;
+    mp_log("down hit: tp -" + string(cost) + " -> " + string(global.tension));
     var snd = asset_get_index("snd_hurt1");
     if (snd >= 0)
         snd_play(snd);
