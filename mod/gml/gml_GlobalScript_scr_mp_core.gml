@@ -44,6 +44,15 @@ function mp_init()
     mp_ui_init();
     global.mp_resumed = 0;
     global.mp_resume_code = "";
+    global.mp_paddr = array_create(8, "");
+    global.mp_migrate_pid = -1;
+    global.mp_migrate_name = "";
+    global.mp_migrate_ip = "";
+    global.mp_migrate_port = 0;
+    global.mp_migrate_steam = "";
+    global.mp_migrate_me = false;
+    global.mp_migrate_offer = 0;
+    global.mp_migrate_to = "";
     global.mp_resume_done = 0;
     mp_parse_cmdline();
     mp_resume_load();

@@ -41,6 +41,8 @@ function mp_ui_rows()
     var r = ["name", "char"];
     if (global.mp_role == 0)
     {
+        if (mp_migrate_offer_on())
+            array_push(r, "become_host");
         array_push(r, "host", "ip", "join", "steam_host", "steam_code", "steam_friends");
     }
     else
@@ -238,6 +240,11 @@ function mp_ui_input()
         {
             global.mp_ui_open = 0;
             mp_steam_host();
+        }
+        if (row == "become_host")
+        {
+            global.mp_ui_open = 0;
+            mp_migrate_accept();
         }
         if (row == "steam_friends" || row == "frrefresh")
         {
@@ -511,6 +518,8 @@ function mp_ui_rowtext(row)
             return "Join game";
         case "steam_host":
             return "Host on Steam (code / friends)";
+        case "become_host":
+            return "Become the host (the others are waiting)";
         case "steam_code":
             return "Join on Steam with a code";
         case "steam_friends":

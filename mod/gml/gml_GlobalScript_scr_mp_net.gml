@@ -691,6 +691,7 @@ function mp_handle_link(type, sender, b, p)
         }
         mp_send_pinfo(pid);
         mp_vars_send_full(p);
+        mp_send_addresses();
         mp_send_pos(1, p);
         // Joining while I'm in a battle: come and join it (from the next turn).
         // (In open-world battles they walk up and join like anyone else.)
@@ -750,7 +751,23 @@ function mp_handle_link(type, sender, b, p)
         if (global.mp_role == 1)
             mp_host_drop(p, "left");
         else
+        {
+            mp_migrate_prepare();
             mp_disconnect("The host closed the session.");
+            mp_migrate_start();
+        }
+        return true;
+    }
+    if (type == 8) // ADDRESSES (host -> everyone): where each player can be reached
+    {
+        var n8 = buffer_read(b, buffer_u8);
+        for (var i8 = 0; i8 < n8; i8++)
+        {
+            var pid8 = buffer_read(b, buffer_u8);
+            var ip8 = buffer_read(b, buffer_string);
+            if (pid8 < 8)
+                global.mp_paddr[pid8] = ip8;
+        }
         return true;
     }
     return type < 8 && type != 3;
@@ -769,6 +786,11 @@ function mp_net_tick()
                 global.mp_join_retries -= 1;
                 global.mp_join_retry_at = current_time + 2000;
             }
+            else if (global.mp_migrate_to != "")
+            {
+                mp_notify(global.mp_migrate_to + " can't be reached: they need to forward UDP port " + string(global.mp_join_port) + " (or play over Steam).");
+                global.mp_migrate_to = "";
+            }
             return;
         }
         if (global.mp_linkstate == 3)
@@ -784,7 +806,9 @@ function mp_net_tick()
             }
             if ((current_time - global.mp_hub.lastrecv) > 10000)
             {
+                mp_migrate_prepare();
                 mp_disconnect("Host stopped responding.");
+                mp_migrate_start();
                 return;
             }
             if (ds_list_size(global.mp_hub.sendq) > 4000)
@@ -816,4 +840,111 @@ function mp_net_tick()
         global.mp_bytes_out = 0;
         global.mp_bw_time = current_time;
     }
+}
+
+// ---------------------------------------------------------------- a new host
+
+// Host: everyone learns where the others can be reached (as I see them), so that if I leave, the
+// next player can host and the rest can find them.
+function mp_send_addresses()
+{
+    var list = [];
+    var k = ds_map_find_first(global.mp_peers);
+    while (!is_undefined(k))
+    {
+        var p = ds_map_find_value(global.mp_peers, k);
+        k = ds_map_find_next(global.mp_peers, k);
+        if (is_struct(p) && variable_struct_exists(p, "pid") && p.pid >= 0)
+            array_push(list, [p.pid, p.ip]);
+    }
+    mp_begin(8);
+    mp_wu8(array_length(list));
+    for (var i = 0; i < array_length(list); i++)
+    {
+        mp_wu8(list[i][0]);
+        mp_wstr(list[i][1]);
+    }
+    mp_send();
+}
+
+// Client, as the host is lost (before the session is cleared): who takes over? The connected
+// player with the lowest number after the host.
+function mp_migrate_prepare()
+{
+    global.mp_migrate_pid = -1;
+    if (global.mp_role != 2)
+        return;
+    for (var i = 1; i < 8; i++)
+    {
+        if (global.mp_pconn[i])
+        {
+            global.mp_migrate_pid = i;
+            break;
+        }
+    }
+    var mp = global.mp_migrate_pid;
+    global.mp_migrate_name = mp >= 0 ? global.mp_pname[mp] : "";
+    global.mp_migrate_ip = mp >= 0 ? global.mp_paddr[mp] : "";
+    global.mp_migrate_port = global.mp_join_port;
+    global.mp_migrate_steam = global.mp_join_ip == "steam" && mp_steam_on() ? global.mp_steam_joined : "";
+    global.mp_migrate_me = mp >= 0 && mp == global.mp_myid;
+    // (Only if someone else is left to play with.)
+    var others = 0;
+    for (var j = 1; j < 8; j++)
+    {
+        if (global.mp_pconn[j])
+            others++;
+    }
+    if (others < 2)
+        global.mp_migrate_pid = -1;
+}
+
+// After the session ended: offer to host (the next player), or look for the new host (the others).
+function mp_migrate_start()
+{
+    if (global.mp_migrate_pid < 0)
+        return;
+    if (global.mp_migrate_me)
+    {
+        global.mp_migrate_offer = current_time;
+        mp_notify("The host left. You're next: F9 > \"Become the host\" keeps the game going for everyone.");
+        if (global.mp_test != "" && mp_test_has("autohost"))
+            mp_migrate_accept();
+        return;
+    }
+    global.mp_migrate_to = global.mp_migrate_name;
+    mp_notify("The host left. Waiting for " + global.mp_migrate_name + " to become the host...");
+    if (global.mp_migrate_steam != "")
+    {
+        mp_steam_globals();
+        global.mp_steam_retries = 20;
+        mp_steam_join_code(global.mp_migrate_steam);
+        global.mp_steam_retry_at = current_time + 3000;
+        return;
+    }
+    if (global.mp_migrate_ip == "")
+        return;
+    global.mp_cfg_ip = global.mp_migrate_ip;
+    global.mp_cfg_port = global.mp_migrate_port;
+    global.mp_join_retries = 20;
+    global.mp_join_retry_at = current_time + 3000;
+}
+
+function mp_migrate_offer_on()
+{
+    return global.mp_role == 0 && global.mp_migrate_offer > 0 && (current_time - global.mp_migrate_offer) < 120000;
+}
+
+function mp_migrate_accept()
+{
+    global.mp_migrate_offer = 0;
+    if (global.mp_migrate_steam != "")
+    {
+        mp_steam_globals();
+        global.mp_steam_want = global.mp_migrate_steam;
+        mp_steam_host();
+        return;
+    }
+    global.mp_cfg_port = global.mp_migrate_port;
+    mp_host_start(global.mp_cfg_port);
 }

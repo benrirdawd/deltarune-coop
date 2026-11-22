@@ -467,6 +467,9 @@ function mp_test_input()
         }
         mp_log("[test] bought item " + mp_test_arg("buy") + " gold now " + string(global.gold));
     }
+    // leaveat:<frame>: leave the session then (the host leaving, for the new-host test).
+    if (mp_test_arg("leaveat") != "" && mp_on() && global.mp_frame == real(mp_test_arg("leaveat")))
+        mp_disconnect("You left the session.");
     // holdx: hold X all the time (speeds text up; set in the input state, so it works unfocused).
     if (mp_test_has("holdx"))
         global.input_held[5] = 1;
