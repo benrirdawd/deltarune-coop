@@ -44,6 +44,7 @@ function mp_sync_init()
     global.mp_pre_party = [1, 0, 0];
     global.mp_calm_party = [1, 0, 0];
     global.mp_calm_dz = 0;
+    global.mp_calm_room = -1;
     global.mp_room_plot = 0;
     global.mp_gameover = 0;
     global.mp_scenes_killed = 0;
@@ -976,6 +977,7 @@ function mp_sync_tick()
         global.mp_calm_plot = global.plot;
         global.mp_calm_party = [global.char[0], global.char[1], global.char[2]];
         global.mp_calm_dz = mp_dz();
+        global.mp_calm_room = room;
     }
 }
 
@@ -1006,7 +1008,10 @@ function mp_story_rise(ia, battle)
     // Story progress from before the cutscene, so it triggers for them too.
     global.mp_pre_plot = global.mp_calm_plot;
     global.mp_pre_party = global.mp_calm_party;
-    global.mp_pre_dz = global.mp_calm_dz;
+    // (The world as well, unless that was in another room: a scene that starts on entering a room
+    // after a join or a pull, before I was ever free there, would send the last room's world, and
+    // the players watching it end up in the Dark World in a Light World room: Chapter 4 church.)
+    global.mp_pre_dz = global.mp_calm_room == room ? global.mp_calm_dz : mp_dz();
     // Started on entering the room: pulled players must enter it as well.
     global.mp_pre_entry = global.mp_room_frames < 30 || !global.mp_room_calm;
     // (Cutscene controllers can linger after their cutscene: only a new one counts.)
@@ -1046,6 +1051,16 @@ function mp_room_ok(rm)
         return false;
     var n = room_get_name(rm);
     return string_pos("room_", n) == 1 && string_pos("gameover", n) == 0;
+}
+
+// The opening of a chapter before its first real room (title, the legend, the intro that leads to
+// the file select) and the developers' test rooms: nowhere to send a player who is in the game.
+function mp_room_title(rm)
+{
+    var n = room_get_name(rm);
+    return n == "room_intro" || string_pos("room_intro_ch", n) == 1 || n == "room_title_placeholder"
+        || n == "room_legend" || n == "room_legend_neo" || n == "room_battletest" || n == "room_gms_debug_failsafe"
+        || (string_pos("room_", n) == 1 && string_pos("_tester", n) > 0);
 }
 
 // Instance id of the newest cutscene controller (Chapter 2+), or -1.

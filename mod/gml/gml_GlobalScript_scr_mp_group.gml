@@ -17,6 +17,7 @@ function mp_group_init()
     global.mp_gid = 0;
     global.mp_gid_seq = 0;
     global.mp_b_leader = 0;
+    global.mp_enc_forced = 0;
     global.mp_b_mask = 255;
     global.mp_b_story = 0;
     global.mp_b_open = global.mp_open;
@@ -39,6 +40,14 @@ function mp_group_init()
     global.mp_join_target = -1;
     global.mp_join_asked = -99999;
     global.mp_my_touch = "";
+}
+
+// The game set this encounter's party itself (see core.hook): fought like a story battle.
+function mp_enc_game_party(forced)
+{
+    if (forced && !global.mp_enc_forced)
+        mp_log("encounter " + string(global.encounterno) + ": the game sets its party, fought by the whole party");
+    global.mp_enc_forced = forced;
 }
 
 function mp_b_lead()
@@ -68,6 +77,7 @@ function mp_gid_ensure(mask, story)
 function mp_gid_clear()
 {
     global.mp_gid = 0;
+    global.mp_enc_forced = 0;
     global.mp_b_mask = 255;
     global.mp_b_story = 0;
 }
@@ -88,7 +98,9 @@ function mp_open_fight()
 // ---------------------------------------------------------------- who is nearby
 
 // Other players on my screen, in my room, and free to fight.
-function mp_nearby_mask()
+// watchers: my own cutscene has just ended (a fight right after it), so the ones still shown in a
+// cutscene here were watching mine and come along too.
+function mp_nearby_mask(watchers)
 {
     var m = 1 << global.mp_myid;
     var cam = view_camera[0];
@@ -100,7 +112,7 @@ function mp_nearby_mask()
     {
         if (i == global.mp_myid || !global.mp_pconn[i] || global.mp_proom[i] != room)
             continue;
-        if ((global.mp_pstate[i] & 3) != 0) // in a fight or a cutscene
+        if ((global.mp_pstate[i] & 1) != 0 || ((global.mp_pstate[i] & 2) != 0 && !watchers)) // in a fight or a cutscene
             continue;
         if (global.mp_px[i] >= cx && global.mp_px[i] <= (cx + cw) && global.mp_py[i] >= cy && global.mp_py[i] <= (cy + ch))
             m |= (1 << i);
@@ -229,26 +241,68 @@ function mp_heroes_place()
 // event, so one that isn't drawn does nothing but be there.
 function mp_stand_in_make()
 {
-    if (instance_exists(obj_herokris))
-        return;
-    var k = instance_create(global.heromakex[0], global.heromakey[0], obj_herokris);
-    k.myself = 0;
-    k.char = 1;
-    k.visible = 0;
-    global.mp_stand_in = k;
-    mp_log("stand-in Kris for this fight");
+    // Kris always (as above); and whoever else the story has in the party but who isn't in this fight
+    // (one hero per player): enemies talk to them and look for them (Elnina & Lanino's controller reads
+    // obj_heroralsei.x and crashes without him). Slot = their place in a full party, for where they stand.
+    var nm = ["", "obj_herokris", "obj_herosusie", "obj_heroralsei", "obj_heronoelle"];
+    global.mp_stand_ins = [];
+    for (var c = 1; c <= 4; c++)
+    {
+        var obj = asset_get_index(nm[c]);
+        if (obj < 0 || instance_exists(obj))
+            continue;
+        var want = c == 1;
+        if (global.mp_party_local)
+        {
+            for (var s = 0; s < 3; s++)
+            {
+                if (global.mp_party_story[s] == c)
+                    want = true;
+            }
+        }
+        if (!want)
+            continue;
+        var slot = min(c - 1, 2);
+        var k = instance_create(global.heromakex[slot], global.heromakey[slot], obj);
+        k.myself = slot;
+        k.char = c;
+        k.visible = 0;
+        array_push(global.mp_stand_ins, k);
+        if (c == 1)
+            global.mp_stand_in = k;
+        mp_log("stand-in " + nm[c] + " for this fight");
+    }
+    // Some enemies were written for the full party, Kris in place 0, Susie 1, Ralsei 2 (chapter 4's
+    // incense clouds take HP from all three and then read global.charinstance[2].x): an empty place
+    // points at that place's stand-in, not at nothing. (Out-of-fight heroes get their HP back after
+    // the fight, mp_fight_settle.)
+    for (var s = 0; s < 3; s++)
+    {
+        if (global.char[s] != 0)
+            continue;
+        for (var i = 0; i < array_length(global.mp_stand_ins); i++)
+        {
+            if (instance_exists(global.mp_stand_ins[i]) && global.mp_stand_ins[i].myself == s)
+                global.charinstance[s] = global.mp_stand_ins[i];
+        }
+    }
 }
 
-// Whatever the game does to its heroes, this one stays out of sight.
 function mp_stand_in_tick()
 {
-    if (variable_global_exists("mp_stand_in") && instance_exists(global.mp_stand_in))
+    if (!variable_global_exists("mp_stand_ins"))
+        return;
+    for (var i = 0; i < array_length(global.mp_stand_ins); i++)
     {
-        with (global.mp_stand_in)
+        var k = global.mp_stand_ins[i];
+        if (instance_exists(k))
         {
-            visible = 0;
-            x = global.heromakex[0];
-            y = global.heromakey[0];
+            with (k)
+            {
+                visible = 0;
+                x = global.heromakex[myself];
+                y = global.heromakey[myself];
+            }
         }
     }
 }
@@ -334,10 +388,18 @@ function mp_battle_add_hero(slot, c)
     if (obj < 0 || !instance_exists(obj_battlecontroller))
         return;
     mp_log("hero " + string(c) + " joins the fight in slot " + string(slot));
-    if (c == 1 && variable_global_exists("mp_stand_in") && instance_exists(global.mp_stand_in))
+    // (Their invisible stand-in, if there was one, makes way.)
+    if (variable_global_exists("mp_stand_ins"))
     {
-        with (global.mp_stand_in)
-            instance_destroy();
+        for (var i = 0; i < array_length(global.mp_stand_ins); i++)
+        {
+            var k = global.mp_stand_ins[i];
+            if (instance_exists(k) && k.char == c)
+            {
+                with (k)
+                    instance_destroy();
+            }
+        }
     }
     global.char[slot] = c;
     global.charmove[slot] = 1;

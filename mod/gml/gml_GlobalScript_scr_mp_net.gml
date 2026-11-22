@@ -614,6 +614,13 @@ function mp_handle_link(type, sender, b, p)
     {
         if (p.pid >= 0)
             return true; // duplicate
+        // (Test runs: a host still setting its scenario up takes nobody in yet; the player asks again.
+        // Joining a host still on the title screen gave the newcomer the title's blank state.)
+        if (global.mp_test != "" && mp_test_has("party") && global.mp_test_state == 0)
+        {
+            mp_peer_free(p);
+            return true;
+        }
         var magic = buffer_read(b, buffer_string);
         var ver = buffer_read(b, buffer_u16);
         var ch = buffer_read(b, buffer_u8);

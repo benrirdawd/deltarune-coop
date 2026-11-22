@@ -431,9 +431,21 @@ function mp_enc_gate()
             // Call over whoever comes along: the battle scene itself only begins after the horn.
             if (global.mp_gid == 0)
             {
+                // A fight right after a cutscene I led: its end only goes out after 20 still frames,
+                // so the ones watching it were still in it, left out of the fight and stuck watching.
+                // They are let go first (the end before the pull) and called like anyone nearby.
+                var watchers = global.mp_sstate == 1 && global.mp_slead == global.mp_myid;
+                if (watchers)
+                {
+                    mp_log("fight right after my cutscene: ending it for the watchers first");
+                    mp_vars_send_changes(true);
+                    mp_send_cend();
+                    global.mp_sstate = 0;
+                    global.mp_slead = -1;
+                }
                 // (Test token "story": this encounter behaves like a story battle.)
-                var story = global.mp_test != "" && mp_test_has("story");
-                mp_gid_ensure((global.mp_open && !story) ? mp_nearby_mask() : 255, story);
+                var story = (global.mp_test != "" && mp_test_has("story")) || global.mp_enc_forced;
+                mp_gid_ensure((global.mp_open && !story) ? mp_nearby_mask(watchers) : 255, story);
                 if (global.mp_open && !story)
                     mp_party_set_local(mp_party_of(global.mp_b_mask));
             }

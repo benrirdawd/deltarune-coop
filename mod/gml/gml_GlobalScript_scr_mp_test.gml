@@ -232,6 +232,41 @@ function mp_test_tick()
             scr_caterpillar_interpolate();
         }
     }
+    // A room entered straight at a story point puts you at its default start, which can be inside
+    // something solid (Kris's bed after the wake-up scene: in play you are out of it by then, and
+    // come back in through the door). Out of it to the nearest free spot, in the first seconds only
+    // and never during a cutscene (the wake-up scene has Kris in bed on purpose).
+    if (global.mp_test_state == 1 && global.mp_test_timer > 20 && global.mp_test_timer < 300 && (global.mp_test_timer mod 10) == 0 && global.interact == 0 && global.mp_sstate == 0 && instance_exists(obj_mainchara) && !instance_exists(obj_battlecontroller))
+    {
+        with (obj_mainchara)
+        {
+            if (place_meeting(x, y, obj_solidblock))
+            {
+                var done = false;
+                for (var r = 4; r <= 160 && !done; r += 4)
+                {
+                    for (var a = 0; a < 360 && !done; a += 45)
+                    {
+                        var nx = x + round(lengthdir_x(r, a));
+                        var ny = y + round(lengthdir_y(r, a));
+                        if (!place_meeting(nx, ny, obj_solidblock))
+                        {
+                            mp_log("[test] start position " + string(x) + "," + string(y) + " is inside something solid: moved to " + string(nx) + "," + string(ny));
+                            x = nx;
+                            y = ny;
+                            done = true;
+                        }
+                    }
+                }
+                with (obj_caterpillarchara)
+                {
+                    x = obj_mainchara.x;
+                    y = obj_mainchara.y;
+                    scr_caterpillar_interpolate();
+                }
+            }
+        }
+    }
     // watchplot: log story progress, party and what the room's story events are doing every 5 s
     if (mp_test_has("watchplot") && (global.mp_frame mod 150) == 0 && variable_global_exists("plot"))
     {
@@ -609,6 +644,10 @@ function mp_test_check()
     var s = "[MPCHK] t=" + string(current_time) + " wc=" + string_format(global.mp_test_ws - ((global.mp_test_wb - current_time) / 1000), 1, 3) + " f=" + string(global.mp_frame) + " id=" + string(global.mp_myid);
     s += " on=" + string(mp_on()) + " want=" + string(global.mp_cfg_char);
     s += " room=" + room_get_name(room) + " x=" + string(round(mx)) + " y=" + string(round(my));
+    // What the player walks with when it is not Kris (Chapter 4 basement: a heart, Kris parked off screen)
+    var hobj = asset_get_index("obj_homealone_heart");
+    if (hobj >= 0 && instance_exists(hobj))
+        s += " walk=" + string(round(hobj.x)) + "," + string(round(hobj.y));
     var ddx = global.mp_my_x;
     var ddy = global.mp_my_y;
     var dspr = global.mp_my_spr;

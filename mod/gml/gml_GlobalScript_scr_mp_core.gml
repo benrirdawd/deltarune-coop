@@ -538,6 +538,9 @@ function mp_tick()
         mp_enc_lead_tick();
         mp_leader_check();
         mp_hold_tick();
+        // (Test self-checks go on while waiting to join a fight: a long wait is not a freeze.)
+        if (global.mp_test != "" && mp_test_has("check") && (global.mp_frame mod 30) == 0)
+            mp_test_check();
         return;
     }
     if (global.mp_test != "")

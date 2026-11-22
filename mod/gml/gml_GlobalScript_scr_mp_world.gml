@@ -560,6 +560,8 @@ function mp_join_warp_tick()
     }
     if (!global.mp_pconn[0] || global.mp_proom[0] < 0 || !mp_room_ok(global.mp_proom[0]))
         return; // the host's position hasn't arrived yet (it's resent at least every 1.5 s)
+    if (mp_room_title(global.mp_proom[0]))
+        return; // the host is on the title screen / file select: go when it's in the game
     if ((global.mp_sstate != 0 && global.mp_slead == 0) || (is_array(global.mp_pull) && global.mp_pull[1] == 0))
     {
         mp_log("join: already following the host");

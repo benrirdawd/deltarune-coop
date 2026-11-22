@@ -237,6 +237,7 @@ keep the last writer's value instead of adding up.
 
 | Issue | Fix | Effort |
 |---|---|---|
+| Minigames have no multiplayer handling (only the Ch3 board and the Ch5 platformer do): the rhythm game (`obj_rhythmgame`, Ch3; its code is also in Ch4/5), the chefs/kitchen game (Ch3), the quiz/game show (Ch3), climbing (`obj_climb`, Ch4/5), the organ (Ch4). Each player plays their own copy while the others' walking ghosts are drawn over it. | First, for all of them: detect the minigame, hide the ghosts, show "P2 is playing" and let one player play while the others watch (or play their own copy, then take the host's result). Then per game: **rhythm** - each player plays their character's chart (the game already has three: Kris guitar, Susie drums, Ralsei vocals, the last two on autoplay), hits sent and the score added up; **climbing** - the others shown as ghosts on the wall, as in the platformer; **quiz/game show** - each player buzzes for their character. | M (fallback); L per game |
 | Special battle styles (Spamton NEO, Berdly/Queen, Chapter 4/5 gimmick fights) likely only partly sync. | Detect special battles and fall back to "one player drives the battle, everyone else spectates and dodges". Later, hand-sync individual fights people care about. | S–M (fallback); L per fight |
 
 ## Priority 4 — cosmetic

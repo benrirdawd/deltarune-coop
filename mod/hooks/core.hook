@@ -219,6 +219,34 @@ mp_enemy_touched();
 if (con == 1 && !mp_enc_gate())
     exit;
 
+;; Chapter 4's boss fights (Titans, the pumpkin, the statue, Elnina & Lanino's rematch) set the whole
+;; party themselves as they start (scr_setchar there): they're fought like story battles, with the
+;; game's party in every game, not one hero per player (their enemies need Ralsei and Susie).
+#chapters 4
+@append gml_Object_obj_testoverworldenemy_Other_10
+mp_enc_game_party(global.encounterno == 174 || global.encounterno == 175 || global.encounterno == 176 || global.encounterno == 177 || global.encounterno == 178 || global.encounterno == 186);
+#chapters all
+
+;; Noelle's house (chapter 4): the basement overlay follows the heart and Noelle's light, which the
+;; story scene creates. A player who only watched that scene (it played in another game) has the
+;; overlay but not what it follows: nothing to follow, nothing drawn, instead of a crash.
+#chapters 4
+@prepend gml_Object_obj_noellehouse_basement_overlay_Draw_0
+if (heart_target != -4 && !instance_exists(heart_target))
+    heart_target = -4;
+if (noelle_light_target != -4 && !instance_exists(noelle_light_target))
+    noelle_light_target = -4;
+#chapters all
+
+;; Chapter 1's text box only gets its face (myface) a frame after it is made. Closed sooner (a player
+;; watching another's cutscene gets the next text box while the last one is still that new), its
+;; Destroy read the face that was not there yet and crashed (room_cc_prisonlancer).
+#chapters 1
+@prepend gml_Object_obj_dialoguer_Destroy_0
+if (!variable_instance_exists(id, "myface"))
+    myface = -4;
+#chapters all
+
 ;; A fight's own party: the intro shows who is really in it.
 @append gml_Object_obj_encounterbasic_Create_0
 mp_intro_markers();
