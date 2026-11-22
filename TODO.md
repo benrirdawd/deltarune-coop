@@ -76,7 +76,10 @@ Follow-up (only the related scenarios re-run after each fix):
 * **Later (not now):** players left out of a fight (their hero isn't in the story party, isn't
   in the story yet, is taken by someone else, or a 4th+ player) only watch. Planned: support for up
   to 5 players and a proper spectator role for them.
-* **Not tested yet** (built only).
+* **Tested** (Ch1 encounter 13, 3 players: host Kris at 1 HP via the new `fragile` token, P2 Susie,
+  P3 also Kris, random menus): the downed host's SOUL was hit and cost TP; the turn state, TP
+  included, was identical in all three games; Susie's lock applied every turn; P3 watched. The
+  fight ended in a real Game Over (both heroes down).
 
 ## Reading cutscenes together, 2026-11-22
 
@@ -92,7 +95,13 @@ Follow-up (only the related scenarios re-run after each fix):
   at its first box for everyone in it ("X is in a fight: the scene goes on when it's over", at most
   5 minutes); the fighter is pulled in when the fight ends and catches up.
 * Any player can start a shared cutscene and pull the others (not only the host): already so.
-* **Not tested yet** (built only).
+* **Tested** (Ch2 Queen intro, host walks in, client watching a copy of the host's scene and the
+  only one pressing Z): all 39 pages were turned by the client, the scene ended for both. Three bugs
+  found and fixed on the way: a watcher's Z/X were swallowed with every other key (only choices and
+  arrows stay blocked now); a box that finished typing in the same frame as a Z closed without
+  being counted (Z is held back while a box types, it does nothing there anyway); the X flag lasted
+  one frame and was lost (now kept for the whole box). With the client holding X (`holdx` test
+  token), the host's boxes were typed out 9 times on its X.
 
 ## Steam play and WASD, 2026-11-22
 
@@ -326,7 +335,7 @@ All done on 2026-11-22 (built, **not tested in game yet**):
 | Downed players' SOUL did nothing when hit. | It stays playable, darker, grazes for TP; a hit costs 2x the bullet's graze TP (see "Battles: live TP..."). |
 | Players who only watched a cutscene were dropped at the leader's final position abruptly. | The screen fades out (about 1/3 s) before the move and fades back in after it (`mp_cs_end_fade_tick`). |
 | Moving to the next chapter disconnects everyone. | IP sessions already resumed (`mp_resume_save/load`, within 15 minutes). Steam sessions now do too: the host opens a lobby with the same code and the others search for it again for about a minute (`drs_lobby_get` gives joiners the code). |
-| Game Over: after Continue, players can end up in different rooms. | Clients already went to the host after Continue; they now wait (up to 2 minutes) until the host has reloaded too and is in a normal room, not still on the Game Over screen. |
+| Game Over: after Continue, players can end up in different rooms. | Clients already went to the host after Continue; they now wait (up to 2 minutes) until the host has reloaded too and is in a normal room, not still on the Game Over screen. (Not testable with the test harness: it has no save file to reload.) |
 | Same character twice: the second player silently became a spectator. | Kept, but on purpose: the host numbers character picks; whoever picked a character first plays it, the others watch that player's SOUL in fights and take over, first come first, when they change character or leave. F9 says so when you pick a taken character. (Overworld: both still walk around as that character.) |
 | Puzzles/set pieces can leave a player stuck. | Already there: F8 goes to the host (twice within 5 s also frees a stuck state), Shift+F8 brings everyone to the host; arrival fades in. |
 | Random ACT outcomes could briefly differ. | Besides the seed at each hero's action, the RNG is now re-seeded identically each time one of the action's text boxes opens or closes. |
