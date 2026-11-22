@@ -282,3 +282,7 @@ $1
 @with
 ($1(global.input_k[$2]) || mp_wasd($2))
 @end
+
+;; A client saves: the host saves too, so the host's file (the shared story) is never behind.
+@prepend gml_GlobalScript_scr_save
+mp_on_save();

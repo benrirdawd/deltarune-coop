@@ -33,6 +33,8 @@ function mp_inv_init()
     global.mp_inv_needreset = true;
     global.mp_gold_sh = 0;
     global.mp_gold_pending = 0;
+    global.mp_save_want = 0;
+    global.mp_save_who = "";
 }
 
 // After a full snapshot or a load: what I have now is the starting point.
@@ -128,6 +130,7 @@ function mp_inv_apply_ops(nm, outs, ins)
 // Every shared-state tick (mp_vars_tick, only when nothing is in the way).
 function mp_inv_tick()
 {
+    mp_save_tick();
     if (global.mp_inv_needreset)
     {
         global.mp_inv_needreset = false;
@@ -332,6 +335,15 @@ function mp_inv_recv(type, from, b)
         ds_list_add(global.mp_inv_hostq, [from, seq, ops]);
         return;
     }
+    if (type == 25)
+    {
+        if (global.mp_role == 1 && from >= 0 && from < 8)
+        {
+            global.mp_save_want = current_time;
+            global.mp_save_who = global.mp_pname[from];
+        }
+        return;
+    }
     if (type == 24)
     {
         if (global.mp_role != 2)
@@ -365,4 +377,33 @@ function mp_inv_forward(from, who, d)
         mp_wf64(d);
         mp_send_to(p);
     }
+}
+
+// ---------------------------------------------------------------- saving
+
+// Prepended to scr_save. A client's save asks the host to save as well (message 25).
+function mp_on_save()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || global.mp_role != 2)
+        return;
+    mp_begin(25);
+    mp_send();
+}
+
+// Host: saves when a client did, as soon as nothing is in the way (up to a minute later).
+function mp_save_tick()
+{
+    if (global.mp_role != 1 || global.mp_save_want == 0)
+        return;
+    if ((current_time - global.mp_save_want) > 60000)
+    {
+        global.mp_save_want = 0;
+        return;
+    }
+    if (global.interact != 0 || global.mp_sstate != 0 || mp_in_battle_scene() || !instance_exists(obj_mainchara) || global.filechoice < 0)
+        return;
+    global.mp_save_want = 0;
+    scr_save();
+    mp_notify("Saved (" + global.mp_save_who + " saved).");
+    mp_log("saved because " + global.mp_save_who + " did");
 }

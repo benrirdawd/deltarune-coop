@@ -477,7 +477,7 @@ function mp_handle(type, sender, b, sock, endpos)
         mp_vars_recv(sender, b);
         return;
     }
-    if (type >= 22 && type <= 24)
+    if (type >= 22 && type <= 25)
     {
         mp_inv_recv(type, sender, b);
         return;
