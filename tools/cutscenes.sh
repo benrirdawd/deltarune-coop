@@ -4,7 +4,10 @@
 # The client must be pulled in and the cutscene must play in its game too (never a frozen
 # spectator); afterwards everyone is back in free roam. Results via tools/mpcheck.py.
 # Usage: cutscenes.sh [seconds] [nclients] [scenario...]
-ROOT=$(cd "$(dirname "$0")/.." && pwd)
+# (Linux with Wine + Xvfb, or Git Bash on Windows with the native game; see tools/platform.sh.)
+. "$(dirname "$0")/platform.sh"
+# Games run 20x faster once connected (test token speed:20); MP_SPEED=1 for normal speed.
+export MP_SPEED=${MP_SPEED:-20}
 SECS=${1:-75}; NC=${2:-1}; shift 2
 # name: chapter | host room | plot | extra host tokens | client room
 declare -A S=(
@@ -29,7 +32,7 @@ for n in $LIST; do
     OUT=$ROOT/work/cut_$n
     MPTEST_OUT=$OUT NOBUILD=1 SHOTS="${SHOTS:-30 60 90}" "$ROOT/tools/mptest.sh" $CH $XS "$HT" "$CT" $NC >/dev/null 2>&1
     echo "=== $n (chapter $CH, custom)"
-    python3 "$ROOT/tools/mpcheck.py" $OUT --strict-end | sed 's/^/  /'
+    $PY "$(mp_path "$ROOT/tools/mpcheck.py")" "$(mp_path "$OUT")" --strict-end | sed 's/^/  /'
     continue
   fi
   IFS='|' read -r CH HR PL HX CR <<< "${S[$n]}"
@@ -38,6 +41,6 @@ for n in $LIST; do
     "party,room:$HR,plot:$PL,check,mash,log,$HX" "party,room:$CR,plot:$PL,check,mash,log,wander" $NC >/dev/null 2>&1
   echo "=== $n (chapter $CH: host in $HR, client in $CR)"
   grep -h "MPD.*\(send pull\|got pull\|watching\)\|Joining" $OUT/*.log | sed 's/^/    /'
-  python3 "$ROOT/tools/mpcheck.py" $OUT --strict-end | sed 's/^/  /'
+  $PY "$(mp_path "$ROOT/tools/mpcheck.py")" "$(mp_path "$OUT")" --strict-end | sed 's/^/  /'
 done
-pkill -x DELTARUNE.exe
+mp_killall "$ROOT/build/game"

@@ -204,7 +204,8 @@ first (a GitHub repository whose latest release has `latest.txt` and `DeltaruneO
 or a public Google Drive folder). It installs the highest version any source offers.
 
 Building the patcher needs the .NET 10 SDK and an UndertaleModTool checkout
-(`-p:UTMTRoot=...`, default `~/tools/UndertaleModTool`). The patcher's other commands are:
+(`-p:UTMTRoot=...`, default `~/tools/UndertaleModTool`; last checked with commit `fbd4e79b`, 2026-11-21,
+cloned with `--recursive` for Underanalyzer). The patcher's other commands are:
 
 ```
 drm-patcher <in data.win> <out data.win> <mod dir> <chapter>   # patch one file
@@ -215,6 +216,32 @@ drm-patcher --find-object <data.win> <object>                  # which rooms con
 
 The patcher refuses to build if the mod references an object, sprite, sound, script or room
 that the target chapter doesn't have.
+
+### Running the tests on Windows
+
+`tools/build.sh`, `mkgamedir.sh`, `run_game.sh`, `mptest.sh`, `regress.sh` and `cutscenes.sh` also
+run from Git Bash with the native game (`tools/platform.sh` holds the differences):
+
+```
+dotnet build patcher/DRMPatcher.csproj -c Release -p:UTMTRoot=<UndertaleModTool> -o patcher/bin/out
+DELTARUNE_DIR=/d/Games/DELTARUNE tools/build.sh      # or a DELTARUNE link in the repo
+tools/regress.sh
+```
+
+* The game folder comes from `DELTARUNE_DIR`, else `./DELTARUNE`, else `D:\Hydra\Deltarune`, else Steam's.
+  `DOTNET_ROOT` defaults to `~/tools/dotnet10` when that exists.
+* Test builds are named `DELTARUNE_MP_TEST` (`DRM_SAVE_NAME`), so they save to
+  `%LOCALAPPDATA%\DELTARUNE_MP_TEST` and never touch the real saves. `DRM_SAVE_NAME=` builds with the game's name.
+* `build/game` is made of native symlinks: Windows needs Developer Mode (or an admin shell).
+  `DELTARUNE.exe` and the `.ini` files are copied; the tests only stop games started from there.
+* Each game is a real window, tiled on the desktop and set to below-normal priority
+  (`tools/winwindow.ps1`, which also takes the screenshots). The first run asks for firewall access;
+  the tests use 127.0.0.1, which works either way.
+* Tests run the games 20 times faster (`MP_SPEED`, default 20; `MP_SPEED=1` for normal speed): the
+  test token `speed:N`, switched on once another player is connected. Seconds given to the tests are
+  game time at normal speed. `regress.sh` takes about 3 minutes instead of 10.
+* `sweep.py` runs on Windows too (`--speed`, same default). The side-by-side screenshots (`SHOTS=...`)
+  need Pillow (`pip install pillow`); `flow.py`, `keys.sh` and `aiplay.py` (xdotool) are still Linux only.
 
 ## Testing that was done
 

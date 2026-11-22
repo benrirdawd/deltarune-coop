@@ -235,7 +235,7 @@ def main():
             if long_ia == 60:  # 30 s
                 fails["sync"].append(f"{nm} t={s['wc']:.1f}: stuck in sync state {s['sst']} for 30 s")
         # moved
-        P["pos"] = {(s["room"], s["dx"], s["dy"]) for s in P["s"]}
+        P["pos"] = {(s["room"], s["dx"], s["dy"], s.get("walk", "")) for s in P["s"]}
         P["free"] = sum(1 for s in P["s"] if FREE(s) and (s["x"] != -1 or s.get("plat") == "1"))
     # moved: somebody walked, and players were not glued to each other
     counts["moved"] += 1

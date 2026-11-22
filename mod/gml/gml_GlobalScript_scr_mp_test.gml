@@ -34,6 +34,10 @@
 //   story           with battle: the encounter is treated as a story battle (calls everyone)
 //   bringat:<frame> host: bring everyone over at this frame
 //   battleclk:<ms>  with battle: wait for this moment of the shared clock (host's ms since start)
+//   speed:<n>       run the game n times faster (30*n frames a second) to make tests quicker;
+//                   the cutscene catch-up (mp_dlg_speed) still doubles on top of it
+//   fastboot        with speed: the title / file select before `party` runs fast as well
+//   players:<n>     with speed: speed up once n players (me included) are connected (default 2)
 
 function mp_test_has(tok)
 {
@@ -61,6 +65,49 @@ function mp_test_tick()
         global.mp_test_lastturn = -1;
     }
     global.mp_test_timer += 1;
+    // speed:<n>: n times the normal 30 frames a second (kept up in case the game sets it back).
+    // Only from the moment another player is connected: the games start a few real seconds
+    // apart, and sped up before that the host would play through the scenario alone.
+    // players:<n>: wait for n players in all (default 2), so nobody who starts a little later misses
+    // the beginning.
+    if (mp_test_arg("speed") != "" && !variable_global_exists("mp_test_fast") && mp_on())
+    {
+        var want = mp_test_arg("players") != "" ? real(mp_test_arg("players")) : 2;
+        var have = 1;
+        for (var si = 0; si < 8; si++)
+        {
+            if (si != global.mp_myid && global.mp_pconn[si])
+                have += 1;
+        }
+        if (have >= want)
+        {
+            global.mp_test_fast = 1;
+            // The scenario's own countdowns (battle:, walk: ...) start again from here when the party
+            // is already set up: everyone in before it goes on, as it would be at normal speed.
+            // (Otherwise a battle due while waiting started the very frame the others joined, before
+            // their positions arrived, and left the last one out.)
+            if (global.mp_test_state >= 1)
+                global.mp_test_timer = 0;
+        }
+    }
+    // fastboot (with speed): the opening (title, file select) runs fast too, until the party setup;
+    // then normal speed until someone is connected. (Not with partyat: waiting at the title is
+    // part of those scenarios.)
+    var boot = mp_test_has("fastboot") && mp_test_arg("speed") != "" && global.mp_test_state == 0;
+    if ((variable_global_exists("mp_test_fast") || boot) && !(variable_global_exists("mp_dlg_fast") && global.mp_dlg_fast))
+    {
+        var tfps = 30 * real(mp_test_arg("speed"));
+        if (game_get_speed(gamespeed_fps) != tfps)
+        {
+            game_set_speed(tfps, gamespeed_fps);
+            show_debug_message("[MP] test speed: " + string(tfps) + " frames a second");
+        }
+    }
+    else if (mp_test_has("fastboot") && !variable_global_exists("mp_test_fast") && !(variable_global_exists("mp_dlg_fast") && global.mp_dlg_fast) && game_get_speed(gamespeed_fps) != 30)
+    {
+        game_set_speed(30, gamespeed_fps);
+        show_debug_message("[MP] test speed: 30 frames a second (set up, waiting for the others)");
+    }
     // immortal: my heroes stay at full HP (the others can go down without a Game Over).
     // revive:<n>: n frames into spectating, my heroes get half their HP back.
     if (variable_global_exists("mp_b_active") && mp_battle_on())
@@ -159,6 +206,11 @@ function mp_test_tick()
         if (rn == "")
             rn = "room_field1";
         global.interact = 0;
+        // A host sets its world up like loading a save: everyone gets the whole state now. (Sent as
+        // ordinary changes it waits for the end of the room's cutscene, and a client that joined at
+        // the file select would follow the host into the room with the file select's blank state.)
+        if (global.mp_role == 1)
+            global.mp_loaded = 1;
         room_goto(asset_get_index(rn));
         global.mp_test_timer = 0;
         mp_notify("[test] party ready, going to " + rn);
