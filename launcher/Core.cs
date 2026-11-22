@@ -41,7 +41,10 @@ namespace DeltaruneOnline
     class Core
     {
         public const string ExeName = "DELTARUNE Online.exe";
-        public readonly string Root, App, Game, Logs, StateFile, InstalledExe;
+        // In the DELTARUNE folder: the co-op copy of the game lives in COOP\, and DELTARUNE COOP.exe next
+        // to DELTARUNE.exe starts it straight away.
+        public const string CoopDir = "COOP", CoopExe = "DELTARUNE COOP.exe";
+        public readonly string Root, App, Logs, StateFile, InstalledExe, OldGame;
         readonly Dictionary<string, string> state = new Dictionary<string, string>();
 
         // Progress for the window to show. -1 = no bar, otherwise 0..1.
@@ -54,12 +57,16 @@ namespace DeltaruneOnline
             if (string.IsNullOrEmpty(Root))
                 Root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DeltaruneOnline");
             App = Path.Combine(Root, "app");
-            Game = Path.Combine(Root, "game");
+            OldGame = Path.Combine(Root, "game");
             Logs = Path.Combine(Root, "logs");
             StateFile = Path.Combine(Root, "state.txt");
             InstalledExe = Path.Combine(Root, ExeName);
             LoadState();
         }
+
+        // The patched copy: <DELTARUNE>\COOP once the game is known (before: <Root>\game).
+        public string Game => IsGame(GameDir) ? Path.Combine(GameDir, CoopDir) : OldGame;
+        public string CoopLauncher => IsGame(GameDir) ? Path.Combine(GameDir, CoopExe) : "";
 
         public static bool TestMode => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DRO_ROOT"));
         public static string RunningExe => Assembly.GetExecutingAssembly().Location;
@@ -658,6 +665,29 @@ namespace DeltaruneOnline
             state["failed"] = failed.ToString();
             SaveState();
             Log($"patched version {AppVersion}: {done} chapters, {failed} failed");
+            PlaceCoopLauncher();
+            // The copy used to live in AppData: not needed any more once COOP\ has one.
+            if (!string.Equals(Path.GetFullPath(Game), Path.GetFullPath(OldGame), StringComparison.OrdinalIgnoreCase) && Directory.Exists(OldGame))
+            {
+                try { DeleteDir(OldGame); Log("removed the old game copy in " + OldGame); }
+                catch (Exception e) { Log("couldn't remove " + OldGame + ": " + e.Message); }
+            }
+        }
+
+        // DELTARUNE COOP.exe next to DELTARUNE.exe: this launcher, which, started under that name,
+        // starts the co-op game straight away (Program.PlayNow).
+        public void PlaceCoopLauncher()
+        {
+            var dst = CoopLauncher;
+            if (dst == "") return;
+            var src = File.Exists(InstalledExe) ? InstalledExe : RunningExe;
+            try
+            {
+                if (File.Exists(dst) && Hash(dst) == Hash(src)) return;
+                File.Copy(src, dst, true);
+                Log("placed " + dst);
+            }
+            catch (Exception e) { Log("couldn't place " + dst + ": " + e.Message); }
         }
 
         // The file to patch for a chapter: the game's own data.win, or, when a mod manager such as Deltamod
@@ -710,6 +740,8 @@ namespace DeltaruneOnline
             foreach (var f in files)
             {
                 var rel = f.Substring(src.Length + 1);
+                // (Our own folder and starter live inside the DELTARUNE folder: not part of the game.)
+                if (rel.StartsWith(CoopDir + "\\", StringComparison.OrdinalIgnoreCase) || rel.Equals(CoopExe, StringComparison.OrdinalIgnoreCase)) continue;
                 wanted.Add(rel);
                 // (data.win is the patcher's; data.win.bak / .hash are a mod manager's backups.)
                 if (Path.GetFileName(rel).StartsWith("data.win", StringComparison.OrdinalIgnoreCase)) continue;
@@ -719,10 +751,10 @@ namespace DeltaruneOnline
                 todo.Add((f, di.FullName, fi.Length, fi.LastWriteTimeUtc));
                 total += fi.Length;
             }
-            var free = new DriveInfo(Path.GetPathRoot(Path.GetFullPath(Root))).AvailableFreeSpace;
-            long needed = total + files.Where(f => f.EndsWith("data.win", StringComparison.OrdinalIgnoreCase)).Sum(f => new FileInfo(f).Length);
+            var free = new DriveInfo(Path.GetPathRoot(Path.GetFullPath(Game))).AvailableFreeSpace;
+            long needed = total + files.Where(f => f.EndsWith("data.win", StringComparison.OrdinalIgnoreCase) && !f.Substring(src.Length + 1).StartsWith(CoopDir + "\\", StringComparison.OrdinalIgnoreCase)).Sum(f => new FileInfo(f).Length);
             if (free < needed + 100L * 1048576)
-                throw new Exception($"Not enough disk space: it needs about {needed / 1073741824.0 + 0.1:0.0} GB free on drive {Path.GetPathRoot(Root)}");
+                throw new Exception($"Not enough disk space: it needs about {needed / 1073741824.0 + 0.1:0.0} GB free on drive {Path.GetPathRoot(Path.GetFullPath(Game))}");
 
             long done = 0;
             var buf = new byte[1 << 20];
@@ -791,6 +823,8 @@ namespace DeltaruneOnline
         {
             if (!TestMode) foreach (var p in ShortcutPaths()) try { File.Delete(p); } catch { }
             DeleteDir(Game);
+            DeleteDir(OldGame);
+            if (CoopLauncher != "") try { File.Delete(CoopLauncher); } catch { }
             DeleteDir(App);
             try { File.Delete(StateFile); } catch { }
             Process.Start(new ProcessStartInfo("cmd.exe", $"/c ping 127.0.0.1 -n 3 > nul & rmdir /s /q \"{Root}\"")

@@ -61,6 +61,7 @@ namespace DeltaruneOnline
                 if (core.GameChangedOnly) note += " DELTARUNE was updated on Steam, so it was patched again.";
                 core.PatchGame();
             }
+            else core.PlaceCoopLauncher();   // (a new launcher: the copy in the DELTARUNE folder too)
             return note;
         }
 
