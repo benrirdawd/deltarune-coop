@@ -14,6 +14,8 @@ function mp_init()
     global.mp_pconn = array_create(8, 0);
     global.mp_pname = array_create(8, "");
     global.mp_pchar = array_create(8, 1);
+    global.mp_ppick = array_create(8, 0);   // when they picked their character (host's count): first comes first
+    global.mp_pick_n = 0;
     global.mp_plast = array_create(8, 0);
     global.mp_proom = array_create(8, -1);
     global.mp_px = array_create(8, 0);
@@ -97,8 +99,35 @@ function mp_players_clear()
     mp_ghosts_clear();
 }
 
+// Host: a player (re)picked their character, or joined with it: they go to the back of the line
+// for it. Whoever of the players with the same character picked it first plays it in fights; the
+// others watch them and take over, first come first, when that player changes character or leaves.
+function mp_pick_note(pid, chr)
+{
+    if (global.mp_role != 1)
+        return;
+    if (global.mp_pconn[pid] && global.mp_pchar[pid] == chr && global.mp_ppick[pid] > 0)
+        return;
+    global.mp_pick_n += 1;
+    global.mp_ppick[pid] = global.mp_pick_n;
+}
+
+// The player who plays character c (first to pick it among the connected), or -1.
+function mp_char_controller(c)
+{
+    var best = -1;
+    for (var i = 0; i < 8; i++)
+    {
+        if (global.mp_pconn[i] && global.mp_pchar[i] == c && (best < 0 || global.mp_ppick[i] < global.mp_ppick[best]))
+            best = i;
+    }
+    return best;
+}
+
 function mp_player_set(pid, conn, name, chr)
 {
+    if (conn)
+        mp_pick_note(pid, chr);
     global.mp_pconn[pid] = conn;
     global.mp_pname[pid] = name;
     global.mp_pchar[pid] = chr;
@@ -142,6 +171,7 @@ function mp_send_pinfo(pid)
     mp_wu8(global.mp_pconn[pid]);
     mp_wstr(global.mp_pname[pid]);
     mp_wu8(global.mp_pchar[pid]);
+    mp_wu16(min(global.mp_ppick[pid], 65535));
     mp_send();
 }
 
@@ -411,11 +441,13 @@ function mp_handle(type, sender, b, sock, endpos)
         var conn = buffer_read(b, buffer_u8);
         var nm = buffer_read(b, buffer_string);
         var chr = buffer_read(b, buffer_u8);
+        var pick = buffer_read(b, buffer_u16);
         if (global.mp_role == 1 && sender != 0)
         {
             // A client may only change its own character.
             if (pid != sender)
                 return;
+            mp_pick_note(pid, chr);
             global.mp_pchar[pid] = chr;
             mp_send_pinfo(pid);
             return;
@@ -427,6 +459,7 @@ function mp_handle(type, sender, b, sock, endpos)
             return;
         }
         mp_player_set(pid, conn, nm, chr);
+        global.mp_ppick[pid] = pick;
         // (Players already in the session when we joined arrive right after WELCOME: no pop-up.)
         if (!was && conn && pid != global.mp_myid && global.mp_role == 2 && global.mp_linkstate == 3 && (current_time - global.mp_welcome_time) > 2000)
             mp_notify(nm + " joined!");

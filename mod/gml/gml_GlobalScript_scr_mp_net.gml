@@ -685,6 +685,7 @@ function mp_handle_link(type, sender, b, p)
                 mp_wu8(1);
                 mp_wstr(global.mp_pname[j]);
                 mp_wu8(global.mp_pchar[j]);
+                mp_wu16(min(global.mp_ppick[j], 65535));
                 mp_send_to(p);
             }
         }

@@ -127,14 +127,15 @@ function mp_compute_owners()
             o = 255;
         else
         {
+            // (Of the players with this character, the one who picked it first.)
+            var best = -1;
             for (var i = 0; i < 8; i++)
             {
-                if (global.mp_pchar[i] == c && mp_participating(i))
-                {
-                    o = i;
-                    break;
-                }
+                if (global.mp_pchar[i] == c && mp_participating(i) && (best < 0 || global.mp_ppick[i] < global.mp_ppick[best]))
+                    best = i;
             }
+            if (best >= 0)
+                o = best;
         }
         global.mp_owner[s] = o;
     }
@@ -1058,7 +1059,7 @@ function mp_battle_status()
         {
             var o2 = global.mp_owner[s];
             if (global.char[s] == global.mp_cfg_char && o2 < 8 && o2 != global.mp_myid && global.mp_pconn[o2])
-                return "Watching: " + global.mp_pname[o2] + " plays " + mp_char_name(global.mp_cfg_char) + " in this battle. No need to dodge.";
+                return "Watching " + global.mp_pname[o2] + ", who plays " + mp_char_name(global.mp_cfg_char) + ". You take over if they change character or leave.";
         }
         return "Watching: " + mp_char_name(global.mp_cfg_char) + " is not in this battle. No need to dodge.";
     }
@@ -1274,13 +1275,14 @@ function mp_spectate_tick(spec)
     if (!spec)
         return;
     global.mp_spec_target = -1;
-    for (var i = 0; i < 8; i++)
+    // Whoever plays my character, when they have a SOUL; otherwise anyone who has one.
+    var mc = mp_char_controller(global.mp_pchar[global.mp_myid]);
+    if (mc >= 0 && mc != global.mp_myid && (global.mp_frame - global.mp_soul_f[mc]) <= 15)
+        global.mp_spec_target = mc;
+    for (var i = 0; i < 8 && global.mp_spec_target < 0; i++)
     {
         if (i != global.mp_myid && global.mp_pconn[i] && (global.mp_frame - global.mp_soul_f[i]) <= 15)
-        {
             global.mp_spec_target = i;
-            break;
-        }
     }
     with (obj_heart)
     {

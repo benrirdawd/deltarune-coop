@@ -181,8 +181,12 @@ function mp_ui_input()
         mp_config_save();
         if (mp_on())
         {
+            mp_pick_note(global.mp_myid, global.mp_cfg_char);
             global.mp_pchar[global.mp_myid] = global.mp_cfg_char;
             mp_send_pinfo(global.mp_myid);
+            var taken = mp_char_player_other(global.mp_cfg_char);
+            if (taken >= 0)
+                mp_notify(global.mp_pname[taken] + " already plays " + mp_char_name(global.mp_cfg_char) + ": you'll watch them in fights, and take over if they change or leave.");
         }
     }
     if (row == "story" && (global.input_pressed[1] || global.input_pressed[3]))
