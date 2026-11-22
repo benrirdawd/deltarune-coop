@@ -636,7 +636,15 @@ namespace DeltaruneOnline
                     throw new Exception($"Windows or your antivirus wouldn't let the patcher start ({e.Message}). Allow \"{patcher}\" in your antivirus, then try again.");
                 }
                 File.WriteAllText(Path.Combine(Logs, $"patch_chapter{ch}.log"), text);
-                if (code == 0) done++;
+                if (code == 0)
+                {
+                    done++;
+                    // The mod's DLLs (Steam play) next to the chapter's data.win.
+                    var dlls = Path.Combine(App, "mod", "dll");
+                    if (Directory.Exists(dlls))
+                        foreach (var f in Directory.GetFiles(dlls, "*.dll"))
+                            File.Copy(f, Path.Combine(Path.GetDirectoryName(output), Path.GetFileName(f)), true);
+                }
                 else
                 {
                     failed++;

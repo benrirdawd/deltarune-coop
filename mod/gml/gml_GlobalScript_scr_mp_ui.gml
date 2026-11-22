@@ -26,16 +26,30 @@ function mp_ui_rows()
         return ["battles", "hud", "tags", "souls", "vmode", "vkey", "vmic", "vmicvol", "vsens", "vvol", "vrange", "vtest", "back"];
     if (global.mp_ui_page == 2)
         return ["back"];
+    if (global.mp_ui_page == 3)
+    {
+        // Steam friends in a game right now.
+        var fr = [];
+        var nf = variable_global_exists("mp_steam_frname") ? array_length(global.mp_steam_frname) : 0;
+        for (var f = 0; f < nf; f++)
+            array_push(fr, "fr" + string(f));
+        if (nf == 0)
+            array_push(fr, "frnone");
+        array_push(fr, "frrefresh", "back");
+        return fr;
+    }
     var r = ["name", "char"];
     if (global.mp_role == 0)
     {
-        array_push(r, "host", "ip", "join");
+        array_push(r, "host", "ip", "join", "steam_host", "steam_code", "steam_friends");
     }
     else
     {
         array_push(r, "goto");
         if (global.mp_role == 1)
             array_push(r, "bring");
+        if (global.mp_role == 1 && variable_global_exists("mp_steam_code") && global.mp_steam_code != "")
+            array_push(r, "steam_show");
         array_push(r, "leave");
     }
     array_push(r, "help", "settings", "stopsound", "noclip");
@@ -124,6 +138,11 @@ function mp_ui_input()
             }
             if (rows[global.mp_ui_edit] == "ip" && t != "")
                 mp_cfg_set_address(t);
+            if (rows[global.mp_ui_edit] == "steam_code" && t != "")
+            {
+                global.mp_ui_open = 0;
+                mp_steam_join_code(t);
+            }
             mp_config_save();
             global.mp_ui_edit = -1;
         }
@@ -211,7 +230,32 @@ function mp_ui_input()
         }
         if (row == "battles" || row == "hud" || row == "tags" || row == "souls" || row == "vmode" || row == "vrange" || row == "vmic" || row == "vsens")
             mp_ui_adjust(row, 1);
-        if (row == "name" || row == "ip")
+        if (row == "steam_host")
+        {
+            global.mp_ui_open = 0;
+            mp_steam_host();
+        }
+        if (row == "steam_friends" || row == "frrefresh")
+        {
+            mp_steam_friends_refresh();
+            global.mp_ui_page = 3;
+            global.mp_ui_sel = 0;
+            mp_ui_block();
+            return;
+        }
+        if (string_copy(row, 1, 2) == "fr" && string_digits(row) != "" && string_length(string_digits(row)) == string_length(row) - 2)
+        {
+            var fi = real(string_digits(row));
+            global.mp_ui_open = 0;
+            global.mp_ui_page = 0;
+            mp_steam_join_lobby(global.mp_steam_frlobby[fi], global.mp_steam_frname[fi]);
+        }
+        if (row == "steam_show")
+        {
+            clipboard_set_text(global.mp_steam_code);
+            mp_notify("Code " + global.mp_steam_code + " copied.");
+        }
+        if (row == "name" || row == "ip" || row == "steam_code")
         {
             global.mp_ui_edit = global.mp_ui_sel;
             keyboard_string = "";
@@ -433,6 +477,11 @@ function mp_ui_block()
 
 function mp_ui_rowtext(row)
 {
+    if (string_copy(row, 1, 2) == "fr" && string_digits(row) != "" && string_length(string_digits(row)) == string_length(row) - 2)
+    {
+        var fi = real(string_digits(row));
+        return fi < array_length(global.mp_steam_frname) ? "Join " + global.mp_steam_frname[fi] : "";
+    }
     switch (row)
     {
         case "name":
@@ -456,6 +505,18 @@ function mp_ui_rowtext(row)
             return "Host address:  " + global.mp_cfg_ip + ":" + string(global.mp_cfg_port);
         case "join":
             return "Join game";
+        case "steam_host":
+            return "Host on Steam (code / friends)";
+        case "steam_code":
+            return "Join on Steam with a code";
+        case "steam_friends":
+            return "Join a Steam friend";
+        case "steam_show":
+            return "Steam code:  " + global.mp_steam_code + "   (Z: copy)";
+        case "frnone":
+            return "No friends in a game right now";
+        case "frrefresh":
+            return "Refresh";
         case "goto":
             var gt = mp_goto_target();
             if (gt < 0)
@@ -716,7 +777,7 @@ function mp_draw_gui()
         draw_rectangle(bx + sc, by + sc, (bx + bw) - sc, (by + bh) - sc, true);
         if (global.mp_font >= 0)
             draw_set_font(global.mp_font);
-        draw_text_transformed(bx + 12 * sc, by + 6 * sc, global.mp_ui_page == 1 ? "SETTINGS" : "MULTIPLAYER", sc, sc, 0);
+        draw_text_transformed(bx + 12 * sc, by + 6 * sc, global.mp_ui_page == 1 ? "SETTINGS" : (global.mp_ui_page == 3 ? "STEAM FRIENDS" : "MULTIPLAYER"), sc, sc, 0);
         for (var r = 0; r < array_length(rows); r++)
         {
             var t = mp_ui_rowtext(rows[r]);

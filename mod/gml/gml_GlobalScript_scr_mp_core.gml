@@ -512,6 +512,8 @@ function mp_after_input()
         global.mp_join_retry_at = 0;
         mp_join(global.mp_cfg_ip, global.mp_cfg_port);
     }
+    // Steam (lobby search / join requests run before any session exists)
+    mp_steam_tick();
     if (!mp_on())
         return;
     if (mp_timing_input())

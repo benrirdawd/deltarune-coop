@@ -3,16 +3,85 @@
 Sorted by priority. Effort: S = small, M = medium, L = large.
 Port forwarding (UDP 26510) stays the way to play online; no relay server.
 
+## Native Windows test run, 2026-11-22
+
+Tests now run on Windows with the native game (Git Bash; `tools/platform.sh`), 20x game speed.
+* `regress.sh`: chapters 1-5 identical every turn with 2 and 3 players, no crashes.
+* **Fixed:** a client joining while the host was on the title screen / file select was sent to the
+  host's intro room (`room_intro_ch2` ...) and stayed there (the 1.0.1 join teleport accepted any
+  `room_*`). It now waits until the host is in the game (`mp_room_title`).
+* **Fixed (test setup):** the host's `party` token changed the story while connected without sending it;
+  sent as ordinary changes it waited for the room's cutscene to end, and the client followed the host into
+  room_dw_garden_intro with plot 0 and crashed in `obj_ch5_LW21_arrive` (`cutscenes.sh ch5_entry`).
+  The host now sends its whole state, as after loading a save.
+* `cutscenes.sh`: all 9 scenarios pass; the clients now really start elsewhere and are pulled in
+  (before the fix five of them never left the intro room and passed without testing anything).
+
+Full sweep on Windows (`tools/sweepall.sh`, chapter by chapter, 3-4 pairs at 20x, 756 scenarios: the
+battle lists of chapters 2-5 keep only the encounters the chapter's code names, `tools/encused.py`).
+Everything passes except test artifacts ("nobody moved": `room_krisroom` 0/1, `room_dw_rhythm` 132,
+`room_lw_noellehouse_basement` 63, `room_cc_prisonlancer` 154 - the walking bot can't get out) and the
+game's own crashes (also alone): encounters 4, 7, 12, 16, 31, 89-94, 174 kept by the filter, and the rooms
+already listed below (`church_claw`, `churchb_library_alternate`, `snow_zone_battle` 290, Ch5 credits
+rooms, `room_krisroom` 4, `room_town_school` 100).
+* **Fixed:** a fight right after a cutscene I led left the watchers out and stuck watching (the
+  cutscene's end only went out after 20 still frames). They are let go first and called in (Ch5 enc 1).
+* **Fixed:** open-world fights have one hero per player, but some enemies need the others: Elnina &
+  Lanino (Ch3 enc 113) read `obj_heroralsei.x`, Ch4's incense clouds take HP from all three and read
+  `charinstance[2]`. Every story party member who isn't in the fight now gets an invisible stand-in
+  (as Kris already did), and empty party places point at it.
+* **Fixed:** Ch4's boss encounters 174-178 / 186 set the whole party themselves (`scr_setchar`); the host
+  cut it down after that (Titan crashed without Ralsei), a client before it (the two parties differed).
+  They are fought as story battles now (`mp_enc_game_party`, core.hook).
+* **Fixed:** Noelle's house (Ch4, plot 66): a player who only watched the scene had the basement overlay
+  but not the heart it follows (`obj_homealone_heart`), and crashed drawing it.
+* **Fixed (test setup):** a test host still setting its scenario up takes nobody in (the client asks
+  again); a host that started late had a client join it on the title screen. Self-checks also go on
+  while waiting to join a fight (a long wait read as a freeze).
+* Ch5 `room_alphysclass` 90 (one crash in `obj_ch5_LW21_arrive`) not reproduced; every class room
+  scenario passes in the latest sweep.
+
+Follow-up (only the related scenarios re-run after each fix):
+* **Fixed:** Ch4 `room_town_church` 299: a client joining from a Dark World room into a Light World room
+  whose scene starts on entry sent, with the cutscene pull, the world of its last room (the "before the
+  cutscene" world is only taken while free, and it never was free there). The host watching it ended in
+  the Dark World in the church. The pull now takes the current world when the saved one is from another
+  room (`mp_calm_room`). 3 of 3 pass, the host watching the client's scene each time.
+* **Fixed:** Ch1 text box closed in its first frame (a watcher getting the next box of the leader's
+  scene): Chapter 1's `obj_dialoguer` only gets `myface` a frame later and its Destroy crashed
+  (`room_cc_prisonlancer` 154, hidden before behind "nobody moved"). core.hook gives it a default.
+* **Fixed (test setup):** `room_krisroom` plot 1+ started the players at the room's default spot, inside
+  the bed (in play you're out of it after the wake-up scene and come back through the door): the test now
+  moves a player out of anything solid in its first seconds (never during a cutscene). Checked by hand that
+  in the real wake-up scene (plot 0, Ch1 and Ch2) both players get out of bed and walk. Noelle's basement:
+  the player walks a heart (`obj_homealone_heart`), Kris is parked off screen; the self-check now logs it
+  (`walk=`) and `mpcheck.py` counts it as moving. `room_dw_rhythm` 132 passes (was flaky).
+* Rechecked, pass now: Ch4 `room_lw_church_main` 289, the door ghost cases (`room_library`, `room_diner`,
+  `room_town_church` 100, `room_town_noellehouse` 89, `room_board_dungeon_3` 179).
+
+## Steam play and WASD, 2026-11-22
+
+* **WASD** works as the arrow keys everywhere (`mp_wasd`, core.hook next to `obj_time`'s key checks), not
+  while typing in F9 and not for a letter bound to push-to-talk. Checked in game (`holdkeys` token).
+* **Steam** (F9: "Host on Steam", "Join on Steam with a code", "Join a Steam friend"; Steam's own "Join
+  game" works too): `drm_steam.dll` (`steam/drm_steam.c`, `tools/buildsteam.sh`, Zig) on Valve's
+  steam_api64 (shipped as `drm_steam_api64.dll`), app Spacewar (480). The host opens a public lobby with a
+  6-letter code; messages go through Steam's relays (no port forwarding), the game's own protocol
+  unchanged (peer "steam":n, `mp_pkt_send` / `mp_net_packet`). Without Steam running nothing changes.
+  The patcher adds the DLL as a GameMaker extension (`mod/extensions.txt`); the installer copies `mod/dll`.
+  **Tested:** Steam start, lobby + code, a second game finding the lobby by its code. **Not tested:** two
+  different Steam accounts actually playing (one account can't connect to itself), the friends list.
+
 ## Roaring Knight fight (Chapter 3, encounter 115), found 2026-11-08 while taking screenshots
 
 Tested with 3 bot players: room_dw_snow_zone, plot 320, the host walks to x 1850 and the scene plays.
 * **Fixed:** players mirroring the cutscene ignored the battle pull at its end (mirroring switches off
   obj_mainchara, and mp_sync_try_pull took that for the title screen and declined). They join now.
-* **Open:** after turn 0 the fight freezes. At turn 1 the host's menu starts at Susie (no menu presses
-  sent for Kris) while the others wait at Kris, so every screen says "... is choosing". Starting
-  encounter 115 directly (no cutscene) freezes the same way. Look at what skips Kris in the host's game.
-* **Open:** the joining players still see the scene's Christmas tree on the left during the battle
-  (their room was rebuilt from before the cutscene removed it).
+* **Gone (2026-11-22):** the freeze after turn 0 (host's menu starting at Susie). With 3 players, both
+  starting encounter 115 directly and through the scene (pos 1845,206), all three games choose turn 1's
+  actions with identical HP/TP and reach the scripted game over together. Fixed by the earlier battle
+  fixes. (The Knight is meant to win: tests can't go past turn 1.)
+* **Not a problem:** the Christmas tree during the battle; the user checked it in play and it looks right.
 
 * F7 / "Stop all music and sounds" (F9 menu): `audio_stop_all()`, for when the music desyncs; rooms start their song again on the next room entry (2026-10-11).
 

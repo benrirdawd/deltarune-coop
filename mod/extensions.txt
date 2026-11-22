@@ -1,0 +1,22 @@
+# GameMaker extensions the patcher adds to every chapter (patcher/Program.cs, AddExtensions).
+# extension <name> <dll file>     then one line per function:  <name> <return d|s> <args d|s...>
+# The DLL files go next to each chapter's data.win (tools/mkgamedir.sh, the installer).
+extension drm_steam drm_steam.dll
+drs_init d
+drs_error s
+drs_my_name s
+drs_tick d
+drs_event s
+drs_host d s d
+drs_lobby_set d s s
+drs_join_code d s
+drs_join_lobby d s
+drs_leave d
+drs_friends_refresh d
+drs_friend_name s d
+drs_friend_lobby s d
+drs_send d d s d
+drs_recv d s d
+drs_recv_peer d
+drs_peer_name s d
+drs_in_lobby d

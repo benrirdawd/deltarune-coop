@@ -87,10 +87,13 @@ function mp_peer_free(p)
 
 // ---------------------------------------------------------------- connection management
 
-function mp_host_start(port)
+// steam: hosting on Steam (scr_mp_steam): the UDP port is a bonus then, any free one will do.
+function mp_host_start(port, steam = false)
 {
     mp_disconnect("");
     global.mp_usock = network_create_socket_ext(network_socket_udp, port);
+    if (global.mp_usock < 0 && steam)
+        global.mp_usock = network_create_socket(network_socket_udp);
     if (global.mp_usock < 0)
     {
         mp_notify("Could not host on UDP port " + string(port) + " (in use?)");
@@ -131,7 +134,7 @@ function mp_join(ip, port)
     mp_wstr(global.mp_cfg_name);
     mp_wu8(global.mp_cfg_char);
     mp_send_to(global.mp_hub);
-    mp_notify("Contacting " + ip + ":" + string(port) + " ...");
+    mp_notify(ip == "steam" ? "Connecting to the host over Steam ..." : "Contacting " + ip + ":" + string(port) + " ...");
     return 1;
 }
 
@@ -170,6 +173,9 @@ function mp_disconnect(reason)
         if (reason != "")
             mp_notify(reason);
     }
+    // (A reset before hosting / joining keeps the Steam lobby that is being joined.)
+    if (reason != "")
+        mp_steam_leave();
 }
 
 // ---------------------------------------------------------------- message building
@@ -346,7 +352,10 @@ function mp_pkt_begin(p)
 function mp_pkt_send(p)
 {
     var n = buffer_tell(global.mp_pkt);
-    network_send_udp_raw(global.mp_usock, p.ip, p.port, global.mp_pkt, n);
+    if (p.ip == "steam")
+        drs_send(p.port, buffer_get_address(global.mp_pkt), n);
+    else
+        network_send_udp_raw(global.mp_usock, p.ip, p.port, global.mp_pkt, n);
     global.mp_bytes_out += n + 28;
     p.lastsent = current_time;
     p.ackdirty = false;
@@ -451,6 +460,12 @@ function mp_net_async()
     var size = ds_map_find_value(async_load, "size");
     var ip = ds_map_find_value(async_load, "ip");
     var port = ds_map_find_value(async_load, "port");
+    mp_net_packet(b, size, ip, port);
+}
+
+// One datagram from ip:port (UDP), or from Steam peer <port> (ip "steam", scr_mp_steam).
+function mp_net_packet(b, size, ip, port)
+{
     global.mp_bytes_in += size + 28;
     if (size < 7 || buffer_peek(b, 0, buffer_u8) != 215)
         return;

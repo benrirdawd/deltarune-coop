@@ -77,6 +77,48 @@ static class Program
             }
             return 0;
         }
+        if (args.Length == 2 && args[0] == "--dump-ext")
+        {
+            // The data file's extensions (DLLs and their functions), to see how one is laid out.
+            using var f = File.OpenRead(args[1]);
+            var d = UndertaleIO.Read(f, (w, _) => { }, _ => { });
+            Console.WriteLine($"bytecode {d.GeneralInfo.BytecodeVersion}, GMS {d.GeneralInfo.Major}.{d.GeneralInfo.Minor}, product ids {d.FORM.EXTN?.productIdData?.Count}");
+            foreach (var e in d.Extensions)
+            {
+                Console.WriteLine($"ext {e.Name?.Content} folder={e.FolderName?.Content} class={e.ClassName?.Content} version={e.Version?.Content} options={e.Options.Count}");
+                foreach (var file in e.Files)
+                {
+                    Console.WriteLine($"  file {file.Filename?.Content} kind={file.Kind} init={file.InitScript?.Content} cleanup={file.CleanupScript?.Content}");
+                    foreach (var fn in file.Functions)
+                        Console.WriteLine($"    fn {fn.Name?.Content} ext={fn.ExtName?.Content} id={fn.ID} kind={fn.Kind} ret={fn.RetType} args=[{string.Join(",", fn.Arguments.Select(a => a.Type))}] inFunctions={d.Functions.ByName(fn.Name?.Content) != null}");
+                }
+            }
+            return 0;
+        }
+        if (args.Length >= 3 && args[0] == "--export-code")
+        {
+            // Every code entry decompiled into <dir>/<entry>.gml (the layout UndertaleModTool's
+            // "export all code" makes; tools/sweepgen.py reads it). [filter] = only entries whose
+            // name contains it (e.g. gml_Object_).
+            using var f = File.OpenRead(args[1]);
+            var d = UndertaleIO.Read(f, (w, _) => { }, _ => { });
+            Directory.CreateDirectory(args[2]);
+            string filter = args.Length > 3 ? args[3] : "";
+            var gctx = new UndertaleModLib.Decompiler.GlobalDecompileContext(d);
+            int done = 0, failed = 0;
+            foreach (var c in d.Code)
+            {
+                if (c == null || c.ParentEntry != null || !c.Name.Content.Contains(filter))
+                    continue;
+                string text;
+                try { text = new Underanalyzer.Decompiler.DecompileContext(gctx, c, d.ToolInfo.DecompilerSettings).DecompileToString(); }
+                catch (Exception e) { text = "/* decompile failed: " + e.Message.Replace("*/", "* /") + " */"; failed++; }
+                File.WriteAllText(Path.Combine(args[2], c.Name.Content + ".gml"), text);
+                done++;
+            }
+            Console.WriteLine($"{done} code entries written to {args[2]} ({failed} failed to decompile)");
+            return 0;
+        }
         if (args.Length < 4)
         {
             Console.Error.WriteLine("usage: drm-patcher <in data.win> <out data.win> <mod dir> <chapter>");
@@ -116,6 +158,8 @@ static class Program
             if (!install)
             {
                 if (File.Exists(vanilla)) { File.Copy(vanilla, win, true); File.Delete(vanilla); Console.WriteLine($"Chapter {ch}: restored."); }
+                foreach (var f in new[] { "drm_steam.dll", "drm_steam_api64.dll" })
+                    if (File.Exists(Path.Combine(dir, f))) File.Delete(Path.Combine(dir, f));
                 continue;
             }
             Console.WriteLine($"=== Chapter {ch}");
@@ -123,7 +167,15 @@ static class Program
             int r;
             try { r = Patch(vanilla, win, modDir, ch); }
             catch (Exception e) { Console.Error.WriteLine("ERROR: " + e.Message); r = 1; }
-            if (r == 0) ok++;
+            if (r == 0)
+            {
+                ok++;
+                // The mod's DLLs (Steam play) next to the chapter's data.win.
+                var dlls = Path.Combine(modDir, "dll");
+                if (Directory.Exists(dlls))
+                    foreach (var f in Directory.GetFiles(dlls, "*.dll"))
+                        File.Copy(f, Path.Combine(dir, Path.GetFileName(f)), true);
+            }
             else
             {
                 failed++;
@@ -150,6 +202,11 @@ static class Program
             data.GeneralInfo.Name = data.Strings.MakeString(saveName);
             data.GeneralInfo.FileName = data.Strings.MakeString(saveName);
         }
+
+        // DLL extensions the mod calls (mod/extensions.txt): added before anything is compiled, so the
+        // compiler knows their functions.
+        var extSpec = Path.Combine(modDir, "extensions.txt");
+        if (File.Exists(extSpec)) AddExtensions(data, extSpec);
 
         // Cutscene mirror: what each object draws (see MirrorInfo.cs). Worked out before the compiler is
         // set up: decompiling this much first leaves its function table unable to find the mod's functions.
@@ -278,6 +335,61 @@ static class Program
     }
 
     // "// @chapters 1,2" on the first line restricts a file to those chapters.
+    // Adds the DLL extensions described in mod/extensions.txt (see there): each function gets a
+    // global id after the data file's own and an entry in the function table, as GameMaker does.
+    static void AddExtensions(UndertaleData data, string specFile)
+    {
+        uint nextId = 1;
+        foreach (var e in data.Extensions)
+            foreach (var f in e.Files)
+                foreach (var fn in f.Functions)
+                    nextId = Math.Max(nextId, fn.ID + 1);
+        UndertaleExtensionFile file = null;
+        foreach (var raw in File.ReadAllLines(specFile))
+        {
+            var line = raw.Trim();
+            if (line == "" || line.StartsWith("#")) continue;
+            var w = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (w[0] == "extension")
+            {
+                var ext = new UndertaleExtension
+                {
+                    Name = data.Strings.MakeString(w[1]),
+                    FolderName = data.Strings.MakeString(""),
+                    ClassName = data.Strings.MakeString(""),
+                    Version = data.Strings.MakeString("1.0.0"),
+                };
+                file = new UndertaleExtensionFile
+                {
+                    Filename = data.Strings.MakeString(w[2]),
+                    CleanupScript = data.Strings.MakeString(""),
+                    InitScript = data.Strings.MakeString(""),
+                    Kind = UndertaleExtensionKind.Dll,
+                };
+                ext.Files.Add(file);
+                data.Extensions.Add(ext);
+                // (GameMaker 2.3+ files keep a 16-byte product id per extension.)
+                if (data.FORM.EXTN?.productIdData != null && (data.FORM.EXTN.productIdData.Count > 0 || data.GeneralInfo.BytecodeVersion >= 14))
+                    data.FORM.EXTN.productIdData.Add(new byte[16]);
+                Console.WriteLine($"  extension {w[1]} ({w[2]})");
+                continue;
+            }
+            if (file == null) throw new Exception("extensions.txt: function before any extension line");
+            UndertaleExtensionVarType T(string t) => t == "s" ? UndertaleExtensionVarType.String : UndertaleExtensionVarType.Double;
+            var func = new UndertaleExtensionFunction
+            {
+                Name = data.Strings.MakeString(w[0]),
+                ExtName = data.Strings.MakeString(w[0]),
+                ID = nextId++,
+                Kind = 11, // cdecl
+                RetType = T(w[1]),
+            };
+            for (int i = 2; i < w.Length; i++) func.Arguments.Add(new UndertaleExtensionFunctionArg(T(w[i])));
+            file.Functions.Add(func);
+            if (data.Functions.ByName(w[0]) == null) data.Functions.Define(w[0], data.Strings);
+        }
+    }
+
     static bool ChapterAllowed(string text, int chapter)
     {
         var first = text.Split('\n')[0].Trim();

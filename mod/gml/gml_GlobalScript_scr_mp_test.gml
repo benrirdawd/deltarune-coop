@@ -232,6 +232,12 @@ function mp_test_tick()
             scr_caterpillar_interpolate();
         }
     }
+    // steamhost: host on Steam 2 s after entering the room (scr_mp_steam)
+    if (mp_test_has("steamhost") && global.mp_test_state == 1 && global.mp_test_timer == 60)
+        mp_steam_host();
+    // steamjoin:<code>: join a Steam game by its code 5 s after entering the room
+    if (mp_test_has("steamjoin") && global.mp_test_state == 1 && global.mp_test_timer == 150)
+        mp_steam_join_code(mp_test_arg("steamjoin"));
     // holdkeys:<letters>: hold each letter in turn for 2 s (simulated inside the game, so no window
     // focus is needed), from 3 s after entering the room; logs where the player is at each switch.
     if (mp_test_has("holdkeys") && global.mp_test_state == 1 && global.mp_test_timer >= 90)
