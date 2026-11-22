@@ -92,6 +92,20 @@ function mp_sprite_dir(n, fromc)
 function mp_walk_sprite(toc, dirc)
 {
     var found = -1;
+    var wn = "down";
+    if (dirc == "l")
+        wn = "left";
+    if (dirc == "r")
+        wn = "right";
+    if (dirc == "u")
+        wn = "up";
+    // Susie has Light World walking sprites from Chapter 2 on (Ralsei has none: his own are used).
+    if (toc == 2 && !global.darkzone)
+    {
+        found = mp_try_sprite("spr_susie_walk_" + wn + "_lw");
+        if (found >= 0)
+            return found;
+    }
     if (toc == 4)
     {
         var w = "down";
@@ -139,7 +153,10 @@ function mp_swap_sprite(spr, fromc, toc)
         if (fromc != 4 && toc != 4)
         {
             var rest = string_delete(n, 1, string_length(fp));
-            found = mp_try_sprite(tp + rest);
+            if (toc == 2 && !global.darkzone && (rest == "r" || rest == "l" || rest == "u" || rest == "d"))
+                found = mp_walk_sprite(toc, rest);
+            if (found < 0)
+                found = mp_try_sprite(tp + rest);
             if (found < 0 && string_pos("_dark", rest) > 0)
                 found = mp_try_sprite(tp + string_replace(rest, "_dark", ""));
             if (found < 0 && string_pos("_dark", rest) == 0)

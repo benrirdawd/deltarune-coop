@@ -443,6 +443,12 @@ function mp_test_input()
     // mashevery:<n> presses every n frames instead of 10 (a slow reader), mashfrom:<n> starts n frames into the room.
     var mash_every = mp_test_arg("mashevery") != "" ? real(mp_test_arg("mashevery")) : 10;
     var mash_from = mp_test_arg("mashfrom") != "" ? real(mp_test_arg("mashfrom")) : 15;
+    // openmenu: open the C menu once, a few seconds into the room (to see what it shows).
+    if (mp_test_has("openmenu") && variable_global_exists("mp_test_timer") && global.mp_test_timer == 150 && global.interact == 0)
+    {
+        global.input_pressed[6] = 1;
+        global.input_held[6] = 1;
+    }
     // holdx: hold X all the time (speeds text up; set in the input state, so it works unfocused).
     if (mp_test_has("holdx"))
         global.input_held[5] = 1;

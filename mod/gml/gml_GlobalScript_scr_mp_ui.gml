@@ -694,6 +694,18 @@ function mp_draw_gui()
         draw_text_ext_transformed(tx + 8 * sc, ty + 6 * sc, global.mp_watch_text, lh / sc, (tw - 16 * sc) / sc, sc, sc, 0);
     }
 
+    // The C menu always shows the story's party (Kris first): say which one is me, so it doesn't
+    // look wrong to someone playing Susie.
+    if (mp_on() && global.interact == 5 && variable_global_exists("menuno") && global.menuno >= 0 && !global.mp_ui_open)
+    {
+        var you = "You: " + mp_char_name(global.mp_pchar[global.mp_myid]);
+        var yx = gw - (string_width(you) * sc) - (6 * sc);
+        var yy = gh - lh - (6 * sc);
+        mp_ui_backing(yx - 2 * sc, yy, string_width(you) * sc + 4 * sc, lh, sc, 0.6);
+        draw_text_transformed_color(yx + 1, yy + 1, you, sc, sc, 0, c_black, c_black, c_black, c_black, 1);
+        draw_text_transformed_color(yx, yy, you, sc, sc, 0, c_yellow, c_yellow, c_yellow, c_yellow, 1);
+    }
+
     // Notifications.
     var ny = gh - lh - (2 * sc);
     for (var n = ds_list_size(global.mp_notes) - 1; n >= 0; n--)
