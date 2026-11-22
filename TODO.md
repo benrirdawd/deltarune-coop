@@ -81,6 +81,21 @@ Follow-up (only the related scenarios re-run after each fix):
   included, was identical in all three games; Susie's lock applied every turn; P3 watched. The
   fight ended in a real Game Over (both heroes down).
 
+## Battle menu: choosing ahead, 2026-11-22
+
+* While someone else chooses, the player whose hero comes next can already move that hero's
+  main-row bar (FIGHT/ACT-MAGIC/ITEM/SPARE/DEFEND); Z only works on their own turn. If their option
+  is greyed out (ITEM with an empty bag) the bar goes to the first one. A hero whose turn is used
+  by someone else's action (an X-Action) just isn't asked, as before.
+* Everyone sees the others' bars live: each move is sent (message 54) and shown in the status line
+  ("P2: MAGIC"); the bar's position also travels with every menu press (message 41 gained a byte),
+  so all games agree when that turn starts. The player choosing now is shown live as before (their
+  presses replay in every game as they're made).
+* Only the main row: entering a sub-menu (spells, targets) needs Z, so it waits for the turn.
+* **Tested** (Ch2 encounter 53, random menus): the client moved its bar ahead 8-18 times per run,
+  all turns identical in both games.
+* Equipment: anyone could already change any hero's equipment from the C menu (synced); nothing to add.
+
 ## Reading cutscenes together, 2026-11-22
 
 * **Everyone turns the pages:** in a shared cutscene, whoever presses Z on a box that has finished
@@ -342,11 +357,13 @@ All done on 2026-11-22 (built, **not tested in game yet**):
 
 ## Priority 2 — protect progress
 
-| Issue | Fix | Effort |
+All done on 2026-11-22. "Tested" means a targeted automated test; "not testable here" says why.
+
+| Issue | What was done | Test |
 |---|---|---|
-| Shop money: gold syncs as "last total wins", so simultaneous purchases can overwrite each other. | Sync gold as changes ("−50") instead of totals; have the host assign item slots so two players can't fill the same one. | M |
-| Save points: each player saves their own file, so a client's save goes stale. | Make the host's save the shared one: when a client saves, the host saves too. Joining clients already take the host's state. | S |
-| Host leaving ends the session (no relay server, by choice). | Offer the next player "Become host?". If they accept, they start hosting and everyone reconnects to them automatically. If their port isn't forwarded, show a clear message ("P2 can't be reached — they need to forward UDP 26510"). | M |
+| Shop money: "last total wins", simultaneous purchases overwrote each other. | Money goes out as changes ("-50"); the bag (items, weapons, armour) as what came in / went out. The host takes those in order (new items into the first empty slot) and sends everyone its bag back; a client puts its own untaken changes back on top (`scr_mp_inv`, messages 22-24). | **Tested** (`buy:<item>`): two players bought in the same millisecond; both ended at -100 money with the same bag. |
+| Save points: a client's save left the host's file behind. | A client's save asks the host to save too (message 25), as soon as the host is free (within a minute). | **Not testable here:** the test games use the real DELTARUNE save folder, so a test save would overwrite your own save files. |
+| Host leaving ended the session. | The host sends everyone each player's address (message 8). When it leaves or stops answering, the next player (lowest number) gets "Become the host" in F9; the others look for them for about a minute (Steam: same lobby code) and are told if that player's port isn't forwarded. | **Tested** over IP, 3 players (`leaveat`, `autohost`): the host left, P3 took over, P2 reconnected to P3 in ~3 s. **Not testable here:** over Steam (needs two Steam accounts) and the "can't be reached" message (needs a real network). |
 
 ## Priority 3 — special content
 
@@ -354,13 +371,16 @@ All done on 2026-11-22 (built, **not tested in game yet**):
 |---|---|---|
 | Minigames have no multiplayer handling (only the Ch3 board and the Ch5 platformer do): the rhythm game (`obj_rhythmgame`, Ch3; its code is also in Ch4/5), the chefs/kitchen game (Ch3), the quiz/game show (Ch3), climbing (`obj_climb`, Ch4/5), the organ (Ch4). Each player plays their own copy while the others' walking ghosts are drawn over it. | First, for all of them: detect the minigame, hide the ghosts, show "P2 is playing" and let one player play while the others watch (or play their own copy, then take the host's result). Then per game: **rhythm** - each player plays their character's chart (the game already has three: Kris guitar, Susie drums, Ralsei vocals, the last two on autoplay), hits sent and the score added up; **climbing** - the others shown as ghosts on the wall, as in the platformer; **quiz/game show** - each player buzzes for their character. | M (fallback); L per game |
 | Special battle styles (Spamton NEO, Berdly/Queen, Chapter 4/5 gimmick fights) likely only partly sync. | Detect special battles and fall back to "one player drives the battle, everyone else spectates and dodges". Later, hand-sync individual fights people care about. | S–M (fallback); L per fight |
+| Minigames played *together*, not each on their own screen (idea from play-testing). Example: the throw minigame - Susie throws Kris, and Kris's player presses a button mid-air for a sword swing that widens his reach for a moment. | Design per minigame: who controls what (thrower aims, the thrown one acts mid-air), sent as inputs like the battle menu so every game plays the same throw. Very complex (new mechanics on top of the game's own). Puzzles are simpler, though still work: share the puzzle's state (switches, blocks, tiles) so one player's move changes the room for everyone instead of only in their game. | L per minigame; M per puzzle type |
 
 ## Priority 4 — cosmetic
 
-| Issue | Fix | Effort |
+Done on 2026-11-22.
+
+| Issue | What was done | Test |
 |---|---|---|
-| Party menu (C) always shows the real party (Kris first), not your chosen character. | Keep the menu accurate; add a small "You: Susie" label so it doesn't look wrong. | S |
-| Light World: characters without Light World walk sprites (e.g. Ralsei) fall back to showing as Kris. | Better fallback, e.g. a Light World variant if one exists, otherwise the Dark World sprite. | S |
+| Party menu (C) always shows the story's party, not your character. | While the menu is open a "You: Susie" label shows in the bottom-right corner. | **Tested** (`openmenu` + screenshot). |
+| Light World: characters without Light World sprites. | Susie now uses her Light World walking sprites (Chapter 2+). Ralsei has none, so his own sprites stay (as the TODO suggested). Kris never showed: that fallback only happened for sprites with no direction. | **Tested** (log of the drawn sprite: `spr_susie_walk_*_lw`). |
 
 ## Untested / low priority
 

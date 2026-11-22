@@ -329,6 +329,15 @@ function mp_battle_recv(type, from, b)
         mp_timing_recv(type, from, b);
         return;
     }
+    if (type == 54) // where another player's next hero's bar is (choosing ahead)
+    {
+        var pturn = buffer_read(b, buffer_u16);
+        var pslot = buffer_read(b, buffer_u8);
+        var pbar = buffer_read(b, buffer_u8);
+        if (pturn == global.mp_bturn && pslot < 3 && pbar < 5 && global.mp_owner[pslot] == from && pslot > global.charturn && global.bmenuno >= 0)
+            global.bmenucoord[0][pslot] = pbar;
+        return;
+    }
     if (type == 53) // the sender's own TP gain this bullet phase (live TP)
     {
         var tturn = buffer_read(b, buffer_u16);
@@ -809,12 +818,36 @@ function mp_presel_input()
         }
         global.bmenucoord[0][s] = b;
         mp_log("choose ahead: slot " + string(s) + " bar " + string(b));
+        mp_presel_send(s);
         var snd = asset_get_index("snd_menumove");
         if (snd >= 0)
             snd_play(snd);
     }
     else if (!mp_presel_ok(s, b))
         global.bmenucoord[0][s] = 0;
+}
+
+function mp_presel_send(s)
+{
+    mp_begin_b(54);
+    mp_wu16(global.mp_bturn);
+    mp_wu8(s);
+    mp_wu8(global.bmenucoord[0][s]);
+    mp_send();
+}
+
+// The others' bars while they wait for their turn, for the status line ("" none).
+function mp_presel_others()
+{
+    var t = "";
+    for (var s = global.charturn + 1; s < 3; s++)
+    {
+        var o = global.mp_owner[s];
+        if (global.char[s] == 0 || o == global.mp_myid || o >= 8 || !global.mp_pconn[o] || global.hp[global.char[s]] <= 0)
+            continue;
+        t += "  " + global.mp_pname[o] + ": " + mp_presel_name(s);
+    }
+    return t;
 }
 
 function mp_presel_name(s)
@@ -1159,13 +1192,13 @@ function mp_battle_status()
         var o = global.mp_owner[global.charturn];
         var cn = mp_char_name(global.char[global.charturn]);
         if (o == global.mp_myid)
-            return "Your turn: choose " + cn + "'s action!";
+            return "Your turn: choose " + cn + "'s action!" + mp_presel_others();
         if (o < 8 && global.mp_pconn[o])
         {
             var ps = mp_presel_slot();
             if (ps >= 0)
-                return global.mp_pname[o] + " is choosing for " + cn + ". Your " + mp_char_name(global.char[ps]) + ": < " + mp_presel_name(ps) + " > (Z on your turn)";
-            return global.mp_pname[o] + " is choosing for " + cn + "...";
+                return global.mp_pname[o] + " is choosing for " + cn + ". Your " + mp_char_name(global.char[ps]) + ": < " + mp_presel_name(ps) + " > (Z on your turn)" + mp_presel_others();
+            return global.mp_pname[o] + " is choosing for " + cn + "..." + mp_presel_others();
         }
     }
     if (mp_my_slot_count() == 0)
