@@ -68,6 +68,7 @@ function mp_battle_reset()
     global.mp_tension_b0 = 0;
     global.mp_act_wn = 0;
     global.mp_act_wr = false;
+    global.mp_presel = -1;
     global.mp_susie_lock_log = -1;
     global.mp_t_mine = 0;           // TP my own SOUL earned (grazes) or lost (hits while down) this bullet phase
     global.mp_t_shown = 0;
@@ -364,7 +365,8 @@ function mp_battle_recv(type, from, b)
         var n = buffer_read(b, buffer_u16);
         var dt = buffer_read(b, buffer_u8);
         var mask = buffer_read(b, buffer_u16);
-        ds_list_add(global.mp_minq, [bid, turn, n, dt, mask]);
+        var c0 = buffer_read(b, buffer_u8);
+        ds_list_add(global.mp_minq, [bid, turn, n, dt, mask, c0]);
         return;
     }
     if (type == 42) // QTE RESULT
@@ -673,6 +675,8 @@ function mp_battle_input()
     var owner = global.mp_owner[global.charturn];
     if (owner == global.mp_myid)
     {
+        if (global.bmenuno == 0 && !mp_presel_ok(global.charturn, global.bmenucoord[0][global.charturn]))
+            global.bmenucoord[0][global.charturn] = 0;
         var mask = 0;
         for (var i = 0; i < 10; i++)
         {
@@ -715,6 +719,8 @@ function mp_battle_input()
             mp_wu16(global.mp_mn);
             mp_wu8(dt);
             mp_wu16(mask);
+            // (Where the main-row bar is before this press: it can have been moved before my turn.)
+            mp_wu8(global.bmenuno == 0 ? global.bmenucoord[0][global.charturn] : 255);
             mp_send();
             mp_log("menu send n=" + string(global.mp_mn) + " mask=" + string(mask) + " ct=" + string(global.charturn) + " bm=" + string(global.bmenuno));
             global.mp_mn += 1;
@@ -722,8 +728,10 @@ function mp_battle_input()
         }
         return;
     }
-    // Someone else is choosing: replay their presses in order, with their original spacing.
+    // Someone else is choosing: replay their presses in order, with their original spacing. Meanwhile
+    // I can already move the bar of my hero who comes next (mp_presel_input).
     global.mp_mn_pend = 0;
+    mp_presel_input();
     mp_ui_block();
     for (var k = 0; k < ds_list_size(global.mp_minq); k++)
     {
@@ -732,6 +740,8 @@ function mp_battle_input()
         {
             if ((global.mp_frame - global.mp_mn_last) >= e[3] && mp_menu_ready())
             {
+                if (array_length(e) > 5 && e[5] != 255 && global.bmenuno == 0)
+                    global.bmenucoord[0][global.charturn] = e[5];
                 for (var j = 0; j < 10; j++)
                 {
                     var on = (e[4] >> j) & 1;
@@ -746,6 +756,85 @@ function mp_battle_input()
             break;
         }
     }
+}
+
+// ---------------------------------------------------------------- choosing ahead
+
+// My hero who chooses after the current one this turn (-1 none).
+function mp_presel_slot()
+{
+    for (var s = global.charturn + 1; s < 3; s++)
+    {
+        if (global.char[s] != 0 && global.mp_owner[s] == global.mp_myid && global.hp[global.char[s]] > 0)
+            return s;
+    }
+    return -1;
+}
+
+// Can the main-row option b be picked for slot s? (ITEM is greyed out with an empty bag.)
+function mp_presel_ok(s, b)
+{
+    if (b != 2)
+        return true;
+    var ok = true;
+    with (obj_battlecontroller)
+    {
+        if (variable_instance_exists(id, "tempitem") && is_array(tempitem) && tempitem[0][s] == 0)
+            ok = false;
+    }
+    return ok;
+}
+
+// While someone else chooses: left/right move my next hero's bar (only the bar: Z does nothing
+// until it's my turn). The bar's position reaches the others with my first press then.
+function mp_presel_input()
+{
+    var s = mp_presel_slot();
+    global.mp_presel = s;
+    if (s < 0)
+        return;
+    var d = 0;
+    if (global.input_pressed[1])
+        d = 1;
+    if (global.input_pressed[3])
+        d = -1;
+    var b = global.bmenucoord[0][s];
+    if (d != 0)
+    {
+        for (var t = 0; t < 5; t++)
+        {
+            b = (b + d + 5) mod 5;
+            if (mp_presel_ok(s, b))
+                break;
+        }
+        global.bmenucoord[0][s] = b;
+        mp_log("choose ahead: slot " + string(s) + " bar " + string(b));
+        var snd = asset_get_index("snd_menumove");
+        if (snd >= 0)
+            snd_play(snd);
+    }
+    else if (!mp_presel_ok(s, b))
+        global.bmenucoord[0][s] = 0;
+}
+
+function mp_presel_name(s)
+{
+    var b = global.bmenucoord[0][s];
+    var c = global.char[s];
+    switch (b)
+    {
+        case 0:
+            return "FIGHT";
+        case 1:
+            return c == 1 ? "ACT" : "MAGIC";
+        case 2:
+            return "ITEM";
+        case 3:
+            return "SPARE";
+        case 4:
+            return "DEFEND";
+    }
+    return "?";
 }
 
 // The battle menu takes a press this frame (it ignores them while its countdowns run).
@@ -1072,7 +1161,12 @@ function mp_battle_status()
         if (o == global.mp_myid)
             return "Your turn: choose " + cn + "'s action!";
         if (o < 8 && global.mp_pconn[o])
+        {
+            var ps = mp_presel_slot();
+            if (ps >= 0)
+                return global.mp_pname[o] + " is choosing for " + cn + ". Your " + mp_char_name(global.char[ps]) + ": < " + mp_presel_name(ps) + " > (Z on your turn)";
             return global.mp_pname[o] + " is choosing for " + cn + "...";
+        }
     }
     if (mp_my_slot_count() == 0)
     {
