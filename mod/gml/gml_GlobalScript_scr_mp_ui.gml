@@ -705,11 +705,12 @@ function mp_draw_gui()
         ny -= lh;
     }
 
-    // Fade in after the mod moved me (like a door transition).
-    if (global.mp_fade > 0)
+    // Fade out before / in after the mod moved me (like a door transition).
+    var fade_out = variable_global_exists("mp_end_fade_a") ? global.mp_end_fade_a : 0;
+    if (global.mp_fade > 0 || fade_out > 0)
     {
         draw_set_color(c_black);
-        draw_set_alpha(global.mp_fade);
+        draw_set_alpha(max(global.mp_fade, fade_out));
         draw_rectangle(0, 0, gw, gh, false);
         draw_set_alpha(1);
         global.mp_fade = max(0, global.mp_fade - 0.06);

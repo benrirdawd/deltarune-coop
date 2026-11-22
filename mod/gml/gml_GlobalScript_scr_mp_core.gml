@@ -576,6 +576,7 @@ function mp_end_tick()
     if ((global.mp_frame mod 300) == 0)
         mp_filelog_flush();
     mp_swap_fade_tick();
+    mp_cs_end_fade_tick();
     mp_voice_tick();
     if (global.mp_role == 0)
         return;

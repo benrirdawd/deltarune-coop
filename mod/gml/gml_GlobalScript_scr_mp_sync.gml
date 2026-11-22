@@ -75,6 +75,8 @@ function mp_sync_init()
     global.mp_dlg_skip = 0;
     global.mp_dlg_battle_wait = "";
     global.mp_dlg_lead_t = 0;
+    global.mp_end_fade = -1;
+    global.mp_end_fade_a = 0;
     global.mp_dlg_skip_sent = 0;
     global.mp_dlg_ready = 0;
     global.mp_dlg_ready_sent = -1;
@@ -341,31 +343,19 @@ function mp_sync_recv(type, from, b)
         var edz = buffer_read(b, buffer_u8);
         if (from != global.mp_slead)
             return;
-        if (global.mp_sstate == 5)
+        if (global.mp_sstate >= 3 && global.mp_sstate <= 5)
         {
-            mp_mirror_end(rm2, ex, ey, edz, from);
+            // Watched it: the screen fades out first, then the move to where the scene left the
+            // party (mp_cs_end_fade_tick), and fades back in there, like a door.
+            if (!is_array(global.mp_end_fade))
+            {
+                global.mp_end_fade = [rm2, ex, ey, edz, from];
+                global.mp_end_fade_a = 0;
+            }
             return;
         }
-        global.mp_watch_text = "";
-        if (global.mp_sstate == 3 || global.mp_sstate == 4)
-        {
-            global.interact = 0;
-            global.mp_sstate = 0;
-            global.mp_slead = -1;
-            mp_vars_apply_queue();
-            with (obj_mainchara)
-                visible = 1;
-            if (mp_room_ok(rm2) && !mp_credits_running())
-            {
-                global.mp_warp_mus = from;
-                global.mp_warp_reenter = mp_dz_take(edz) || (rm2 == room && global.plot > global.mp_room_plot);
-                mp_warp(rm2, ex, ey, 0);
-            }
-        }
-        else if (global.mp_sstate == 2)
-        {
+        if (global.mp_sstate == 2)
             global.mp_lead_done = 1;
-        }
         return;
     }
     if (type == 33) // leader's current dialogue, for spectators
@@ -1293,6 +1283,51 @@ function mp_dlg_fighting()
             return global.mp_pname[i];
     }
     return "";
+}
+
+// The end of a cutscene I watched, after the fade-out (mp_cs_end_fade_tick).
+function mp_cs_end_apply(rm2, ex, ey, edz, from)
+{
+    global.mp_fade = 1;
+    if (global.mp_sstate == 5)
+    {
+        mp_mirror_end(rm2, ex, ey, edz, from);
+        return;
+    }
+    global.mp_watch_text = "";
+    global.interact = 0;
+    global.mp_sstate = 0;
+    global.mp_slead = -1;
+    mp_vars_apply_queue();
+    with (obj_mainchara)
+        visible = 1;
+    if (mp_room_ok(rm2) && !mp_credits_running())
+    {
+        global.mp_warp_mus = from;
+        global.mp_warp_reenter = mp_dz_take(edz) || (rm2 == room && global.plot > global.mp_room_plot);
+        mp_warp(rm2, ex, ey, 0);
+    }
+}
+
+// Every frame: a watched cutscene's end fades the screen out over about a third of a second, then
+// moves me. (Dropped if something else took me out of watching meanwhile, a battle pull say.)
+function mp_cs_end_fade_tick()
+{
+    if (!variable_global_exists("mp_end_fade") || !is_array(global.mp_end_fade))
+        return;
+    var f = global.mp_end_fade;
+    if (global.mp_sstate < 3 || global.mp_sstate > 5 || global.mp_slead != f[4])
+    {
+        global.mp_end_fade = -1;
+        global.mp_end_fade_a = 0;
+        return;
+    }
+    global.mp_end_fade_a = min(1, global.mp_end_fade_a + 0.12);
+    if (global.mp_end_fade_a < 1)
+        return;
+    global.mp_end_fade = -1;
+    global.mp_end_fade_a = 0;
+    mp_cs_end_apply(f[0], f[1], f[2], f[3], f[4]);
 }
 
 // After input sampling, every frame.
