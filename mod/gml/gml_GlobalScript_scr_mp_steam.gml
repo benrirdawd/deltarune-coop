@@ -14,6 +14,11 @@ function mp_steam_globals()
     global.mp_steam_buf = buffer_create(65536, buffer_fixed, 1);
     global.mp_steam_frname = [];
     global.mp_steam_frlobby = [];
+    global.mp_steam_want = "";      // host with this code instead of a new one (next chapter)
+    global.mp_steam_joined = "";    // the code of the lobby I joined
+    global.mp_steam_retries = 0;    // look for the code again when it isn't found (next chapter)
+    global.mp_steam_retry_at = 0;
+    global.mp_steam_retry_code = "";
 }
 
 // Starts Steam the first time it is needed; false (and says why) when it can't.
@@ -53,6 +58,9 @@ function mp_steam_host()
     if (!mp_host_start(global.mp_cfg_port, true))
         return;
     global.mp_steam_code = mp_steam_new_code();
+    if (global.mp_steam_want != "")
+        global.mp_steam_code = global.mp_steam_want;
+    global.mp_steam_want = "";
     if (global.mp_test != "" && mp_test_has("steamcode"))
         global.mp_steam_code = mp_test_arg("steamcode");
     if (drs_host(global.mp_steam_code, 8) <= 0)
@@ -76,6 +84,7 @@ function mp_steam_join_code(code)
     }
     mp_disconnect("");
     global.mp_steam_code = "";
+    global.mp_steam_retry_code = code;
     drs_join_code(code);
     mp_notify("Looking for the Steam game " + code + "...");
 }
@@ -141,6 +150,8 @@ function mp_steam_tick()
                 break;
             case "joined":
                 // In the host's lobby: now the game's own join, to the host's Steam peer.
+                global.mp_steam_retries = 0;
+                global.mp_steam_joined = drs_lobby_get("drm_code");
                 global.mp_join_retries = 0;
                 mp_join("steam", real(arg));
                 break;
@@ -148,6 +159,12 @@ function mp_steam_tick()
                 mp_notify("Steam: could not join that game (" + arg + ").");
                 break;
             case "code_not_found":
+                if (global.mp_steam_retries > 0)
+                {
+                    global.mp_steam_retries -= 1;
+                    global.mp_steam_retry_at = current_time + 3000;
+                    break;
+                }
                 mp_notify("No Steam game with that code. Check it, and that the host is still hosting.");
                 break;
             case "join_request":
@@ -161,6 +178,12 @@ function mp_steam_tick()
                 mp_log("steam: a connection failed");
                 break;
         }
+    }
+    if (global.mp_steam_retry_at > 0 && current_time >= global.mp_steam_retry_at)
+    {
+        global.mp_steam_retry_at = 0;
+        if (global.mp_role == 0)
+            drs_join_code(global.mp_steam_retry_code);
     }
     if (global.mp_usock < 0)
         return;

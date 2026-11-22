@@ -461,3 +461,12 @@ EXPORT const char *drs_peer_name(double peer)
 }
 
 EXPORT double drs_in_lobby(void) { return g_lobby != 0; }
+
+// A value of the lobby I'm in ("" when none): a joiner reads the host's code, to find the game
+// again after a chapter change.
+EXPORT const char *drs_lobby_get(const char *key)
+{
+    if (!g_ok || !g_lobby) return "";
+    const char *v = p_GetLobbyData(g_mm, g_lobby, key);
+    return v ? v : "";
+}

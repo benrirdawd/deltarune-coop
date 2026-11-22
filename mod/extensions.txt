@@ -20,3 +20,4 @@ drs_recv d s d
 drs_recv_peer d
 drs_peer_name s d
 drs_in_lobby d
+drs_lobby_get s s

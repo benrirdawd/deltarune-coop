@@ -41,6 +41,7 @@ function mp_init()
     mp_battle_init();
     mp_ui_init();
     global.mp_resumed = 0;
+    global.mp_resume_code = "";
     global.mp_resume_done = 0;
     mp_parse_cmdline();
     mp_resume_load();
@@ -281,6 +282,12 @@ function mp_resume_save()
     ini_write_real("resume", "port", global.mp_role == 2 ? global.mp_join_port : global.mp_cfg_port);
     ini_write_real("resume", "chapter", global.mp_chapter);
     ini_write_string("resume", "time", string_format(date_current_datetime(), 8, 8));
+    // On Steam: the lobby's code (the host opens a lobby with the same code again, the others look
+    // for it).
+    var code = "";
+    if (mp_steam_on())
+        code = global.mp_role == 1 ? global.mp_steam_code : global.mp_steam_joined;
+    ini_write_string("resume", "steam", (global.mp_role == 1 || global.mp_join_ip == "steam") ? code : "");
     ini_close();
 }
 
@@ -302,12 +309,19 @@ function mp_resume_load()
     var port = ini_read_real("resume", "port", 26510);
     var ch = ini_read_real("resume", "chapter", 0);
     var t = real(ini_read_string("resume", "time", "0"));
+    var steam = ini_read_string("resume", "steam", "");
     ini_close();
     if (role == 0 || ch == global.mp_chapter || ch == 0)
         return;
     if (abs(date_current_datetime() - t) > (15 / 1440))
         return;
-    if (role == 1)
+    if (steam != "")
+    {
+        global.mp_auto = role == 1 ? "steamhost" : "steamjoin";
+        global.mp_resume_code = steam;
+        global.mp_cfg_port = port;
+    }
+    else if (role == 1)
     {
         global.mp_auto = "host";
         global.mp_cfg_port = port;
@@ -500,6 +514,19 @@ function mp_after_input()
             mp_notify("Continuing the multiplayer session in this chapter...");
         if (global.mp_auto == "host")
             mp_host_start(global.mp_cfg_port);
+        else if (global.mp_auto == "steamhost")
+        {
+            mp_steam_globals();
+            global.mp_steam_want = global.mp_resume_code;
+            mp_steam_host();
+        }
+        else if (global.mp_auto == "steamjoin")
+        {
+            mp_steam_globals();
+            // (The host's game may still be starting its chapter: look again for a while.)
+            global.mp_steam_retries = 20;
+            mp_steam_join_code(global.mp_resume_code);
+        }
         else
         {
             global.mp_join_retries = 20;
