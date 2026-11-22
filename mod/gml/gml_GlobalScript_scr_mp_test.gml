@@ -449,6 +449,24 @@ function mp_test_input()
         global.input_pressed[6] = 1;
         global.input_held[6] = 1;
     }
+    // buy:<item>: once everyone is in, at the next whole 5 s of the wall clock (the same moment in
+    // every game on this PC), pay 50 and put the item in the first empty slot, as a shop does: two
+    // players buying at the same time.
+    if (mp_test_has("buy") && mp_on() && mp_player_count() >= 2 && global.mp_frame > 300 && !variable_global_exists("mp_test_bought") && variable_global_exists("mp_test_wcal") && global.interact == 0
+        && (floor(global.mp_test_ws + ((current_time - global.mp_test_wb) / 1000)) mod 5) == 0)
+    {
+        global.mp_test_bought = 1;
+        global.gold -= 50;
+        for (var bi = 0; bi < array_length(global.item); bi++)
+        {
+            if (global.item[bi] == 0)
+            {
+                global.item[bi] = real(mp_test_arg("buy"));
+                break;
+            }
+        }
+        mp_log("[test] bought item " + mp_test_arg("buy") + " gold now " + string(global.gold));
+    }
     // holdx: hold X all the time (speeds text up; set in the input state, so it works unfocused).
     if (mp_test_has("holdx"))
         global.input_held[5] = 1;

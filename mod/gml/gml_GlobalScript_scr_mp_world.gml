@@ -998,6 +998,7 @@ function mp_vars_init()
     global.mp_vcount = array_length(global.mp_vname);
     global.mp_vlen = array_create(global.mp_vcount, 0);
     global.mp_vshadow = array_create(global.mp_vcount, 0);
+    mp_inv_init();
     global.mp_vqueue = ds_list_create();
     global.mp_vscan = 0;
     global.mp_vscan_flag = 60;
@@ -1027,6 +1028,9 @@ function mp_vars_valid(v)
 
 function mp_vars_reset_shadow()
 {
+    // (Money and the bag start over from what I have now too: mp_inv_tick.)
+    if (variable_global_exists("mp_inv_needreset"))
+        global.mp_inv_needreset = true;
     ds_list_clear(global.mp_vqueue);
     for (var v = 0; v < global.mp_vcount; v++)
     {
@@ -1126,6 +1130,7 @@ function mp_vars_tick()
     // Apply changes that arrived while we were busy.
     mp_vars_apply_queue();
     mp_items_apply();
+    mp_inv_tick();
     if ((global.mp_frame mod 2) != 0)
         return;
     mp_vars_send_changes(false);
@@ -1141,6 +1146,9 @@ function mp_vars_send_changes(full)
         if (!mp_vars_valid(v))
             continue;
         var nm = global.mp_vname[v];
+        // Money and the bag go out as changes instead (scr_mp_inv).
+        if (mp_inv_owns(nm))
+            continue;
         var val = variable_global_get(nm);
         if (global.mp_vlen[v] > 0)
         {
@@ -1320,6 +1328,8 @@ function mp_vars_recv(pid, b)
         ds_list_clear(global.mp_vqueue);
         global.mp_need_warp = 1;
     }
+    if (mode != 0)
+        global.mp_inv_needreset = true;
     // The host's copy is the shared one: changes from a client are echoed back to everyone
     // (that client included) in the order the host took them, so two players changing the
     // same thing at once (e.g. both finishing a cutscene) end up with the same value.

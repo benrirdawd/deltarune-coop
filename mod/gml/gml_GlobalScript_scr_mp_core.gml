@@ -477,6 +477,11 @@ function mp_handle(type, sender, b, sock, endpos)
         mp_vars_recv(sender, b);
         return;
     }
+    if (type >= 22 && type <= 24)
+    {
+        mp_inv_recv(type, sender, b);
+        return;
+    }
     if (type == 21) // a client reloaded and wants the shared state again
     {
         if (global.mp_role == 1)
