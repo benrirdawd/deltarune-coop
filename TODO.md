@@ -73,6 +73,9 @@ Follow-up (only the related scenarios re-run after each fix):
   hero in the fight still only watch.
 * **Chapter 1 Susie:** the player playing her (autopilot lent) now only gets FIGHT on the topmost
   enemy, as her autopilot does in the story, and does the attack timing.
+* **Later (not now):** players left out of a fight (their hero isn't in the story party, isn't
+  in the story yet, is taken by someone else, or a 4th+ player) only watch. Planned: support for up
+  to 5 players and a proper spectator role for them.
 * **Not tested yet** (built only).
 
 ## Reading cutscenes together, 2026-11-22
