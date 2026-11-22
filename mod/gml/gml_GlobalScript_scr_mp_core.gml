@@ -581,3 +581,27 @@ function mp_end_tick()
         mp_ghosts_update();
     mp_flush();
 }
+
+// WASD as the arrow keys: true when the letter for the game's input i (0 down, 1 right, 2 up,
+// 3 left) is held. Called next to the game's own key check (core.hook), so held / pressed /
+// released all work as with the arrows. Not while typing in the F9 menu, nor for a letter that
+// is the push-to-talk key.
+function mp_wasd(i)
+{
+    if (i < 0 || i > 3)
+        return false;
+    if (variable_global_exists("mp_ui_edit") && global.mp_ui_edit >= 0)
+        return false;
+    var k = ord("S");
+    switch (i)
+    {
+        case 1: k = ord("D"); break;
+        case 2: k = ord("W"); break;
+        case 3: k = ord("A"); break;
+    }
+    if (variable_global_exists("mp_cfg_vkey") && global.mp_cfg_vkey == k)
+        return false;
+    if (variable_global_exists("kbdBlocked") && global.kbdBlocked)
+        return false;
+    return keyboard_check(k);
+}

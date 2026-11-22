@@ -275,3 +275,10 @@ $1
     mp_mirror_snd(arg0, arg1, arg2);
 @end
 #chapters all
+
+;; WASD works as the arrow keys (mp_wasd): next to each of the game's checks of its key setting.
+@regex gml_Object_obj_time_Step_1
+\b(keyboard_check|sunkus_kb_check)\(global\.input_k\[(\w+)\]\)
+@with
+($1(global.input_k[$2]) || mp_wasd($2))
+@end

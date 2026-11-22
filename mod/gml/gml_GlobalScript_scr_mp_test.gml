@@ -232,6 +232,24 @@ function mp_test_tick()
             scr_caterpillar_interpolate();
         }
     }
+    // holdkeys:<letters>: hold each letter in turn for 2 s (simulated inside the game, so no window
+    // focus is needed), from 3 s after entering the room; logs where the player is at each switch.
+    if (mp_test_has("holdkeys") && global.mp_test_state == 1 && global.mp_test_timer >= 90)
+    {
+        var hk = mp_test_arg("holdkeys");
+        var hn = floor((global.mp_test_timer - 90) / 60);
+        if (hn <= string_length(hk))
+        {
+            if (((global.mp_test_timer - 90) mod 60) == 0)
+            {
+                if (hn > 0)
+                    keyboard_key_release(ord(string_char_at(hk, hn)));
+                mp_log("[test] holdkeys " + (hn < string_length(hk) ? string_char_at(hk, hn + 1) : "done") + " at " + (instance_exists(obj_mainchara) ? string(obj_mainchara.x) + "," + string(obj_mainchara.y) : "-"));
+            }
+            if (hn < string_length(hk))
+                keyboard_key_press(ord(string_char_at(hk, hn + 1)));
+        }
+    }
     // A room entered straight at a story point puts you at its default start, which can be inside
     // something solid (Kris's bed after the wake-up scene: in play you are out of it by then, and
     // come back in through the door). Out of it to the nearest free spot, in the first seconds only
