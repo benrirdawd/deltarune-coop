@@ -707,7 +707,23 @@ function mp_world_tick()
     {
         global.mp_goto_timer -= 1;
         if (global.mp_goto_timer == 0)
-            mp_go_to_player(0);
+        {
+            // After a Game Over: only once the host has reloaded too (not still on the Game Over
+            // screen or the file select, nor in a fight or cutscene). Up to 2 minutes.
+            var hr = global.mp_proom[0];
+            var host_ready = global.mp_pconn[0] && hr >= 0 && room_exists(hr) && mp_room_ok(hr) && (global.mp_pstate[0] & 3) == 0;
+            if (!host_ready && global.mp_goto_waits < 120)
+            {
+                global.mp_goto_waits += 1;
+                global.mp_goto_timer = 30;
+            }
+            else
+            {
+                global.mp_goto_waits = 0;
+                if (host_ready)
+                    mp_go_to_player(0);
+            }
+        }
     }
     mp_room_refresh_tick();
     mp_music_tick();

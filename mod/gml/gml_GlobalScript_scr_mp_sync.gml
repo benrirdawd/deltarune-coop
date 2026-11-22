@@ -54,6 +54,7 @@ function mp_sync_init()
     global.mp_ui_plot = 0;
     global.mp_goto_blocked = -99999;
     global.mp_goto_timer = 0;
+    global.mp_goto_waits = 0;
     global.mp_ch1ev_frame = -99;
     global.mp_ch1ev_value = false;
     global.mp_ch1ev_active = false;
