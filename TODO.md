@@ -59,6 +59,22 @@ Follow-up (only the related scenarios re-run after each fix):
 * Rechecked, pass now: Ch4 `room_lw_church_main` 289, the door ghost cases (`room_library`, `room_diner`,
   `room_town_church` 100, `room_town_noellehouse` 89, `room_board_dungeon_3` 179).
 
+## Battles: live TP, downed SOUL, Chapter 1 Susie, 2026-11-22
+
+* **Live TP:** during the bullet phase each game sends its own TP change (message 53: turn, own gain
+  since the phase began), and every game shows the phase's start plus everyone's gains, so the bar
+  moves for all players as it happens. At the turn's end the leader recomputes it from the phase's
+  start and each player's final count (gains can be negative now), so a lost update can't stick.
+  Caveat: a TP change that every game makes by itself in the bullet phase would be counted once per
+  player; none known.
+* **Downed players keep playing their SOUL:** it stays visible in their own colour, darker, takes
+  input and grazes for TP. A hit costs twice that bullet's graze TP (about 3% for a usual bullet),
+  with the game's normal invincibility frames, a hurt sound and a "-N% TP" label. Players with no
+  hero in the fight still only watch.
+* **Chapter 1 Susie:** the player playing her (autopilot lent) now only gets FIGHT on the topmost
+  enemy, as her autopilot does in the story, and does the attack timing.
+* **Not tested yet** (built only).
+
 ## Reading cutscenes together, 2026-11-22
 
 * **Everyone turns the pages:** in a shared cutscene, whoever presses Z on a box that has finished

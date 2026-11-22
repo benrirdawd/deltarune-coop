@@ -66,6 +66,14 @@ function mp_battle_reset()
     global.mp_mn_pend = 0;
     global.mp_prev_mnfight = -99;
     global.mp_tension_b0 = 0;
+    global.mp_t_mine = 0;           // TP my own SOUL earned (grazes) or lost (hits while down) this bullet phase
+    global.mp_t_shown = 0;
+    global.mp_t_sent = -99999;
+    global.mp_t_sent_f = 0;
+    global.mp_t_remote = array_create(8, 0);
+    global.mp_t_rturn = array_create(8, -1);
+    global.mp_down_hit_f = -9999;
+    global.mp_down_hit_n = 0;
     global.mp_qte_since = 0;
     for (var s = 0; s < 3; s++)
     {
@@ -154,6 +162,35 @@ function mp_susie_update()
     }
 }
 
+// Chapter 1's Susie only ever attacks the topmost enemy (the story has her not listening yet): the
+// player playing her gets FIGHT and the topmost enemy, and does the attack timing. Run by every game
+// on its own copy of the menu, so all agree.
+function mp_susie_lock()
+{
+    if (!global.mp_susie_lent || global.mp_chapter != 1 || global.char[global.charturn] != 2)
+        return;
+    var ct = global.charturn;
+    if (global.bmenuno == 0)
+    {
+        global.bmenucoord[0][ct] = 0;
+        global.input_pressed[1] = 0;
+        global.input_pressed[3] = 0;
+    }
+    else if (global.bmenuno == 1)
+    {
+        for (var m = 0; m < 3; m++)
+        {
+            if (global.monster[m] == 1)
+            {
+                global.bmenucoord[1][ct] = m;
+                break;
+            }
+        }
+        global.input_pressed[0] = 0;
+        global.input_pressed[2] = 0;
+    }
+}
+
 // Back to autopilot once the battle is over, so the story's own setting is what remains.
 function mp_susie_restore()
 {
@@ -189,6 +226,7 @@ function mp_battle_created()
     global.mp_bwait_turn = 0;
     global.mp_bwait_since = current_time;
     global.mp_tension_b0 = global.tension;
+    mp_tp_phase_start();
     global.mp_hold_want = 1;
     mp_stand_in_make();
     // No fight yet: a story battle started by my own cutscene.
@@ -252,7 +290,8 @@ function mp_turn_gate()
         global.mp_bwait_turn = global.mp_bturn + 1;
         global.mp_bwait_since = current_time;
         mp_battle_send_hp();
-        var gain = max(0, global.tension - global.mp_tension_b0);
+        // (Can be negative: hits taken while down cost TP.)
+        var gain = global.mp_t_mine;
         mp_log("gate reached, tdone " + string(global.mp_bwait_turn) + " gain=" + string(gain) + " myfight=" + string(global.myfight) + " mnfight=" + string(global.mnfight) + " mon=" + string(global.monster[0]) + string(global.monster[1]) + string(global.monster[2]) + " types=" + string(global.monstertype[0]) + "," + string(global.monstertype[1]) + "," + string(global.monstertype[2]));
         mp_send_tdone(global.mp_bwait_turn, gain);
         global.mp_tdone_bid[global.mp_myid] = global.mp_bid;
@@ -278,6 +317,17 @@ function mp_battle_recv(type, from, b)
     if (type >= 48 && type <= 51)
     {
         mp_timing_recv(type, from, b);
+        return;
+    }
+    if (type == 53) // the sender's own TP gain this bullet phase (live TP)
+    {
+        var tturn = buffer_read(b, buffer_u16);
+        var tv = buffer_read(b, buffer_f64);
+        if (from >= 0 && from < 8)
+        {
+            global.mp_t_rturn[from] = tturn;
+            global.mp_t_remote[from] = tv;
+        }
         return;
     }
     if (type == 47) // where the sender's SOUL is
@@ -499,12 +549,15 @@ function mp_host_turn_check()
     var tension = global.tension;
     if (t > 0)
     {
+        // (My game already shows everyone's TP live, mp_tp_tick: start over from the phase's start
+        // with each player's final count, so a lost live update can't stay wrong.)
+        tension = global.mp_tension_b0 + global.mp_t_mine;
         for (var j = 0; j < 8; j++)
         {
             if (j != global.mp_myid && global.mp_pconn[j] && global.mp_tdone_bid[j] == global.mp_bid && global.mp_tdone_turn[j] == t)
                 tension += global.mp_tdone_gain[j];
         }
-        tension = min(tension, global.maxtension);
+        tension = clamp(tension, 0, global.maxtension);
     }
     var st = [];
     st[0] = global.mp_bid;
@@ -569,6 +622,7 @@ function mp_battle_input()
         {
             mp_battle_seed(3);
             global.mp_tension_b0 = global.tension;
+            mp_tp_phase_start();
         }
         global.mp_prev_mnfight = global.mnfight;
     }
@@ -594,6 +648,7 @@ function mp_battle_input()
     var menu = global.myfight == 0 && global.mnfight == 0 && global.charturn < 3;
     if (!menu)
         return;
+    mp_susie_lock();
     var owner = global.mp_owner[global.charturn];
     if (owner == global.mp_myid)
     {
@@ -840,8 +895,23 @@ function mp_party_size()
 }
 
 // A SOUL that controls no standing hero was hit: it is hidden and spectating, so nothing happens.
+// Called from scr_damage (self is usually the bullet). All my heroes are down: the hit costs the
+// team twice the TP a graze of this bullet gives, with the usual invincibility after it.
 function mp_damage_spectator()
 {
+    if (mp_soul_state() != 1 || global.inv >= 0)
+        return;
+    var g = 4;
+    if (variable_instance_exists(id, "grazepoints") && is_real(grazepoints) && grazepoints > 0)
+        g = grazepoints;
+    var cost = min(2 * g, global.tension);
+    global.tension -= cost;
+    global.inv = global.invc * 40;
+    global.mp_down_hit_f = global.mp_frame;
+    global.mp_down_hit_n = cost;
+    var snd = asset_get_index("snd_hurt1");
+    if (snd >= 0)
+        snd_play(snd);
 }
 
 // ---------------------------------------------------------------- attack timing (QTE)
@@ -971,9 +1041,7 @@ function mp_battle_status()
         return "Waiting for " + q + "'s attack...";
     if (mp_soul_state() == 1 && instance_exists(obj_heart))
     {
-        if (global.mp_spec_target >= 0)
-            return "You're down: watching " + global.mp_pname[global.mp_spec_target] + " until you're revived.";
-        return "You're down: watching until you're revived.";
+        return "You're down: keep dodging. Grazes still give TP, hits take TP.";
     }
     if (global.myfight == 0 && global.mnfight == 0 && global.charturn < 3)
     {
@@ -995,7 +1063,7 @@ function mp_battle_status()
         return "Watching: " + mp_char_name(global.mp_cfg_char) + " is not in this battle. No need to dodge.";
     }
     if (mp_soul_state() == 1)
-        return "You're down: you'll be back when you're revived.";
+        return "You're down: you'll be back when you're revived. Hits take TP.";
     return "";
 }
 
@@ -1120,9 +1188,69 @@ function mp_soul_state()
     return up > 0 ? 0 : 1;
 }
 
+// (A player whose heroes are all down keeps their SOUL: it dodges, grazes for TP and loses TP when
+// hit, mp_damage_spectator. Only a player with no hero in the fight watches.)
 function mp_spectating()
 {
-    return mp_soul_state() != 0;
+    return mp_soul_state() == 2;
+}
+
+// Does player i play heroes in this fight that are all down?
+function mp_player_down(i)
+{
+    var mine = 0;
+    var up = 0;
+    for (var s = 0; s < 3; s++)
+    {
+        if (global.char[s] != 0 && global.mp_owner[s] == i)
+        {
+            mine++;
+            if (global.hp[global.char[s]] > 0)
+                up++;
+        }
+    }
+    return mine > 0 && up == 0;
+}
+
+// ---------------------------------------------------------------- live TP
+
+function mp_tp_phase_start()
+{
+    global.mp_t_mine = 0;
+    global.mp_t_shown = global.tension;
+    global.mp_t_sent = -99999;
+    for (var i = 0; i < 8; i++)
+    {
+        global.mp_t_remote[i] = 0;
+        global.mp_t_rturn[i] = -1;
+    }
+}
+
+// During the bullet phase, every frame: whatever my own game changed in TP (my grazes, my hits
+// while down) is mine; the bar shows the phase's start plus everyone's gains, so TP goes up and
+// down for all players as it happens. At the turn's end the leader's count settles it.
+function mp_tp_tick()
+{
+    if (!mp_battle_on() || global.mnfight != 2 || global.mp_bwait)
+        return;
+    global.mp_t_mine += global.tension - global.mp_t_shown;
+    var t = global.mp_tension_b0 + global.mp_t_mine;
+    for (var i = 0; i < 8; i++)
+    {
+        if (i != global.mp_myid && global.mp_pconn[i] && global.mp_t_rturn[i] == global.mp_bturn)
+            t += global.mp_t_remote[i];
+    }
+    global.tension = clamp(t, 0, global.maxtension);
+    global.mp_t_shown = global.tension;
+    if ((global.mp_t_sent != global.mp_t_mine || (global.mp_frame - global.mp_t_sent_f) > 15) && (global.mp_frame - global.mp_t_sent_f) >= 2)
+    {
+        mp_begin_b(53);
+        mp_wu16(global.mp_bturn);
+        mp_wf64(global.mp_t_mine);
+        mp_send();
+        global.mp_t_sent = global.mp_t_mine;
+        global.mp_t_sent_f = global.mp_frame;
+    }
 }
 
 // Spectating: my SOUL is hidden and takes no input or hits and earns no TP, and sits where the
@@ -1168,6 +1296,7 @@ function mp_spectate_tick(spec)
 // While I have a SOUL in a battle, tell the others where it is.
 function mp_soul_tick()
 {
+    mp_tp_tick();
     if (!mp_battle_on() || !instance_exists(obj_heart))
     {
         global.mp_soul_seen = 0;
@@ -1299,10 +1428,18 @@ function mp_heart_draw_others()
         var sx = round(global.mp_soul_x[i]);
         var sy = round(global.mp_soul_y[i]);
         var col = mp_soul_color(global.mp_pchar[i]);
-        draw_sprite_ext(mp_soul_sprite(sprite_index, global.mp_pchar[i]), 0, sx, sy, image_xscale, image_yscale, 0, c_white, 1);
+        draw_sprite_ext(mp_soul_sprite(sprite_index, global.mp_pchar[i]), 0, sx, sy, image_xscale, image_yscale, 0, mp_player_down(i) ? mp_down_blend() : c_white, 1);
         var label = string_copy(global.mp_pname[i], 1, 8);
         draw_text_transformed_color(sx + 9 + 1, sy - 4 + 1, label, 1, 1, 0, c_black, c_black, c_black, c_black, 1);
         draw_text_transformed_color(sx + 9, sy - 4, label, 1, 1, 0, col, col, col, col, 1);
+    }
+    // A hit while down: how much TP it cost, over my SOUL for a second.
+    if ((global.mp_frame - global.mp_down_hit_f) < 30 && global.maxtension > 0)
+    {
+        var tl = "-" + string(max(1, round((global.mp_down_hit_n / global.maxtension) * 100))) + "% TP";
+        var ty = y - 14 - ((global.mp_frame - global.mp_down_hit_f) / 3);
+        draw_text_transformed_color(x + 1, ty + 1, tl, 1, 1, 0, c_black, c_black, c_black, c_black, 1);
+        draw_text_transformed_color(x, ty, tl, 1, 1, 0, c_orange, c_orange, c_orange, c_orange, 1);
     }
     draw_set_font(of);
     draw_set_halign(oh);
@@ -1312,7 +1449,13 @@ function mp_heart_draw_others()
     // color 0 is the normal SOUL (the other colours are special modes the game draws in its own way;
     // Chapter 1 only has the normal one and no such variable).
     if (!global.mp_spec_on && (!variable_instance_exists(id, "color") || color == 0))
-        draw_sprite_ext(mp_soul_sprite(sprite_index, global.mp_pchar[global.mp_myid]), image_index, x, y, image_xscale, image_yscale, image_angle, c_white, image_alpha);
+        draw_sprite_ext(mp_soul_sprite(sprite_index, global.mp_pchar[global.mp_myid]), image_index, x, y, image_xscale, image_yscale, image_angle, mp_soul_state() == 1 ? mp_down_blend() : c_white, image_alpha);
+}
+
+// A downed player's SOUL: their own colour, darker.
+function mp_down_blend()
+{
+    return make_color_rgb(110, 110, 110);
 }
 
 // Prepended to scr_damage outside battles. HP is shared, so another player's hit can take one of
