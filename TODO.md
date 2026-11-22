@@ -59,6 +59,22 @@ Follow-up (only the related scenarios re-run after each fix):
 * Rechecked, pass now: Ch4 `room_lw_church_main` 289, the door ghost cases (`room_library`, `room_diner`,
   `room_town_church` 100, `room_town_noellehouse` 89, `room_board_dungeon_3` 179).
 
+## Reading cutscenes together, 2026-11-22
+
+* **Everyone turns the pages:** in a shared cutscene, whoever presses Z on a box that has finished
+  typing turns it for everyone (a follower's count goes to the leader, whose game turns it; the
+  others follow the leader). The leader only follows a press made on its own box, so counts that are
+  off by more never skip text. A box still typing when the page turns finishes at once.
+* **X for everyone:** holding X on a box types it out at once on every screen on the same box (skip
+  bit in message 60, next to "ready"; older games read it as ready).
+* No more "Waiting for X..." / "X turns the pages..." / "Watching X's cutscene..." lines; the 15 s /
+  30 s safety waits are gone with them.
+* **Separate fights (open world):** while another player is still in their own fight, the scene waits
+  at its first box for everyone in it ("X is in a fight: the scene goes on when it's over", at most
+  5 minutes); the fighter is pulled in when the fight ends and catches up.
+* Any player can start a shared cutscene and pull the others (not only the host): already so.
+* **Not tested yet** (built only).
+
 ## Steam play and WASD, 2026-11-22
 
 * **WASD** works as the arrow keys everywhere (`mp_wasd`, core.hook next to `obj_time`'s key checks), not

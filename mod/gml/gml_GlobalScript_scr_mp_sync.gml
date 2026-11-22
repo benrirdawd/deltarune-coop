@@ -65,14 +65,17 @@ function mp_sync_init()
     global.mp_dlg_sent_t = 0;
     global.mp_dlg_wait_f = 0;       // frames my finished box has been waiting
     global.mp_dlg_block_since = 0;
-    global.mp_dlg_waitfor = "";
-    global.mp_dlg_giveup = false;   // waited out the 15 s once: stop waiting this cutscene
     global.mp_dlg_pre = 0;          // boxes read in a cutscene before it was shared
     global.mp_dlg_fast = false;     // running at double speed to catch up with the leader
     global.mp_dlg_base_fps = 30;
     global.mp_pdlg_key = array_create(8, -1);
     global.mp_pdlg_n = array_create(8, 0);
     global.mp_pdlg_ready = array_create(8, 0);  // their current box has finished typing
+    global.mp_pdlg_skip = array_create(8, 0);   // they hold X on their current box: type it out at once
+    global.mp_dlg_skip = 0;
+    global.mp_dlg_battle_wait = "";
+    global.mp_dlg_lead_t = 0;
+    global.mp_dlg_skip_sent = 0;
     global.mp_dlg_ready = 0;
     global.mp_dlg_ready_sent = -1;
     global.mp_pdlg_t = array_create(8, -99999);
@@ -1176,13 +1179,11 @@ function mp_status_line()
         return mp_timing_status();
     if (global.mp_join_target >= 0)
         return "Press Z to join " + global.mp_pname[global.mp_join_target] + "'s fight";
-    if (global.mp_dlg_waitfor != "")
-        return global.mp_dlg_waitfor;
+    if (global.mp_dlg_battle_wait != "")
+        return global.mp_dlg_battle_wait;
     var bs = mp_battle_status();
     if (bs != "")
         return bs;
-    if (global.mp_sstate == 4)
-        return "Watching " + global.mp_pname[global.mp_slead] + "'s cutscene...";
     if (global.mp_sstate == 3)
         return "Joining " + global.mp_pname[global.mp_slead] + "...";
     if ((global.mp_sstate == 2 || global.mp_sstate == 5) && instance_exists(obj_choicer_neo))
@@ -1248,15 +1249,13 @@ function mp_dialogue_text()
 
 // ---------------------------------------------------------------- reading cutscenes together
 //
-// Everyone in a shared cutscene runs it in their own game. Its text is turned by one person: whoever
-// started the cutscene (its leader). Each player sends how many boxes they've gone past. Followers
-// can't go on by themselves: when the leader goes past a box, theirs goes on too. The leader can only
-// go past a box once it has finished typing on everyone's screen, so nobody's text is cut short.
-// A follower more than a box behind (late start, slow PC) fast-forwards the boxes in between and runs
-// at double speed until it's on the leader's box.
-// Safety nets, so nobody is ever stuck: a leader waits at most 15 s for anyone, a follower at most
-// 30 s for the leader; after that, that player reads freely for the rest of the cutscene. Anyone whose
-// text isn't counted (no count heard for 3 s) is ignored.
+// Everyone in a shared cutscene runs it in their own game (or watches a copy of the leader's) and
+// everyone turns the pages: whoever presses Z on a box that has finished typing turns it for all.
+// Each player sends how many boxes they've gone past. A follower's Z goes to the leader (their count
+// one past the leader's box), whose game turns it; every follower follows the leader's count. A box
+// still typing when the page is turned finishes at once. A follower more than a box behind (late
+// start, slow PC) fast-forwards the boxes in between and runs at double speed until it's caught up.
+// Anyone whose text isn't counted (no count heard for 3 s) is ignored.
 
 // A text box that has finished typing and takes Z to go on (checked before its Draw event reads Z).
 function mp_dlg_box_waiting()
@@ -1282,14 +1281,15 @@ function mp_dlg_counted(i)
         && (global.mp_pstate[i] & 2) != 0 && (current_time - global.mp_pdlg_t[i]) <= 3000;
 }
 
-// Someone in my cutscene who isn't yet showing my box fully typed out, by name ("" when nobody).
-function mp_dlg_not_ready()
+// Another player who is still in their own (separate) fight, by name ("" none).
+// (Up to 5 minutes, so a fight that never ends can't hold the story up for good.)
+function mp_dlg_fighting()
 {
+    if (!global.mp_open || (current_time - global.mp_dlg_lead_t) > 300000)
+        return "";
     for (var i = 0; i < 8; i++)
     {
-        if (!mp_dlg_counted(i))
-            continue;
-        if (global.mp_pdlg_n[i] < global.mp_dlg_n || (global.mp_pdlg_n[i] == global.mp_dlg_n && !global.mp_pdlg_ready[i]))
+        if (i != global.mp_myid && global.mp_pconn[i] && (global.mp_pstate[i] & 1) != 0)
             return global.mp_pname[i];
     }
     return "";
@@ -1298,7 +1298,7 @@ function mp_dlg_not_ready()
 // After input sampling, every frame.
 function mp_dlg_input()
 {
-    global.mp_dlg_waitfor = "";
+    global.mp_dlg_battle_wait = "";
     // Battles keep their own pace (turn sync), so their text never waits on anyone here.
     var inscene = (global.mp_sstate == 1 || global.mp_sstate == 2 || global.mp_sstate == 5) && !mp_in_battle_scene();
     if (!inscene)
@@ -1327,88 +1327,75 @@ function mp_dlg_input()
     {
         global.mp_dlg_key = key;
         global.mp_dlg_n = lead ? global.mp_dlg_pre : 0;
+        global.mp_dlg_lead_t = current_time;
         global.mp_dlg_pre = 0;
         global.mp_dlg_sent = -1;
-        global.mp_dlg_giveup = false;
         global.mp_dlg_block_since = 0;
     }
     global.mp_dlg_ready = mp_dlg_box_waiting();
-    if ((global.mp_dlg_sent != global.mp_dlg_n) || global.mp_dlg_ready_sent != global.mp_dlg_ready || (current_time - global.mp_dlg_sent_t) > 1000)
+    // X (held) types the box out at once: for everyone on the same box.
+    global.mp_dlg_skip = !global.mp_dlg_ready && global.input_held[5] && instance_exists(obj_writer);
+    if ((global.mp_dlg_sent != global.mp_dlg_n) || global.mp_dlg_ready_sent != global.mp_dlg_ready || global.mp_dlg_skip_sent != global.mp_dlg_skip || (current_time - global.mp_dlg_sent_t) > 1000)
         mp_dlg_send();
+    if (!global.mp_dlg_ready && instance_exists(obj_writer))
+    {
+        for (var s = 0; s < 8; s++)
+            if (mp_dlg_counted(s) && global.mp_pdlg_skip[s] && global.mp_pdlg_n[s] == global.mp_dlg_n)
+                global.input_held[5] = 1;
+    }
     // How far the leader is (followers only; -1 when they aren't counted).
     var ln = (!lead && mp_dlg_counted(global.mp_slead)) ? global.mp_pdlg_n[global.mp_slead] : -1;
-    if (global.mp_dlg_giveup)
-        ln = -1;
     // Behind the leader (a slower PC, a late start, the window in the background): the walking
     // and animation between boxes run at double speed until I'm on their box again.
     mp_dlg_speed(global.mp_sstate == 2 && (ln > global.mp_dlg_n + 1 || (ln > global.mp_dlg_n && !global.mp_dlg_ready && !instance_exists(obj_writer))));
+    if (lead)
+    {
+        for (var j = 0; j < 8; j++)
+            if (mp_dlg_counted(j) && global.mp_pdlg_n[j] == global.mp_dlg_n + 1)
+                ln = global.mp_dlg_n + 1;
+    }
     if (!global.mp_dlg_ready)
     {
-        // The leader is already two boxes on (I started late): skip typing this one, the way X does.
-        if (ln > global.mp_dlg_n + 1 && instance_exists(obj_writer))
+        // Someone already turned this page: finish typing it at once, the way X does, and follow.
+        if (ln > global.mp_dlg_n && instance_exists(obj_writer))
             global.input_held[5] = 1;
         global.mp_dlg_block_since = 0;
         return;
     }
     var z = mp_dlg_confirm();
+    // Someone else is still in their own fight (separate fights): the scene waits for them at this
+    // box, for everyone in it (they come along when it's over and catch up), so nobody misses it.
+    var fighting = mp_dlg_fighting();
+    if (fighting != "")
+    {
+        global.input_pressed[4] = 0;
+        global.input_pressed[7] = 0;
+        global.mp_dlg_battle_wait = fighting + " is in a fight: the scene goes on when it's over";
+        return;
+    }
     if (!lead)
     {
         if (ln > global.mp_dlg_n)
         {
-            // The leader turned the page: so do I.
+            // Someone turned the page (the leader, or anyone through the leader): so do I.
             mp_dlg_next(" (leader)");
             return;
         }
-        if (ln < 0)
-        {
-            if (z)
-                mp_dlg_next("");
-            return;
-        }
-        var who = global.mp_pname[global.mp_slead];
-        if (global.mp_dlg_block_since == 0)
-            global.mp_dlg_block_since = current_time;
-        if (z && (current_time - global.mp_dlg_block_since) >= 30000)
-        {
-            mp_log("cutscene text: " + who + " hasn't gone on in 30 s, reading alone");
-            global.mp_dlg_giveup = true;
+        // Anyone may turn the page: my count goes to the leader, whose game turns it for everyone.
+        if (z)
             mp_dlg_next("");
+        return;
+    }
+    // Leader: another player pressed Z on the box I'm on (their count is one past mine): turn it.
+    // (Only from the same box: a count that is off by more, from a box only one game showed,
+    // never skips my text.)
+    for (var i = 0; i < 8; i++)
+    {
+        if (mp_dlg_counted(i) && global.mp_pdlg_n[i] == global.mp_dlg_n + 1)
+        {
+            mp_dlg_next(" (" + global.mp_pname[i] + ")");
             return;
         }
-        global.input_pressed[4] = 0;
-        global.input_pressed[7] = 0;
-        global.mp_dlg_waitfor = who + " turns the pages...";
-        return;
-    }
-    // Leader: wait until my box has finished typing on everyone's screen.
-    // (Text that isn't in a text box - speech bubbles drawn by the scene - isn't mirrored: no wait.)
-    var boxed = false;
-    with (obj_writer)
-    {
-        if (dialoguer == 1)
-            boxed = true;
-    }
-    var slow = (global.mp_dlg_giveup || !boxed) ? "" : mp_dlg_not_ready();
-    var behind = slow != "";
-    if (behind)
-    {
-        if (global.mp_dlg_block_since == 0)
-            global.mp_dlg_block_since = current_time;
-        if ((current_time - global.mp_dlg_block_since) >= 15000)
-        {
-            mp_log("cutscene text: waited 15 s for " + slow + ", going on");
-            global.mp_dlg_giveup = true;    // they're not keeping up: don't hold me up again this cutscene
-            behind = false;
-        }
-    }
-    else
-        global.mp_dlg_block_since = 0;
-    if (behind)
-    {
-        global.input_pressed[4] = 0;
-        global.input_pressed[7] = 0;
-        global.mp_dlg_waitfor = "Waiting for " + slow + "...";
-        return;
     }
     if (z)
         mp_dlg_next("");
@@ -1447,11 +1434,13 @@ function mp_dlg_send()
 {
     global.mp_dlg_sent = global.mp_dlg_n;
     global.mp_dlg_ready_sent = global.mp_dlg_ready;
+    global.mp_dlg_skip_sent = global.mp_dlg_skip;
     global.mp_dlg_sent_t = current_time;
     mp_begin(60);
     mp_wu8(global.mp_dlg_key < 0 ? 255 : global.mp_dlg_key);
     mp_wu16(global.mp_dlg_n);
-    mp_wu8(global.mp_dlg_ready ? 1 : 0);
+    // (bit 1: X held on this box, so everyone's copy of it is typed out at once)
+    mp_wu8((global.mp_dlg_ready ? 1 : 0) | (global.mp_dlg_skip ? 2 : 0));
     mp_send();
 }
 
@@ -1462,7 +1451,8 @@ function mp_dlg_recv(from, b)
     var ready = buffer_read(b, buffer_u8);
     if (from < 0 || from >= 8)
         return;
-    global.mp_pdlg_ready[from] = ready;
+    global.mp_pdlg_ready[from] = ready & 1;
+    global.mp_pdlg_skip[from] = (ready & 2) != 0;
     global.mp_pdlg_key[from] = key;
     global.mp_pdlg_n[from] = n;
     global.mp_pdlg_t[from] = current_time;
