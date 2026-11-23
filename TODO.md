@@ -3,6 +3,79 @@
 Sorted by priority. Effort: S = small, M = medium, L = large.
 Port forwarding (UDP 26510) stays the way to play online; no relay server.
 
+## Open — user test report 7 (Chapter 1, 2 players over the internet, user is host), 2026-11-22
+
+Nothing here is fixed yet. Grouped by area; "Next" = suggested order (1 first).
+
+### The "server layer" idea: everyone sends inputs, the host decides and sends back what happened
+
+What the user asked: separate a server layer from a user layer. Players send what they *want*
+(inputs, "I talk to Berdly", "I start this fight"); the server answers everyone with what
+happened, and whether it is local (only that player) or for everyone.
+
+Possible, in this form: **the host as referee.** Today any player who touches a trigger starts the
+cutscene and becomes its leader, and the others react; two players can start two at once (see
+below). Instead, a player's game asks the host first ("start scene X here"), and only the host's
+answer starts it, in every game at once, or only in that player's game for things marked local
+(slopes, the checkerboard path, a minigame hit). One lock at a time per kind (scene, battle), held by
+the host. That one change fixes several reports below (two scenes at once, a scene starting during
+someone's fight, scenes playing twice, the host choosing for scenes others start) and gives a
+natural place for a future vote. Battles already work this way (menu presses are sent and replayed
+in every game), and the shop bag does since priority 2.
+
+Not possible: a server that *runs* the game and sends everyone the result. The game's logic only
+exists inside each player's own copy of DELTARUNE (GameMaker), so every game still has to play the
+scene itself; the host can only decide *when*, *who* and *for whom*. Doing more would mean
+rewriting the game.
+
+Effort: L (every place that starts a scene, battle or pull goes through the request), but it can
+be done step by step: cutscene start first, then NPC talk, then battle start.
+
+### Cutscenes and talking to NPCs
+
+| Next | Issue | Idea |
+|---|---|---|
+| 1 | Two cutscenes at once: the user talked to Noelle while the friend talked to Berdly (Ch1 classroom, first visit, before Susie). Alphys vanished and the door lost its collision (the friend could still walk through it even after resetting the room); other NPCs kept working. | Host referee: one scene at a time; a second request waits or is refused. Also look for what "reset room" doesn't restore (the door's solid). |
+| 1 | A player must not be able to start a cutscene while another is in a battle. | The fight hold exists (`mp_dlg_fighting`) but only holds an already started scene at its first box; with the referee the start itself waits. |
+| 1 | Cutscenes sometimes play twice. | Referee + a "scene already played" note per scene key. |
+| 1 | Choices in a scene someone else started: the host should choose, not whoever started it. Later: an option to vote. | Choices go to the host; vote = everyone's cursor shown, majority (host breaks ties) — future option. |
+| 2 | Talking to any NPC should be seen by everyone (no need for each player to talk to the same one; avoids desyncs). | Treat NPC talk like a shared cutscene (everyone reads the same boxes, anyone turns the page), started through the referee. |
+| 2 | Not synced: the friend ran from Lancer (into the chase minigame) but the user stayed on the map, standing still; the friend chose to hear Ralsei's lore at the start and the user didn't see it. | These scenes aren't recognised as shared. Find their triggers (Lancer's escape, Ralsei's "lore" choice) and pull everyone. |
+| 2 | Closet (Ch1): the friend went first, the user followed; the friend entered a cutscene without pulling the user. | Check the closet scene's pull (probably starts on a room transition before the other arrives). |
+| 3 | Slopes and the checkerboard path (white tiles) shouldn't pull everyone like a cutscene: only the player who slid / stepped wrong. | Mark these as local (referee answer "only you"). |
+| 3 | Purple grass scene: a pulled player's sprite is stretched instead of a copy being drawn. | Check the scene's sprite scaling on pulled players. |
+
+### Battles
+
+| Next | Issue | Idea |
+|---|---|---|
+| 1 | **Choosing ahead was misunderstood.** The point: when the friend's turn comes they only press Z, their whole action (sub-menu, spell, item, target) already chosen while the user was choosing. Today only the main-row bar can be moved, so the friend still waits. | Let the next players go through their whole menu ahead (a local copy of the menu, nothing applied), keep the result, and at their turn replay it at once, or with one Z. If it became impossible (TP spent, item gone, target dead) fall back to that menu with the bar on the first possible option. |
+| 1 | Battle text (box and enemy) doesn't advance for everyone: the others still wait. | Same as cutscenes: anyone's Z turns it for all, X types it out. |
+| 1 | Waiting for a player freezes the battle. | Show the box and wait inside it (the game keeps running) instead of freezing. |
+| 1 | Downed SOUL: TP is lost on a hit and gained (graze) at the same moment. | After a hit, no TP gain for a short time (e.g. the invincibility time). |
+| 1 | Downed SOUL hit feedback: remove the "you lose TP" text and the "-4 TP" label; instead "juice" on the TP bar: it drops, a bar of another colour stays underneath and shrinks after, and the bar flashes white. | |
+| 2 | Chapter 1 Susie lock should only apply in the fights where she really only attacks (story fights she's in); in random map encounters she should be normal. | Restrict `mp_susie_lock` to those encounters. |
+| 2 | "Focus" no longer makes sense: the focused player's hero steps forward and the others go dark, but everyone dodges for themselves now. | Remove the focus look in battles. |
+| 2 | A player walking in on a turn where the enemy dies still gets pulled into the battle. | Don't pull into a battle that is ending. |
+| 2 | Option: no AI party members. A hero only fights if a player controls them. | Setting in F9 (off by default). |
+| 3 | A player in a battle, seen from the map: show them in a battle idle pose; ideally the others can watch them choose and dodge before joining. | Idle pose: S. Watching: L. |
+
+### Overworld
+
+| Next | Issue | Idea |
+|---|---|---|
+| 1 | Out-of-battle damage (map hazards, minigames): the host took the damage when the friend was hit. | Damage must go to whoever was hit; check which player's hit is applied (probably the shared HP is set from the leader's game). |
+| 2 | A player entering/leaving a room shows for one frame somewhere, then jumps. | Hide the ghost until its first real position arrives. |
+| 2 | Room entry/exit: fade in from fully transparent instead of popping in. | |
+| 2 | Map hazards: the outline of players who aren't Kris is drawn as Kris's. | Use each character's own outline sprite. |
+| 3 | The house mirror (Ch1) reflects the wrong sprite. | Draw each player's own character in the mirror. |
+
+### Other
+
+| Next | Issue | Idea |
+|---|---|---|
+| 2 | The friend had no sound for a while; it came back later by itself. | Unknown. Maybe the game was muted while unfocused, or audio groups loaded late; ask for multiplayer_log.txt next time. |
+
 ## Native Windows test run, 2026-11-22
 
 Tests now run on Windows with the native game (Git Bash; `tools/platform.sh`), 20x game speed.
@@ -371,6 +444,7 @@ All done on 2026-11-22. "Tested" means a targeted automated test; "not testable 
 |---|---|---|
 | Minigames have no multiplayer handling (only the Ch3 board and the Ch5 platformer do): the rhythm game (`obj_rhythmgame`, Ch3; its code is also in Ch4/5), the chefs/kitchen game (Ch3), the quiz/game show (Ch3), climbing (`obj_climb`, Ch4/5), the organ (Ch4). Each player plays their own copy while the others' walking ghosts are drawn over it. | First, for all of them: detect the minigame, hide the ghosts, show "P2 is playing" and let one player play while the others watch (or play their own copy, then take the host's result). Then per game: **rhythm** - each player plays their character's chart (the game already has three: Kris guitar, Susie drums, Ralsei vocals, the last two on autoplay), hits sent and the score added up; **climbing** - the others shown as ghosts on the wall, as in the platformer; **quiz/game show** - each player buzzes for their character. | M (fallback); L per game |
 | Special battle styles (Spamton NEO, Berdly/Queen, Chapter 4/5 gimmick fights) likely only partly sync. | Detect special battles and fall back to "one player drives the battle, everyone else spectates and dodges". Later, hand-sync individual fights people care about. | S–M (fallback); L per fight |
+| Voting on cutscene choices (future option; for now the host chooses, see report 7). | Everyone's cursor shown, majority wins, host breaks ties. | M |
 | Minigames played *together*, not each on their own screen (idea from play-testing). Example: the throw minigame - Susie throws Kris, and Kris's player presses a button mid-air for a sword swing that widens his reach for a moment. | Design per minigame: who controls what (thrower aims, the thrown one acts mid-air), sent as inputs like the battle menu so every game plays the same throw. Very complex (new mechanics on top of the game's own). Puzzles are simpler, though still work: share the puzzle's state (switches, blocks, tiles) so one player's move changes the room for everyone instead of only in their game. | L per minigame; M per puzzle type |
 
 ## Priority 4 — cosmetic
