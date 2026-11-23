@@ -5,7 +5,7 @@ Port forwarding (UDP 26510) stays the way to play online; no relay server.
 
 ## Open — user test report 7 (Chapter 1, 2 players over the internet, user is host), 2026-11-22
 
-Nothing here is fixed yet. Grouped by area; "Next" = suggested order (1 first).
+Almost all done (2026-11-23); two items need more information from the user. Grouped by area.
 
 ### The "server layer" idea: everyone sends inputs, the host decides and sends back what happened
 
@@ -57,48 +57,47 @@ Checked against the coop-anything playbook (github.com/cranebeaker/coop-anything
 
 ### Cutscenes and talking to NPCs
 
-| Next | Issue | Idea |
+| Next | Issue | Status |
 |---|---|---|
-| done | Two cutscenes at once: the user talked to Noelle while the friend talked to Berdly (Ch1 classroom, first visit, before Susie). Alphys vanished and the door lost its collision (the friend could still walk through it even after resetting the room); other NPCs kept working. | **Scene lock done** (`scr_mp_lock`, messages 62-64, protocol 10): one shared scene at a time, granted by the host; a second one waits at its next box ("P1's scene is on: yours goes on after it"), and the same room's scene from the same story point started in two games at once is watched from the first instead of played twice. Pulls from anyone but the holder are dropped. **Tested** (Ch2 Queen intro, both walk in at the same frame: one leads, the other watches). **Still open:** the Ch1 classroom itself (Noelle is a plain NPC talk, not a story scene, so it isn't locked) and what "reset room" doesn't restore (the door's solid). |
-| done | A player must not be able to start a cutscene while another is in a battle. | With separate fights, the host doesn't give the lock while anyone is fighting: the scene waits at its box ("P2 is in a fight: the scene goes on when it's over") and goes on, pulling everyone, when the fight ends. **Tested** (Ch2: the client fought in another room while the host walked into the scene). |
-| 1 | Cutscenes sometimes play twice. | Partly covered by the lock (the same scene started in two games is watched, not replayed; stale or repeated pulls are dropped). Re-check in play. |
-| 1 | Choices in a scene someone else started: the host should choose, not whoever started it. Later: an option to vote. | Choices go to the host; vote = everyone's cursor shown, majority (host breaks ties) — future option. |
-| 2 | Talking to any NPC should be seen by everyone (no need for each player to talk to the same one; avoids desyncs). | Treat NPC talk like a shared cutscene (everyone reads the same boxes, anyone turns the page), started through the referee. |
-| 2 | Not synced: the friend ran from Lancer (into the chase minigame) but the user stayed on the map, standing still; the friend chose to hear Ralsei's lore at the start and the user didn't see it. | These scenes aren't recognised as shared. Find their triggers (Lancer's escape, Ralsei's "lore" choice) and pull everyone. |
-| 2 | Closet (Ch1): the friend went first, the user followed; the friend entered a cutscene without pulling the user. | Check the closet scene's pull (probably starts on a room transition before the other arrives). |
-| 3 | Slopes and the checkerboard path (white tiles) shouldn't pull everyone like a cutscene: only the player who slid / stepped wrong. | Mark these as local (referee answer "only you"). |
-| 3 | Purple grass scene: a pulled player's sprite is stretched instead of a copy being drawn. | Check the scene's sprite scaling on pulled players. |
+| done | Two cutscenes at once (Ch1 classroom: the user talked to Noelle while the friend talked to Berdly). Alphys vanished and the door lost its collision, even after resetting the room. | **Scene lock** (`scr_mp_lock`, messages 62-64, protocol 10): one shared scene at a time, granted by the host; a second one waits at its next box ("P1's scene is on: yours goes on after it"); the same scene from the same story point started in two games is watched from the first. **The classroom itself:** `obj_classscene` only makes Alphys (as an NPC) and the door's wall in the scene; a room built again at plot 2 (a join, a watched scene's room put back) had neither. Its Create now puts them back (`mp_classroom_restore`). Chapter 1 scene objects named otherwise than "...event" now count as scenes (the classroom, "...cutscene" ones, Kris's room, the fountain, Lancer's chase...; for these only a `con` that just changed counts, since the classroom sits at con 11 while played). **Tested:** the host starts the classroom scene (`setcon:obj_classscene:20:400`), the client watches it, both end at plot 3. |
+| done | A player must not be able to start a cutscene while another is in a battle. | The host doesn't give the lock while anyone is fighting: the scene waits ("P2 is in a fight: the scene goes on when it's over"). **Tested.** |
+| 1 | Cutscenes sometimes play twice. | Partly covered by the lock (stale or repeated pulls dropped; the same scene in two games is watched, not replayed). Re-check in play. |
+| done | Choices in a scene someone else started: the host chooses. | With the host in another player's scene, only the host can pick (its own choice box); the leader takes that answer (message 65) and passes it on; status "Host is choosing...". The leader picks after 30 s if no answer comes. **Tested** (`fakechoice`, `pickright`: the host picked the right answer, the client's scene got it). Voting: future option (P3). |
+| done | Talking to an NPC should be seen by everyone. | A bubble over the talking player with the text they're reading (message 66), on everyone's screen, without stopping anyone. **Tested** (screenshot, `saytext`). |
+| done | Not synced: the Lancer escape (chase), Ralsei's lore at the start. | The chase (`obj_lancerchaseevent` and the scenes named otherwise) now pulls the others: **tested** in `room_dark_chase1`, the host watches each part. Ralsei's lore is a dialogue with Ralsei: seen by all through the talk bubble; the host answers the questions. Re-check in play. |
+| done | Closet (Ch1): the friend entered a cutscene without pulling the user. | `obj_insideclosetcutscene` wasn't recognised (Chapter 1 only looked for "...event" objects); it is now. |
+| done | Slopes and the checkerboard path shouldn't pull everyone. | Sliding (`obj_darkslide`) and the checker path's reset flash (`obj_ob_gen`) are never classified as scenes (`mp_local_action`). **Tested** (slope in `room_dark3`: "only mine", no pull). |
+| 3 | Purple grass scene: a pulled player's sprite is stretched. | **Needs info:** which room / moment (a screenshot or multiplayer_log.txt). |
 
 ### Battles
 
-| Next | Issue | Idea |
+| Next | Issue | Status |
 |---|---|---|
-| 1 | **Choosing ahead was misunderstood.** The point: when the friend's turn comes they only press Z, their whole action (sub-menu, spell, item, target) already chosen while the user was choosing. Today only the main-row bar can be moved, so the friend still waits. | Let the next players go through their whole menu ahead (a local copy of the menu, nothing applied), keep the result, and at their turn replay it at once, or with one Z. If it became impossible (TP spent, item gone, target dead) fall back to that menu with the bar on the first possible option. |
-| 1 | Battle text (box and enemy) doesn't advance for everyone: the others still wait. | Same as cutscenes: anyone's Z turns it for all, X types it out. |
-| 1 | Waiting for a player freezes the battle. | Show the box and wait inside it (the game keeps running) instead of freezing. |
-| 1 | Downed SOUL: TP is lost on a hit and gained (graze) at the same moment. | After a hit, no TP gain for a short time (e.g. the invincibility time). |
-| 1 | Downed SOUL hit feedback: remove the "you lose TP" text and the "-4 TP" label; instead "juice" on the TP bar: it drops, a bar of another colour stays underneath and shrinks after, and the bar flashes white. | |
-| 2 | Chapter 1 Susie lock should only apply in the fights where she really only attacks (story fights she's in); in random map encounters she should be normal. | Restrict `mp_susie_lock` to those encounters. |
-| 2 | "Focus" no longer makes sense: the focused player's hero steps forward and the others go dark, but everyone dodges for themselves now. | Remove the focus look in battles. |
-| 2 | A player walking in on a turn where the enemy dies still gets pulled into the battle. | Don't pull into a battle that is ending. |
-| 2 | Option: no AI party members. A hero only fights if a player controls them. | Setting in F9 (off by default). |
-| 3 | A player in a battle, seen from the map: show them in a battle idle pose; ideally the others can watch them choose and dodge before joining. | Idle pose: S. Watching: L. |
+| done | Choose the whole action ahead; on your turn just press Z. | While another player chooses: left/right the bar, Z opens what it leads to (enemy; ACT enemy then act; spell then target; item then hero), X goes back; a panel shows the plan ("Next for Ralsei: MAGIC > Heal Prayer > Kris (ready: Z on your turn)"). On your turn one Z plays it through the real menu; what became impossible falls back to the first possible choice, a press the menu refuses gives control back. Every menu press now carries its level's cursor (message 41). **Tested** (FIGHT > enemy as Susie, MAGIC > spell > hero as Ralsei: turns identical in both games; screenshot). |
+| done | Battle text should advance for everyone; X speeds it for all. | Anyone's Z on a finished battle box turns it in every game, X held types it out for all (message 55). **Tested** (`botquiet`: the client never pressed Z, the host's turned its boxes; turns identical). |
+| done | Waiting for a player freezes the battle. | A box over the held picture: "Waiting for P2..." with moving dots. |
+| done | Downed SOUL: TP lost and gained at the same moment. | No TP gain for 45 frames after a hit while down. **Tested.** |
+| done | TP-loss juice; no "-4 TP" label. | The bar flashes white and shakes; the label and the text are gone. |
+| done | Ch1 Susie lock only in story fights she's in. | **Tested** (random encounter: normal; `story`: locked). |
+| done | Remove the "focus" look. | No hero is darkened in multiplayer fights. |
+| done | Don't pull a player into a battle on the turn the enemy dies. | Fight-ending state bit (128): no pull, no join. |
+| done | Option: no AI party members. | F9 (host): "Story fights: Whole party / Players' heroes only" (off by default). On: a fight that brings the game's party keeps only the heroes some player plays. **Tested** (`playersonly`, story fight: party 123 -> 120 in both games, turns identical). |
+| done | A player in a fight, seen from the map: battle idle pose. | Their character's battle stance (feet where they stood) with the white pulse. Watching them choose and dodge: future (L). |
 
 ### Overworld
 
-| Next | Issue | Idea |
+| Next | Issue | Status |
 |---|---|---|
-| 1 | Out-of-battle damage (map hazards, minigames): the host took the damage when the friend was hit. | Damage must go to whoever was hit; check which player's hit is applied (probably the shared HP is set from the leader's game). |
-| 2 | A player entering/leaving a room shows for one frame somewhere, then jumps. | Hide the ghost until its first real position arrives. |
-| 2 | Room entry/exit: fade in from fully transparent instead of popping in. | |
-| 2 | Map hazards: the outline of players who aren't Kris is drawn as Kris's. | Use each character's own outline sprite. |
-| 3 | The house mirror (Ch1) reflects the wrong sprite. | Draw each player's own character in the mirror. |
+| done | Out-of-battle damage hit the host instead of the friend. | A map hazard hits the character the player plays, in their own game (when that character is out on the map). |
+| done | A player entering/leaving a room shows for one frame somewhere, then jumps; fade in/out. | Hidden for the first 150 ms after they change room, then fades in; leaving players fade out where they were last seen. |
+| done | Map hazards: everyone's outline drawn as Kris's. | Each player's own character, outlined in white. |
+| done | The house mirror reflects the wrong sprite. | The hallway mirror reflects the player's own character. |
 
 ### Other
 
-| Next | Issue | Idea |
+| Next | Issue | Status |
 |---|---|---|
-| 2 | The friend had no sound for a while; it came back later by itself. | Unknown. Maybe the game was muted while unfocused, or audio groups loaded late; ask for multiplayer_log.txt next time. |
+| 2 | The friend had no sound for a while; it came back later by itself. | **Needs info:** multiplayer_log.txt from that session. Possibly the game muted while unfocused or a song started late. |
 
 ## Native Windows test run, 2026-11-22
 
