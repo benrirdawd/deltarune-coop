@@ -4,6 +4,19 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## The C menu names my character (2026-11-23)
+
+The request was that the party menu's status page show my character's name where it says "Kris" (the
+hero in Kris's place is the one I play), not a "You: Susie" label. Now the big name on the POWER (status)
+and EQUIP pages goes through `mp_menu_charname` (hook on `obj_darkcontroller` Draw, all chapters): Kris's
+place shows my character's name and my character's own slot shows "Kris", the same swap the map does
+(my character walks in front, my character's follower is drawn as Kris). Only while character swaps
+are on (not in story cutscenes, not when I play Kris). The "You:" label is gone.
+Design choice (the simplest that works): only the names; the hero's description ("LV1 Human...") and
+the head icons / name plates in the boxes at the bottom (shared with battles) are unchanged.
+**Tested** (Chapter 1, P2 plays Susie, `openmenu,menupage:3` + `chaos:10:120:60`): the POWER page shows
+"Susie" over Kris's stats; no label. New test token `menupage:<n>`.
+
 ## Joining mid-cutscene and coming back after a crash (2026-11-23)
 
 New test tools: the `connectat:<frame>` token (a client connects only from that frame of its game on,
@@ -563,5 +576,5 @@ Done on 2026-11-22.
 
 | Issue | What was done | Test |
 |---|---|---|
-| Party menu (C) always shows the story's party, not your character. | While the menu is open a "You: Susie" label shows in the bottom-right corner. | **Tested** (`openmenu` + screenshot). |
+| Party menu (C) always shows the story's party, not your character. | ~~While the menu is open a "You: Susie" label shows in the bottom-right corner.~~ A misread of the request; replaced 2026-11-23 (see "The C menu names my character"): the status page names my character in Kris's place. | **Tested** (`openmenu` + screenshot). |
 | Light World: characters without Light World sprites. | Susie now uses her Light World walking sprites (Chapter 2+). Ralsei has none, so his own sprites stay (as the TODO suggested). Kris never showed: that fallback only happened for sprites with no direction. | **Tested** (log of the drawn sprite: `spr_susie_walk_*_lw`). |

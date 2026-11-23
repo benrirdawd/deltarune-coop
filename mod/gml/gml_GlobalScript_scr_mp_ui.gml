@@ -744,18 +744,6 @@ function mp_draw_gui()
         draw_text_ext_transformed(tx + 8 * sc, ty + 6 * sc, global.mp_watch_text, lh / sc, (tw - 16 * sc) / sc, sc, sc, 0);
     }
 
-    // The C menu always shows the story's party (Kris first): say which one is me, so it doesn't
-    // look wrong to someone playing Susie.
-    if (mp_on() && global.interact == 5 && variable_global_exists("menuno") && global.menuno >= 0 && !global.mp_ui_open)
-    {
-        var you = "You: " + mp_char_name(global.mp_pchar[global.mp_myid]);
-        var yx = gw - (string_width(you) * sc) - (6 * sc);
-        var yy = gh - lh - (6 * sc);
-        mp_ui_backing(yx - 2 * sc, yy, string_width(you) * sc + 4 * sc, lh, sc, 0.6);
-        draw_text_transformed_color(yx + 1, yy + 1, you, sc, sc, 0, c_black, c_black, c_black, c_black, 1);
-        draw_text_transformed_color(yx, yy, you, sc, sc, 0, c_yellow, c_yellow, c_yellow, c_yellow, 1);
-    }
-
     // Notifications.
     var ny = gh - lh - (2 * sc);
     for (var n = ds_list_size(global.mp_notes) - 1; n >= 0; n--)
@@ -976,4 +964,21 @@ function mp_stop_all_sound()
 {
     audio_stop_all();
     mp_notify("Stopped all music and sounds.");
+}
+
+// The name the C menu's status / equipment page gives party member c: Kris's place is the one I play
+// (my character walks in front, my character's follower is drawn as Kris), so the names swap too.
+function mp_menu_charname(c)
+{
+    var me = 1;
+    if (variable_global_exists("mp_inited") && mp_on() && mp_swaps_enabled())
+        me = global.mp_cfg_char;
+    var shown = c;
+    if (me != 1 && c == 1)
+        shown = me;
+    else if (me != 1 && c == me)
+        shown = 1;
+    if (shown >= 0 && shown < array_length(global.charname) && is_string(global.charname[shown]) && global.charname[shown] != "")
+        return global.charname[shown];
+    return global.charname[c];
 }

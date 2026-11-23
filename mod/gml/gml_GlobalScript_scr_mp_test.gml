@@ -39,6 +39,7 @@
 //                   the cutscene catch-up (mp_dlg_speed) still doubles on top of it
 //   fastboot        with speed: the title / file select before `party` runs fast as well
 //   connectat:<frame> client: connect only from this frame of its game on (joining late, mid-cutscene)
+//   menupage:<n>    with openmenu: pick C-menu entry n (0 items, 1 equipment, 3 power/status)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)
 
 function mp_test_has(tok)
@@ -476,6 +477,12 @@ function mp_test_input()
     {
         global.input_pressed[6] = 1;
         global.input_held[6] = 1;
+    }
+    // menupage:<n>: with openmenu, then pick entry n of the C menu (0 items, 1 equipment, 3 power/status).
+    if (mp_test_has("menupage") && variable_global_exists("mp_test_timer") && global.mp_test_timer == 190 && global.interact == 5 && variable_global_exists("menucoord"))
+    {
+        global.menucoord[0] = real(mp_test_arg("menupage"));
+        global.input_pressed[4] = 1;
     }
     // buy:<item>: once everyone is in, at the next whole 5 s of the wall clock (the same moment in
     // every game on this PC), pay 50 and put the item in the first empty slot, as a shop does: two

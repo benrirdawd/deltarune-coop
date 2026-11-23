@@ -201,6 +201,14 @@ if (instance_exists(target) && !sprite_exists(target.sprite_index))
     exit;
 #chapters all
 
+;; C menu (status and equipment pages): the hero I play in Kris's place is named after my character
+;; (and my character's own slot "Kris"), like the figures on the map.
+@regex gml_Object_obj_darkcontroller_Draw_0
+string_hash_to_newline\(global\.charname\[charcoord\]\)
+@with
+string_hash_to_newline(mp_menu_charname(charcoord))
+@end
+
 ;; Noclip (F6): the player's wall checks find no walls while it is on.
 @regex gml_Object_obj_mainchara_Step_0
 place_meeting\(([^()]*), obj_solidblock\)

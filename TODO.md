@@ -4,13 +4,6 @@ Only open work is here; everything finished (and how it was tested) is in [`DONE
 Effort: S = small, M = medium, L = large. Help is welcome: pick anything below, open an issue or a
 pull request, or ask on Discord (**b.001**).
 
-## Fix: the C menu (misread request, 2026-11-23)
-
-The request was not a "You: Susie" label (priority 4, done 2026-11-22, see DONE.md) but this: in the
-party menu's status screen, the hero shown as "Kris" (the one I control) should show my character's
-name, i.e. the menu names the character I play instead of Kris. Remove the "You: <character>" label
-and change the name the status screen draws (and check the other C-menu pages that name Kris).
-
 ## Puzzles and map objects together (user request, 2026-11-23)
 
 Simple things on the map are still local: pushing a box, pressing a switch, stepping on tiles, moving a
