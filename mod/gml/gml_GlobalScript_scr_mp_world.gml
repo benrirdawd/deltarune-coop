@@ -1746,3 +1746,43 @@ function mp_enemy_gone_room_start()
     global.mp_gone_prev_room = room;
     mp_enemy_gone_apply();
 }
+
+// obj_mainchara's Draw, in place of Kris's outline sprite while the SOUL shows on the map: my own
+// character's sprite, outlined in white (Kris keeps the game's own).
+function mp_draw_ow_heart(spr, img, xx, yy, xs, ys, rot, blend, alpha)
+{
+    if (!mp_on() || !mp_swaps_enabled() || global.mp_cfg_char == 1)
+    {
+        draw_sprite_ext(spr, img, xx, yy, xs, ys, rot, blend, alpha);
+        return;
+    }
+    var s2 = mp_swap_sprite(sprite_index, 1, global.mp_cfg_char);
+    if (s2 < 0 || s2 == sprite_index)
+        return;
+    gpu_set_fog(true, c_white, 0, 0);
+    draw_sprite_ext(s2, image_index, xx - 1, yy, xs, ys, rot, c_white, alpha);
+    draw_sprite_ext(s2, image_index, xx + 1, yy, xs, ys, rot, c_white, alpha);
+    draw_sprite_ext(s2, image_index, xx, yy - 1, xs, ys, rot, c_white, alpha);
+    draw_sprite_ext(s2, image_index, xx, yy + 1, xs, ys, rot, c_white, alpha);
+    gpu_set_fog(false, c_white, 0, 0);
+    draw_sprite_ext(s2, image_index, xx, yy, xs, ys, rot, blend, alpha);
+}
+
+// Out-of-battle hits (map hazards): in a session, they hit the character I play, in my game. (The
+// game would hit Kris, or the whole party, and the shared HP would show it on someone else.)
+function mp_ow_hit_target()
+{
+    if (!mp_on())
+        return;
+    var me = global.mp_cfg_char;
+    for (var s = 0; s < 3; s++)
+    {
+        if (global.char[s] == me)
+        {
+            if (target != s)
+                mp_log("map hit: target " + string(target) + " -> my slot " + string(s));
+            target = s;
+            return;
+        }
+    }
+}

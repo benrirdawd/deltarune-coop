@@ -295,3 +295,17 @@ mp_tp_bar_fx();
 ;; target" look (the other heroes darkened) means nothing: no hero is darkened.
 @append gml_Object_obj_darkener_Draw_0
 mp_no_target_look();
+
+;; Map hazards (the SOUL shows on the map): the game draws Kris's outline over the player. A
+;; player who is someone else gets their own character's outline instead. ("s[p]r": the patcher's
+;; asset check would read "spr_kris" as a sprite name.)
+@regex gml_Object_obj_mainchara_Draw_0
+draw_sprite_ext\((s[p]r_kris[durl]_heart|s[p]r_krisd_slide_heart),
+@with
+mp_draw_ow_heart($1,
+@end
+
+;; Out-of-battle hits go to the character the player plays (in their own game).
+@prepend gml_Object_obj_overworldbulletparent_Other_15
+if (active == 1)
+    mp_ow_hit_target();
