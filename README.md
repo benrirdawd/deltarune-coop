@@ -54,8 +54,13 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   cutscene at a time: the host gives the go, and a cutscene waits while someone is in a fight.
   When the host is in the cutscene, the host answers its questions. Talking to an NPC on your
   own shows the text in a bubble over you on everyone's screen.
+* **Joining mid-story.** Someone who joins (or comes back after a crash) while a cutscene is on
+  watches it with the others. In Chapter 1's opening the vessel is the host's: a client skips
+  its own (or waits on a "the host is creating the vessel" screen) and goes to the host.
+* **Puzzles together** (Chapter 1 so far). A block pushed by anyone moves in everyone's game,
+  switches are pressed for everyone, and a friend standing on a glowing tile counts in your game.
 * **Shared progress.** Story flags, items, gold, equipment and HP are kept in sync. The host's
-  world is the shared one.
+  world is the shared one. The party menu (C) names your character in Kris's place.
 * **Built for bad connections.** It uses UDP with its own reliability layer: position updates
   are latest-only, and game events are acknowledged, retransmitted and delivered in order.
   Measured traffic is roughly 0.2–0.5 KB/s per player while walking and up to ~2 KB/s on
@@ -287,6 +292,9 @@ a game crashes.
 * **Story cutscenes** (`tools/cutscenes.sh`): in Chapters 2–5 the host triggers a real
   cutscene (on entering a room, or by walking into it) while the others are in another room.
   They are pulled in and the cutscene plays in their games too (2 and 3 players).
+* **Joining mid-cutscene** (`tools/latejoin.sh`): in every chapter a client connects late, while
+  the host's cutscene is on, and watches it; in Chapter 2 also on a bad network and after its game
+  is killed and restarted mid-scene.
 * **Story and battle sweeps** (`tools/sweepgen.py`, `tools/sweep.py`): every room with story
   objects is visited at each story point it checks (about 560 scenarios in chapters 1-5), and
   every encounter is fought (3+ turns, battle state compared per turn), each with a host and
