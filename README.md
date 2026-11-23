@@ -291,7 +291,7 @@ a game crashes.
   objects is visited at each story point it checks (about 560 scenarios in chapters 1-5), and
   every encounter is fought (3+ turns, battle state compared per turn), each with a host and
   a client joining from elsewhere. Crashes that also happen single-player are the game's own
-  (rooms/encounters the game can't normally reach) and are listed in TODO.md. Late joiners
+  (rooms/encounters the game can't normally reach) and are listed in DONE.md. Late joiners
   (3 players) are pulled into a running battle.
 * **Battles** (`tools/regress.sh`): 3 players in chapters 1–5, battle state identical every
   turn; earlier also ~500 ms RTT, 5% loss, 64 kbit/s. The test token `chaos:<loss %>:<lag ms>:<jitter ms>`
@@ -319,7 +319,7 @@ a game crashes.
 
 Help is welcome: bug reports, play-testing, code. Open an issue or a pull request on
 [deltarune-coop](https://github.com/benrirdawd/deltarune-coop), or talk to me on Discord (**b.001**).
-What is planned and what is known to be broken is in [`TODO.md`](TODO.md). Building and testing are
+What is planned and what is known to be broken is in [`TODO.md`](TODO.md); what is finished, and how it was tested, in [`DONE.md`](DONE.md). Building and testing are
 described in [Testing that was done](#testing-that-was-done) and `tools/` (`tools/build.sh` patches
 all five chapters, `tools/mptest.sh` runs two or more games against each other). A bug report helps
 most with `multiplayer_log.txt` from `%LOCALAPPDATA%\DELTARUNE_ONLINE`.
