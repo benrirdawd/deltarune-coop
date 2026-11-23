@@ -4,6 +4,23 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Puzzles together: switches and floor tiles (2026-11-23)
+
+* **Floor tiles** that react to someone standing on them (Chapter 1 `obj_glowtile`, the timed puzzles
+  started by the hourglass, and `obj_blocktile`): the other players' figures in my room press them in
+  my game, from where their feet are, the way the game does for my own character (the tile's User
+  Event 7). No message: every game sees everyone at the same place, so a friend can stand on a tile
+  for me.
+* **Switches** (`obj_darkeyepuzzle_switch`, `obj_glowtilepuzz`): pressing one sends message 81 (room,
+  object, its place), relayed by the host; every game in the room presses the same one.
+* Design choice: no host state for switches; pressing is the shared action and each game plays it.
+
+**Tested** (Chapter 1 `room_field_puzzle1`, plot 30, speed 4, both games with `chaos:10:120:60`): the
+host presses the hourglass: both games start the puzzle and light the same tile (1170,320); the client
+stands on it while the host is far away: in the host's game the client's figure wins the round, both
+games then show round 1 won and the same next tiles. (The eye switches use the same message; not run
+separately.) New test tokens `useobj:<object>:<frame>`, `logpuz`.
+
 ## Cutscene mirror: a sprite drawn again at its old places (2026-11-23)
 
 Report 7's "stretched sprite" in a purple grass scene: the user describes it as a sprite repeating

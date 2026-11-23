@@ -12,14 +12,15 @@ the two games can end up with different rooms). Goal: solve puzzles together, ea
 changing the room for everyone.
 
 * **Done: Chapter 1 pushable blocks** (`obj_pushableblock`, the box puzzle), see DONE.md.
-* Next: switches/levers and the tile puzzles (tiles stepped on by the others: their figures don't touch
-  the tiles in my game), then chapter by chapter (Chapters 2-5 have no `obj_pushableblock`; their
+* **Done: Chapter 1 switches and floor tiles** (eye switches, the hourglass tile puzzles), see DONE.md.
+* Next: the rest of Chapter 1 (`obj_ob_checkertile` paths, `obj_suitspuzzle_event`,
+  `obj_cloverpuzzle_event`, `obj_forest_area5_puzzle`), then chapter by chapter (Chapters 2-5: their
   puzzle objects are still to be listed).
+* A switch pressed or a block pushed before another player connected isn't known to them (only
+  players already connected hear it).
 * Two players pushing the same block at the same moment: today each game plays both pushes in the
   order it hears them (simplest; the games could disagree if one push is blocked in one game only).
   If it shows up in play: the host's order wins, the other push is undone.
-* A player who joins the session after a block was pushed doesn't get its position (only players
-  already connected hear the push).
 * Effort: M per puzzle type.
 
 ## Spectating and Game Over (user request, 2026-11-23)

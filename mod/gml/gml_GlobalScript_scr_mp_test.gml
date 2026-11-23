@@ -41,6 +41,8 @@
 //   connectat:<frame> client: connect only from this frame of its game on (joining late, mid-cutscene)
 //   pushblock:<d>:<f> push the room's first pushable block in direction d at room frame f (Chapter 1)
 //   restartroom:<f> build the room again at room frame f (once)
+//   useobj:<o>:<f>  use (as with Z) the room's first <o> at room frame f
+//   logpuz          log the tile puzzle's state every 5 s ([MPPUZ] lines)
 //   logblocks       log the room's pushable blocks every 5 s ([MPBLOCKS] lines)
 //   menupage:<n>    with openmenu: pick C-menu entry n (0 items, 1 equipment, 3 power/status)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)
@@ -487,6 +489,28 @@ function mp_test_input()
         global.mp_test_rrdone = 1;
         mp_log("test: room built again");
         room_restart();
+    }
+    // useobj:<object>:<frame>: use (as with Z) the first <object> in the room at that room frame.
+    if (mp_test_has("useobj") && variable_global_exists("mp_test_timer"))
+    {
+        var ua = mp_test_arg("useobj");
+        var uc = string_pos(":", ua);
+        var uo = asset_get_index(string_copy(ua, 1, uc - 1));
+        if (global.mp_test_timer == real(string_delete(ua, 1, uc)) && uo >= 0 && instance_exists(uo))
+        {
+            mp_log("test: using " + object_get_name(uo));
+            with (instance_find(uo, 0))
+                event_user(0);
+        }
+    }
+    // logpuz: the tile puzzle's state every 5 s (switch on, tiles stood on, rounds won).
+    if (mp_test_has("logpuz") && (global.mp_frame mod 150) == 0 && asset_get_index("obj_glowtilepuzz") >= 0 && instance_exists(asset_get_index("obj_glowtilepuzz")))
+    {
+        var tl = "";
+        with (asset_get_index("obj_glowtile"))
+            tl += " " + string(round(x)) + "," + string(round(y)) + (active ? "+" : "-") + (stepped ? "S" : "");
+        with (asset_get_index("obj_glowtilepuzz"))
+            show_debug_message("[MPPUZ] active=" + string(active) + " won=" + string(wonamt) + " tiles:" + tl);
     }
     // logblocks: log where the room's pushable blocks are, every 5 s.
     if (mp_test_has("logblocks") && (global.mp_frame mod 150) == 0 && asset_get_index("obj_pushableblock") >= 0)

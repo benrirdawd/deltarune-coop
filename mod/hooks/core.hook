@@ -225,6 +225,12 @@ mp_puz_block_step();
 
 @append gml_Object_obj_pushableblock_Create_0
 mp_puz_block_create();
+
+@prepend gml_Object_obj_darkeyepuzzle_switch_Other_10
+mp_puz_switch_used();
+
+@prepend gml_Object_obj_glowtilepuzz_Other_10
+mp_puz_switch_used();
 #chapters all
 
 ;; Noclip (F6): the player's wall checks find no walls while it is on.

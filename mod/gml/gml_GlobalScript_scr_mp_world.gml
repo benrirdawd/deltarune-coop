@@ -17,6 +17,8 @@ function mp_world_init()
     global.mp_open_wait = 0;
     global.mp_open_held = 0;
     global.mp_puz = {};         // shared puzzle objects: "room:xstart:ystart" -> [x, y]
+    global.mp_puz_remote = 0;   // running another player's switch press
+    global.mp_puz_tile_objs = [asset_get_index("obj_glowtile"), asset_get_index("obj_blocktile")];
     global.mp_warp_delay = 0;
     global.mp_fol_mask = 0;     // party followers drawn this frame, by the character shown
     global.mp_swap_prev = 1;
@@ -880,6 +882,7 @@ function mp_world_tick()
     mp_music_tick();
     if ((global.mp_frame mod 30) == 0)
         mp_puz_forget_tick();
+    mp_puz_tiles_tick();
 }
 
 // Moves the local player to (rm, xx, yy). action: 0 none, 1 start pulled battle.
@@ -2217,4 +2220,71 @@ function mp_puz_forget_tick()
         if (!used)
             variable_struct_remove(global.mp_puz, ks[i]);
     }
+}
+
+// Floor tiles that react to the player standing on them (Chapter 1: the glowing tiles of the timed
+// puzzles, the block puzzle's tiles): the other players' figures in my room press them too, in my
+// game, from where they stand (their feet), exactly as the game does for my own character
+// (the tile's User Event 7 every frame someone stands on it). No message needed: every game sees
+// the same players at the same places.
+function mp_puz_tiles_tick()
+{
+    if (!mp_on() || mp_in_battle_scene() || global.mp_sstate == 5)
+        return;
+    var names = global.mp_puz_tile_objs;
+    for (var t = 0; t < array_length(names); t++)
+    {
+        var to = names[t];
+        if (to < 0 || !instance_exists(to))
+            continue;
+        with (obj_mp_ghost)
+        {
+            if (pid < 0 || fol >= 0 || leaving || !visible || !sprite_exists(sprite_index) || global.mp_proom[pid] != room || mp_ghost_fighting(pid))
+                continue;
+            var fx1 = bbox_left + 4;
+            var fx2 = bbox_right - 4;
+            var fy1 = bbox_bottom - 8;
+            var fy2 = bbox_bottom;
+            with (to)
+            {
+                if (rectangle_in_rectangle(fx1, fy1, fx2, fy2, bbox_left, bbox_top, bbox_right, bbox_bottom) != 0)
+                    event_user(7);
+            }
+        }
+    }
+}
+
+// Switches (Chapter 1: the eye switches, the hourglass that starts a tile puzzle): pressing one in my
+// game presses the same one in every game in the room (message 81, relayed by the host).
+// Prepended to the switch's User Event 0 (self: the switch).
+function mp_puz_switch_used()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || global.mp_puz_remote)
+        return;
+    mp_begin(81);
+    mp_wu16(room);
+    mp_wu16(object_index);
+    mp_ws16(xstart);
+    mp_ws16(ystart);
+    mp_send();
+}
+
+function mp_puz_switch_recv(sender, b)
+{
+    var rm = buffer_read(b, buffer_u16);
+    var oi = buffer_read(b, buffer_u16);
+    var xs = buffer_read(b, buffer_s16);
+    var ys = buffer_read(b, buffer_s16);
+    if (room != rm || !object_exists(oi) || mp_in_battle_scene() || global.mp_sstate == 5)
+        return;
+    global.mp_puz_remote = 1;
+    with (oi)
+    {
+        if (round(xstart) == xs && round(ystart) == ys)
+        {
+            event_user(0);
+            mp_log("puzzle: player " + string(sender) + " used " + object_get_name(oi));
+        }
+    }
+    global.mp_puz_remote = 0;
 }
