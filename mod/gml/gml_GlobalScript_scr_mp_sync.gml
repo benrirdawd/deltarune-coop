@@ -8,6 +8,7 @@
 
 function mp_sync_init()
 {
+    mp_lock_init();
     global.mp_sstate = 0;
     global.mp_slead = -1;
     global.mp_sseq = 0;
@@ -111,6 +112,7 @@ function mp_sync_init()
 
 function mp_sync_reset()
 {
+    mp_lock_reset();
     global.mp_sstate = 0;
     global.mp_slead = -1;
     global.mp_pull = -1;
@@ -596,6 +598,30 @@ function mp_sync_try_pull()
         global.mp_pull = -1;   // already with them
         return;
     }
+    if (kind == 2 && global.mp_lock_pid != from)
+    {
+        // Not the scene the host let go ahead (another one started at the same moment, or a
+        // repeat): wait a moment in case the host's word is still on its way, then drop it.
+        global.mp_pull[7] += 1;
+        if (global.mp_pull[7] > 150)
+        {
+            mp_log("pull dropped: " + string(from) + " doesn't hold the scene lock (" + string(global.mp_lock_pid) + ")");
+            global.mp_pull = -1;
+        }
+        return;
+    }
+    if (kind == 2 && global.mp_lock_waiting && global.mp_sstate == 0 && room == p[2] && p[6] == global.mp_pre_plot)
+    {
+        // The same room's cutscene from the same point of the story started in both games at the
+        // same moment and theirs went first:
+        // watch theirs instead of playing it a second time afterwards.
+        mp_log("same scene as " + string(from) + ", who went first: watching theirs");
+        mp_lock_done();
+        global.mp_pull = -1;
+        global.mp_classify = 0;
+        mp_mirror_start(from, p[2]);
+        return;
+    }
     // (A battle pull never waits for my own cutscene: the battle is already running for them, and
     // a cutscene of mine that leads into the same fight would start it again here from turn 0
     // while they are further on. My cutscene is cut short when I join, see mp_kill_scenes.)
@@ -825,6 +851,7 @@ function mp_sync_tick()
     }
     if (ia == 0)
         global.mp_room_calm = 1;
+    mp_lock_host_tick();
     if (is_array(global.mp_pull))
         mp_sync_try_pull();
 
@@ -866,11 +893,26 @@ function mp_sync_tick()
                 global.mp_local_dlg = 0;
             if (mp_classify_step(ia, battle) && mp_player_count() > 1)
             {
-                global.mp_sstate = 1;
-                global.mp_idle = 0;
-                global.mp_lead_text = "";
-                global.mp_slead = global.mp_myid;
-                mp_send_pull(2);
+                if (mp_lock_ok())
+                    mp_lead_start();
+                else
+                    mp_log("scene waits for the host's go");
+            }
+            else if (global.mp_lock_waiting)
+            {
+                if (ia == 0 && !battle)
+                {
+                    mp_log("scene ended while waiting for the host's go");
+                    mp_lock_done();
+                }
+                else if (global.mp_lock_pid == global.mp_myid)
+                {
+                    global.mp_lock_waiting = 0;
+                    mp_log("scene goes on: the host said go");
+                    mp_lead_start();
+                }
+                else
+                    mp_lock_request();
             }
             break;
         case 1:
@@ -902,6 +944,7 @@ function mp_sync_tick()
                     mp_send_cend();
                     global.mp_sstate = 0;
                     global.mp_slead = -1;
+                    mp_lock_done();
                 }
             }
             else
@@ -980,6 +1023,17 @@ function mp_sync_tick()
         global.mp_calm_dz = mp_dz();
         global.mp_calm_room = room;
     }
+}
+
+// Lead the shared cutscene playing in my game (the host gave me the lock): pull the others in.
+function mp_lead_start()
+{
+    global.mp_lock_waiting = 0;
+    global.mp_sstate = 1;
+    global.mp_idle = 0;
+    global.mp_lead_text = "";
+    global.mp_slead = global.mp_myid;
+    mp_send_pull(2);
 }
 
 // True when interact just went up for something that looks like a story cutscene (not the
@@ -1357,7 +1411,14 @@ function mp_dlg_input()
         // boxes from its very start: whoever is pulled in later fast-forwards to the same box.
         if (global.mp_sstate == 0 && global.interact != 0 && !mp_in_battle_scene())
         {
-            if (mp_dlg_box_waiting() && mp_dlg_confirm())
+            if (global.mp_lock_waiting && mp_dlg_box_waiting())
+            {
+                // Waiting for the host's go (another scene is on, or someone is fighting).
+                global.input_pressed[4] = 0;
+                global.input_pressed[7] = 0;
+                global.mp_dlg_battle_wait = mp_lock_status();
+            }
+            else if (mp_dlg_box_waiting() && mp_dlg_confirm())
                 global.mp_dlg_pre += 1;
         }
         else

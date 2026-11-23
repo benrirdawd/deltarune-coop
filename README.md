@@ -182,7 +182,7 @@ One UDP socket. Each datagram (≤1200 bytes) carries a cumulative ack plus a 32
 selective-ack field and any number of records. Reliable records are retransmitted with an
 RTT-based timeout and back-off, at most 4 datagrams per frame. Unreliable records (positions)
 replace older queued ones and are dropped if they arrive out of order. The host is the hub and
-forwards everything to the other players. Protocol version 9 (older versions can't join). Peers time out after 10 s of silence.
+forwards everything to the other players. Protocol version 10 (older versions can't join). Peers time out after 10 s of silence.
 
 ### Source layout
 

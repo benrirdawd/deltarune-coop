@@ -5,7 +5,7 @@ function mp_init()
     if (variable_global_exists("mp_inited"))
         return;
     global.mp_inited = 1;
-    global.mp_version = 9;
+    global.mp_version = 10;
     global.mp_chapter = __CHAPTER__;
     global.mp_frame = 0;
     mp_filelog_init();
@@ -510,6 +510,11 @@ function mp_handle(type, sender, b, sock, endpos)
     if (type == 61) // the host brings everyone over
     {
         mp_bring_recv(sender);
+        return;
+    }
+    if (type >= 62 && type <= 64) // the host's shared-cutscene lock
+    {
+        mp_lock_recv(type, sender, b);
         return;
     }
     if (type == 60) // how far a player has read in a shared cutscene
