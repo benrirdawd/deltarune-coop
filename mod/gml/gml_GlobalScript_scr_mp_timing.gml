@@ -643,3 +643,45 @@ function mp_timing_status()
     }
     return "";
 }
+
+
+// GUI, while a fight is held for the other players: a box saying who it waits for, with moving
+// dots, so a wait never looks like the game froze.
+function mp_hold_box_draw()
+{
+    if (!global.mp_hold || (current_time - global.mp_hold_since) < 400)
+        return;
+    var names = global.mp_hold_kind == 0 ? mp_bwait_names() : (global.mp_role == 1 ? mp_gate_missing_names() : "");
+    var t = names != "" ? "Waiting for " + names : "Waiting for the others";
+    t += string_copy("...", 1, 1 + ((current_time div 400) mod 3));
+    var gw = display_get_gui_width();
+    var gh = display_get_gui_height();
+    var of = draw_get_font();
+    var oc = draw_get_colour();
+    var oa = draw_get_alpha();
+    var oh = draw_get_halign();
+    var ov = draw_get_valign();
+    draw_set_font(global.mp_font);
+    var sc = max(1, floor(gw / 640));
+    var bw = (string_width("Waiting for the others...") + 40) * sc;
+    var tw = (string_width(t) + 40) * sc;
+    if (tw > bw)
+        bw = tw;
+    var bh = 34 * sc;
+    var bx = (gw - bw) / 2;
+    var by = gh * 0.42 - bh / 2;
+    draw_set_alpha(1);
+    draw_set_colour(c_white);
+    draw_rectangle(bx - 2 * sc, by - 2 * sc, bx + bw + 2 * sc, by + bh + 2 * sc, false);
+    draw_set_colour(c_black);
+    draw_rectangle(bx, by, bx + bw, by + bh, false);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_middle);
+    draw_set_colour(c_white);
+    draw_text_transformed(gw / 2, by + bh / 2, t, sc, sc, 0);
+    draw_set_font(of);
+    draw_set_colour(oc);
+    draw_set_alpha(oa);
+    draw_set_halign(oh);
+    draw_set_valign(ov);
+}

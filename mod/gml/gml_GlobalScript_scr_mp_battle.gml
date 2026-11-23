@@ -79,6 +79,15 @@ function mp_battle_reset()
     global.mp_down_hit_f = -9999;
     global.mp_down_hit_n = 0;
     global.mp_tp_flash_f = -9999;
+    global.mp_bt_key = -1;
+    global.mp_bt_n = 0;
+    global.mp_bt_skip_n = -1;
+    global.mp_bt_sent = "";
+    global.mp_bt_sent_t = 0;
+    global.mp_bt_rbid = array_create(8, -1);
+    global.mp_bt_rkey = array_create(8, -1);
+    global.mp_bt_rn = array_create(8, 0);
+    global.mp_bt_rskip = array_create(8, 0);
     global.mp_qte_since = 0;
     for (var s = 0; s < 3; s++)
     {
@@ -332,6 +341,21 @@ function mp_battle_recv(type, from, b)
     if (type >= 48 && type <= 51)
     {
         mp_timing_recv(type, from, b);
+        return;
+    }
+    if (type == 55) // how far a player has read this phase's battle text
+    {
+        var tbid = buffer_read(b, buffer_u16);
+        var tkey = buffer_read(b, buffer_u16);
+        var tn = buffer_read(b, buffer_u16);
+        var tskip = buffer_read(b, buffer_u8);
+        if (from < 8)
+        {
+            global.mp_bt_rbid[from] = tbid;
+            global.mp_bt_rkey[from] = tkey;
+            global.mp_bt_rn[from] = tn;
+            global.mp_bt_rskip[from] = tskip;
+        }
         return;
     }
     if (type == 54) // where another player's next hero's bar is (choosing ahead)
@@ -683,6 +707,8 @@ function mp_battle_input()
         return;
     }
     var menu = global.myfight == 0 && global.mnfight == 0 && global.charturn < 3;
+    if (!menu)
+        mp_btext_input();
     if (!menu)
         return;
     mp_susie_lock();
@@ -1661,4 +1687,72 @@ function mp_no_target_look()
         return;
     with (obj_heroparent)
         darkify = 0;
+}
+
+
+// ---------------------------------------------------------------- battle text, read together
+
+// The text of a battle (an ACT's result, an enemy's words, the box at the start of a turn) is the
+// same in every game, box after box. As in cutscenes: anyone's Z on a box turns it for everyone
+// (the others' games press Z for them once their box is ready), and X held types it out for
+// everyone on the same box. Boxes are counted per phase of the turn.
+function mp_btext_input()
+{
+    var key = (global.mp_bturn * 64) + (global.myfight * 8) + floor(global.mnfight * 2);
+    if (key != global.mp_bt_key)
+    {
+        global.mp_bt_key = key;
+        global.mp_bt_n = 0;
+        global.mp_bt_skip_n = -1;
+    }
+    if (!instance_exists(obj_writer))
+        return;
+    var ready = mp_dlg_box_waiting();
+    if (!ready && global.input_held[5] && global.mp_bt_skip_n != global.mp_bt_n)
+        global.mp_bt_skip_n = global.mp_bt_n;
+    var ahead = false;
+    var xskip = false;
+    for (var i = 0; i < 8; i++)
+    {
+        if (i == global.mp_myid || !global.mp_pconn[i] || !mp_in_mask(i))
+            continue;
+        if (global.mp_bt_rbid[i] != global.mp_bid || global.mp_bt_rkey[i] != key)
+            continue;
+        if (global.mp_bt_rn[i] > global.mp_bt_n)
+            ahead = true;
+        if (global.mp_bt_rskip[i] && global.mp_bt_rn[i] == global.mp_bt_n)
+            xskip = true;
+    }
+    if (!ready)
+    {
+        // Someone turned this box already, or holds X on it: type it out at once.
+        if (ahead || xskip)
+            global.input_held[5] = 1;
+        // (A Z on the frame the box finishes typing would close it uncounted: hold it back.)
+        global.input_pressed[4] = 0;
+        global.input_pressed[7] = 0;
+    }
+    else if (ahead && !mp_dlg_confirm())
+    {
+        global.input_pressed[4] = 1;
+        global.mp_bt_n += 1;
+        mp_log("battle text " + string(global.mp_bt_n) + " turned by another player");
+    }
+    else if (mp_dlg_confirm())
+    {
+        global.mp_bt_n += 1;
+        mp_log("battle text " + string(global.mp_bt_n) + " turned");
+    }
+    var st = string(key) + "/" + string(global.mp_bt_n) + "/" + string(global.mp_bt_skip_n == global.mp_bt_n);
+    if (st != global.mp_bt_sent || (current_time - global.mp_bt_sent_t) > 1000)
+    {
+        global.mp_bt_sent = st;
+        global.mp_bt_sent_t = current_time;
+        mp_begin_b(55);
+        mp_wu16(global.mp_bid);
+        mp_wu16(key);
+        mp_wu16(global.mp_bt_n);
+        mp_wu8(global.mp_bt_skip_n == global.mp_bt_n);
+        mp_send();
+    }
 }

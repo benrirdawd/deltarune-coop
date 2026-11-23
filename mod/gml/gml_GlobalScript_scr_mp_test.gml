@@ -585,7 +585,7 @@ function mp_test_input()
                 else
                     global.input_pressed[4] = 1;      // Z
             }
-            else
+            else if (!mp_test_has("botquiet"))   // botquiet: never presses Z on battle text
             {
                 global.input_pressed[4] = 1;
             }
