@@ -99,6 +99,33 @@ Checked against the coop-anything playbook (github.com/cranebeaker/coop-anything
 |---|---|---|
 | 2 | The friend had no sound for a while; it came back later by itself. | **Needs info:** multiplayer_log.txt from that session. Possibly the game muted while unfocused or a song started late. |
 
+## Bad network, drift check, minigames, voting, 2026-11-23
+
+* **Bad-network tests** (from the coop-anything playbook): test token `chaos:<loss %>:<lag ms>:<jitter ms>`
+  drops what a game receives with that chance and hands the rest over late (and out of order), with its
+  own RNG. `cutscenes.sh` takes `CS_EXTRA` tokens for every game. **Found and fixed:** with
+  `chaos:10:120:60` a Chapter 1 fight went out of step: Susie's last HP report and her player's "turn done"
+  came in one datagram, the host wrote the next turn's state before taking the HP in, and every game got
+  her old HP back. The HP is now applied first. **Tested:** Chapter 1 and 2 fights identical every turn
+  (4 + 4 turns, about 10% of datagrams lost), Chapter 2 cutscenes `ch2_entry`, `ch2_queen`, `ch2_library`,
+  `ch2_schooldoor`, `ch2_card_scene` pass.
+* **Drift check:** every 5 s the host sends a fingerprint of the shared state (6 characters of md5 per
+  variable, message 67). A client in free roam compares it and logs `[MPDRIFT]` with the names that
+  differ; a difference seen three times in a row (about 15 s) gets the host's whole state, applied where
+  the player stands (message 68, at most once a minute). **Tested** (`drift:<flag>:<frame>` changes a flag
+  in one game without telling anyone): found, repaired, flags equal afterwards; no false alarm in four
+  cutscene scenarios with and without a bad network.
+* **Minigames, first step** (priority 3): the rhythm game, the chefs, the quizzes, the races, Susiezilla,
+  Mike's game, pinball, the Chapter 5 minigames and climbing are recognised by their controller object.
+  While I play one nobody else's figure is drawn over it; the others see "Playing the rhythm game..." over
+  where I stand and `[rhythm game]` next to my name (message 69). **Tested** with `fakemg` (screenshots).
+  Not done: playing them *together* (per minigame, see priority 3).
+* **Voting on scene choices** (priority 3): F9 (host) "Scene choices: Host picks / Everyone votes", off by
+  default. Everyone in the scene gets the choice box and votes with Z; the status line shows each
+  player's answer; the leader counts once all voted or 15 s after the first vote; most votes win, a tie
+  goes to the host, then the leader (message 57). **Tested:** 2 players (1-1: the host's answer), 3 players
+  (2 against the host: theirs); host-picks mode still passes.
+
 ## Native Windows test run, 2026-11-22
 
 Tests now run on Windows with the native game (Git Bash; `tools/platform.sh`), 20x game speed.
@@ -465,9 +492,9 @@ All done on 2026-11-22. "Tested" means a targeted automated test; "not testable 
 
 | Issue | Fix | Effort |
 |---|---|---|
-| Minigames have no multiplayer handling (only the Ch3 board and the Ch5 platformer do): the rhythm game (`obj_rhythmgame`, Ch3; its code is also in Ch4/5), the chefs/kitchen game (Ch3), the quiz/game show (Ch3), climbing (`obj_climb`, Ch4/5), the organ (Ch4). Each player plays their own copy while the others' walking ghosts are drawn over it. | First, for all of them: detect the minigame, hide the ghosts, show "P2 is playing" and let one player play while the others watch (or play their own copy, then take the host's result). Then per game: **rhythm** - each player plays their character's chart (the game already has three: Kris guitar, Susie drums, Ralsei vocals, the last two on autoplay), hits sent and the score added up; **climbing** - the others shown as ghosts on the wall, as in the platformer; **quiz/game show** - each player buzzes for their character. | M (fallback); L per game |
+| Minigames have no multiplayer handling (only the Ch3 board and the Ch5 platformer do): the rhythm game (`obj_rhythmgame`, Ch3; its code is also in Ch4/5), the chefs/kitchen game (Ch3), the quiz/game show (Ch3), climbing (`obj_climb`, Ch4/5), the organ (Ch4). Each player plays their own copy while the others' walking ghosts are drawn over it. | First, for all of them: detect the minigame, hide the ghosts, show "P2 is playing" and let one player play while the others watch (or play their own copy, then take the host's result). Then per game: **rhythm** - each player plays their character's chart (the game already has three: Kris guitar, Susie drums, Ralsei vocals, the last two on autoplay), hits sent and the score added up; **climbing** - the others shown as ghosts on the wall, as in the platformer; **quiz/game show** - each player buzzes for their character. | Fallback **done** 2026-11-23 (detected, figures hidden, "Playing ..." shown); L per game |
 | Special battle styles (Spamton NEO, Berdly/Queen, Chapter 4/5 gimmick fights) likely only partly sync. | Detect special battles and fall back to "one player drives the battle, everyone else spectates and dodges". Later, hand-sync individual fights people care about. | S–M (fallback); L per fight |
-| Voting on cutscene choices (future option; for now the host chooses, see report 7). | Everyone's cursor shown, majority wins, host breaks ties. | M |
+| Voting on cutscene choices (future option; for now the host chooses, see report 7). | **Done** 2026-11-23: F9 setting, see "Bad network, drift check, minigames, voting". | - |
 | Minigames played *together*, not each on their own screen (idea from play-testing). Example: the throw minigame - Susie throws Kris, and Kris's player presses a button mid-air for a sword swing that widens his reach for a moment. | Design per minigame: who controls what (thrower aims, the thrown one acts mid-air), sent as inputs like the battle menu so every game plays the same throw. Very complex (new mechanics on top of the game's own). Puzzles are simpler, though still work: share the puzzle's state (switches, blocks, tiles) so one player's move changes the room for everyone instead of only in their game. | L per minigame; M per puzzle type |
 
 ## Priority 4 — cosmetic

@@ -156,6 +156,13 @@ action, Z to pick the enemy, act, spell, item or target (X goes back). When your
 plays it (anything no longer possible becomes the first possible choice). Battle text is turned
 by anyone's Z, for everyone. The F9 menu's "Story fights" setting (host) can keep story fights to
 the heroes that players play.
+Choices in a shared cutscene are the host's by default; with "Scene choices: Everyone votes" (F9,
+host) everyone in the scene votes with Z, the status line shows the votes, the most votes win and
+a tie goes to the host.
+While you play a minigame (the rhythm game, the chefs, a quiz, a race, climbing...) the other
+players aren't drawn over it, and they see "Playing the rhythm game..." over where you stand.
+Every 5 s the host's story state is compared with yours; a difference that stays is fixed from
+the host's copy by itself (logged as `[MPDRIFT]`).
 
 **Playing over the internet:** the host must forward **UDP port 26510** on their router.
 Alternatively, everyone can join the same virtual LAN (Tailscale, ZeroTier, Radmin VPN…) and
@@ -277,7 +284,10 @@ a game crashes.
   (rooms/encounters the game can't normally reach) and are listed in TODO.md. Late joiners
   (3 players) are pulled into a running battle.
 * **Battles** (`tools/regress.sh`): 3 players in chapters 1–5, battle state identical every
-  turn; earlier also ~500 ms RTT, 5% loss, 64 kbit/s.
+  turn; earlier also ~500 ms RTT, 5% loss, 64 kbit/s. The test token `chaos:<loss %>:<lag ms>:<jitter ms>`
+  makes a game drop and delay what it receives (its own random numbers, so battles stay in step): with
+  `chaos:10:120:60` on both games, fights in chapters 1 and 2 stay identical every turn and the Chapter 2
+  cutscene scenarios pass.
 
 ## Known limitations
 
