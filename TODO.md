@@ -23,6 +23,13 @@ Plan:
 3. If a player's game crashes or disconnects mid-scene, reconnecting does the same (resume already
    reconnects within 15 minutes).
 
+## Fix: the C menu (misread request, 2026-11-23)
+
+The request was not a "You: Susie" label (priority 4, done 2026-11-22, see DONE.md) but this: in the
+party menu's status screen, the hero shown as "Kris" (the one I control) should show my character's
+name, i.e. the menu names the character I play instead of Kris. Remove the "You: <character>" label
+and change the name the status screen draws (and check the other C-menu pages that name Kris).
+
 ## Needs information from a player
 
 | Issue | What is needed |
