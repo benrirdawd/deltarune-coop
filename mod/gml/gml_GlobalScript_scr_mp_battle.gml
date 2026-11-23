@@ -175,6 +175,10 @@ function mp_susie_lock()
 {
     if (!global.mp_susie_lent || global.mp_chapter != 1 || global.char[global.charturn] != 2)
         return;
+    // Only in the story fights she is part of (a scene starts them, or the game sets the party): in
+    // a fight started by touching an enemy on the map she is played like anyone else.
+    if (!global.mp_b_story && !global.mp_enc_forced)
+        return;
     var ct = global.charturn;
     if (global.mp_susie_lock_log != global.mp_bturn)
     {
@@ -1648,4 +1652,13 @@ function mp_overworld_all_down()
             return true;
     }
     return false;
+}
+
+// After obj_darkener darkens the heroes for the bullet phase: not in multiplayer fights.
+function mp_no_target_look()
+{
+    if (!mp_battle_on())
+        return;
+    with (obj_heroparent)
+        darkify = 0;
 }

@@ -650,7 +650,13 @@ function mp_sync_try_pull()
             global.mp_pull = -1;
         return;
     }
-    // A battle that already finished is not worth joining.
+    // A battle that already finished (or whose last enemy just went) is not worth joining.
+    if (kind == 1 && (global.mp_pstate[from] & 128) != 0)
+    {
+        mp_log("pull dropped: " + string(from) + "'s fight is ending");
+        global.mp_pull = -1;
+        return;
+    }
     if (kind == 1 && (global.mp_pstate[from] & 1) == 0 && p[7] > 150)
     {
         global.mp_pull = -1;

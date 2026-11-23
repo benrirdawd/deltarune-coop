@@ -428,7 +428,22 @@ function mp_state_bits()
         s |= 32;
     if (mp_dz())
         s |= 64;
+    if ((s & 1) != 0 && mp_battle_ending())
+        s |= 128;
     return s;
+}
+
+// My fight is ending: no enemy left (killed, spared or fled). Nobody joins it any more.
+function mp_battle_ending()
+{
+    if (!variable_global_exists("monster"))
+        return false;
+    for (var i = 0; i < 3; i++)
+    {
+        if (global.monster[i] != 0)
+            return false;
+    }
+    return true;
 }
 
 function mp_send_pos(force, sock)

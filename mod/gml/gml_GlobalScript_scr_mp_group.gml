@@ -650,7 +650,7 @@ function mp_join_tick()
     var best = 90;
     for (var i = 0; i < 8; i++)
     {
-        if (i == global.mp_myid || !global.mp_pconn[i] || global.mp_proom[i] != room || (global.mp_pstate[i] & 1) == 0)
+        if (i == global.mp_myid || !global.mp_pconn[i] || global.mp_proom[i] != room || (global.mp_pstate[i] & 1) == 0 || (global.mp_pstate[i] & 128) != 0)
             continue;
         var d = point_distance(obj_mainchara.x, obj_mainchara.y, global.mp_px[i], global.mp_py[i]);
         if (d < best)
@@ -686,7 +686,7 @@ function mp_join_request(target)
 // A player asks to join through me: invite just them.
 function mp_join_answer(from)
 {
-    if (!mp_battle_on() || from < 0 || from >= 8)
+    if (!mp_battle_on() || from < 0 || from >= 8 || mp_battle_ending())
         return;
     global.mp_b_mask |= (1 << from);
     global.mp_pull_mask = 1 << from;

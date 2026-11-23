@@ -287,5 +287,11 @@ $1
 @prepend gml_GlobalScript_scr_save
 mp_on_save();
 
+;; TP lost in a fight: the bar flashes and shakes.
 @append gml_Object_obj_tensionbar_Draw_0
 mp_tp_bar_fx();
+
+;; Multiplayer fights: every player dodges with their own SOUL, so the game's "this hero is the
+;; target" look (the other heroes darkened) means nothing: no hero is darkened.
+@append gml_Object_obj_darkener_Draw_0
+mp_no_target_look();
