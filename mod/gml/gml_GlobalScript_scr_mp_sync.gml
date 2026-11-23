@@ -1211,6 +1211,14 @@ function mp_classify_step(ia, battle)
         global.mp_classify = 0;
         return false;
     }
+    // The game takes control for something only I do (sliding down a slope, the checker path
+    // throwing me back to its start): never a scene for the others.
+    if (mp_local_action())
+    {
+        global.mp_classify = 0;
+        mp_log("only mine (a slope, the checker path): not a scene");
+        return false;
+    }
     global.mp_classify += 1;
     if (global.mp_classify < 20)
         return false;
@@ -1782,4 +1790,29 @@ function mp_draw_talk_bubble(pid, cx, ty)
     draw_set_valign(fa_top);
     draw_text_ext(bx + 4, by + 3, t, lh, ww);
     draw_set_font(of);
+}
+
+// The game has control of me for something that only concerns me: a slope I'm sliding down
+// (Chapter 1's obj_darkslide), the checker path's flash that puts me back at its start (obj_ob_gen).
+function mp_local_action()
+{
+    var o = asset_get_index("obj_darkslide");
+    if (o >= 0)
+    {
+        with (o)
+        {
+            if (collide == 1)
+                return true;
+        }
+    }
+    o = asset_get_index("obj_ob_gen");
+    if (o >= 0)
+    {
+        with (o)
+        {
+            if (variable_instance_exists(id, "whitecon") && whitecon != 0)
+                return true;
+        }
+    }
+    return false;
 }
