@@ -1791,6 +1791,9 @@ function mp_ow_hit_target()
     {
         if (global.char[s] == me)
         {
+            // (Only when my character is out on the map: the game hurts the hero there.)
+            if (!is_array(global.charinstance) || s >= array_length(global.charinstance) || !instance_exists(global.charinstance[s]))
+                return;
             if (target != s)
                 mp_log("map hit: target " + string(target) + " -> my slot " + string(s));
             target = s;
