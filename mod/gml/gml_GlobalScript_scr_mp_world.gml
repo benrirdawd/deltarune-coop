@@ -1952,8 +1952,83 @@ function mp_battle_idle_sprite(ch)
 // obj_hallway_mirror's End Step, after it copied Kris's sprite onto the reflection: mine instead.
 function mp_mirror_reflect_me()
 {
-    if (!mp_on() || !mp_swaps_enabled() || global.mp_cfg_char == 1)
-        return;
-    with (shadow)
-        sprite_index = mp_swap_sprite(sprite_index, 1, global.mp_cfg_char);
+    if (mp_on() && mp_swaps_enabled() && global.mp_cfg_char != 1)
+    {
+        with (shadow)
+            sprite_index = mp_swap_sprite(sprite_index, 1, global.mp_cfg_char);
+    }
+    mp_mirror_reflect_others();
+}
+
+// The same mirror reflects the other players in the room too: one reflection (a marker, like the
+// game's own) per player figure, placed and flipped the way the game does it for Kris.
+function mp_mirror_reflect_others()
+{
+    if (!variable_instance_exists(id, "mp_refl"))
+        mp_refl = [];
+    var list = [];
+    if (mp_on() && global.mp_mg == "")
+    {
+        with (obj_mp_ghost)
+        {
+            if (pid >= 0 && fol < 0 && !leaving && fade > 0 && sprite_exists(sprite_index) && !mp_ghost_fighting(pid))
+                array_push(list, id);
+        }
+    }
+    while (array_length(mp_refl) < array_length(list))
+        array_push(mp_refl, scr_marker(0, 0, shadow.sprite_index));
+    for (var i = array_length(mp_refl) - 1; i >= 0; i--)
+    {
+        var m = mp_refl[i];
+        if (!instance_exists(m))
+        {
+            array_delete(mp_refl, i, 1);
+            continue;
+        }
+        if (i >= array_length(list))
+        {
+            instance_destroy(m);
+            array_delete(mp_refl, i, 1);
+            continue;
+        }
+        var g = list[i];
+        m.x = g.x;
+        m.y = 192 - g.y;
+        m.sprite_index = mp_mirror_flip_sprite(g.sprite_index);
+        m.image_index = g.image_index;
+        m.image_xscale = shadow.image_xscale;
+        m.image_yscale = shadow.image_yscale;
+        m.image_alpha = g.fade;
+        m.depth = shadow.depth;
+    }
+}
+
+// Facing down in the room is facing up in the mirror (and the other way round), by sprite name:
+// spr_krisd / spr_krisu, spr_..._down / spr_..._up.
+function mp_mirror_flip_sprite(spr)
+{
+    if (!variable_global_exists("mp_mflip"))
+        global.mp_mflip = [];
+    if (spr < array_length(global.mp_mflip) && global.mp_mflip[spr] != -2)
+        return global.mp_mflip[spr];
+    while (array_length(global.mp_mflip) <= spr)
+        array_push(global.mp_mflip, -2);
+    var n = sprite_get_name(spr);
+    var o = -1;
+    if (string_pos("_down", n) > 0)
+        o = asset_get_index(string_replace(n, "_down", "_up"));
+    else if (string_pos("_up", n) > 0)
+        o = asset_get_index(string_replace(n, "_up", "_down"));
+    else
+    {
+        var last = string_char_at(n, string_length(n));
+        var base = string_copy(n, 1, string_length(n) - 1);
+        if (last == "d")
+            o = asset_get_index(base + "u");
+        else if (last == "u")
+            o = asset_get_index(base + "d");
+    }
+    var r = (o >= 0 && sprite_exists(o)) ? o : spr;
+    global.mp_mflip[spr] = r;
+    return r;
 }
