@@ -744,7 +744,8 @@ namespace DeltaruneOnline
                 if (rel.StartsWith(CoopDir + "\\", StringComparison.OrdinalIgnoreCase) || rel.Equals(CoopExe, StringComparison.OrdinalIgnoreCase)) continue;
                 wanted.Add(rel);
                 // (data.win is the patcher's; data.win.bak / .hash are a mod manager's backups.)
-                if (Path.GetFileName(rel).StartsWith("data.win", StringComparison.OrdinalIgnoreCase)) continue;
+                // Only the chapters' ones: the data.win next to DELTARUNE.exe (the chapter select) is copied as is.
+                if (Path.GetFileName(rel).StartsWith("data.win", StringComparison.OrdinalIgnoreCase) && rel.Contains("\\")) continue;
                 var fi = new FileInfo(f);
                 var di = new FileInfo(Path.Combine(Game, rel));
                 if (di.Exists && di.Length == fi.Length && di.LastWriteTimeUtc == fi.LastWriteTimeUtc) continue;
