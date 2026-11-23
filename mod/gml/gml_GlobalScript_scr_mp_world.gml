@@ -14,6 +14,8 @@ function mp_world_init()
     global.mp_my_ys = 1;
     global.mp_my_drawn = 0;
     global.mp_need_warp = 0;
+    global.mp_open_wait = 0;
+    global.mp_open_held = 0;
     global.mp_warp_delay = 0;
     global.mp_fol_mask = 0;     // party followers drawn this frame, by the character shown
     global.mp_swap_prev = 1;
@@ -603,6 +605,78 @@ function mp_recv_pos(pid, b)
     // (A freshly joined client goes to the host: mp_join_warp_tick, every frame until it's done.)
 }
 
+// The opening (Chapter 1's vessel creation: the DEVICE_* objects in the PLACE_* rooms) belongs to
+// the host, like the rest of the story: a client doesn't make a vessel of its own.
+// - The host is past it (in the game): skip it, the file is named after me, and go to the host.
+// - The host isn't (still in its own opening, the title or the file select): wait on a "the host is
+//   creating the vessel" screen, the opening paused, until the host is in the game.
+// (The vessel screens can't be mirrored: they are drawn text and shapes, not sprites.)
+function mp_opening_objs()
+{
+    return ["DEVICE_CONTACT", "DEVICE_CHOICE", "DEVICE_GONERMAKER", "DEVICE_APPEARANCE", "DEVICE_FAILURE", "DEVICE_OBACK_4", "obj_writer"];
+}
+
+function mp_opening_hold(on)
+{
+    if (on == global.mp_open_held && !on)
+        return;
+    var names = mp_opening_objs();
+    for (var i = 0; i < array_length(names); i++)
+    {
+        var o = asset_get_index(names[i]);
+        if (o < 0)
+            continue;
+        if (on)
+            instance_deactivate_object(o);
+        else
+            instance_activate_object(o);
+    }
+    if (on && !global.mp_open_held)
+        mp_log("opening: the host isn't in the game yet, waiting");
+    global.mp_open_held = on;
+}
+
+function mp_opening_tick()
+{
+    global.mp_open_wait = 0;
+    var inopen = string_pos("PLACE_", room_get_name(room)) == 1;
+    if (!inopen || global.mp_role != 2 || global.mp_linkstate != 3 || !global.mp_pconn[0])
+    {
+        if (global.mp_open_held)
+        {
+            if (inopen)
+                mp_log("opening: no host any more, going on alone");
+            mp_opening_hold(false);
+        }
+        return;
+    }
+    var hr = global.mp_proom[0];
+    var past = hr >= 0 && mp_room_ok(hr) && !mp_room_title(hr);
+    if (!past)
+    {
+        global.mp_open_wait = 1;
+        mp_opening_hold(true);
+        return;
+    }
+    if (!global.mp_need_warp || global.mp_warp_pending || global.mp_warp_delay > 0)
+        return; // the host's state (asked for when the new file started) hasn't arrived yet
+    global.mp_need_warp = 0;
+    var nm = global.mp_pname[global.mp_myid];
+    if (is_string(nm) && nm != "")
+        global.truename = string_copy(string_upper(nm), 1, 12);
+    global.flag[6] = 0;
+    snd_free_all();
+    window_set_caption("DELTARUNE"); // (the opening had set it to "CONTACT")
+    mp_log("opening: the host is past it, skipping to " + room_get_name(hr) + " as " + string(global.truename));
+    global.mp_open_held = 0;
+    global.mp_warp_reenter = 0;
+    global.mp_warp_mus = 0;
+    if ((global.mp_pstate[0] & 48) != 0)
+        mp_warp(hr, -99999, 0, 0);
+    else
+        mp_warp(hr, global.mp_pix[0], global.mp_piy[0], 0);
+}
+
 // A client that just joined (or loaded a save, which fetches the host's state again) goes to the
 // host, whatever it is doing. It used to be one attempt when the host's first position arrived,
 // skipped for good if the client was busy at that moment (talking, a cutscene of its own, the
@@ -760,6 +834,7 @@ function mp_world_tick()
 {
     mp_entry_tick();
     mp_join_tick();
+    mp_opening_tick();
     mp_join_warp_tick();
     if (global.mp_battle_pulled && !mp_in_battle_scene())
         mp_kill_scenes();

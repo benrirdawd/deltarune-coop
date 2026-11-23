@@ -4,6 +4,26 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## The opening belongs to the host (2026-11-23)
+
+Before, each player went through Chapter 1's opening (the vessel creation: the `DEVICE_*` objects in the
+`PLACE_*` rooms) on their own, and a client still in it joined the host only after finishing its own.
+Now (`mp_opening_tick`, scr_mp_world):
+
+* A client in a `PLACE_*` room while the host is in the game skips the opening: the file is named after
+  the player (upper case, at most 12 letters), and it goes straight to the host (once the host's state,
+  asked for when the new file started, has arrived).
+* While the host isn't in the game (in its own opening, the title or the file select), the client's
+  opening is paused (its `DEVICE_*` objects and text deactivated) behind a black screen: "<host> (the
+  host) is creating the vessel... You will join them when they are in the game." If the host leaves,
+  the opening goes on as before.
+* Design choice (the simplest that works): the vessel screens aren't mirrored (they are drawn text and
+  shapes); the host's own answers (flags 900-912) reach the client with the rest of the story state.
+* Test (Chapter 1, speed 10, client with `chaos:10:120:60`): host and client both start in
+  `PLACE_CONTACT`; the client waits ("opening: the host isn't in the game yet"); the host leaves for
+  `room_field1` (the `away` token now also works from a `PLACE_*` room); the client skips to it as "P2"
+  and both end up in `room_field1` seeing each other.
+
 ## Code review fixes (local /code-review and the cloud ultrareview), 2026-11-23
 
 | Finding | Fix | Test |

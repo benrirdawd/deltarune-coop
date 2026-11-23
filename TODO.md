@@ -6,21 +6,15 @@ pull request, or ask on Discord (**b.001**).
 
 ## Next up: the opening and joining mid-story (user idea, 2026-11-23)
 
-Today each player goes through Chapter 1's opening (the vessel creation, `DEVICE_*` objects in
-`PLACE_*` rooms) on their own; a client already in the game waits for the host, a client still in the
-opening joins the host only after finishing its own. The story's position is already the host's
-(flags, plot, party: host authoritative, drift check), and a joiner goes to the host and is pulled
-into the host's running cutscene, but joining mid-cutscene has never been tested.
+The story's position is already the host's (flags, plot, party: host authoritative, drift check), and
+a joiner goes to the host and is pulled into the host's running cutscene, but joining mid-cutscene has
+never been tested.
 
-Plan:
-1. The opening belongs to the host: a client in the opening while the host is past it skips straight
-   to the host (file name = its player name); a client in the opening while the host is still in it
-   waits on a "Host is creating the vessel..." screen instead of making its own. (Mirroring the
-   vessel screens themselves isn't possible with the cutscene mirror: they are drawn text and shapes,
-   not sprites.)
-2. A `joinat:<frame>` test token (a client that connects late) and tests for joining in the middle of a
+Step 1 (the opening belongs to the host) is done, see DONE.md. Left:
+
+1. A `joinat:<frame>` test token (a client that connects late) and tests for joining in the middle of a
    cutscene, in every chapter: the joiner must land in the host's scene at the same page.
-3. If a player's game crashes or disconnects mid-scene, reconnecting does the same (resume already
+2. If a player's game crashes or disconnects mid-scene, reconnecting does the same (resume already
    reconnects within 15 minutes).
 
 ## Fix: the C menu (misread request, 2026-11-23)

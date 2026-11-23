@@ -659,6 +659,17 @@ function mp_draw_gui()
     draw_set_alpha(1);
     var lh = string_height("Ag") * sc;
 
+    // A client in the opening while the host isn't in the game yet (mp_opening_tick).
+    if (global.mp_open_wait)
+    {
+        draw_set_color(c_black);
+        draw_rectangle(0, 0, gw, gh, false);
+        var wt = global.mp_pname[0] + " (the host) is creating the vessel...";
+        var wt2 = "You will join them when they are in the game.";
+        mp_draw_text_outlined((gw - string_width(wt)) / 2, gh / 2 - lh, wt, c_white);
+        mp_draw_text_outlined((gw - string_width(wt2)) / 2, gh / 2 + lh / 2, wt2, c_gray);
+    }
+
     // Player list.
     if (global.mp_role != 0 && global.mp_cfg_hud)
     {

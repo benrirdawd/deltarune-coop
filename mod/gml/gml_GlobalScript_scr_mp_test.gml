@@ -13,6 +13,7 @@
 //   partyat:<n>     do `party` after n frames (default 60)
 //   walk:<d>:<t>:<n>  hold direction d (l/r/u/d) for n frames, t frames after arriving
 //   away:<room>:<n>[:<x>:<y>] once connected, n frames after the party setup, go to <room> (like walking through a door)
+//                   (also from the opening's PLACE_* rooms: the host leaving its vessel creation)
 //   fakescene       (test of the pulled-battle cleanup) start a cutscene of our own while being pulled into a battle
 //   lightworld      with `party`: start in the Light World (Kris and Susie)
 //   setplot:<n>     set the story progress to <n> after a while (shared with the others)
@@ -630,7 +631,7 @@ function mp_test_input()
         global.interact = 1;
         mp_log("fakescene created, master " + string(fo.cutscene_master) + " exists " + string(mp_cutscene_master_exists()));
     }
-    if (mp_test_has("away") && variable_global_exists("mp_test_state") && mp_on() && global.mp_test_state == 1 && !variable_global_exists("mp_test_awaydone") && global.interact == 0 && instance_exists(obj_mainchara))
+    if (mp_test_has("away") && variable_global_exists("mp_test_state") && mp_on() && global.mp_test_state == 1 && !variable_global_exists("mp_test_awaydone") && global.interact == 0 && (instance_exists(obj_mainchara) || string_pos("PLACE_", room_get_name(room)) == 1))
     {
         // away:<room>:<n>[:<x>:<y>]
         var aw = mp_test_arg("away");
