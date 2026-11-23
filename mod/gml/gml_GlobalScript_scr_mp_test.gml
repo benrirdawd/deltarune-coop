@@ -488,6 +488,37 @@ function mp_test_input()
                 mp_log("[test] setcon: no " + sv[0]);
         }
     }
+    // fakechoice:<frame>: at that test frame, a two-answer choice box opens (as in a scene); logs the
+    // answer once it is picked. pickright: while a choice box can be answered, right then Z.
+    if (mp_test_arg("fakechoice") != "" && variable_global_exists("mp_test_timer") && (mp_test_arg("fakechoice") == "watch" ? (mp_test_watch_frames() == 60 && !variable_global_exists("mp_test_fchoice")) : global.mp_test_timer == real(mp_test_arg("fakechoice"))))
+    {
+        global.choice = -1;
+        global.choicemsg[0] = "#Left";
+        global.choicemsg[1] = "#Right";
+        global.choicemsg[2] = "";
+        global.choicemsg[3] = "";
+        var mc_off = !instance_exists(obj_mainchara);
+        if (mc_off)
+            instance_activate_object(obj_mainchara);
+        var fc = instance_create(0, 0, obj_choicer_neo);
+        if (mc_off)
+            instance_deactivate_object(obj_mainchara);
+        fc.choicetotal = 1;
+        global.mp_test_fchoice = 1;
+        mp_log("[test] choice box opened");
+    }
+    if (variable_global_exists("mp_test_fchoice") && global.mp_test_fchoice && !instance_exists(obj_choicer_neo))
+    {
+        global.mp_test_fchoice = 0;
+        mp_log("[test] choice answered: " + string(global.choice));
+    }
+    if (mp_test_has("pickright") && instance_exists(obj_choicer_neo) && (global.mp_test_timer mod 20) == 0)
+    {
+        if (obj_choicer_neo.mychoice != 1)
+            global.input_held[1] = 1;
+        else
+            global.input_pressed[4] = 1;
+    }
     // holdx: hold X all the time (speeds text up; set in the input state, so it works unfocused).
     if (mp_test_has("holdx"))
         global.input_held[5] = 1;
@@ -829,4 +860,16 @@ function mp_test_sprite_char(spr)
     if (string_pos("spr_noelle", n) == 1)
         return 4;
     return 0;
+}
+
+// How many frames I have been watching another player's scene (0 when not).
+function mp_test_watch_frames()
+{
+    if (!variable_global_exists("mp_test_w5"))
+        global.mp_test_w5 = 0;
+    if (global.mp_sstate == 5)
+        global.mp_test_w5 += 1;
+    else
+        global.mp_test_w5 = 0;
+    return global.mp_test_w5;
 }

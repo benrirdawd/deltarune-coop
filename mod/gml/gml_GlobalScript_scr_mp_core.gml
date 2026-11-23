@@ -498,7 +498,7 @@ function mp_handle(type, sender, b, sock, endpos)
             mp_vars_send_full(sock);
         return;
     }
-    if (type >= 30 && type < 40)
+    if ((type >= 30 && type < 40) || type == 65) // (65: the host's answer to a choice)
     {
         mp_sync_recv(type, sender, b);
         return;

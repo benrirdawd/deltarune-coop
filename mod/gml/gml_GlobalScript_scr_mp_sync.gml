@@ -59,6 +59,9 @@ function mp_sync_init()
     global.mp_ch1ev_frame = -99;
     global.mp_ch1ev_value = false;
     global.mp_ch1ev_active = false;
+    global.mp_hp_val = -1;
+    global.mp_hp_t = 0;
+    global.mp_hp_sent_t = -99999;
     global.mp_plot_remote = -1;
     global.mp_pre_master = -1;
     global.mp_dlg_n = 0;            // text boxes I've read in this shared cutscene
@@ -138,6 +141,8 @@ function mp_in_battle_scene()
 // Called from mp_after_input: spectators must not move.
 function mp_sync_input()
 {
+    if (mp_host_picks_here())
+        return;
     if (global.mp_sstate == 5 || global.mp_sstate == 4 || global.mp_sstate == 3 || (global.mp_sstate == 2 && instance_exists(obj_choicer_neo)))
     {
         // (Watching a copy of the leader's scene: Z / Enter still turn the page and X still
@@ -375,10 +380,23 @@ function mp_sync_recv(type, from, b)
             global.mp_watch_text = txt;
         return;
     }
+    if (type == 65) // the host picked an answer in my scene
+    {
+        var hv = buffer_read(b, buffer_s8);
+        if (from == 0 && global.mp_sstate == 1)
+        {
+            global.mp_hp_val = hv;
+            global.mp_hp_t = current_time;
+            mp_log("choice: the host picked " + string(hv));
+        }
+        return;
+    }
     if (type == 32) // CHOICE
     {
         var seq = buffer_read(b, buffer_u16);
         var val = buffer_read(b, buffer_s8);
+        if (global.mp_role == 1 && (current_time - global.mp_hp_sent_t) < 4000)
+            return; // (my own pick, coming back from the scene's leader)
         if (from == global.mp_slead)
         {
             ds_map_set(global.mp_choices, seq, val);
@@ -1243,7 +1261,20 @@ function mp_choice_follow(localchoice)
 // Leader reports a choice it made.
 function mp_choice_made(val)
 {
-    if (!mp_on() || global.mp_sstate != 1)
+    if (!mp_on())
+        return;
+    // The host, in someone else's scene: the answer is the host's, sent to the scene's leader.
+    if (mp_host_picks_here())
+    {
+        mp_begin(65);
+        mp_ws8(val);
+        mp_send();
+        global.mp_hp_sent_t = current_time;
+        global.mp_mir_choice = -1;
+        mp_log("choice: picked " + string(val) + " for " + global.mp_pname[global.mp_slead] + "'s scene");
+        return;
+    }
+    if (global.mp_sstate != 1)
         return;
     mp_begin(32);
     mp_wu16(global.mp_choice_seq);
@@ -1267,8 +1298,10 @@ function mp_status_line()
         return bs;
     if (global.mp_sstate == 3)
         return "Joining " + global.mp_pname[global.mp_slead] + "...";
-    if ((global.mp_sstate == 2 || global.mp_sstate == 5) && instance_exists(obj_choicer_neo))
-        return global.mp_pname[global.mp_slead] + " is choosing...";
+    if ((global.mp_sstate == 2 || global.mp_sstate == 5) && instance_exists(obj_choicer_neo) && !mp_host_picks_here())
+        return (mp_host_in_scene_of(global.mp_slead) ? global.mp_pname[0] : global.mp_pname[global.mp_slead]) + " is choosing...";
+    if (global.mp_sstate == 1 && instance_exists(obj_choicer_neo) && mp_host_watching_me())
+        return global.mp_pname[0] + " is choosing...";
     return "";
 }
 
@@ -1277,6 +1310,13 @@ function mp_choice_step()
 {
     if (!variable_global_exists("mp_inited") || !mp_on())
         return;
+    if (mp_host_picks_here())
+        return; // (the host's own choice)
+    if (global.mp_sstate == 1)
+    {
+        mp_choice_wait_host();
+        return;
+    }
     if (global.mp_sstate == 5)
     {
         mp_mirror_choice_step();
@@ -1630,4 +1670,49 @@ function mp_classroom_restore()
     con = 11;
     if (variable_global_exists("mp_inited"))
         mp_log("classroom: put back as after Alphys's talk");
+}
+
+// ---------------------------------------------------------------- the host makes the choices
+
+// In a shared scene, the answers to the game's questions are the host's: the host picks on its own
+// copy of the choice box, the scene's leader takes that answer (and passes it on to everyone as
+// before). Nobody else can pick. A scene without the host in it is the leader's to answer.
+
+// I'm the host, watching or following someone else's scene, with a choice box up.
+function mp_host_picks_here()
+{
+    return mp_on() && global.mp_role == 1 && (global.mp_sstate == 2 || global.mp_sstate == 5) && global.mp_slead > 0 && instance_exists(obj_choicer_neo);
+}
+
+// The host is in this room in a scene (mine, when I'm leading one).
+function mp_host_in_scene_of(pid)
+{
+    return global.mp_pconn[0] && global.mp_proom[0] == room && (global.mp_pstate[0] & 2) != 0;
+}
+
+function mp_host_watching_me()
+{
+    return global.mp_role != 1 && global.mp_sstate == 1 && mp_host_in_scene_of(global.mp_myid);
+}
+
+// obj_choicer_neo's Step in the leader's game while the host is in the scene: no answer of my own;
+// the host's, when it comes (or mine after 30 seconds, should the host's never come).
+function mp_choice_wait_host()
+{
+    if (!variable_instance_exists(id, "mp_born"))
+        mp_born = current_time;
+    if (!mp_host_watching_me() || (current_time - mp_born) > 30000)
+        return;
+    if (canchoose == 1 && choiced == 0 && global.mp_hp_val >= 0 && global.mp_hp_t >= (mp_born - 5000))
+    {
+        mychoice = global.mp_hp_val;
+        global.mp_hp_val = -1;
+        event_user(0);
+        return;
+    }
+    for (var i = 0; i < 10; i++)
+    {
+        global.input_pressed[i] = 0;
+        global.input_held[i] = 0;
+    }
 }
