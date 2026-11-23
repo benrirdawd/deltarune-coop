@@ -78,6 +78,7 @@ function mp_battle_reset()
     global.mp_t_rturn = array_create(8, -1);
     global.mp_down_hit_f = -9999;
     global.mp_down_hit_n = 0;
+    global.mp_tp_flash_f = -9999;
     global.mp_qte_since = 0;
     for (var s = 0; s < 3; s++)
     {
@@ -1185,7 +1186,7 @@ function mp_battle_status()
         return "Waiting for " + q + "'s attack...";
     if (mp_soul_state() == 1 && instance_exists(obj_heart))
     {
-        return "You're down: keep dodging. Grazes still give TP, hits take TP.";
+        return "You're down: keep dodging.";
     }
     if (global.myfight == 0 && global.mnfight == 0 && global.charturn < 3)
     {
@@ -1212,7 +1213,7 @@ function mp_battle_status()
         return "Watching: " + mp_char_name(global.mp_cfg_char) + " is not in this battle. No need to dodge.";
     }
     if (mp_soul_state() == 1)
-        return "You're down: you'll be back when you're revived. Hits take TP.";
+        return "You're down: you'll be back when you're revived.";
     return "";
 }
 
@@ -1363,6 +1364,29 @@ function mp_player_down(i)
 
 // ---------------------------------------------------------------- live TP
 
+// Drawn after the TP bar (obj_tensionbar's Draw): when TP is lost in a fight, the bar flashes
+// white and shakes for a moment. (The game's own red bar under the orange one already shows how
+// much went, shrinking after a short pause.)
+function mp_tp_bar_fx()
+{
+    if (!mp_on() || !variable_global_exists("mp_tp_flash_f"))
+        return;
+    var age = global.mp_frame - global.mp_tp_flash_f;
+    if (age < 0 || age >= 12)
+        return;
+    var a = 0.75 * (1 - age / 12);
+    var dx = (age < 6) ? ((age mod 2) == 0 ? 2 : -2) : 0;
+    var oa = draw_get_alpha();
+    var oc = draw_get_colour();
+    draw_set_alpha(a);
+    draw_set_colour(c_white);
+    var w = sprite_get_width(spr_tensionbar);
+    var h = sprite_get_height(spr_tensionbar);
+    draw_rectangle(x + dx, y, x + dx + w - 1, y + h - 1, false);
+    draw_set_alpha(oa);
+    draw_set_colour(oc);
+}
+
 function mp_tp_phase_start()
 {
     global.mp_t_mine = 0;
@@ -1382,15 +1406,24 @@ function mp_tp_tick()
 {
     if (!mp_battle_on() || global.mnfight != 2 || global.mp_bwait)
         return;
-    global.mp_t_mine += global.tension - global.mp_t_shown;
+    var d = global.tension - global.mp_t_shown;
+    // Down: a hit costs TP, and for a moment after it grazes give none (the same bullet would
+    // otherwise pay part of it back at once).
+    if (d > 0 && mp_soul_state() == 1 && (global.mp_frame - global.mp_down_hit_f) < 45)
+        d = 0;
+    global.mp_t_mine += d;
     var t = global.mp_tension_b0 + global.mp_t_mine;
     for (var i = 0; i < 8; i++)
     {
         if (i != global.mp_myid && global.mp_pconn[i] && global.mp_t_rturn[i] == global.mp_bturn)
             t += global.mp_t_remote[i];
     }
+    var before = global.mp_t_shown;
     global.tension = clamp(t, 0, global.maxtension);
     global.mp_t_shown = global.tension;
+    // TP lost (anyone's hit while down): the bar flashes and shakes (mp_tp_bar_fx).
+    if (global.tension < before - 0.5)
+        global.mp_tp_flash_f = global.mp_frame;
     if ((global.mp_t_sent != global.mp_t_mine || (global.mp_frame - global.mp_t_sent_f) > 15) && (global.mp_frame - global.mp_t_sent_f) >= 2)
     {
         mp_begin_b(53);
@@ -1582,14 +1615,6 @@ function mp_heart_draw_others()
         var label = string_copy(global.mp_pname[i], 1, 8);
         draw_text_transformed_color(sx + 9 + 1, sy - 4 + 1, label, 1, 1, 0, c_black, c_black, c_black, c_black, 1);
         draw_text_transformed_color(sx + 9, sy - 4, label, 1, 1, 0, col, col, col, col, 1);
-    }
-    // A hit while down: how much TP it cost, over my SOUL for a second.
-    if ((global.mp_frame - global.mp_down_hit_f) < 30 && global.maxtension > 0)
-    {
-        var tl = "-" + string(max(1, round((global.mp_down_hit_n / global.maxtension) * 100))) + "% TP";
-        var ty = y - 14 - ((global.mp_frame - global.mp_down_hit_f) / 3);
-        draw_text_transformed_color(x + 1, ty + 1, tl, 1, 1, 0, c_black, c_black, c_black, c_black, 1);
-        draw_text_transformed_color(x, ty, tl, 1, 1, 0, c_orange, c_orange, c_orange, c_orange, 1);
     }
     draw_set_font(of);
     draw_set_halign(oh);
