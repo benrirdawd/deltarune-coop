@@ -443,6 +443,23 @@ function mp_test_input()
     // mashevery:<n> presses every n frames instead of 10 (a slow reader), mashfrom:<n> starts n frames into the room.
     var mash_every = mp_test_arg("mashevery") != "" ? real(mp_test_arg("mashevery")) : 10;
     var mash_from = mp_test_arg("mashfrom") != "" ? real(mp_test_arg("mashfrom")) : 15;
+    // climb:<frame>: (Chapters 4-5) at that test frame, start climbing at the nearest climbing
+    // spot; climbup then climbs up for a while every few seconds.
+    if (mp_test_arg("climb") != "" && variable_global_exists("mp_test_timer") && global.mp_test_timer == real(mp_test_arg("climb")))
+    {
+        var cso = asset_get_index("obj_climbstarter");
+        if (cso >= 0 && instance_exists(cso))
+        {
+            global.flag[23] = 1;
+            with (instance_exists(obj_mainchara) ? instance_nearest(obj_mainchara.x, obj_mainchara.y, cso) : instance_find(cso, 0))
+                forcetoclimb = true;
+            mp_log("[test] climbing");
+        }
+        else
+            mp_log("[test] climb: no climbing spot here");
+    }
+    if (mp_test_has("climbup") && mp_climb_on() && (global.mp_frame mod 90) < 30)
+        global.input_held[2] = 1;
     // openmenu: open the C menu once, a few seconds into the room (to see what it shows).
     if (mp_test_has("openmenu") && variable_global_exists("mp_test_timer") && global.mp_test_timer == 150 && global.interact == 0)
     {

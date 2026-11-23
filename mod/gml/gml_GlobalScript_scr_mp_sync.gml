@@ -1782,7 +1782,7 @@ function mp_draw_talk_bubble(pid, cx, ty)
         t = "";
     // Away in a minigame: say so over where they stand.
     if (t == "" && mp_player_minigame(pid) != "")
-        t = (mp_player_minigame(pid) == "climbing") ? "Climbing..." : "Playing " + mp_player_minigame(pid) + "...";
+        t = "Playing " + mp_player_minigame(pid) + "...";
     if (t == "")
         return;
     t = string_replace_all(string_replace_all(string_replace_all(t, "\r", ""), "\n", " "), "  ", " ");
@@ -1838,9 +1838,9 @@ function mp_local_action()
 // ---------------------------------------------------------------- minigames
 
 // The minigames every player plays in their own game (the rhythm game, the chefs, the quiz,
-// climbing...): while I play one, the others' figures aren't drawn over it, and they see
+// ...): while I play one, the others' figures aren't drawn over it, and they see
 // "Playing the rhythm game..." over where I stand and next to my name (message 69).
-// (The Chapter 3 board and the Chapter 5 platformer have their own handling and aren't listed.)
+// (The Chapter 3 board, the Chapter 5 platformer and climbing have their own handling, not listed.)
 function mp_minigame_name()
 {
     if (!is_array(global.mp_mg_list))
@@ -1856,8 +1856,7 @@ function mp_minigame_name()
             ["obj_mike_minigame_controller", "Mike's game"],
             ["obj_gerson_shell_pinball", "pinball"],
             ["obj_slashpush_minigame", "a minigame"],
-            ["obj_sourdough_minigame", "a minigame"],
-            ["obj_climb_kris", "climbing"]
+            ["obj_sourdough_minigame", "a minigame"]
         ];
         global.mp_mg_list = [];
         for (var i = 0; i < array_length(names); i++)

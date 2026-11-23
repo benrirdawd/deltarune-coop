@@ -330,3 +330,21 @@ mp_classroom_restore();
 ;; battle makes them.
 @prepend gml_Object_obj_battlecontroller_Create_0
 mp_noai_party();
+
+;; Climbing (Chapters 4-5): I climb as the character I play (Susie and Ralsei have climbing sprites).
+#chapters 4,5
+@find gml_Object_obj_climb_kris_Draw_0
+draw_sprite_ext(sprite_index, image_index, x + drawx, y + drawy + drawoffsety, image_xscale, image_yscale, image_angle, image_blend, tempalpha * image_alpha);
+@with
+draw_sprite_ext(mp_climb_sprite(sprite_index), image_index, x + drawx, y + drawy + drawoffsety, image_xscale, image_yscale, image_angle, image_blend, tempalpha * image_alpha);
+@end
+#chapters all
+
+;; ...also on the rotating towers, where the tower draws the climber.
+#chapters 4,5
+@find gml_Object_obj_rotating_kris_controller_new_Draw_0
+draw_sprite_ext(obj_climb_kris.sprite_index, obj_climb_kris.image_index, krisx - camerax(), krisy, obj_climb_kris.image_xscale, obj_climb_kris.image_yscale, obj_climb_kris.image_angle, obj_climb_kris.image_blend, tempalpha);
+@with
+draw_sprite_ext(mp_climb_sprite(obj_climb_kris.sprite_index), obj_climb_kris.image_index, krisx - camerax(), krisy, obj_climb_kris.image_xscale, obj_climb_kris.image_yscale, obj_climb_kris.image_angle, obj_climb_kris.image_blend, tempalpha);
+@end
+#chapters all

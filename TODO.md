@@ -120,6 +120,12 @@ Checked against the coop-anything playbook (github.com/cranebeaker/coop-anything
   While I play one nobody else's figure is drawn over it; the others see "Playing the rhythm game..." over
   where I stand and `[rhythm game]` next to my name (message 69). **Tested** with `fakemg` (screenshots).
   Not done: playing them *together* (per minigame, see priority 3).
+* **Climbing together** (Chapters 4-5, priority 3): while climbing, my climbing figure is what the others
+  see (state bit 32, as the platformer), so climbers see each other on the wall, and each player climbs as
+  their own character (Susie and Ralsei have climbing sprites; core.hook maps Kris's in `obj_climb_kris`
+  and the rotating tower's Draw). On the rotating towers the others aren't shown (the tower projects the
+  climber around it). **Tested** (`climb:<frame>`, `climbup`, `room_dw_church_trueclimbadventure`,
+  screenshots: each game shows the other climber where they are, Susie as Susie).
 * **Voting on scene choices** (priority 3): F9 (host) "Scene choices: Host picks / Everyone votes", off by
   default. Everyone in the scene gets the choice box and votes with Z; the status line shows each
   player's answer; the leader counts once all voted or 15 s after the first vote; most votes win, a tie

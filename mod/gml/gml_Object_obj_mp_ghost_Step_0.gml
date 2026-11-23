@@ -85,6 +85,6 @@ image_yscale = global.mp_pys[pid];
 if (board)
     depth = mp_board_ghost_depth();
 else if ((global.mp_pstate[pid] & 32) != 0)
-    depth = mp_plat_ghost_depth();
+    depth = mp_climb_on() ? mp_climb_ghost_depth() : mp_plat_ghost_depth();
 else
     depth = 100000 - ((y * 10) + (sprite_get_height(sprite_index) * image_yscale * 10));

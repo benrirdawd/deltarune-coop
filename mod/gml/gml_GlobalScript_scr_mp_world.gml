@@ -424,7 +424,7 @@ function mp_state_bits()
         s |= 8;
     if (mp_board_on())
         s |= 16;
-    if (mp_plat_on())
+    if (mp_plat_on() || mp_climb_on())
         s |= 32;
     if (mp_dz())
         s |= 64;
@@ -480,6 +480,18 @@ function mp_send_pos(force, sock)
         pxs = plinfo[4];
         pys = plinfo[5];
         vis = plinfo[6];
+    }
+    // Climbing a wall (Chapters 4-5), my climbing figure.
+    var clinfo = mp_climb_send_info();
+    if (is_array(clinfo))
+    {
+        px = clinfo[0];
+        py = clinfo[1];
+        pspr = clinfo[2];
+        pimg = clinfo[3];
+        pxs = clinfo[4];
+        pys = clinfo[5];
+        vis = clinfo[6];
     }
     // The followers nobody plays (only the host has them).
     var fol = (global.mp_role == 1 && vis) ? global.mp_npcfol : [];
@@ -662,7 +674,7 @@ function mp_ghost_fighting(i)
 // Creates / removes the ghost instances that show other players walking around.
 function mp_ghosts_update()
 {
-    var plat = mp_plat_on();
+    var plat = mp_plat_on() || mp_climb_on();
     var showall = global.mp_sstate == 0 && !mp_in_battle_scene() && (instance_exists(obj_mainchara) || plat);
     var board = mp_board_on();
     for (var i = 0; i < 8; i++)
@@ -1010,7 +1022,7 @@ function mp_room_refresh_tick()
         return;
     if (global.interact != 0 || global.mp_sstate != 0 || mp_in_battle_scene() || global.mp_warp_pending || global.mp_warp_delay > 0 || is_array(global.mp_pull))
         return;
-    if (mp_room_event_active() || mp_credits_running() || mp_board_on() || mp_plat_on() || !instance_exists(obj_mainchara))
+    if (mp_room_event_active() || mp_credits_running() || mp_board_on() || mp_plat_on() || mp_climb_on() || !instance_exists(obj_mainchara))
         return;
     global.mp_plot_remote = -1;
     mp_log("room refresh: plot " + string(global.mp_room_plot) + " -> " + string(global.plot));
