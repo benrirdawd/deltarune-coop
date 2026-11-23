@@ -161,6 +161,7 @@ host) everyone in the scene votes with Z, the status line shows the votes, the m
 a tie goes to the host.
 While you play a minigame (the rhythm game, the chefs, a quiz, a race, climbing...) the other
 players aren't drawn over it, and they see "Playing the rhythm game..." over where you stand.
+Climbing walls (Chapters 4-5), you see the other climbers on the wall, each as their own character.
 Every 5 s the host's story state is compared with yours; a difference that stays is fixed from
 the host's copy by itself (logged as `[MPDRIFT]`).
 
