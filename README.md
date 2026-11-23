@@ -40,8 +40,11 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
 * **Battles and story cutscenes bring everyone together.** When someone touches an enemy
   or triggers a story cutscene, everyone else is pulled into that room. A story cutscene
   plays only in the game of whoever triggered it; everyone else sees exactly what that
-  player's screen shows (characters, text boxes, sounds and music), and that player turns
-  the text pages for everyone once they've finished typing on every screen.
+  player's screen shows (characters, text boxes, sounds and music), and anyone's Z turns
+  the text pages for everyone once they've finished typing on every screen. One shared
+  cutscene at a time: the host gives the go, and a cutscene waits while someone is in a fight.
+  When the host is in the cutscene, the host answers its questions. Talking to an NPC on your
+  own shows the text in a bubble over you on everyone's screen.
 * **Shared progress.** Story flags, items, gold, equipment and HP are kept in sync. The host's
   world is the shared one.
 * **Built for bad connections.** It uses UDP with its own reliability layer: position updates
@@ -148,6 +151,11 @@ good), the F9 menu has softlock tools:
 The player list (top-left) shows each player's character, ping and whether they're in a
 battle or cutscene. The yellow line at the top tells you whose turn it is in battle
 ("Your turn: choose Susie's action!" / "P2 is choosing for Susie...").
+While someone else chooses, you can prepare your next hero's whole action: left/right for the
+action, Z to pick the enemy, act, spell, item or target (X goes back). When your turn comes, one Z
+plays it (anything no longer possible becomes the first possible choice). Battle text is turned
+by anyone's Z, for everyone. The F9 menu's "Story fights" setting (host) can keep story fights to
+the heroes that players play.
 
 **Playing over the internet:** the host must forward **UDP port 26510** on their router.
 Alternatively, everyone can join the same virtual LAN (Tailscale, ZeroTier, Radmin VPN…) and
