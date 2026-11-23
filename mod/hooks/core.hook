@@ -313,3 +313,11 @@ if (active == 1)
 ;; The hallway mirror at home (Light World) reflects the character I play, not Kris.
 @append? gml_Object_obj_hallway_mirror_Step_2
 mp_mirror_reflect_me();
+
+;; Chapter 1 classroom: the room built again at plot 2 (between Alphys's talk and Susie coming in:
+;; a player joining, a watched scene's room put back) had no Alphys and no wall at the door, which
+;; only the scene itself makes. It is put back as the scene leaves it.
+#chapters 1
+@append gml_Object_obj_classscene_Create_0
+mp_classroom_restore();
+#chapters all

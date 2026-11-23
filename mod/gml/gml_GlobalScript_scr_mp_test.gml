@@ -470,6 +470,24 @@ function mp_test_input()
     // leaveat:<frame>: leave the session then (the host leaving, for the new-host test).
     if (mp_test_arg("leaveat") != "" && mp_on() && global.mp_frame == real(mp_test_arg("leaveat")))
         mp_disconnect("You left the session.");
+    // setcon:<obj>:<con>:<frame>: at that test frame, sets that object's con (starts a scene the
+    // way the game's own trigger would, the classroom's after its choice, for one).
+    if (mp_test_arg("setcon") != "")
+    {
+        var sv = string_split(mp_test_arg("setcon"), ":");
+        if (array_length(sv) >= 3 && variable_global_exists("mp_test_timer") && global.mp_test_timer == real(sv[2]))
+        {
+            var so = asset_get_index(sv[0]);
+            if (so >= 0 && instance_exists(so))
+            {
+                with (so)
+                    con = real(sv[1]);
+                mp_log("[test] " + sv[0] + ".con = " + sv[1]);
+            }
+            else
+                mp_log("[test] setcon: no " + sv[0]);
+        }
+    }
     // holdx: hold X all the time (speeds text up; set in the input state, so it works unfocused).
     if (mp_test_has("holdx"))
         global.input_held[5] = 1;

@@ -768,6 +768,27 @@ function mp_ch1_event_running()
 // counter goes up while they play and then stays put. A story event that leads into a battle
 // in the same room keeps going after it (Ralsei's castle scene: battle at con 72, story up to
 // con 109), so "still playing" is: con above 0 and changed in the last 10 seconds.
+// Chapter 1's story scene objects: the "...event" ones, and the scenes named otherwise (the
+// classroom, the car, the King, the school lobby, Kris's room, the fountain, Lancer's chases...).
+function mp_ch1_scene_name(nm)
+{
+    if (string_pos("event", nm) > 0 || string_pos("cutscene", nm) > 0)
+        return true;
+    switch (nm)
+    {
+        case "obj_classscene":
+        case "obj_krisroom":
+        case "obj_fountainkris":
+        case "obj_lancerchase2":
+        case "obj_lancerscare2":
+        case "obj_rudy":
+        case "obj_dustpile_susie":
+        case "obj_thrashafter_follow":
+            return true;
+    }
+    return false;
+}
+
 function mp_ch1_event_scan()
 {
     if ((global.mp_frame - global.mp_ch1ev_frame) < 10)
@@ -779,7 +800,7 @@ function mp_ch1_event_scan()
     with (all)
     {
         var nm = object_get_name(object_index);
-        if (string_pos("obj_", nm) == 1 && string_pos("event", nm) > 0 && variable_instance_exists(id, "con"))
+        if (string_pos("obj_", nm) == 1 && mp_ch1_scene_name(nm) && variable_instance_exists(id, "con"))
         {
             if (is_real(con))
             {
@@ -789,7 +810,9 @@ function mp_ch1_event_scan()
                     mp_conframe = fr;
                 }
                 var recent = (fr - mp_conframe) < 300;
-                if (con > 0 && (con < 90 || recent))
+                // (The scenes not named "...event" sit at a low con while the room is played
+                // freely, the classroom at 11: for those, only a con that just changed counts.)
+                if (con > 0 && (recent || (con < 90 && string_pos("event", nm) > 0)))
                     running = true;
                 if (con > 0 && recent)
                     active = true;
@@ -1589,4 +1612,22 @@ function mp_dlg_recv(from, b)
     global.mp_pdlg_key[from] = key;
     global.mp_pdlg_n[from] = n;
     global.mp_pdlg_t[from] = current_time;
+}
+
+// obj_classscene's Create (Chapter 1): at plot 2, the state its con 10 leaves (Alphys at her desk to
+// talk to, the door closed and readable), at con 11 like the game after that talk.
+function mp_classroom_restore()
+{
+    if (global.plot != 2 || con != 0)
+        return;
+    alphys = instance_create(50, 50 + sprite_get_height(spr_alphysd), obj_npc_facing);
+    doorsolid = instance_create(236, 52, obj_solidblock);
+    with (doorsolid)
+        image_xscale = 2;
+    door_readable = instance_create(244, 51, obj_readable_room1);
+    with (door)
+        depth = 500000;
+    con = 11;
+    if (variable_global_exists("mp_inited"))
+        mp_log("classroom: put back as after Alphys's talk");
 }
