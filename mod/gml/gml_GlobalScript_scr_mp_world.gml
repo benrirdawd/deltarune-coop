@@ -1798,3 +1798,15 @@ function mp_ow_hit_target()
         }
     }
 }
+
+// A character's battle stance sprite (-1 if this chapter has none).
+function mp_battle_idle_sprite(ch)
+{
+    var names = ["", "spr_krisb_idle", "spr_susieb_idle", "spr_ralseib_idle", "spr_noelleb_idle"];
+    if (ch < 1 || ch >= array_length(names))
+        return -1;
+    var s = asset_get_index(names[ch]);
+    if (s < 0 && ch == 3)
+        s = asset_get_index("spr_ralsei_idle");
+    return (s >= 0 && sprite_exists(s)) ? s : -1;
+}
