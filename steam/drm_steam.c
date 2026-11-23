@@ -24,6 +24,8 @@
 
 typedef uint64_t u64;
 typedef int32_t HSteamPipe;
+// Steam's C++ bool: one byte. (Declared as int, the rest of the return register is garbage.)
+typedef uint8_t sbool;
 
 // ---- Steam types used here (layouts from the Steamworks SDK 1.57 headers, x64) ----
 typedef struct { int32_t eType; int32_t cbSize; char data[128]; } NetIdentity; // SteamNetworkingIdentity
@@ -43,14 +45,14 @@ typedef struct { NetIdentity remote; } SessionRequest;                          
 
 // ---- the flat API, looked up in steam_api64.dll ----
 static HMODULE g_lib;
-static int (*p_Init)(void);
+static sbool (*p_Init)(void);
 static void (*p_Shutdown)(void);
 static HSteamPipe (*p_GetPipe)(void);
 static void (*p_MD_Init)(void);
 static void (*p_MD_RunFrame)(HSteamPipe);
-static int (*p_MD_Next)(HSteamPipe, CallbackMsg *);
+static sbool (*p_MD_Next)(HSteamPipe, CallbackMsg *);
 static void (*p_MD_Free)(HSteamPipe);
-static int (*p_MD_CallResult)(HSteamPipe, u64, void *, int, int, int *);
+static sbool (*p_MD_CallResult)(HSteamPipe, u64, void *, int, int, sbool *);
 static void *(*p_Matchmaking)(void);
 static void *(*p_Friends)(void);
 static void *(*p_User)(void);
@@ -64,19 +66,21 @@ static void (*p_ListStringFilter)(void *, const char *, const char *, int);
 static void (*p_ListDistance)(void *, int);
 static void (*p_ListCount)(void *, int);
 static u64 (*p_LobbyByIndex)(void *, int);
-static int (*p_SetLobbyData)(void *, u64, const char *, const char *);
+static sbool (*p_SetLobbyData)(void *, u64, const char *, const char *);
 static const char *(*p_GetLobbyData)(void *, u64, const char *);
 static u64 (*p_LobbyOwner)(void *, u64);
+static int (*p_NumMembers)(void *, u64);
+static u64 (*p_MemberByIndex)(void *, u64, int);
 static const char *(*p_PersonaName)(void *);
 static int (*p_FriendCount)(void *, int);
 static u64 (*p_FriendByIndex)(void *, int, int);
-static int (*p_FriendGame)(void *, u64, FriendGameInfo *);
+static sbool (*p_FriendGame)(void *, u64, FriendGameInfo *);
 static const char *(*p_FriendName)(void *, u64);
 static u64 (*p_MySteamID)(void *);
 static int (*p_Send)(void *, const NetIdentity *, const void *, uint32_t, int, int);
 static int (*p_Recv)(void *, int, NetMsg **, int);
-static int (*p_Accept)(void *, const NetIdentity *);
-static int (*p_Close)(void *, const NetIdentity *);
+static sbool (*p_Accept)(void *, const NetIdentity *);
+static sbool (*p_Close)(void *, const NetIdentity *);
 static void (*p_IdSet64)(NetIdentity *, u64);
 static u64 (*p_IdGet64)(NetIdentity *);
 static void (*p_InitRelay)(void *);
@@ -128,6 +132,58 @@ static int peer_index(u64 id, int add)
     return g_npeers++;
 }
 
+// Session requests from Steam users not (yet) in my lobby: looked at again for 10 s.
+#define MAXPEND 8
+static u64 g_pend[MAXPEND];
+static DWORD g_pend_t[MAXPEND];
+
+static int in_lobby(u64 id)
+{
+    if (!g_lobby || !id)
+        return 0;
+    int n = p_NumMembers(g_mm, g_lobby);
+    for (int i = 0; i < n; i++)
+        if (p_MemberByIndex(g_mm, g_lobby, i) == id)
+            return 1;
+    return 0;
+}
+
+static int allowed(u64 id)
+{
+    return peer_index(id, 0) >= 0 || in_lobby(id);
+}
+
+static void pending_add(u64 id)
+{
+    int slot = 0;
+    for (int i = 0; i < MAXPEND; i++)
+    {
+        if (g_pend[i] == id || !g_pend[i]) { slot = i; break; }
+        if (g_pend_t[i] < g_pend_t[slot]) slot = i;
+    }
+    g_pend[slot] = id;
+    g_pend_t[slot] = GetTickCount();
+}
+
+static void pending_tick(void)
+{
+    for (int i = 0; i < MAXPEND; i++)
+    {
+        if (!g_pend[i])
+            continue;
+        if (allowed(g_pend[i]))
+        {
+            NetIdentity id;
+            memset(&id, 0, sizeof id);
+            p_IdSet64(&id, g_pend[i]);
+            p_Accept(g_nm, &id);
+            g_pend[i] = 0;
+        }
+        else if (GetTickCount() - g_pend_t[i] > 10000)
+            g_pend[i] = 0;
+    }
+}
+
 #define LOAD(var, name) if (!(*(void **)&var = (void *)GetProcAddress(g_lib, name))) { snprintf(g_err, sizeof g_err, "steam_api64.dll has no %s", name); return 0; }
 
 static int load_api(void)
@@ -171,6 +227,7 @@ static int load_api(void)
     LOAD(p_ListCount, "SteamAPI_ISteamMatchmaking_AddRequestLobbyListResultCountFilter");
     LOAD(p_LobbyByIndex, "SteamAPI_ISteamMatchmaking_GetLobbyByIndex"); LOAD(p_SetLobbyData, "SteamAPI_ISteamMatchmaking_SetLobbyData");
     LOAD(p_GetLobbyData, "SteamAPI_ISteamMatchmaking_GetLobbyData"); LOAD(p_LobbyOwner, "SteamAPI_ISteamMatchmaking_GetLobbyOwner");
+    LOAD(p_NumMembers, "SteamAPI_ISteamMatchmaking_GetNumLobbyMembers"); LOAD(p_MemberByIndex, "SteamAPI_ISteamMatchmaking_GetLobbyMemberByIndex");
     LOAD(p_PersonaName, "SteamAPI_ISteamFriends_GetPersonaName"); LOAD(p_FriendCount, "SteamAPI_ISteamFriends_GetFriendCount");
     LOAD(p_FriendByIndex, "SteamAPI_ISteamFriends_GetFriendByIndex"); LOAD(p_FriendGame, "SteamAPI_ISteamFriends_GetFriendGamePlayed");
     LOAD(p_FriendName, "SteamAPI_ISteamFriends_GetFriendPersonaName"); LOAD(p_MySteamID, "SteamAPI_ISteamUser_GetSteamID");
@@ -218,8 +275,9 @@ EXPORT const char *drs_my_name(void)
 static void on_call_result(CallCompleted *cc)
 {
     uint8_t buf[512];
+    sbool bad = 0;
     int failed = 0;
-    if (cc->cubParam > sizeof buf || !p_MD_CallResult(g_pipe, cc->hAsyncCall, buf, cc->cubParam, cc->iCallback, &failed))
+    if (cc->cubParam > sizeof buf || !p_MD_CallResult(g_pipe, cc->hAsyncCall, buf, cc->cubParam, cc->iCallback, &bad) || bad)
         failed = 1;
     if (cc->hAsyncCall == g_call_create)
     {
@@ -278,9 +336,13 @@ static void on_callback(CallbackMsg *m)
         push_event("join_request %llu", (unsigned long long)j->lobby);
         break;
     }
-    case 1251: { // someone wants to talk to me: anyone in my lobby, or anyone while I host
+    case 1251: { // someone wants to talk to me: only players in my lobby (or already my peers)
         SessionRequest *s = (SessionRequest *)m->pubParam;
-        p_Accept(g_nm, &s->remote);
+        u64 who = p_IdGet64(&s->remote);
+        if (allowed(who))
+            p_Accept(g_nm, &s->remote);
+        else
+            pending_add(who); // (they may have just joined: the lobby's member list can come a moment later)
         break;
     }
     case 1252:
@@ -300,6 +362,7 @@ EXPORT double drs_tick(void)
         on_callback(&m);
         p_MD_Free(g_pipe);
     }
+    pending_tick();
     return 1;
 }
 
@@ -435,7 +498,8 @@ EXPORT double drs_recv(char *dest, double max)
         if (p_Recv(g_nm, 0, &m, 1) <= 0 || !m)
             return 0;
         u64 from = p_IdGet64(&m->peer);
-        int k = peer_index(from, 1);
+        // (Only players in my lobby, or already my peers, become peers.)
+        int k = peer_index(from, allowed(from));
         int n = m->cbSize;
         if (k < 0 || n <= 0 || n > (int)max)
         {

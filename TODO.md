@@ -55,6 +55,15 @@ changing the room for everyone.
   Whoever presses Continue first should continue for everyone (the host reloads, the others follow).
   Check what a client's Continue does now.
 
+## Left from the code review (2026-11-23)
+
+* Steam + UDP in one session: when the host leaves, a new host who joined by IP opens only UDP, and the
+  Steam players look for a lobby that never comes (the other way round now shows a message). Fix: a new
+  host on Steam whenever Steam is up, plus UDP.
+* After migration a client can land in the old Steam lobby (the other clients are still in it, with the
+  same code). Fix: a migration counter (or the new host's Steam id) in the lobby data, checked on join.
+* Re-test the Steam session fixes with two real Steam accounts.
+
 ## Needs information from a player
 
 | Issue | What is needed |

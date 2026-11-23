@@ -481,7 +481,9 @@ function mp_handle(type, sender, b, sock, endpos)
         var was = global.mp_pconn[pid];
         if (pid == global.mp_myid && global.mp_role == 2)
         {
+            // (My own pick order counts too: who plays a shared character is decided in every game.)
             global.mp_pname[pid] = nm;
+            global.mp_ppick[pid] = pick;
             return;
         }
         mp_player_set(pid, conn, nm, chr);

@@ -61,6 +61,8 @@ function mp_sync_init()
     global.mp_ch1ev_active = false;
     global.mp_hp_val = -1;
     global.mp_hp_t = 0;
+    global.mp_hp_taking = false;
+    global.mp_hp_late_until = 0;
     global.mp_talk_sent = "";
     global.mp_talk_sent_t = 0;
     global.mp_hp_sent_t = -99999;
@@ -403,7 +405,12 @@ function mp_sync_recv(type, from, b)
     if (type == 65) // the host picked an answer in my scene
     {
         var hv = buffer_read(b, buffer_s8);
-        if (from == 0 && global.mp_sstate == 1)
+        if (from == 0 && global.mp_sstate == 1 && current_time < global.mp_hp_late_until)
+        {
+            global.mp_hp_late_until = 0;
+            mp_log("choice: the host's late answer " + string(hv) + " dropped (I had picked)");
+        }
+        else if (from == 0 && global.mp_sstate == 1)
         {
             global.mp_hp_val = hv;
             global.mp_hp_t = current_time;
@@ -1296,6 +1303,8 @@ function mp_choice_made(val)
     // The host, in someone else's scene: the answer is the host's, sent to the scene's leader.
     if (mp_host_picks_here())
     {
+        if (global.mp_vote_pass)
+            return; // (the leader's answer, taken here: nothing to send)
         mp_begin(65);
         mp_ws8(val);
         mp_send();
@@ -1306,6 +1315,11 @@ function mp_choice_made(val)
     }
     if (global.mp_sstate != 1)
         return;
+    // Picked on my own while the host watches (its answer didn't come in time): an answer of the
+    // host's arriving late belongs to this question, not to the next one.
+    if (!global.mp_hp_taking && mp_host_watching_me())
+        global.mp_hp_late_until = current_time + 15000;
+    global.mp_hp_taking = false;
     mp_begin(32);
     mp_wu16(global.mp_choice_seq);
     mp_ws8(val);
@@ -1343,7 +1357,25 @@ function mp_choice_step()
     if (!variable_global_exists("mp_inited") || !mp_on())
         return;
     if (mp_host_picks_here())
-        return; // (the host's own choice)
+    {
+        // The host's own choice; but should the leader's answer come first (it picks alone when
+        // the host's doesn't come in 30 s), the host's game takes that one, so both go the same way.
+        global.mp_vote_pass = true;
+        if (global.mp_sstate == 5)
+            mp_mirror_choice_step();
+        else if (canchoose == 1 && choiced == 0)
+        {
+            var hc = mp_choice_follow(-1);
+            if (hc >= 0)
+            {
+                mp_log("choice: the leader answered first: " + string(hc));
+                mychoice = hc;
+                event_user(0);
+            }
+        }
+        global.mp_vote_pass = false;
+        return;
+    }
     mp_vote_step();
     if (global.mp_sstate == 1)
     {
@@ -1745,7 +1777,9 @@ function mp_choice_wait_host()
     {
         mychoice = global.mp_hp_val;
         global.mp_hp_val = -1;
+        global.mp_hp_taking = true;
         event_user(0);
+        global.mp_hp_taking = false;
         return;
     }
     for (var i = 0; i < 10; i++)

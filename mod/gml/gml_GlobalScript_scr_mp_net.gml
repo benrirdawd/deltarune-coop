@@ -91,6 +91,9 @@ function mp_peer_free(p)
 function mp_host_start(port, steam = false)
 {
     mp_disconnect("");
+    // (Hosting over UDP only: a Steam lobby left from before is closed, so nobody joins it.)
+    if (!steam)
+        mp_steam_leave();
     global.mp_usock = network_create_socket_ext(network_socket_udp, port);
     if (global.mp_usock < 0 && steam)
         global.mp_usock = network_create_socket(network_socket_udp);
@@ -114,6 +117,10 @@ function mp_host_start(port, steam = false)
 function mp_join(ip, port)
 {
     mp_disconnect("");
+    // (Joining over UDP: a Steam lobby left from before is closed. Over Steam this runs once the
+    // lobby is joined, which stays.)
+    if (ip != "steam")
+        mp_steam_leave();
     global.mp_usock = network_create_socket(network_socket_udp);
     if (global.mp_usock < 0)
     {
@@ -993,13 +1000,19 @@ function mp_migrate_start()
     if (global.mp_migrate_steam != "")
     {
         mp_steam_globals();
-        global.mp_steam_retries = 20;
+        // (Looked for as long as the new host's "Become the host" offer stays open: 2 minutes.)
+        global.mp_steam_retries = 40;
         mp_steam_join_code(global.mp_migrate_steam);
-        global.mp_steam_retry_at = current_time + 3000;
         return;
     }
     if (global.mp_migrate_ip == "")
         return;
+    // (The new host was on Steam and I'm not: there's no address to reach them at.)
+    if (global.mp_migrate_ip == "steam")
+    {
+        mp_notify(global.mp_migrate_name + " plays over Steam: join their game from the F9 menu once they host.");
+        return;
+    }
     global.mp_cfg_ip = global.mp_migrate_ip;
     global.mp_cfg_port = global.mp_migrate_port;
     global.mp_join_retries = 20;

@@ -297,8 +297,12 @@ $1
 @end
 
 ;; A client saves: the host saves too, so the host's file (the shared story) is never behind.
-@prepend gml_GlobalScript_scr_save
-mp_on_save();
+@regex gml_GlobalScript_scr_save
+(function scr_save\([^)]*\)\s*\{)
+@with
+$1
+    mp_on_save();
+@end
 
 ;; TP lost in a fight: the bar flashes and shakes.
 @append gml_Object_obj_tensionbar_Draw_0

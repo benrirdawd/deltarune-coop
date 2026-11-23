@@ -724,6 +724,9 @@ function mp_noai_party()
 {
     if (!variable_global_exists("mp_inited") || !mp_on() || !global.mp_noai || global.mp_party_local)
         return;
+    // (Chapter 4's boss fights need the whole party: their enemies act on Ralsei and Susie.)
+    if (global.mp_enc_forced)
+        return;
     var party = [0, 0, 0];
     var n = 0;
     for (var s = 0; s < 3; s++)

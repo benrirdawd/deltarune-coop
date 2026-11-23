@@ -4,6 +4,23 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Code review fixes (local /code-review and the cloud ultrareview), 2026-11-23
+
+| Finding | Fix | Test |
+|---|---|---|
+| The host's bag sync read `mp_inv_acked[-1]` for a peer still connecting (crash). | Peers without a player number are skipped (`mp_inv_send_state`). | Built; the 3-player buy test below. |
+| A client's money change reached the other clients twice: the host's automatic relay of type 8+ messages already forwards type 22, and `mp_inv_forward` sent it again. | `mp_inv_forward` removed. | **Tested** (`buy:1` on two clients, 3 players): every game ends at -100 (before: -150 on the clients). Same with `chaos:10:120:60`. |
+| A full snapshot from the host zeroed the clients' money changes it hadn't taken yet. | The host keeps `mp_gold_pending` through `mp_inv_reset` (its gold itself goes out in the snapshot). | Built. |
+| A client's save never made the host save: `@prepend` on a GMS 2.3 global script put `mp_on_save()` before `function scr_save()`, so it ran once at start. | The hook goes inside the function (regex, like `scr_load`). | **Checked** by decompiling the built Chapter 1 and 4 `scr_save` (the installed v17 still has it outside). Saving itself not run (it would write saves). |
+| Clients didn't store their own pick order, so each ranked itself first for a shared character. | PINFO about myself stores `mp_ppick` too. | Built. |
+| The host's own choice box ignored the leader's answer when the leader picked alone after 30 s, so the host's game could take another branch; a late host answer could answer the next question. | In host-picks mode the host's box takes the leader's answer when it comes first; the leader drops one late host answer for 15 s after picking alone. | **Tested** (classroom, `fakechoice`): host picks (unchanged); host silent: after 30 s the leader picks 0 and the host's box gets 0. |
+| The scene lock waited forever while someone was fighting. | After 5 minutes waiting for a fight the scene goes on. | Built. |
+| "Players' heroes only" stripped Chapter 4's boss fights that need the whole party. | Skipped when the game set the party (`mp_enc_forced`). | Built. |
+| Hosting or joining over UDP left an old Steam lobby open (and its code saved). | `mp_steam_leave()` on UDP host/join (not when the Steam join itself calls `mp_join`). | Built. |
+| Migration: a UDP client was sent to the address "steam"; Steam clients stopped looking after ~60 s while the offer lasts 120 s; an extra search was started at once. | A clear message instead of connecting to "steam"; 40 retries; the extra timer removed. | Built. |
+| Steam: C++ `bool` results declared as `int` (garbage upper bits); any Steam user's session was accepted and became a peer. | One-byte returns; sessions only from lobby members or known peers (requests rechecked for 10 s in case the member list comes later), and only those become peers. | DLL built; without Steam running the game says so and goes on. **Not testable here:** a real Steam session (needs two accounts). |
+| Launcher: the disk check counted the chapter select's data.win twice; `--play` said "isn't installed yet" when the installed launcher only needed to patch again. | Fixed both. | Launcher built. |
+
 ## User test report 7 (Chapter 1, 2 players over the internet, user is host), 2026-11-22
 
 Almost all done (2026-11-23); the open rows are listed in TODO.md. Grouped by area.

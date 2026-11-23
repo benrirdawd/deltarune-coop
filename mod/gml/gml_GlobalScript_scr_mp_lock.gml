@@ -170,10 +170,18 @@ function mp_lock_host_tick()
     {
         var want = global.mp_lock_q[0];
         var f = mp_lock_fighting(want);
-        if (f < 0)
+        // (Waiting for someone's fight has a limit, like waiting for text: after 5 minutes the
+        // scene goes on anyway.)
+        if (!variable_global_exists("mp_lock_fw_pid") || global.mp_lock_fw_pid != want)
+        {
+            global.mp_lock_fw_pid = want;
+            global.mp_lock_fw_t = current_time;
+        }
+        if (f < 0 || (current_time - global.mp_lock_fw_t) > 300000)
         {
             array_delete(global.mp_lock_q, 0, 1);
-            mp_lock_set(want, "first in line");
+            global.mp_lock_fw_pid = -1;
+            mp_lock_set(want, f < 0 ? "first in line" : "waited 5 minutes for " + global.mp_pname[f] + "'s fight");
         }
         else
             mp_lock_note(global.mp_pname[want] + " waits: " + global.mp_pname[f] + " is fighting");

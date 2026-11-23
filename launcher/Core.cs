@@ -753,7 +753,8 @@ namespace DeltaruneOnline
                 total += fi.Length;
             }
             var free = new DriveInfo(Path.GetPathRoot(Path.GetFullPath(Game))).AvailableFreeSpace;
-            long needed = total + files.Where(f => f.EndsWith("data.win", StringComparison.OrdinalIgnoreCase) && !f.Substring(src.Length + 1).StartsWith(CoopDir + "\\", StringComparison.OrdinalIgnoreCase)).Sum(f => new FileInfo(f).Length);
+            // (Plus the chapters' data.win the patcher writes; the chapter select's is already in total.)
+            long needed = total + files.Where(f => f.EndsWith("data.win", StringComparison.OrdinalIgnoreCase) && f.Substring(src.Length + 1).Contains("\\") && !f.Substring(src.Length + 1).StartsWith(CoopDir + "\\", StringComparison.OrdinalIgnoreCase)).Sum(f => new FileInfo(f).Length);
             if (free < needed + 100L * 1048576)
                 throw new Exception($"Not enough disk space: it needs about {needed / 1073741824.0 + 0.1:0.0} GB free on drive {Path.GetPathRoot(Path.GetFullPath(Game))}");
 

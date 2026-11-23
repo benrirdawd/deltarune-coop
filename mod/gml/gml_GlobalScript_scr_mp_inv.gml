@@ -46,7 +46,9 @@ function mp_inv_reset()
     global.mp_inv_pending = [];
     global.mp_inv_host_state = -1;
     global.mp_gold_sh = variable_global_exists("gold") ? global.gold : 0;
-    global.mp_gold_pending = 0;
+    // (The host keeps the clients' money changes it hasn't taken yet: they aren't in its snapshot.)
+    if (!(variable_global_exists("mp_role") && global.mp_role == 1))
+        global.mp_gold_pending = 0;
 }
 
 function mp_inv_copy(nm)
@@ -267,7 +269,8 @@ function mp_inv_send_state()
     {
         var p = ds_map_find_value(global.mp_peers, k);
         k = ds_map_find_next(global.mp_peers, k);
-        if (!is_struct(p) || !variable_struct_exists(p, "pid"))
+        // (A peer still connecting has no player number yet.)
+        if (!is_struct(p) || !variable_struct_exists(p, "pid") || p.pid < 0)
             continue;
         mp_begin(24);
         mp_wu16(global.mp_inv_acked[p.pid]);
@@ -312,9 +315,8 @@ function mp_inv_recv(type, from, b)
         var who = buffer_read(b, buffer_u8);
         var d = buffer_read(b, buffer_f64);
         // (Taken at the next tick, when nothing is in the way: a fight puts money back at its end.)
+        // (The host passes the record on to the other clients by itself, like every message of type 8+.)
         global.mp_gold_pending += d;
-        if (global.mp_role == 1)
-            mp_inv_forward(from, who, d);
         return;
     }
     if (type == 23)
@@ -363,22 +365,6 @@ function mp_inv_recv(type, from, b)
 }
 
 // Host: a player's money change goes on to everyone else.
-function mp_inv_forward(from, who, d)
-{
-    var k = ds_map_find_first(global.mp_peers);
-    while (!is_undefined(k))
-    {
-        var p = ds_map_find_value(global.mp_peers, k);
-        k = ds_map_find_next(global.mp_peers, k);
-        if (!is_struct(p) || !variable_struct_exists(p, "pid") || p.pid == from)
-            continue;
-        mp_begin(22);
-        mp_wu8(who);
-        mp_wf64(d);
-        mp_send_to(p);
-    }
-}
-
 // ---------------------------------------------------------------- saving
 
 // Prepended to scr_save. A client's save asks the host to save as well (message 25).

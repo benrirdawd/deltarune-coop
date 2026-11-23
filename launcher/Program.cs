@@ -57,8 +57,10 @@ namespace DeltaruneOnline
                 }
             }
             catch (Exception e) { core.Log("play: " + e.Message); }
+            // Installed but not ready to play (a Steam update needs patching again, say): the launcher's
+            // window does that, also when it's this very exe.
             var exe = File.Exists(core.InstalledExe) ? core.InstalledExe : null;
-            if (exe != null && !string.Equals(Path.GetFullPath(exe), Path.GetFullPath(Core.RunningExe), StringComparison.OrdinalIgnoreCase))
+            if (exe != null)
                 Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
             else
                 MessageBox.Show("DELTARUNE Online isn't installed yet: open the DELTARUNE Online launcher first.", "DELTARUNE COOP");
