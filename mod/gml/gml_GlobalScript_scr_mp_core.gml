@@ -33,6 +33,11 @@ function mp_init()
     global.mp_proom_t = array_create(8, 0);
     global.mp_ptalk = array_create(8, "");     // what they are reading with an NPC (talk bubble)
     global.mp_ptalk_t = array_create(8, 0);   // when they last changed room (as I heard it)
+    global.mp_pmg = array_create(8, "");       // the minigame they are playing ("" none)
+    global.mp_pmg_t = array_create(8, 0);
+    global.mp_mg = "";                         // mine
+    global.mp_mg_sent_t = 0;
+    global.mp_mg_list = -1;
     global.mp_pix = array_create(8, 0);
     global.mp_piy = array_create(8, 0);
     mp_net_init();
@@ -505,6 +510,16 @@ function mp_handle(type, sender, b, sock, endpos)
     {
         if (global.mp_role == 1)
             mp_vars_send_full(sock);
+        return;
+    }
+    if (type == 69) // the minigame a player is playing
+    {
+        var mg = buffer_read(b, buffer_string);
+        if (sender < 8)
+        {
+            global.mp_pmg[sender] = mg;
+            global.mp_pmg_t[sender] = current_time;
+        }
         return;
     }
     if ((type >= 30 && type < 40) || type == 65 || type == 66) // (65: the host's answer to a choice; 66: NPC talk)

@@ -905,6 +905,7 @@ function mp_sync_arrived()
 function mp_sync_tick()
 {
     mp_talk_tick();
+    mp_minigame_tick();
     var ia = global.interact;
     var battle = mp_in_battle_scene();
     if (instance_exists(obj_mainchara))
@@ -1765,7 +1766,12 @@ function mp_talk_tick()
 function mp_draw_talk_bubble(pid, cx, ty)
 {
     var t = global.mp_ptalk[pid];
-    if (t == "" || (current_time - global.mp_ptalk_t[pid]) > 2500)
+    if ((current_time - global.mp_ptalk_t[pid]) > 2500)
+        t = "";
+    // Away in a minigame: say so over where they stand.
+    if (t == "" && mp_player_minigame(pid) != "")
+        t = (mp_player_minigame(pid) == "climbing") ? "Climbing..." : "Playing " + mp_player_minigame(pid) + "...";
+    if (t == "")
         return;
     t = string_replace_all(string_replace_all(string_replace_all(t, "\r", ""), "\n", " "), "  ", " ");
     var of = draw_get_font();
@@ -1815,4 +1821,73 @@ function mp_local_action()
         }
     }
     return false;
+}
+
+// ---------------------------------------------------------------- minigames
+
+// The minigames every player plays in their own game (the rhythm game, the chefs, the quiz,
+// climbing...): while I play one, the others' figures aren't drawn over it, and they see
+// "Playing the rhythm game..." over where I stand and next to my name (message 69).
+// (The Chapter 3 board and the Chapter 5 platformer have their own handling and aren't listed.)
+function mp_minigame_name()
+{
+    if (!is_array(global.mp_mg_list))
+    {
+        var names = [
+            ["obj_rhythmgame", "the rhythm game"],
+            ["obj_chefs_game", "the cooking game"],
+            ["obj_quizsequence", "the quiz"],
+            ["obj_dw_ch3_teevie_quiz_controller", "the quiz"],
+            ["obj_ch3_green_room_racing_game", "the race"],
+            ["obj_room_castle_front_race", "the race"],
+            ["obj_susiezilla_gamecontroller", "Susiezilla"],
+            ["obj_mike_minigame_controller", "Mike's game"],
+            ["obj_gerson_shell_pinball", "pinball"],
+            ["obj_slashpush_minigame", "a minigame"],
+            ["obj_sourdough_minigame", "a minigame"],
+            ["obj_climb_kris", "climbing"]
+        ];
+        global.mp_mg_list = [];
+        for (var i = 0; i < array_length(names); i++)
+        {
+            var o = asset_get_index(names[i][0]);
+            if (o >= 0 && object_exists(o))
+                array_push(global.mp_mg_list, [o, names[i][1]]);
+        }
+    }
+    if (mp_in_battle_scene())
+        return "";
+    // (Test token fakemg:<from frame>: as if playing the rhythm game from then on.)
+    if (global.mp_test != "" && mp_test_arg("fakemg") != "" && variable_global_exists("mp_test_timer") && global.mp_test_timer >= real(mp_test_arg("fakemg")))
+        return "the rhythm game";
+    for (var j = 0; j < array_length(global.mp_mg_list); j++)
+    {
+        if (instance_exists(global.mp_mg_list[j][0]))
+            return global.mp_mg_list[j][1];
+    }
+    return "";
+}
+
+function mp_minigame_tick()
+{
+    var m = mp_minigame_name();
+    if (m != global.mp_mg || (m != "" && (current_time - global.mp_mg_sent_t) > 2000))
+    {
+        if (m != global.mp_mg)
+            mp_log(m == "" ? "minigame over" : "playing " + m);
+        global.mp_mg = m;
+        global.mp_mg_sent_t = current_time;
+        mp_begin(69);
+        mp_wstr(m);
+        mp_send();
+    }
+}
+
+// The minigame player pid is in ("" none; an old word from a player who left or stopped
+// answering runs out).
+function mp_player_minigame(pid)
+{
+    if (!global.mp_pconn[pid] || (current_time - global.mp_pmg_t[pid]) > 5000)
+        return "";
+    return global.mp_pmg[pid];
 }

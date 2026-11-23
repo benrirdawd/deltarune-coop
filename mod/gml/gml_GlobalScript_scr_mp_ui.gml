@@ -674,10 +674,13 @@ function mp_draw_gui()
                 st = mp_state_bits();
             if (mp_voice_speaking(i))
                 label += " (talking)";
+            var pmg = (i == global.mp_myid) ? global.mp_mg : mp_player_minigame(i);
             if (st & 1)
                 label += " [battle]";
             else if (st & 2)
                 label += " [cutscene]";
+            else if (pmg != "")
+                label += " [" + string_replace(pmg, "the ", "") + "]";
             var col = mp_char_color(global.mp_pchar[i]);
             mp_ui_backing(2 * sc, yy, string_width(label) * sc, lh, sc);
             draw_text_transformed_color(4 * sc + 1, yy + 1, label, sc, sc, 0, c_black, c_black, c_black, c_black, 1);

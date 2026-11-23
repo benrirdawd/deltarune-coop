@@ -2,6 +2,9 @@ if (pid < 0 || !sprite_exists(sprite_index))
     exit;
 if (fade <= 0)
     exit;
+// I'm playing a minigame: nobody else's figure over it.
+if (global.mp_mg != "")
+    exit;
 // In a fight (separate fights): their character's battle stance, feet where they stood.
 var fighting = mp_ghost_fighting(pid);
 var dspr = sprite_index;
