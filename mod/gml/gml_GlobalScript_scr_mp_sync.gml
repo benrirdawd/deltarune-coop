@@ -1755,8 +1755,7 @@ function mp_draw_talk_bubble(pid, cx, ty)
     var t = global.mp_ptalk[pid];
     if (t == "" || (current_time - global.mp_ptalk_t[pid]) > 2500)
         return;
-    t = string_replace_all(string_replace_all(string_replace_all(t, "", ""), "
-", " "), "  ", " ");
+    t = string_replace_all(string_replace_all(string_replace_all(t, "\r", ""), "\n", " "), "  ", " ");
     var of = draw_get_font();
     if (global.mp_font_small >= 0)
         draw_set_font(global.mp_font_small);
