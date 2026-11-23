@@ -126,7 +126,11 @@ mp_qte_report(target, points[target]);
 ;; Dialogue choices in shared cutscenes follow the leader.
 @prepend gml_Object_obj_choicer_neo_Other_10
 if (canchoose == 1 && choiced == 0)
+{
+    if (mp_vote_cast(mychoice))
+        exit;
     mp_choice_made(mychoice);
+}
 
 @prepend gml_Object_obj_choicer_neo_Step_0
 mp_choice_step();

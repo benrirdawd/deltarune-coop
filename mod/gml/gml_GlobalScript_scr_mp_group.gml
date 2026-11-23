@@ -15,6 +15,7 @@ function mp_group_init()
 {
     global.mp_open = global.mp_cfg_open;
     global.mp_noai = global.mp_cfg_noai;
+    global.mp_vote = global.mp_cfg_vote;
     global.mp_gid = 0;
     global.mp_gid_seq = 0;
     global.mp_b_leader = 0;
@@ -711,6 +712,7 @@ function mp_open_send()
     mp_begin(39);
     mp_wu8(global.mp_open);
     mp_wu8(global.mp_noai);
+    mp_wu8(global.mp_vote);
     mp_send();
 }
 

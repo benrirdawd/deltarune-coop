@@ -528,12 +528,20 @@ function mp_test_input()
         global.mp_test_fchoice = 0;
         mp_log("[test] choice answered: " + string(global.choice));
     }
-    if (mp_test_has("pickright") && instance_exists(obj_choicer_neo) && (global.mp_test_timer mod 20) == 0)
+    // pick:<n>: the same with answer n (0 left, 1 right).
+    var pickn = mp_test_has("pickright") ? 1 : (mp_test_arg("pick") != "" ? real(mp_test_arg("pick")) : -1);
+    if (pickn >= 0 && instance_exists(obj_choicer_neo) && (global.mp_test_timer mod 20) == 0)
     {
-        if (obj_choicer_neo.mychoice != 1)
-            global.input_held[1] = 1;
+        if (obj_choicer_neo.mychoice != pickn)
+            global.input_held[pickn == 1 ? 1 : 3] = 1;
         else
             global.input_pressed[4] = 1;
+    }
+    // vote: (host) everyone votes on scene choices.
+    if (mp_test_has("vote") && global.mp_role == 1 && !global.mp_vote)
+    {
+        global.mp_vote = 1;
+        mp_open_send();
     }
     // saytext:<frame>: at that test frame, a text box opens as if I talked to someone.
     if (mp_test_arg("saytext") != "" && variable_global_exists("mp_test_timer") && global.mp_test_timer == real(mp_test_arg("saytext")) && global.interact == 0)

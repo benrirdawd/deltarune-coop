@@ -35,6 +35,11 @@ function mp_init()
     global.mp_ptalk_t = array_create(8, 0);   // when they last changed room (as I heard it)
     global.mp_pmg = array_create(8, "");       // the minigame they are playing ("" none)
     global.mp_pmg_t = array_create(8, 0);
+    global.mp_vote_v = array_create(8, -1);    // scene choice votes (mp_vote_*)
+    global.mp_vote_vt = array_create(8, 0);
+    global.mp_vote_c = array_create(8, -1);    // where their cursor is
+    global.mp_vote_ct = array_create(8, 0);
+    global.mp_vote_pass = false;
     global.mp_mg = "";                         // mine
     global.mp_mg_sent_t = 0;
     global.mp_mg_list = -1;
@@ -283,6 +288,7 @@ function mp_config_load()
     global.mp_cfg_port = ini_read_real("net", "port", 26510);
     global.mp_cfg_open = ini_read_real("game", "openworld", 1);
     global.mp_cfg_noai = ini_read_real("game", "playersonly", 0);
+    global.mp_cfg_vote = ini_read_real("game", "votechoices", 0);
     global.mp_cfg_hud = ini_read_real("ui", "playerlist", 1);
     global.mp_cfg_tags = ini_read_real("ui", "nametags", 1);
     global.mp_cfg_souls = ini_read_real("ui", "souls", 1);
@@ -306,6 +312,7 @@ function mp_config_save()
     ini_write_real("net", "port", global.mp_cfg_port);
     ini_write_real("game", "openworld", global.mp_cfg_open);
     ini_write_real("game", "playersonly", global.mp_cfg_noai);
+    ini_write_real("game", "votechoices", global.mp_cfg_vote);
     ini_write_real("ui", "playerlist", global.mp_cfg_hud);
     ini_write_real("ui", "nametags", global.mp_cfg_tags);
     ini_write_real("ui", "souls", global.mp_cfg_souls);
@@ -510,6 +517,14 @@ function mp_handle(type, sender, b, sock, endpos)
     {
         if (global.mp_role == 1)
             mp_vars_send_full(sock);
+        return;
+    }
+    if (type == 57) // a player's vote (or cursor) on a scene choice
+    {
+        var vv = buffer_read(b, buffer_s8);
+        var vfinal = buffer_read(b, buffer_u8);
+        if (sender < 8)
+            mp_vote_recv(sender, vv, vfinal);
         return;
     }
     if (type == 69) // the minigame a player is playing

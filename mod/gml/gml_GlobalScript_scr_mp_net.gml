@@ -774,6 +774,7 @@ function mp_handle_link(type, sender, b, p)
         mp_begin(39);
         mp_wu8(global.mp_open);
         mp_wu8(global.mp_noai);
+        mp_wu8(global.mp_vote);
         mp_send_to(p);
         mp_notify(global.mp_pname[pid] + " joined!");
         return true;

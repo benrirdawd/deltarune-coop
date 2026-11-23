@@ -143,7 +143,7 @@ function mp_in_battle_scene()
 // Called from mp_after_input: spectators must not move.
 function mp_sync_input()
 {
-    if (mp_host_picks_here())
+    if (mp_host_picks_here() || mp_vote_active())
         return;
     if (global.mp_sstate == 5 || global.mp_sstate == 4 || global.mp_sstate == 3 || (global.mp_sstate == 2 && instance_exists(obj_choicer_neo)))
     {
@@ -257,6 +257,10 @@ function mp_sync_recv(type, from, b)
         var was_noai = global.mp_noai;
         global.mp_open = buffer_read(b, buffer_u8);
         global.mp_noai = buffer_read(b, buffer_u8);
+        var was_vote = global.mp_vote;
+        global.mp_vote = buffer_read(b, buffer_u8);
+        if (was_vote != global.mp_vote)
+            mp_notify(global.mp_vote ? "Host set scene choices to: everyone votes" : "Host set scene choices to: the host picks");
         if (was_open != global.mp_open)
             mp_notify(global.mp_open ? "Host set battles to: open-world" : "Host set battles to: everyone gets pulled in");
         if (was_noai != global.mp_noai)
@@ -1324,6 +1328,8 @@ function mp_status_line()
         return bs;
     if (global.mp_sstate == 3)
         return "Joining " + global.mp_pname[global.mp_slead] + "...";
+    if (mp_vote_active())
+        return mp_vote_status();
     if ((global.mp_sstate == 2 || global.mp_sstate == 5) && instance_exists(obj_choicer_neo) && !mp_host_picks_here())
         return (mp_host_in_scene_of(global.mp_slead) ? global.mp_pname[0] : global.mp_pname[global.mp_slead]) + " is choosing...";
     if (global.mp_sstate == 1 && instance_exists(obj_choicer_neo) && mp_host_watching_me())
@@ -1338,19 +1344,24 @@ function mp_choice_step()
         return;
     if (mp_host_picks_here())
         return; // (the host's own choice)
+    mp_vote_step();
     if (global.mp_sstate == 1)
     {
-        mp_choice_wait_host();
+        if (mp_vote_active())
+            mp_vote_leader_step();
+        else
+            mp_choice_wait_host();
         return;
     }
+    // (The answer, whether the leader's or the vote's, goes through here: no vote of its own.)
+    global.mp_vote_pass = true;
     if (global.mp_sstate == 5)
     {
         mp_mirror_choice_step();
+        global.mp_vote_pass = false;
         return;
     }
-    if (global.mp_sstate != 2)
-        return;
-    if (canchoose == 1 && choiced == 0)
+    if (global.mp_sstate == 2 && canchoose == 1 && choiced == 0)
     {
         var c = mp_choice_follow(-1);
         if (c >= 0)
@@ -1359,6 +1370,7 @@ function mp_choice_step()
             event_user(0);
         }
     }
+    global.mp_vote_pass = false;
 }
 
 // Plain text of the dialogue box on screen (control codes removed), or "".
@@ -1707,7 +1719,7 @@ function mp_classroom_restore()
 // I'm the host, watching or following someone else's scene, with a choice box up.
 function mp_host_picks_here()
 {
-    return mp_on() && global.mp_role == 1 && (global.mp_sstate == 2 || global.mp_sstate == 5) && global.mp_slead > 0 && instance_exists(obj_choicer_neo);
+    return mp_on() && global.mp_role == 1 && !global.mp_vote && (global.mp_sstate == 2 || global.mp_sstate == 5) && global.mp_slead > 0 && instance_exists(obj_choicer_neo);
 }
 
 // The host is in this room in a scene (mine, when I'm leading one).
@@ -1718,7 +1730,7 @@ function mp_host_in_scene_of(pid)
 
 function mp_host_watching_me()
 {
-    return global.mp_role != 1 && global.mp_sstate == 1 && mp_host_in_scene_of(global.mp_myid);
+    return global.mp_role != 1 && !global.mp_vote && global.mp_sstate == 1 && mp_host_in_scene_of(global.mp_myid);
 }
 
 // obj_choicer_neo's Step in the leader's game while the host is in the scene: no answer of my own;
@@ -1890,4 +1902,162 @@ function mp_player_minigame(pid)
     if (!global.mp_pconn[pid] || (current_time - global.mp_pmg_t[pid]) > 5000)
         return "";
     return global.mp_pmg[pid];
+}
+
+// ---------------------------------------------------------------- voting on scene choices
+//
+// Host setting (F9, "Scene choices: everyone votes"): in a shared scene everyone in it gets the
+// choice box; each player moves their own heart and presses Z to vote (Z again on another answer
+// changes it). Everyone sees the votes in the status line. The scene's leader counts them once
+// all are in, or 15 s after the first: the most votes wins, a tie goes to the host's vote, then
+// the leader's. The answer then goes out as the leader's choice always did (message 32).
+
+// Who is in the scene with me (me included): players in this room in a scene.
+function mp_vote_voters()
+{
+    var a = [global.mp_myid];
+    for (var i = 0; i < 8; i++)
+    {
+        if (i != global.mp_myid && global.mp_pconn[i] && global.mp_proom[i] == room && (global.mp_pstate[i] & 2) != 0)
+            array_push(a, i);
+    }
+    return a;
+}
+
+function mp_vote_active()
+{
+    if (!mp_on() || !global.mp_vote || !instance_exists(obj_choicer_neo))
+        return false;
+    if (global.mp_sstate != 1 && global.mp_sstate != 2 && global.mp_sstate != 5)
+        return false;
+    return array_length(mp_vote_voters()) >= 2;
+}
+
+// obj_choicer_neo's confirm (core.hook): true holds the answer back as my vote.
+function mp_vote_cast(val)
+{
+    if (global.mp_vote_pass || !mp_vote_active())
+        return false;
+    if (global.mp_vote_v[global.mp_myid] != val || global.mp_vote_vt[global.mp_myid] < mp_born_of_choice())
+    {
+        global.mp_vote_v[global.mp_myid] = val;
+        global.mp_vote_vt[global.mp_myid] = current_time;
+        mp_begin(57);
+        mp_ws8(val);
+        mp_wu8(1);
+        mp_send();
+        mp_log("vote: mine " + string(val));
+    }
+    return true;
+}
+
+// When the choice box on screen appeared (less a margin: a vote can come a moment before it).
+function mp_born_of_choice()
+{
+    var t = current_time;
+    with (obj_choicer_neo)
+    {
+        if (variable_instance_exists(id, "mp_vborn"))
+            t = mp_vborn;
+    }
+    return t - 2000;
+}
+
+function mp_vote_recv(from, val, final)
+{
+    if (final)
+    {
+        global.mp_vote_v[from] = val;
+        global.mp_vote_vt[from] = current_time;
+        mp_log("vote: " + global.mp_pname[from] + " " + string(val));
+    }
+    else
+    {
+        global.mp_vote_c[from] = val;
+        global.mp_vote_ct[from] = current_time;
+    }
+}
+
+// obj_choicer_neo's Step, anyone voting: my cursor goes out as I move it.
+function mp_vote_step()
+{
+    if (!variable_instance_exists(id, "mp_vborn"))
+    {
+        mp_vborn = current_time;
+        mp_vsent = -2;
+    }
+    if (!mp_vote_active() || mychoice == mp_vsent)
+        return;
+    mp_vsent = mychoice;
+    global.mp_vote_c[global.mp_myid] = mychoice;
+    global.mp_vote_ct[global.mp_myid] = current_time;
+    mp_begin(57);
+    mp_ws8(mychoice);
+    mp_wu8(0);
+    mp_send();
+}
+
+// The scene leader's obj_choicer_neo Step: counts the votes, plays the winner.
+function mp_vote_leader_step()
+{
+    if (canchoose != 1 || choiced != 0)
+        return;
+    var since = mp_vborn - 2000;
+    var who = mp_vote_voters();
+    var n = array_length(who);
+    var got = 0;
+    var first = -1;
+    var counts = array_create(4, 0);
+    for (var k = 0; k < n; k++)
+    {
+        var p = who[k];
+        if (global.mp_vote_vt[p] >= since && global.mp_vote_v[p] >= 0 && global.mp_vote_v[p] < 4)
+        {
+            got += 1;
+            counts[global.mp_vote_v[p]] += 1;
+            if (first < 0 || global.mp_vote_vt[p] < first)
+                first = global.mp_vote_vt[p];
+        }
+    }
+    if (got == 0 || (got < n && (current_time - first) < 15000))
+        return;
+    var best = 0;
+    for (var o = 0; o < 4; o++)
+        best = max(best, counts[o]);
+    var res = -1;
+    // Ties: the host's vote, then mine, then the first answer.
+    var prefer = [0, global.mp_myid];
+    for (var q = 0; q < 2 && res < 0; q++)
+    {
+        var pv = prefer[q];
+        if (global.mp_vote_vt[pv] >= since && global.mp_vote_v[pv] >= 0 && global.mp_vote_v[pv] < 4 && counts[global.mp_vote_v[pv]] == best)
+            res = global.mp_vote_v[pv];
+    }
+    for (var o2 = 0; o2 < 4 && res < 0; o2++)
+    {
+        if (counts[o2] == best)
+            res = o2;
+    }
+    mp_log("vote: " + string(got) + " of " + string(n) + " votes, answer " + string(res));
+    mychoice = res;
+    global.mp_vote_pass = true;
+    event_user(0);
+    global.mp_vote_pass = false;
+}
+
+// "Vote (Z): Host: Right (voted), P2: Left"
+function mp_vote_status()
+{
+    var who = mp_vote_voters();
+    var since = mp_born_of_choice();
+    var t = "Vote (Z): ";
+    for (var k = 0; k < array_length(who); k++)
+    {
+        var p = who[k];
+        var voted = global.mp_vote_vt[p] >= since && global.mp_vote_v[p] >= 0;
+        var cv = voted ? global.mp_vote_v[p] : ((global.mp_vote_ct[p] >= since) ? global.mp_vote_c[p] : -1);
+        var nm = (cv >= 0 && cv < 4) ? string_replace_all(string_replace_all(global.choicemsg[cv], "#", ""), "&", " ") : "...";
+        t += (k > 0 ? ", " : "") + global.mp_pname[p] + ": " + nm + (voted ? " (voted)" : "");
+    }
+    return t;
 }

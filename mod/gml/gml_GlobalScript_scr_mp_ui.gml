@@ -23,7 +23,7 @@ function mp_ui_init()
 function mp_ui_rows()
 {
     if (global.mp_ui_page == 1)
-        return ["battles", "noai", "hud", "tags", "souls", "vmode", "vkey", "vmic", "vmicvol", "vsens", "vvol", "vrange", "vtest", "back"];
+        return ["battles", "noai", "vote", "hud", "tags", "souls", "vmode", "vkey", "vmic", "vmicvol", "vsens", "vvol", "vrange", "vtest", "back"];
     if (global.mp_ui_page == 2)
         return ["back"];
     if (global.mp_ui_page == 3)
@@ -234,7 +234,7 @@ function mp_ui_input()
             mp_ui_block();
             return;
         }
-        if (row == "battles" || row == "noai" || row == "hud" || row == "tags" || row == "souls" || row == "vmode" || row == "vrange" || row == "vmic" || row == "vsens")
+        if (row == "battles" || row == "noai" || row == "vote" || row == "hud" || row == "tags" || row == "souls" || row == "vmode" || row == "vrange" || row == "vmic" || row == "vsens")
             mp_ui_adjust(row, 1);
         if (row == "steam_host")
         {
@@ -350,6 +350,14 @@ function mp_ui_adjust(row, d)
             {
                 global.mp_cfg_open = !global.mp_cfg_open;
                 global.mp_open = global.mp_cfg_open;
+                mp_open_send();
+            }
+            break;
+        case "vote":
+            if (global.mp_role != 2)
+            {
+                global.mp_cfg_vote = !global.mp_cfg_vote;
+                global.mp_vote = global.mp_cfg_vote;
                 mp_open_send();
             }
             break;
@@ -560,6 +568,11 @@ function mp_ui_rowtext(row)
             if (global.mp_role == 2)
                 return "Battles:  " + bm + "  (the host chooses)";
             return "Battles:  < " + bm + " >";
+        case "vote":
+            var vt = global.mp_vote ? "Everyone votes" : "Host picks";
+            if (global.mp_role == 2)
+                return "Scene choices:  " + vt + "  (the host chooses)";
+            return "Scene choices:  < " + vt + " >";
         case "noai":
             var na = global.mp_noai ? "Players' heroes only" : "Whole party";
             if (global.mp_role == 2)
