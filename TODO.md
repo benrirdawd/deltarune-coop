@@ -31,6 +31,30 @@ rewriting the game.
 Effort: L (every place that starts a scene, battle or pull goes through the request), but it can
 be done step by step: cutscene start first, then NPC talk, then battle start.
 
+Checked against the coop-anything playbook (github.com/cranebeaker/coop-anything, 2026-11-22):
+
+* It is the playbook's own pattern: one story authority (the host) and **intents** from clients
+  ("I activated X", numbered, run exactly once, acknowledged, resent until then;
+  `effect-capture-story-sync.md` section 8), with "decide per kind of state who owns it" (shared /
+  per player / local).
+* Its lesson 41 fits DELTARUNE exactly: when every copy already runs the same scripted scene, sync
+  the **start, the skip and the end**, not the scene itself (pause each copy at the start, the host
+  says go, skipping tallied by the host). Our cutscene reading already syncs pages; the missing part
+  is the start, which is what the referee adds.
+* Its full "effect capture" (only the host runs story scripts, clients apply a recorded list of
+  changes) does not fit: a DELTARUNE scene is something every player must *see* in their own game,
+  and the story's lasting state is already one shared store (`global.flag` and friends, host
+  authoritative since the start). Keep the store sync; add the referee.
+* Worth taking along: an **epoch** per scene/room so late or repeated messages can't start a scene
+  a second time ("scenes play twice"); a periodic **digest** of the shared flags compared with the
+  host's, logged, to catch drift early; and **lag and loss tests** (the playbook's chaos tool), which
+  we have never run. Room objects the scene changes directly (Alphys removed, the door's solid) are
+  not in the flag store: the referee avoids the double scene that broke them, and the digest could
+  later include a room census (lesson 70).
+* Policy to write down per kind of state (playbook section 9): story flags host, money/bag shared
+  through the host, HP per hero, positions per player, scene choices host (vote later), local-only
+  events (slopes, checkerboard, a minigame hit) the player who caused them.
+
 ### Cutscenes and talking to NPCs
 
 | Next | Issue | Idea |
