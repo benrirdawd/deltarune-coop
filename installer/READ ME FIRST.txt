@@ -10,7 +10,7 @@ few minutes). Your own copy and normal saves are never changed. Afterwards, star
 game with "DELTARUNE COOP.exe" in your DELTARUNE folder (or the desktop shortcut).
 If Windows SmartScreen warns about an unknown app, that's because this isn't signed:
 choose More info, then Run anyway. Download it only from
-https://github.com/benrirdawd/deltarune-online (this version), https://github.com/traeb0n/deltarune-online (or the mod's GameBanana page).
+https://github.com/benrirdawd/deltarune-coop (or the mod's GameBanana page).
 
 UPDATES
 Every time you open DELTARUNE Online it checks for a new version and installs it by itself.
@@ -26,6 +26,7 @@ PLAY
 
 HELP AND BUG REPORTS
 Join the Discord: https://discord.gg/GRX6XbTYRG
+To reach the maintainer of this version: Discord b.001
 For a bug, say which chapter and what happened, and attach multiplayer_log.txt
 from %LOCALAPPDATA%\DELTARUNE_ONLINE.
 
@@ -37,8 +38,8 @@ UNINSTALL
 Open DELTARUNE Online and click Uninstall at the bottom. Your mod saves are kept.
 
 LICENSE
-DELTARUNE Online by traebon. Free software under the GPL-3.0 (see LICENSE),
+DELTARUNE Online by traebon, continued by benrirdawd. Free software under the GPL-3.0 (see LICENSE),
 based on DELTARUNE Multiplayer by AeEn123AI. Made with AI assistance (Claude Code).
 The source code is in the "mod", "patcher-src" and "launcher-src" folders, and at
-https://github.com/traeb0n/deltarune-online
+https://github.com/benrirdawd/deltarune-coop
 DELTARUNE is made by Toby Fox. This is an unofficial fan project.

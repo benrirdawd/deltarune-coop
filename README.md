@@ -1,6 +1,19 @@
 # DELTARUNE Online
 
-By traebon. Based on [DELTARUNE Multiplayer](https://github.com/AeEn123AI/deltarune-multiplayer) by AeEn123AI (GPL-3.0).
+> **This project moved to [github.com/benrirdawd/deltarune-coop](https://github.com/benrirdawd/deltarune-coop).**
+> New versions, issues and pull requests go there; this repository stays as it is.
+>
+> Why a new repository: the original [DELTARUNE Multiplayer](https://github.com/AeEn123AI/deltarune-multiplayer)
+> by AeEn123AI hasn't changed since October 2026, and traebon's DELTARUNE Online repository
+> (`github.com/traeb0n/deltarune-online`), which this one started from, is no longer online, so
+> nothing here would ever be merged back. The work here was also on a branch named after testing
+> (`windows-native-tests`). `deltarune-coop` carries on from this repository, with all its history.
+> Launchers installed from here already look for updates there.
+>
+> Contact: Discord **b.001**. Anyone who wants to help is welcome.
+
+Maintained by benrirdawd. Based on DELTARUNE Online by traebon, itself based on
+[DELTARUNE Multiplayer](https://github.com/AeEn123AI/deltarune-multiplayer) by AeEn123AI (GPL-3.0).
 
 > **Note: this project was written almost entirely by AI** (Claude, via Claude Code), directed and
 > tested by a human. Expect rough edges and bugs, and please don't treat the code as hand-audited.
@@ -8,11 +21,11 @@ By traebon. Based on [DELTARUNE Multiplayer](https://github.com/AeEn123AI/deltar
 
 ## Download
 
-**[Download DeltaruneOnline-Setup.exe](https://github.com/traeb0n/deltarune-online/releases/latest/download/DeltaruneOnline-Setup.exe)** (Windows 10/11, needs DELTARUNE on Steam).
+**[Download the latest release](https://github.com/benrirdawd/deltarune-online/releases/latest)** (`DELTARUNE-Online.exe`, Windows 10/11, needs DELTARUNE on Steam).
 Open it and click **INSTALL**. It updates itself from then on. See [Installing](#installing) and [Playing](#playing).
-All versions are on the [Releases page](https://github.com/traeb0n/deltarune-online/releases).
+All versions are on the [Releases page](https://github.com/benrirdawd/deltarune-online/releases); newer ones on [deltarune-coop's](https://github.com/benrirdawd/deltarune-coop/releases).
 
-**Discord:** [discord.gg/GRX6XbTYRG](https://discord.gg/GRX6XbTYRG): help, bug reports and people to play with.
+**Discord:** [discord.gg/GRX6XbTYRG](https://discord.gg/GRX6XbTYRG) (DELTARUNE Online's community server): help, bug reports and people to play with. To reach this version's maintainer: Discord **b.001**.
 
 ## Screenshots
 
@@ -99,7 +112,7 @@ Proximity voice: you hear players in the same room, quieter with distance. Push 
 
 You need DELTARUNE on Windows (the Steam version with `chapter1_windows` ... folders). Every player needs the mod, at the same version.
 
-Download `DeltaruneOnline-Setup.exe` from the [latest release](https://github.com/traeb0n/deltarune-online/releases/latest), open it and click **INSTALL** (if SmartScreen warns, choose More info, then Run anyway: the exe isn't signed). It finds your Steam copy, copies it to `%LOCALAPPDATA%\DeltaruneOnline\game` and patches the copy, so your Steam copy is never changed. Saves are kept in `%LOCALAPPDATA%\DELTARUNE_ONLINE`, apart from your normal ones. Start the game from the **DELTARUNE Online** shortcut: every time it opens it installs any new version, and it patches again by itself after a Steam update. Uninstall is at the bottom of its window. The launcher's source is in `launcher/`.
+Download `DELTARUNE-Online.exe` from the [latest release](https://github.com/benrirdawd/deltarune-online/releases/latest), open it and click **INSTALL** (if SmartScreen warns, choose More info, then Run anyway: the exe isn't signed). It finds your Steam copy, copies it to `%LOCALAPPDATA%\DeltaruneOnline\game` and patches the copy, so your Steam copy is never changed. Saves are kept in `%LOCALAPPDATA%\DELTARUNE_ONLINE`, apart from your normal ones. Start the game from the **DELTARUNE Online** shortcut: every time it opens it installs any new version, and it patches again by itself after a Steam update. Uninstall is at the bottom of its window. The launcher's source is in `launcher/`.
 
 The older in-place `drm-patcher install` command still exists.
 
@@ -305,6 +318,15 @@ a game crashes.
 * Everyone must run the same chapter and the same mod version (checked on join).
 * Not affiliated with Toby Fox or the DELTARUNE team. The patched game files are generated
   on your machine from your own copy of the game.
+
+## Contributing
+
+Help is welcome: bug reports, play-testing, code. Open an issue or a pull request on
+[deltarune-coop](https://github.com/benrirdawd/deltarune-coop), or talk to me on Discord (**b.001**).
+What is planned and what is known to be broken is in [`TODO.md`](TODO.md). Building and testing are
+described in [Testing that was done](#testing-that-was-done) and `tools/` (`tools/build.sh` patches
+all five chapters, `tools/mptest.sh` runs two or more games against each other). A bug report helps
+most with `multiplayer_log.txt` from `%LOCALAPPDATA%\DELTARUNE_ONLINE`.
 
 ## License
 

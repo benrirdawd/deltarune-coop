@@ -39,7 +39,7 @@ Play all of DELTARUNE together online: each friend controls a party member, dodg
 
 ## Installation
 
-1. Download **DeltaruneOnline-Setup.exe** (from this page or https://github.com/traeb0n/deltarune-online/releases/latest) and open it.
+1. Download **DELTARUNE-Online.exe** (from this page or https://github.com/benrirdawd/deltarune-coop/releases/latest) and open it.
    Windows may say "Windows protected your PC" because the app isn't signed. Click **More info**, then **Run anyway**.
 2. Click **INSTALL**. It finds your Steam copy of DELTARUNE, copies it to a separate folder and patches the copy (about 1 GB, a minute or two).
 3. From then on, start the game from the **DELTARUNE Online** shortcut on your desktop. It checks for updates every time you open it.
@@ -77,17 +77,18 @@ Saves are kept separately in `%LOCALAPPDATA%\DELTARUNE_ONLINE`. To use your norm
 - Platforming sections show everyone as Kris.
 - If the host leaves, the session ends.
 
-**Discord:** https://discord.gg/GRX6XbTYRG for help, bug reports and finding people to play with.
+**Discord:** https://discord.gg/GRX6XbTYRG for help, bug reports and finding people to play with. Maintainer of this version: Discord **b.001**.
 
 **Reporting a bug:** post in the Discord (or the comments) what happened and attach `multiplayer_log.txt` from `%LOCALAPPDATA%\DELTARUNE_ONLINE`.
 
 ## Credits
 
+- **benrirdawd**: continued DELTARUNE Online as DELTARUNE Co-op
 - **traebon**: DELTARUNE Online
 - **AeEn123AI**: original DELTARUNE Multiplayer mod, which this is based on (GPL-3.0): https://github.com/AeEn123AI/deltarune-multiplayer
 - **UnderminersTeam**: UndertaleModTool, used to patch the game
 - **Toby Fox**: DELTARUNE
 
-Made with AI assistance (Claude Code). Free software under the GPL-3.0; source code: https://github.com/traeb0n/deltarune-online
+Made with AI assistance (Claude Code). Free software under the GPL-3.0; source code: https://github.com/benrirdawd/deltarune-coop
 
 Unofficial fan project, not affiliated with Toby Fox or the DELTARUNE team.

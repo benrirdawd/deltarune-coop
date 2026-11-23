@@ -458,7 +458,8 @@ function mp_ui_help()
         "This mod keeps its own save files, so your normal saves stay untouched.",
         "",
         "== CREDITS ==",
-        "DELTARUNE Online by traebon. github.com/traeb0n/deltarune-online",
+        "DELTARUNE Online by traebon, continued by benrirdawd.",
+        "github.com/benrirdawd/deltarune-coop  -  Discord: b.001",
         "Help, bug reports and people to play with: discord.gg/GRX6XbTYRG",
         "Built on DELTARUNE Multiplayer by AeEn123AI (GPL-3.0).",
         "DELTARUNE is by Toby Fox. You need your own copy of the game."
