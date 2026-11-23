@@ -321,3 +321,8 @@ mp_mirror_reflect_me();
 @append gml_Object_obj_classscene_Create_0
 mp_classroom_restore();
 #chapters all
+
+;; The host's "players' heroes only" setting: story fights drop the heroes nobody plays, before the
+;; battle makes them.
+@prepend gml_Object_obj_battlecontroller_Create_0
+mp_noai_party();

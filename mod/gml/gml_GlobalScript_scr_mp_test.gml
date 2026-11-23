@@ -532,6 +532,12 @@ function mp_test_input()
         instance_create(0, 0, obj_dialoguer);
         mp_log("[test] text box opened");
     }
+    // playersonly: (host) story fights with the players' heroes only.
+    if (mp_test_has("playersonly") && global.mp_role == 1 && !global.mp_noai)
+    {
+        global.mp_noai = 1;
+        mp_open_send();
+    }
     // holdx: hold X all the time (speeds text up; set in the input state, so it works unfocused).
     if (mp_test_has("holdx"))
         global.input_held[5] = 1;

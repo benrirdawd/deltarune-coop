@@ -254,9 +254,13 @@ function mp_sync_recv(type, from, b)
     if (type == 39) // the host's battle setting
     {
         var was_open = global.mp_open;
+        var was_noai = global.mp_noai;
         global.mp_open = buffer_read(b, buffer_u8);
+        global.mp_noai = buffer_read(b, buffer_u8);
         if (was_open != global.mp_open)
             mp_notify(global.mp_open ? "Host set battles to: open-world" : "Host set battles to: everyone gets pulled in");
+        if (was_noai != global.mp_noai)
+            mp_notify(global.mp_noai ? "Host set story fights to: players' heroes only" : "Host set story fights to: the whole party");
         return;
     }
     if (type == 36) // an overworld enemy was touched in the sender's game

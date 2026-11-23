@@ -14,6 +14,7 @@
 function mp_group_init()
 {
     global.mp_open = global.mp_cfg_open;
+    global.mp_noai = global.mp_cfg_noai;
     global.mp_gid = 0;
     global.mp_gid_seq = 0;
     global.mp_b_leader = 0;
@@ -709,5 +710,37 @@ function mp_open_send()
         return;
     mp_begin(39);
     mp_wu8(global.mp_open);
+    mp_wu8(global.mp_noai);
     mp_send();
+}
+
+// Prepended to obj_battlecontroller's Create, before it makes the heroes. With the host's "players'
+// heroes only" setting, a fight the game gives its own party (story fights) keeps only the heroes
+// some player plays (in the story's order); nobody plays the others for them. (Never empty: with
+// none of them played, the game's party stays.) Normal fights already have only the players' heroes.
+function mp_noai_party()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || !global.mp_noai || global.mp_party_local)
+        return;
+    var party = [0, 0, 0];
+    var n = 0;
+    for (var s = 0; s < 3; s++)
+    {
+        var ch = global.char[s];
+        if (ch == 0)
+            continue;
+        for (var i = 0; i < 8; i++)
+        {
+            if (global.mp_pconn[i] && global.mp_pchar[i] == ch)
+            {
+                party[n] = ch;
+                n += 1;
+                break;
+            }
+        }
+    }
+    if (n == 0 || n == mp_party_size())
+        return;
+    mp_log("players' heroes only: party " + string(global.char[0]) + string(global.char[1]) + string(global.char[2]) + " -> " + string(party[0]) + string(party[1]) + string(party[2]));
+    mp_party_set_local(party);
 }

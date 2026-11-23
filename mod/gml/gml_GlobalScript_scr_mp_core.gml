@@ -277,6 +277,7 @@ function mp_config_load()
     global.mp_cfg_ip = ini_read_string("net", "ip", "127.0.0.1");
     global.mp_cfg_port = ini_read_real("net", "port", 26510);
     global.mp_cfg_open = ini_read_real("game", "openworld", 1);
+    global.mp_cfg_noai = ini_read_real("game", "playersonly", 0);
     global.mp_cfg_hud = ini_read_real("ui", "playerlist", 1);
     global.mp_cfg_tags = ini_read_real("ui", "nametags", 1);
     global.mp_cfg_souls = ini_read_real("ui", "souls", 1);
@@ -299,6 +300,7 @@ function mp_config_save()
     ini_write_string("net", "ip", global.mp_cfg_ip);
     ini_write_real("net", "port", global.mp_cfg_port);
     ini_write_real("game", "openworld", global.mp_cfg_open);
+    ini_write_real("game", "playersonly", global.mp_cfg_noai);
     ini_write_real("ui", "playerlist", global.mp_cfg_hud);
     ini_write_real("ui", "nametags", global.mp_cfg_tags);
     ini_write_real("ui", "souls", global.mp_cfg_souls);
