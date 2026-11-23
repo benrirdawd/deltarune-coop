@@ -602,6 +602,9 @@ function mp_after_input()
     mp_test_input();
     // (Tests with "party": connect once the test setup has put us in our room.)
     var test_wait = global.mp_test != "" && mp_test_has("party") && (!variable_global_exists("mp_test_state") || global.mp_test_state == 0 || global.mp_test_timer < 30);
+    // (connectat:<frame>: a player who joins late, e.g. in the middle of the host's cutscene.)
+    if (global.mp_test != "" && mp_test_has("connectat") && global.mp_frame < real(mp_test_arg("connectat")))
+        test_wait = true;
     if (global.mp_auto != "" && !(global.mp_auto == "join" && test_wait))
     {
         if (global.mp_resumed)

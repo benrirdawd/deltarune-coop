@@ -4,6 +4,33 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Joining mid-cutscene and coming back after a crash (2026-11-23)
+
+New test tools: the `connectat:<frame>` token (a client connects only from that frame of its game on,
+i.e. late) and `CRASH_AT=<s>` in `tools/mptest.sh` (client 1's game is killed after <s> seconds and
+started again). `tools/latejoin.sh` runs one scenario per chapter. Three bugs found and fixed:
+
+* **A cutscene that started while the host was alone stayed unshared.** The newcomer went to the host's
+  room and started the room's scene again in its own game, then pulled the host into that copy. Now a
+  story cutscene that starts while nobody else is connected is remembered, and when someone joins while
+  it is still going it becomes the shared scene (scene lock + pull), so the newcomer watches the host's.
+* **Someone joining during a scene that was already shared was never pulled in;** they waited in their
+  own room until it ended. The scene's leader now pulls every player who connects during it (only them).
+* **Waits counted in frames gave up too early for a player who just joined:** the pull is dropped when its
+  sender doesn't hold the scene lock "after 150 frames", and a spectator stopped watching when the leader
+  seemed out of its scene "for 150 frames"; a newcomer hears about the lock and the leader's state a
+  moment later (later on a bad network, and at test speed 150 frames is 0.25 s). Both now also need some
+  real time (5 s and 3 s).
+
+Tests (speed 20): Chapter 1 classroom scene (`setcon`), Chapter 2 Queen boxing (also with
+`chaos:10:120:60`), Chapter 3 snow zone (the scene leads to a story fight: both fight it), Chapter 4
+church glass, Chapter 5 garden intro: the late client is pulled in and watches the host's scene ("Watching
+Host's cutscene", text box from the host's page), both end in free roam in the same room; `mpcheck` passes.
+Crash (Chapter 2, bad network): the client is killed mid-scene and restarted, joins again (as "P22", the
+old P2 times out a few seconds later), is pulled in and watches the host's scene to the end. (In the
+Chapter 2 runs plot shows 33 against 53 for a moment at the end: the test starts that room at plot 53 and
+the scene writes 33; the plot guard brings both back to 53. A test artifact.)
+
 ## The opening belongs to the host (2026-11-23)
 
 Before, each player went through Chapter 1's opening (the vessel creation: the `DEVICE_*` objects in the

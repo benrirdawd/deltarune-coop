@@ -4,19 +4,6 @@ Only open work is here; everything finished (and how it was tested) is in [`DONE
 Effort: S = small, M = medium, L = large. Help is welcome: pick anything below, open an issue or a
 pull request, or ask on Discord (**b.001**).
 
-## Next up: the opening and joining mid-story (user idea, 2026-11-23)
-
-The story's position is already the host's (flags, plot, party: host authoritative, drift check), and
-a joiner goes to the host and is pulled into the host's running cutscene, but joining mid-cutscene has
-never been tested.
-
-Step 1 (the opening belongs to the host) is done, see DONE.md. Left:
-
-1. A `joinat:<frame>` test token (a client that connects late) and tests for joining in the middle of a
-   cutscene, in every chapter: the joiner must land in the host's scene at the same page.
-2. If a player's game crashes or disconnects mid-scene, reconnecting does the same (resume already
-   reconnects within 15 minutes).
-
 ## Fix: the C menu (misread request, 2026-11-23)
 
 The request was not a "You: Susie" label (priority 4, done 2026-11-22, see DONE.md) but this: in the
@@ -102,12 +89,12 @@ These were fixed or should be fixed by other changes, but only a real play-throu
   position for 2-4 s when someone is moved onto a door trigger (sweep of 2026-10-10).
 * Changing character mid-session through F9 (picking it before joining, at the file select or in game,
   is covered by `tools/flow.py`).
-* Joining while the host is in a cutscene or battle (joining from the file select is covered).
+* Joining while the host is in a battle (joining from the file select and mid-cutscene are covered).
 * Rooms where the game hides or repositions followers (Light World followers in Chapter 4 are covered).
 * More `interact` cases in later chapters (save points, shops, the C menu are Z-triggered and local;
   unprompted text boxes only pull after 4 s).
 * Tests don't cover yet: Chapter 1 new game (the vessel creation; Chapter 1 is tested by loading a
-  save), joining mid-cutscene, cutscenes started with Z, platforming beyond standing in the room, a
+  save), cutscenes started with Z, platforming beyond standing in the room, a
   real play-through of whole chapters.
 
 ## Low priority / known small differences

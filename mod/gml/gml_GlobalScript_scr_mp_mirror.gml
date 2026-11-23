@@ -266,10 +266,16 @@ function mp_mirror_follow_tick()
     }
     // The leader's scene is over without our hearing the end (or it only concerned their game).
     if ((global.mp_pstate[ld] & 2) == 0)
+    {
+        if (global.mp_lead_free == 0)
+            global.mp_lead_free_t = current_time;
         global.mp_lead_free += 1;
+    }
     else
         global.mp_lead_free = 0;
-    if (global.mp_lead_free > 150)
+    // (150 frames and at least 3 s of real time: the leader's state comes with its position, which a
+    // bad network or a player who just joined may not have had for a moment.)
+    if (global.mp_lead_free > 150 && current_time - global.mp_lead_free_t > 3000)
     {
         mp_log("mirror: leader is no longer in a cutscene");
         mp_mirror_end(-1, 0, 0, 0, -1);

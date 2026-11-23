@@ -38,6 +38,7 @@
 //   speed:<n>       run the game n times faster (30*n frames a second) to make tests quicker;
 //                   the cutscene catch-up (mp_dlg_speed) still doubles on top of it
 //   fastboot        with speed: the title / file select before `party` runs fast as well
+//   connectat:<frame> client: connect only from this frame of its game on (joining late, mid-cutscene)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)
 
 function mp_test_has(tok)

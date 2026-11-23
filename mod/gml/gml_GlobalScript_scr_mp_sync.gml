@@ -16,6 +16,8 @@ function mp_sync_init()
     global.mp_local_dlg = 0;
     global.mp_lastz = -100;
     global.mp_classify = 0;
+    global.mp_solo_scene = 0;
+    global.mp_lead_mask = 0;
     global.mp_idle = 0;
     global.mp_wait = 0;
     global.mp_lead_done = 0;
@@ -114,6 +116,7 @@ function mp_sync_init()
     global.mp_choices = ds_map_create();
     global.mp_lead_text = "";     // dialogue the leader last sent
     global.mp_lead_free = 0;      // frames the leader has been out of any cutscene
+    global.mp_lead_free_t = 0;
     global.mp_watch_text = "";    // dialogue shown to frozen spectators
 }
 
@@ -124,6 +127,8 @@ function mp_sync_reset()
     global.mp_slead = -1;
     global.mp_pull = -1;
     global.mp_classify = 0;
+    global.mp_solo_scene = 0;
+    global.mp_lead_mask = 0;
     global.mp_battle_pulled = 0;
     ds_map_clear(global.mp_choices);
     if (variable_global_exists("plot"))
@@ -357,7 +362,7 @@ function mp_sync_recv(type, from, b)
             return; // a pending battle pull wins
         if (!mp_room_ok(rm))
             return;
-        global.mp_pull = [kind, from, rm, px, py, enc, plot, 0, entry, party, pdz, pgid, pmask, pstory, plead];
+        global.mp_pull = [kind, from, rm, px, py, enc, plot, 0, entry, party, pdz, pgid, pmask, pstory, plead, current_time];
         mp_log("got pull kind=" + string(kind) + " from=" + string(from) + " sst=" + string(global.mp_sstate) + " ia=" + string(global.interact));
         mp_sync_try_pull();
         return;
@@ -647,8 +652,10 @@ function mp_sync_try_pull()
     {
         // Not the scene the host let go ahead (another one started at the same moment, or a
         // repeat): wait a moment in case the host's word is still on its way, then drop it.
+        // (Also in real time: a player who just joined gets the host's word about the lock a
+        // moment after the pull, later still on a bad network.)
         global.mp_pull[7] += 1;
-        if (global.mp_pull[7] > 150)
+        if (global.mp_pull[7] > 150 && current_time - global.mp_pull[15] > 5000)
         {
             mp_log("pull dropped: " + string(from) + " doesn't hold the scene lock (" + string(global.mp_lock_pid) + ")");
             global.mp_pull = -1;
@@ -966,8 +973,23 @@ function mp_sync_tick()
             else if (global.mp_prev_interact == 0 && ia != 0)
                 global.mp_local_dlg = 1;
             if (ia == 0)
+            {
                 global.mp_local_dlg = 0;
-            if (mp_classify_step(ia, battle) && mp_player_count() > 1)
+                global.mp_solo_scene = 0;
+            }
+            var scene_now = mp_classify_step(ia, battle);
+            // A story cutscene that started while I was alone (nobody connected yet): if someone
+            // joins while it's still going, it becomes a shared one then, so the newcomer is pulled
+            // into it instead of starting the room's scene again in its own game.
+            if (scene_now && mp_player_count() <= 1)
+                global.mp_solo_scene = 1;
+            else if (global.mp_solo_scene && ia != 0 && !battle && mp_player_count() > 1)
+            {
+                global.mp_solo_scene = 0;
+                mp_log("someone joined during my cutscene: sharing it");
+                scene_now = true;
+            }
+            if (scene_now && mp_player_count() > 1)
             {
                 if (mp_lock_ok())
                     mp_lead_start();
@@ -998,6 +1020,18 @@ function mp_sync_tick()
                 global.mp_classify = 1;
             if (mp_classify_step(ia, battle))
                 mp_send_pull(2);
+            // Someone who joins (or comes back after a crash) while my cutscene is on is pulled into
+            // it too; their game waits for that pull (mp_join_warp_tick).
+            var others = mp_others_mask();
+            var fresh = others & ~global.mp_lead_mask;
+            global.mp_lead_mask = others;
+            if (fresh != 0 && ia != 0)
+            {
+                mp_log("a player joined during my cutscene: pulling them in (mask " + string(fresh) + ")");
+                global.mp_pull_mask = fresh;
+                mp_send_pull(2);
+                global.mp_pull_mask = -1;
+            }
             if ((global.mp_frame mod 6) == 0)
             {
                 var lt = mp_dialogue_text();
@@ -1109,7 +1143,20 @@ function mp_lead_start()
     global.mp_idle = 0;
     global.mp_lead_text = "";
     global.mp_slead = global.mp_myid;
+    global.mp_lead_mask = mp_others_mask();
     mp_send_pull(2);
+}
+
+// The other connected players, one bit each.
+function mp_others_mask()
+{
+    var m = 0;
+    for (var i = 0; i < 8; i++)
+    {
+        if (global.mp_pconn[i] && i != global.mp_myid)
+            m |= 1 << i;
+    }
+    return m;
 }
 
 // True when interact just went up for something that looks like a story cutscene (not the

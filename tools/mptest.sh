@@ -61,8 +61,16 @@ retry_hung host start_host
 sleep 4
 for i in $(seq 1 $NC); do start_client $i; done
 for i in $(seq 1 $NC); do retry_hung client$i start_client $i; done
-# Optional series of side-by-side screenshots: SHOTS="10 15 20" (seconds after start)
+# CRASH_AT=<s>: client 1's game is killed <s> real seconds after the clients started (like a crash)
+# and started again at once (it joins again; its log goes on in client1.log after a "restarted" line).
 T=0
+if [ -n "$CRASH_AT" ]; then
+  sleep "$CRASH_AT"; T=$CRASH_AT
+  mp_kill_pid "$(cat "$OUT/client1.pid" 2>/dev/null)"; sleep 1
+  cp "$OUT/client1.log" "$OUT/client1_before_crash.log"
+  start_client 1; retry_hung client1 start_client 1
+fi
+# Optional series of side-by-side screenshots: SHOTS="10 15 20" (seconds after start)
 for t in ${SHOTS:-}; do
   sleep $((t - T)); T=$t
   shot host 91 "$OUT/h_$t.png"
