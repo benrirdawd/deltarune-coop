@@ -564,8 +564,9 @@ function mp_recv_pos(pid, b)
     global.mp_ppostime[pid] = current_time;
     if (oldroom != global.mp_proom[pid])
     {
+        global.mp_proom_t[pid] = current_time;
         var g = global.mp_pghost[pid];
-        if (instance_exists(g))
+        if (instance_exists(g) && !g.leaving)
             g.snap = 1;
     }
     // (A freshly joined client goes to the host: mp_join_warp_tick, every frame until it's done.)
@@ -676,15 +677,26 @@ function mp_ghosts_update()
         if (want && (((global.mp_pstate[i] & 32) != 0) != plat))
             want = false;
         var g = global.mp_pghost[i];
+        if (want && instance_exists(g) && g.leaving)
+        {
+            // Back before it faded out: a new one fades in where they are now.
+            with (g)
+                instance_destroy();
+            g = -4;
+        }
         if (want && !instance_exists(g))
         {
             g = instance_create_depth(global.mp_px[i], global.mp_py[i], 0, obj_mp_ghost);
             g.pid = i;
             global.mp_pghost[i] = g;
         }
-        else if (!want && instance_exists(g))
+        else if (!want && instance_exists(g) && !g.leaving)
         {
-            mp_ghost_remove(i);
+            // Gone through a door: fades out where they were last seen (else just goes).
+            if (global.mp_pconn[i] && global.mp_proom[i] != room && showall)
+                g.leaving = 1;
+            else
+                mp_ghost_remove(i);
         }
         // Their followers (the host's NPC party members), while they're walking around.
         var fw = want && global.mp_pvis[i] && (global.mp_pstate[i] & 1) == 0;

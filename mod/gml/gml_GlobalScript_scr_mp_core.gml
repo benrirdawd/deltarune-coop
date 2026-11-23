@@ -30,6 +30,7 @@ function mp_init()
     global.mp_pfghost = array_create(16, -4);
     global.mp_pfol = array_create(8, 0);
     global.mp_ppostime = array_create(8, 0);
+    global.mp_proom_t = array_create(8, 0);   // when they last changed room (as I heard it)
     global.mp_pix = array_create(8, 0);
     global.mp_piy = array_create(8, 0);
     mp_net_init();

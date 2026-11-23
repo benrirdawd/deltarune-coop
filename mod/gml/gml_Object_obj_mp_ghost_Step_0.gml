@@ -3,6 +3,28 @@ if (pid < 0)
     instance_destroy();
     exit;
 }
+// Leaving: stays where it was last seen and fades out.
+if (leaving)
+{
+    fade -= 0.12;
+    if (fade <= 0)
+    {
+        if (global.mp_pghost[pid] == id)
+            global.mp_pghost[pid] = -4;
+        instance_destroy();
+    }
+    exit;
+}
+// Coming in: their first positions in a new room can still be the old room's or where the room
+// put them before the door did (a jump a frame later): hidden for a moment, then it fades in.
+var since = current_time - max(born, global.mp_proom_t[pid]);
+if (since < 150)
+{
+    fade = 0;
+    snap = 1;
+}
+else
+    fade = min(1, fade + 0.1);
 // A follower of that player (the host's Ralsei, say): where and how their game draws it.
 if (fol >= 0)
 {
