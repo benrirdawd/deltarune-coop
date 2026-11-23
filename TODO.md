@@ -45,13 +45,15 @@ changing the room for everyone.
 
 | Issue | What is needed |
 |---|---|
-| Purple grass scene: a pulled player's sprite is stretched (report 7). | Which room / moment: a screenshot or `multiplayer_log.txt`. |
 | A player had no sound for a while; it came back by itself (report 7). | `multiplayer_log.txt` from that session. Possibly the game muted while unfocused, or a song started late. |
 
 ## Re-check in play
 
 These were fixed or should be fixed by other changes, but only a real play-through can confirm it.
 
+* Purple grass scene, a pulled player's sprite "stretched" (report 7): the user says it looked like a
+  sprite copying itself in a cutscene, not stretching. Probably the mirror bug fixed 2026-11-23 (parts
+  of different frames drawn together: a moving sprite shown again at its old places). Re-check in play.
 * Cutscenes sometimes playing twice (report 7): mostly covered by the scene lock (stale or repeated
   pulls dropped, the same scene in two games watched instead of replayed).
 * The Lancer chase and Ralsei's lore at the start of Chapter 1 (report 7).

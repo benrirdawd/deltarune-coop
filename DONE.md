@@ -4,6 +4,20 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Cutscene mirror: a sprite drawn again at its old places (2026-11-23)
+
+Report 7's "stretched sprite" in a purple grass scene: the user describes it as a sprite repeating
+itself in a cutscene they were pulled into. The cutscene mirror sends the leader's sprites in up to 6
+datagrams a frame (unreliable), and a watcher drew each part from whatever frame it last got (up to 8
+frames old). When a datagram was lost or late, or a scene had more than 138 sprites (parts 4-6 only
+went every other frame), parts of different frames were drawn together, and a moving sprite whose
+place in the depth order changed showed both where it is and where it was: a trail of copies.
+Now a watcher only draws whole frames (every part of the same frame), keeping the last whole one while
+the next ones are incomplete (up to 15 frames), and a busy scene sends all its parts every other frame.
+**Tested:** Chapter 2 Queen scene watched by a late joiner with `chaos:10:120:60`: the client's
+screenshot matches the host's; the scene plays and ends as before. (The moving-sprite trail itself
+wasn't reproduced on purpose; re-check in play.)
+
 ## Puzzles together: pushable blocks (2026-11-23)
 
 Chapter 1's pushable blocks (`obj_pushableblock`: the box puzzle in `room_field_boxpuzzle` and the

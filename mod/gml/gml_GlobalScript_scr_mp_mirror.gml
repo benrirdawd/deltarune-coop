@@ -20,6 +20,7 @@ function mp_mirror_init()
     global.mp_mir_list = ds_list_create();      // my room's instances, switched off while mirroring
     global.mp_mir_hdr = -1;                     // [frame, room, cam x, cam y, chunk count, time]
     global.mp_mir_chunks = array_create(6, -1); // per chunk: [frame, sprites]
+    global.mp_mir_frame = -1;                   // the newest whole frame: [frame, room, sprites]
     global.mp_mir_seq = 0;
     global.mp_mir_lines = array_create(64, "");
     global.mp_mir_grid = ds_grid_create(10, 64);
@@ -44,6 +45,7 @@ function mp_mirror_reset()
     global.mp_mir_hdr = -1;
     for (var i = 0; i < 6; i++)
         global.mp_mir_chunks[i] = -1;
+    global.mp_mir_frame = -1;
     global.mp_mir_choice = -1;
     ds_list_clear(global.mp_mir_list);
     global.mp_mir_frozen_room = -1;
@@ -111,11 +113,12 @@ function mp_mirror_lead_tick()
     global.mp_mir_seq += 1;
     var per = 46;
     var chunks = clamp(ceil(n / per), 1, 6);
+    // Past 138 sprites (more than 3 datagrams), a frame goes every other frame (the link sends 4
+    // datagrams a frame). Always all of a frame's parts: the others only draw whole frames.
+    if (chunks > 3 && (global.mp_mir_seq mod 2) == 1)
+        return;
     for (var c = 0; c < chunks; c++)
     {
-        // Past 138 sprites, the rest go every other frame (the link sends 4 datagrams a frame).
-        if (c >= 3 && (global.mp_mir_seq mod 2) == 1)
-            continue;
         mp_begin(70 + c);
         mp_wu32(global.mp_mir_seq);
         mp_wu16(room);
@@ -376,6 +379,28 @@ function mp_mirror_recv(type, from, b)
         var h = global.mp_mir_hdr;
         if (!is_array(h) || seq >= h[0])
             global.mp_mir_hdr = [seq, rm, cx, cy, cnt, current_time];
+        // A frame is drawn only once all its parts are in. (Parts of different frames drawn together
+        // showed a moving sprite twice, at its new place and an old one, when a datagram was lost or
+        // late: a trail of copies of the leader, like a stretched sprite.)
+        var whole = cnt >= 1 && cnt <= 6;
+        for (var k = 0; k < cnt && whole; k++)
+        {
+            var chk = global.mp_mir_chunks[k];
+            if (!is_array(chk) || chk[0] != seq)
+                whole = false;
+        }
+        var fr0 = global.mp_mir_frame;
+        if (whole && (!is_array(fr0) || seq > fr0[0]))
+        {
+            var all_items = [];
+            for (var k2 = 0; k2 < cnt; k2++)
+            {
+                var its = global.mp_mir_chunks[k2][1];
+                for (var j = 0; j < array_length(its); j++)
+                    array_push(all_items, its[j]);
+            }
+            global.mp_mir_frame = [seq, rm, all_items];
+        }
         return;
     }
     if (type == 76) // a sound of the leader's scene
@@ -533,19 +558,16 @@ function mp_mirror_draw()
     var h = global.mp_mir_hdr;
     if (global.mp_sstate != 5 || !is_array(h) || h[1] != room)
         return;
-    var cnt = min(h[4], 6);
-    for (var c = 0; c < cnt; c++)
+    // The newest whole frame (kept while the next ones are incomplete, up to half a second).
+    var fr = global.mp_mir_frame;
+    if (!is_array(fr) || fr[1] != room || (h[0] - fr[0]) > 15)
+        return;
+    var items = fr[2];
+    var n = array_length(items);
+    for (var i = 0; i < n; i++)
     {
-        var ch = global.mp_mir_chunks[c];
-        if (!is_array(ch) || (h[0] - ch[0]) > 8)
-            continue;
-        var items = ch[1];
-        var n = array_length(items);
-        for (var i = 0; i < n; i++)
-        {
-            var it = items[i];
-            if (sprite_exists(it[0]))
-                draw_sprite_ext(it[0], it[1], it[2], it[3], it[4], it[5], it[6], it[7], it[8]);
-        }
+        var it = items[i];
+        if (sprite_exists(it[0]))
+            draw_sprite_ext(it[0], it[1], it[2], it[3], it[4], it[5], it[6], it[7], it[8]);
     }
 }
