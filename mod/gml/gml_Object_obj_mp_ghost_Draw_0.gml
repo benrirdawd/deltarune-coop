@@ -37,6 +37,9 @@ if (fighting)
 var tcx = x + (((sprite_get_width(sprite_index) / 2) - sprite_get_xoffset(sprite_index)) * image_xscale);
 var tty = y - (sprite_get_yoffset(sprite_index) * image_yscale);
 if (fade >= 1)
+{
     mp_draw_nametag(pid, tcx, tty - 4);
+    mp_draw_talk_bubble(pid, tcx, tty - 16);
+}
 if (fighting && global.mp_join_target == pid)
     mp_draw_join_prompt(tcx, tty - 22);

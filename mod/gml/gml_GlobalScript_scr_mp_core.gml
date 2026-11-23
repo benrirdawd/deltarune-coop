@@ -30,7 +30,9 @@ function mp_init()
     global.mp_pfghost = array_create(16, -4);
     global.mp_pfol = array_create(8, 0);
     global.mp_ppostime = array_create(8, 0);
-    global.mp_proom_t = array_create(8, 0);   // when they last changed room (as I heard it)
+    global.mp_proom_t = array_create(8, 0);
+    global.mp_ptalk = array_create(8, "");     // what they are reading with an NPC (talk bubble)
+    global.mp_ptalk_t = array_create(8, 0);   // when they last changed room (as I heard it)
     global.mp_pix = array_create(8, 0);
     global.mp_piy = array_create(8, 0);
     mp_net_init();
@@ -498,7 +500,7 @@ function mp_handle(type, sender, b, sock, endpos)
             mp_vars_send_full(sock);
         return;
     }
-    if ((type >= 30 && type < 40) || type == 65) // (65: the host's answer to a choice)
+    if ((type >= 30 && type < 40) || type == 65 || type == 66) // (65: the host's answer to a choice; 66: NPC talk)
     {
         mp_sync_recv(type, sender, b);
         return;

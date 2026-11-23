@@ -519,6 +519,19 @@ function mp_test_input()
         else
             global.input_pressed[4] = 1;
     }
+    // saytext:<frame>: at that test frame, a text box opens as if I talked to someone.
+    if (mp_test_arg("saytext") != "" && variable_global_exists("mp_test_timer") && global.mp_test_timer == real(mp_test_arg("saytext")) && global.interact == 0)
+    {
+        global.msc = 0;
+        global.typer = 5;
+        global.fc = 0;
+        global.msg[0] = "* This is a test of talking to someone on your own./";
+        global.msg[1] = "* Everyone else should see it over your head./%";
+        global.mp_lastz = global.mp_frame; // (as if Z was pressed on someone to talk)
+        global.interact = 1;
+        instance_create(0, 0, obj_dialoguer);
+        mp_log("[test] text box opened");
+    }
     // holdx: hold X all the time (speeds text up; set in the input state, so it works unfocused).
     if (mp_test_has("holdx"))
         global.input_held[5] = 1;

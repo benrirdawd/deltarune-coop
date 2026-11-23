@@ -61,6 +61,8 @@ function mp_sync_init()
     global.mp_ch1ev_active = false;
     global.mp_hp_val = -1;
     global.mp_hp_t = 0;
+    global.mp_talk_sent = "";
+    global.mp_talk_sent_t = 0;
     global.mp_hp_sent_t = -99999;
     global.mp_plot_remote = -1;
     global.mp_pre_master = -1;
@@ -378,6 +380,16 @@ function mp_sync_recv(type, from, b)
         var txt = buffer_read(b, buffer_string);
         if (from == global.mp_slead)
             global.mp_watch_text = txt;
+        return;
+    }
+    if (type == 66) // what a player is reading, talking to someone on their own
+    {
+        var tt = buffer_read(b, buffer_string);
+        if (from < 8)
+        {
+            global.mp_ptalk[from] = tt;
+            global.mp_ptalk_t[from] = current_time;
+        }
         return;
     }
     if (type == 65) // the host picked an answer in my scene
@@ -888,6 +900,7 @@ function mp_sync_arrived()
 
 function mp_sync_tick()
 {
+    mp_talk_tick();
     var ia = global.interact;
     var battle = mp_in_battle_scene();
     if (instance_exists(obj_mainchara))
@@ -1715,4 +1728,55 @@ function mp_choice_wait_host()
         global.input_pressed[i] = 0;
         global.input_held[i] = 0;
     }
+}
+
+// ---------------------------------------------------------------- NPC talk, seen by everyone
+
+// Talking to someone on my own (no shared scene): the others see the text in a bubble over me,
+// as I read it, without being stopped themselves.
+function mp_talk_tick()
+{
+    var t = "";
+    if (global.mp_sstate == 0 && global.interact == 1 && !mp_in_battle_scene() && instance_exists(obj_writer))
+        t = mp_dialogue_text();
+    if (t != global.mp_talk_sent || (t != "" && (current_time - global.mp_talk_sent_t) > 1000))
+    {
+        global.mp_talk_sent = t;
+        global.mp_talk_sent_t = current_time;
+        mp_begin(66);
+        mp_wstr(t);
+        mp_send();
+    }
+}
+
+// obj_mp_ghost's Draw: the talk bubble over a player (world coordinates, above the name tag).
+function mp_draw_talk_bubble(pid, cx, ty)
+{
+    var t = global.mp_ptalk[pid];
+    if (t == "" || (current_time - global.mp_ptalk_t[pid]) > 2500)
+        return;
+    t = string_replace_all(string_replace_all(string_replace_all(t, "", ""), "
+", " "), "  ", " ");
+    var of = draw_get_font();
+    if (global.mp_font_small >= 0)
+        draw_set_font(global.mp_font_small);
+    var ww = 150;
+    var lh = string_height("A");
+    var tw = min(ww, string_width_ext(t, lh, ww));
+    var th = string_height_ext(t, lh, ww);
+    var bx = mp_label_x(cx, tw + 8) - (tw / 2) - 4;
+    var by = ty - th - 10;
+    var vy = camera_get_view_y(view_camera[0]);
+    if (by < vy + 2)
+        by = vy + 2;
+    draw_set_alpha(0.85);
+    draw_set_color(c_black);
+    draw_rectangle(bx, by, bx + tw + 8, by + th + 6, false);
+    draw_set_alpha(1);
+    draw_set_color(c_white);
+    draw_rectangle(bx, by, bx + tw + 8, by + th + 6, true);
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    draw_text_ext(bx + 4, by + 3, t, lh, ww);
+    draw_set_font(of);
 }
