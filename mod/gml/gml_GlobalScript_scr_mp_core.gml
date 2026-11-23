@@ -496,6 +496,11 @@ function mp_handle(type, sender, b, sock, endpos)
         mp_inv_recv(type, sender, b);
         return;
     }
+    if (type == 67 || type == 68) // the host's state fingerprint / a client asking for a repair
+    {
+        mp_digest_recv(sender, type, b, sock);
+        return;
+    }
     if (type == 21) // a client reloaded and wants the shared state again
     {
         if (global.mp_role == 1)

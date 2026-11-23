@@ -488,6 +488,22 @@ function mp_test_input()
                 mp_log("[test] setcon: no " + sv[0]);
         }
     }
+    // drift:<flag>:<frame>: at that test frame, changes that story flag here without telling anyone
+    // (as a lost change would): the drift check must find it and bring the host's value back.
+    if (mp_test_arg("drift") != "")
+    {
+        var dv = string_split(mp_test_arg("drift"), ":");
+        if (array_length(dv) >= 2 && variable_global_exists("mp_test_timer") && global.mp_test_timer == real(dv[1]))
+        {
+            var df = real(dv[0]);
+            global.flag[df] = global.flag[df] + 7;
+            var fv = mp_var_index("flag");
+            var sh = global.mp_vshadow[fv];
+            sh[df] = global.flag[df];
+            global.mp_vshadow[fv] = sh;
+            mp_log("[test] flag " + string(df) + " = " + string(global.flag[df]) + " (not sent)");
+        }
+    }
     // fakechoice:<frame>: at that test frame, a two-answer choice box opens (as in a scene); logs the
     // answer once it is picked. pickright: while a choice box can be answered, right then Z.
     if (mp_test_arg("fakechoice") != "" && variable_global_exists("mp_test_timer") && (mp_test_arg("fakechoice") == "watch" ? (mp_test_watch_frames() == 60 && !variable_global_exists("mp_test_fchoice")) : global.mp_test_timer == real(mp_test_arg("fakechoice"))))

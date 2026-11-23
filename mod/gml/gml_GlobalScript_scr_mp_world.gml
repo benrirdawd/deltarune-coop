@@ -1158,9 +1158,109 @@ function mp_vars_tick()
     mp_vars_apply_queue();
     mp_items_apply();
     mp_inv_tick();
+    mp_digest_tick();
     if ((global.mp_frame mod 2) != 0)
         return;
     mp_vars_send_changes(false);
+}
+
+// ---------------------------------------------------------------- drift check
+//
+// Every 5 s the host sends a short fingerprint of the shared state, one per variable (message 67).
+// A client in free roam compares it with its own; the names that differ are logged ([MPDRIFT]),
+// and a difference still there three times in a row (about 15 s: longer than any change takes to
+// travel) gets the host's whole state back (message 68, at most once a minute), where the player is.
+
+function mp_vars_digest()
+{
+    var s = "";
+    for (var v = 0; v < global.mp_vcount; v++)
+    {
+        if (!mp_vars_valid(v))
+        {
+            s += "------";
+            continue;
+        }
+        var val = variable_global_get(global.mp_vname[v]);
+        var t = "";
+        if (is_array(val))
+        {
+            var isflag = global.mp_vname[v] == "flag";
+            var n = array_length(val);
+            for (var i = 0; i < n; i++)
+            {
+                if (isflag && i < 60)
+                    continue;
+                t += string(val[i]) + ",";
+            }
+        }
+        else
+        {
+            t = string(val);
+        }
+        s += string_copy(md5_string_utf8(t), 1, 6);
+    }
+    return s;
+}
+
+function mp_digest_tick()
+{
+    if (!variable_global_exists("mp_dg_t"))
+    {
+        global.mp_dg_t = current_time;
+        global.mp_dg_strikes = 0;
+        global.mp_dg_repair_t = -100000;
+        global.mp_dg_last = "";
+    }
+    if (global.mp_role != 1 || mp_player_count() < 2 || (current_time - global.mp_dg_t) < 5000)
+        return;
+    if (ds_list_size(global.mp_vqueue) > 0)
+        return;
+    global.mp_dg_t = current_time;
+    mp_begin(67);
+    mp_wstr(mp_vars_digest());
+    mp_send();
+}
+
+function mp_digest_recv(from, type, b, p)
+{
+    if (type == 68)
+    {
+        if (global.mp_role == 1 && is_struct(p))
+        {
+            mp_log("drift: sending " + global.mp_pname[from] + " the whole state");
+            mp_vars_send_full(p, true);
+        }
+        return;
+    }
+    var hs = buffer_read(b, buffer_string);
+    if (from != 0 || global.mp_role != 2 || !variable_global_exists("mp_dg_t"))
+        return;
+    if (!mp_vars_can_sync() || ds_list_size(global.mp_vqueue) > 0 || global.mp_sstate != 0)
+        return;
+    var mine = mp_vars_digest();
+    var diff = "";
+    for (var v = 0; v < global.mp_vcount; v++)
+    {
+        if (string_copy(hs, (v * 6) + 1, 6) != string_copy(mine, (v * 6) + 1, 6))
+            diff += (diff == "" ? "" : ",") + global.mp_vname[v];
+    }
+    if (diff == "")
+    {
+        global.mp_dg_strikes = 0;
+        global.mp_dg_last = "";
+        return;
+    }
+    global.mp_dg_strikes = (diff == global.mp_dg_last) ? global.mp_dg_strikes + 1 : 1;
+    global.mp_dg_last = diff;
+    mp_log("[MPDRIFT] differs from the host's: " + diff + " (" + string(global.mp_dg_strikes) + ")");
+    if (global.mp_dg_strikes >= 3 && (current_time - global.mp_dg_repair_t) > 60000)
+    {
+        global.mp_dg_repair_t = current_time;
+        global.mp_dg_strikes = 0;
+        mp_begin(68);
+        mp_send();
+    }
 }
 
 // Sends what changed in the shared state since last time. Normally spread over frames
@@ -1282,11 +1382,12 @@ function mp_vars_apply_queue()
 
 // Sends the complete shared state to a newly joined client.
 // Sends the complete shared state to one peer, or to everyone when sock is not a peer.
-function mp_vars_send_full(sock)
+// repair: a drift fix for a player who stays where they are (no move to the host afterwards).
+function mp_vars_send_full(sock, repair = false)
 {
     mp_vars_reset_shadow();
     mp_begin(20);
-    mp_wu8(1);
+    mp_wu8(repair ? 3 : 1);
     var count = 0;
     for (var v = 0; v < global.mp_vcount; v++)
     {
@@ -1342,7 +1443,7 @@ function mp_vars_recv(pid, b)
     var mode = buffer_read(b, buffer_u8);
     if (mode != 0 && pid != 0)
         return; // full snapshots only come from the host
-    if (mode == 1)
+    if (mode == 1 || mode == 3)
     {
         // Full snapshot: clear our story flags first so we match the host exactly.
         if (variable_global_exists("flag"))
@@ -1353,7 +1454,10 @@ function mp_vars_recv(pid, b)
         }
         mp_vars_reset_shadow();
         ds_list_clear(global.mp_vqueue);
-        global.mp_need_warp = 1;
+        if (mode == 1)
+            global.mp_need_warp = 1;
+        else
+            mp_log("state repaired from the host's");
     }
     if (mode != 0)
         global.mp_inv_needreset = true;

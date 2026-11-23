@@ -25,12 +25,14 @@ declare -A X=(
   [ch2_schooldoor]="2|120|party,room:room_schooldoor,plot:16,check,mash,log,partyat:400|party,room:room_krisroom,plot:16,check,mash,log,wander"
   [ch2_queen]="2|300|party,room:room_dw_cyber_intro_1,plot:50,check,mash,log,bot,botrand,weak,away:room_dw_cyber_intro_2:900:560:240|party,room:room_dw_cyber_intro_1,plot:50,check,mash,log,bot,botrand,weak,away:room_dw_cyber_intro_connector:300"
 )
+# CS_EXTRA: more tokens for every game (e.g. CS_EXTRA=chaos:10:120:60 for a bad network).
+EX=${CS_EXTRA:+,$CS_EXTRA}
 LIST=${@:-ch2_entry ch3_walk ch4_entry ch4_walk ch5_entry ${!X[@]}}
 for n in $LIST; do
   if [ -n "${X[$n]}" ]; then
     IFS='|' read -r CH XS HT CT <<< "${X[$n]}"
     OUT=$ROOT/work/cut_$n
-    MPTEST_OUT=$OUT NOBUILD=1 SHOTS="${SHOTS:-30 60 90}" "$ROOT/tools/mptest.sh" $CH $XS "$HT" "$CT" $NC >/dev/null 2>&1
+    MPTEST_OUT=$OUT NOBUILD=1 SHOTS="${SHOTS:-30 60 90}" "$ROOT/tools/mptest.sh" $CH $XS "$HT$EX" "$CT$EX" $NC >/dev/null 2>&1
     echo "=== $n (chapter $CH, custom)"
     $PY "$(mp_path "$ROOT/tools/mpcheck.py")" "$(mp_path "$OUT")" --strict-end | sed 's/^/  /'
     continue
@@ -38,7 +40,7 @@ for n in $LIST; do
   IFS='|' read -r CH HR PL HX CR <<< "${S[$n]}"
   OUT=$ROOT/work/cut_$n
   MPTEST_OUT=$OUT NOBUILD=1 SHOTS="${SHOTS:-20 30 40 50}" "$ROOT/tools/mptest.sh" $CH $SECS \
-    "party,room:$HR,plot:$PL,check,mash,log,$HX" "party,room:$CR,plot:$PL,check,mash,log,wander" $NC >/dev/null 2>&1
+    "party,room:$HR,plot:$PL,check,mash,log,$HX$EX" "party,room:$CR,plot:$PL,check,mash,log,wander$EX" $NC >/dev/null 2>&1
   echo "=== $n (chapter $CH: host in $HR, client in $CR)"
   grep -h "MPD.*\(send pull\|got pull\|watching\)\|Joining" $OUT/*.log | sed 's/^/    /'
   $PY "$(mp_path "$ROOT/tools/mpcheck.py")" "$(mp_path "$OUT")" --strict-end | sed 's/^/  /'
