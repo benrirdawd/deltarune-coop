@@ -460,6 +460,15 @@ function mp_test_input()
     }
     if (mp_test_has("climbup") && mp_climb_on() && (global.mp_frame mod 90) < 30)
         global.input_held[2] = 1;
+    // weird: (Chapter 5) the walking character in "weird mode" (drawn with draw_sprite, shaking).
+    if (mp_test_has("weird") && instance_exists(obj_mainchara))
+    {
+        with (obj_mainchara)
+        {
+            if (variable_instance_exists(id, "_weird_mode"))
+                _weird_mode = true;
+        }
+    }
     // openmenu: open the C menu once, a few seconds into the room (to see what it shows).
     if (mp_test_has("openmenu") && variable_global_exists("mp_test_timer") && global.mp_test_timer == 150 && global.interact == 0)
     {

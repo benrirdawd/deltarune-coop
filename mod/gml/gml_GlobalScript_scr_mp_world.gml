@@ -218,6 +218,25 @@ function mp_draw_mainchara(xoff)
     mp_draw_swapped(spr, image_index, x + xoff, y, image_xscale, image_yscale, image_blend, image_alpha, true);
 }
 
+// Chapter 5's "weird mode" draws Kris with draw_sprite (unscaled, at a shaking spot): the same, as
+// my character.
+function mp_draw_mainchara_plain(xx, yy)
+{
+    if (!variable_global_exists("mp_inited"))
+    {
+        draw_sprite(sprite_index, image_index, xx, yy);
+        return;
+    }
+    var spr = sprite_index;
+    if (mp_on() && mp_swaps_enabled())
+    {
+        var me = global.mp_cfg_char;
+        if (mp_sprite_char(sprite_index) == 1 && me != 1)
+            spr = mp_swap_sprite(sprite_index, 1, me);
+    }
+    mp_draw_swapped(spr, image_index, xx, yy, 1, 1, c_white, draw_get_alpha(), true);
+}
+
 // Draw event for party followers.
 function mp_draw_caterpillar()
 {

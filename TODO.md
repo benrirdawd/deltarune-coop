@@ -427,7 +427,7 @@ platforming sections (only "stand in the room" is tested), real play-through of 
   in game, is now covered by `tools/flow.py`).
 - Joining while the host is in a cutscene or battle. (Joining from the file select is covered.)
 - Rooms where the game hides or repositions followers. (Light World followers in Chapter 4 are covered.)
-- Chapter 5 `_weird_mode` draws Kris with `draw_sprite` (not hooked: shows Kris in that mode).
+- ~~Chapter 5 `_weird_mode` draws Kris with `draw_sprite`~~ hooked 2026-11-23 (`mp_draw_mainchara_plain`; checked with the `weird` token: your character, seen by the others too).
 - Light World Ralsei/Noelle have no Light World walk sprites; they fall back to Dark World ones.
 - More `interact` cases in later chapters (save points, shops, the C menu are Z-triggered and
   local; unprompted text boxes now only pull after 4 s).

@@ -25,10 +25,10 @@ function mp_climb_on()
 // The sprite my character climbs with, for one of Kris's climbing sprites.
 function mp_climb_sprite(spr)
 {
-    if (!variable_global_exists("mp_inited") || !mp_on())
+    if (!variable_global_exists("mp_inited") || !mp_on() || !mp_swaps_enabled())
         return spr;
     mp_climb_obj();
-    var ch = global.mp_pchar[global.mp_myid];
+    var ch = global.mp_cfg_char;
     if (ch < 2 || ch > 3 || global.mp_climb_spr[ch] < 0 || !sprite_exists(spr))
         return spr;
     if (string_pos("spr_kris_climb", sprite_get_name(spr)) != 1)

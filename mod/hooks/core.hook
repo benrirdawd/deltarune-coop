@@ -28,6 +28,15 @@ mp_draw_mainchara(tower_shake_xoffset);
 @end
 #chapters all
 
+;; Chapter 5's "weird mode" draws Kris with draw_sprite.
+#chapters 5
+@find gml_Object_obj_mainchara_Draw_0
+draw_sprite(sprite_index, image_index, floor(_weird_mode_xx), _weird_mode_yy);
+@with
+mp_draw_mainchara_plain(floor(_weird_mode_xx), _weird_mode_yy);
+@end
+#chapters all
+
 ;; The other players' SOULs are drawn over the battle box.
 @append gml_Object_obj_heart_Draw_0
 mp_heart_draw_others();
