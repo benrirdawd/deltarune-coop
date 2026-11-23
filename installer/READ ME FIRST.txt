@@ -3,12 +3,14 @@ DELTARUNE Online: play DELTARUNE together over the internet.
 You need your own copy of DELTARUNE on Steam. This download contains no game files.
 
 INSTALL
-Double-click "DELTARUNE Online.exe" and press INSTALL. It copies your game to a separate
-folder and patches the copy (about 1 GB, a few minutes). Your Steam copy and normal saves
-are never changed. Afterwards, start it from the "DELTARUNE Online" shortcut on your desktop.
+Double-click "DELTARUNE Online.exe" (in this folder) and press INSTALL. If it doesn't find
+DELTARUNE by itself, press FIND GAME and pick DELTARUNE.exe in your game folder. It copies
+your game into a COOP folder inside the DELTARUNE folder and patches the copy (about 1 GB, a
+few minutes). Your own copy and normal saves are never changed. Afterwards, start the co-op
+game with "DELTARUNE COOP.exe" in your DELTARUNE folder (or the desktop shortcut).
 If Windows SmartScreen warns about an unknown app, that's because this isn't signed:
 choose More info, then Run anyway. Download it only from
-https://github.com/traeb0n/deltarune-online (or the mod's GameBanana page).
+https://github.com/benrirdawd/deltarune-online (this version), https://github.com/traeb0n/deltarune-online (or the mod's GameBanana page).
 
 UPDATES
 Every time you open DELTARUNE Online it checks for a new version and installs it by itself.

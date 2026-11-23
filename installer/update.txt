@@ -1,5 +1,6 @@
 # Where the launcher looks for updates, first choice first. It installs the highest version any of them has.
 # A line is a GitHub repository (its latest release has latest.txt and DeltaruneOnline-v<N>.zip)
 # or a Google Drive folder shared as "Anyone with the link".
+https://github.com/benrirdawd/deltarune-online
 https://github.com/traeb0n/deltarune-online
 https://drive.google.com/drive/folders/1nHUBd-VfBwcT6QSexXhxgpu6hbkmrbpN?usp=sharing
