@@ -79,6 +79,15 @@ function mp_battle_reset()
     global.mp_down_hit_f = -9999;
     global.mp_down_hit_n = 0;
     global.mp_tp_flash_f = -9999;
+    global.mp_pl_slot = -1;
+    global.mp_pl_turn = -1;
+    global.mp_pl_d = 0;
+    global.mp_pl_n = 0;
+    global.mp_pl_ready = 0;
+    global.mp_pl_v = [0, 0, 0];
+    global.mp_pl_run = 0;
+    global.mp_pl_step = 0;
+    global.mp_pl_t = 0;
     global.mp_bt_key = -1;
     global.mp_bt_n = 0;
     global.mp_bt_skip_n = -1;
@@ -403,8 +412,9 @@ function mp_battle_recv(type, from, b)
         var n = buffer_read(b, buffer_u16);
         var dt = buffer_read(b, buffer_u8);
         var mask = buffer_read(b, buffer_u16);
+        var lv0 = buffer_read(b, buffer_u8);
         var c0 = buffer_read(b, buffer_u8);
-        ds_list_add(global.mp_minq, [bid, turn, n, dt, mask, c0]);
+        ds_list_add(global.mp_minq, [bid, turn, n, dt, mask, lv0, c0]);
         return;
     }
     if (type == 42) // QTE RESULT
@@ -717,6 +727,7 @@ function mp_battle_input()
     {
         if (global.bmenuno == 0 && !mp_presel_ok(global.charturn, global.bmenucoord[0][global.charturn]))
             global.bmenucoord[0][global.charturn] = 0;
+        mp_plan_run();
         var mask = 0;
         for (var i = 0; i < 10; i++)
         {
@@ -759,8 +770,11 @@ function mp_battle_input()
             mp_wu16(global.mp_mn);
             mp_wu8(dt);
             mp_wu16(mask);
-            // (Where the main-row bar is before this press: it can have been moved before my turn.)
-            mp_wu8(global.bmenuno == 0 ? global.bmenucoord[0][global.charturn] : 255);
+            // (Where the cursor of this menu level is before this press: the main-row bar can have
+            // been moved before my turn, and a plan made ahead puts the cursors straight there.)
+            var lv = (global.bmenuno >= 0 && global.bmenuno < 255) ? global.bmenuno : 255;
+            mp_wu8(lv);
+            mp_wu8(lv != 255 ? clamp(global.bmenucoord[lv][global.charturn], 0, 255) : 0);
             mp_send();
             mp_log("menu send n=" + string(global.mp_mn) + " mask=" + string(mask) + " ct=" + string(global.charturn) + " bm=" + string(global.bmenuno));
             global.mp_mn += 1;
@@ -780,8 +794,8 @@ function mp_battle_input()
         {
             if ((global.mp_frame - global.mp_mn_last) >= e[3] && mp_menu_ready())
             {
-                if (array_length(e) > 5 && e[5] != 255 && global.bmenuno == 0)
-                    global.bmenucoord[0][global.charturn] = e[5];
+                if (array_length(e) > 6 && e[5] != 255 && global.bmenuno == e[5])
+                    global.bmenucoord[e[5]][global.charturn] = e[6];
                 for (var j = 0; j < 10; j++)
                 {
                     var on = (e[4] >> j) & 1;
@@ -833,6 +847,37 @@ function mp_presel_input()
     global.mp_presel = s;
     if (s < 0)
         return;
+    if (global.mp_pl_slot != s || global.mp_pl_turn != global.mp_bturn)
+    {
+        global.mp_pl_slot = s;
+        global.mp_pl_turn = global.mp_bturn;
+        global.mp_pl_d = 0;
+        global.mp_pl_n = 0;
+        global.mp_pl_ready = 0;
+        global.mp_pl_v = [global.bmenucoord[0][s], 0, 0];
+        global.mp_pl_run = 0;
+    }
+    if (global.mp_pl_d > 0)
+    {
+        mp_plan_input(s);
+        return;
+    }
+    if (global.input_pressed[4] || global.input_pressed[7])
+    {
+        var o1 = mp_plan_opts(s, global.bmenucoord[0][s], 1, 0);
+        global.mp_pl_v[0] = global.bmenucoord[0][s];
+        if (array_length(o1) > 0)
+        {
+            global.mp_pl_d = 1;
+            global.mp_pl_v[1] = mp_plan_first(o1, global.mp_pl_v[1]);
+        }
+        global.mp_pl_n = 0;
+        global.mp_pl_ready = array_length(o1) == 0;
+        mp_plan_snd("snd_select");
+        return;
+    }
+    if (global.input_pressed[5])
+        global.mp_pl_ready = 0;
     var d = 0;
     if (global.input_pressed[1])
         d = 1;
@@ -848,6 +893,8 @@ function mp_presel_input()
                 break;
         }
         global.bmenucoord[0][s] = b;
+        global.mp_pl_v[0] = b;
+        global.mp_pl_ready = 0;
         mp_log("choose ahead: slot " + string(s) + " bar " + string(b));
         mp_presel_send(s);
         var snd = asset_get_index("snd_menumove");
@@ -1755,4 +1802,343 @@ function mp_btext_input()
         mp_wu8(global.mp_bt_skip_n == global.mp_bt_n);
         mp_send();
     }
+}
+
+// ---------------------------------------------------------------- the whole action, chosen ahead
+//
+// While another player chooses, I can prepare my next hero's whole action: the bar (left/right),
+// then Z for what it opens (the enemy to fight or spare; for ACT the enemy then the act; a spell
+// then its target; an item then who gets it), X to go back. On my turn one Z plays the plan
+// through the real menu, a press at a time like any other (each press carries its level's cursor,
+// so every game does the same). Whatever is no longer possible (that enemy is gone, the item was
+// used) becomes the first thing that is; anything the menu refuses hands it back to me there.
+
+// The choices of a level of the plan: an array of [cursor, name] ([] when the action has no such
+// level). d: 1 or 2; l1: the choice made on level 1.
+function mp_plan_opts(s, bar, d, l1)
+{
+    var ch = global.char[s];
+    switch (bar)
+    {
+        case 0: // FIGHT
+        case 3: // SPARE
+            return d == 1 ? mp_plan_enemies() : [];
+        case 1: // ACT (Kris) / MAGIC
+            if (ch == 1)
+                return d == 1 ? mp_plan_enemies() : mp_plan_acts(ch, l1);
+            if (d == 1)
+                return mp_plan_spells(ch);
+            var t = mp_plan_spell_target(ch, l1);
+            if (t == 1)
+                return mp_plan_heroes();
+            if (t == 2)
+                return mp_plan_enemies();
+            return [];
+        case 2: // ITEM
+            return d == 1 ? mp_plan_items(s) : mp_plan_heroes();
+    }
+    return [];
+}
+
+function mp_plan_enemies()
+{
+    var r = [];
+    for (var i = 0; i < 3; i++)
+    {
+        if (global.monster[i])
+            array_push(r, [i, string(global.monstername[i])]);
+    }
+    return r;
+}
+
+function mp_plan_heroes()
+{
+    var r = [];
+    for (var i = 0; i < 3; i++)
+    {
+        if (global.char[i] != 0)
+            array_push(r, [i, string(global.charname[global.char[i]])]);
+    }
+    return r;
+}
+
+function mp_plan_spells(ch)
+{
+    var r = [];
+    if (!is_array(global.spell) || ch >= array_length(global.spell))
+        return r;
+    var sp = global.spell[ch];
+    for (var i = 0; i < min(12, array_length(sp)); i++)
+    {
+        if (sp[i] != 0)
+            array_push(r, [i, string(global.spellnameb[ch][i])]);
+    }
+    return r;
+}
+
+// Who the spell at cursor i targets: 0 nobody to pick, 1 a hero, 2 an enemy.
+function mp_plan_spell_target(ch, i)
+{
+    if (!is_array(global.spell) || ch >= array_length(global.spell) || i >= array_length(global.spell[ch]))
+        return 0;
+    var sp = global.spell[ch][i];
+    var t = 0;
+    with (obj_mp_controller)
+    {
+        scr_spellinfo(sp);
+        t = spelltarget;
+    }
+    return (t == 1 || t == 2) ? t : 0;
+}
+
+function mp_plan_items(s)
+{
+    var r = [];
+    with (obj_battlecontroller)
+    {
+        if (variable_instance_exists(id, "tempitemnameb") && is_array(tempitemnameb))
+        {
+            for (var i = 0; i < min(12, array_length(tempitemnameb)); i++)
+            {
+                if (!is_array(tempitemnameb[i]) || s >= array_length(tempitemnameb[i]))
+                    continue;
+                var nm = tempitemnameb[i][s];
+                if (is_string(nm) && string_replace_all(nm, " ", "") != "")
+                    array_push(r, [i, nm]);
+            }
+        }
+    }
+    return r;
+}
+
+function mp_plan_acts(ch, e)
+{
+    var r = [];
+    var suf = ["", "", "sus", "ral", "noe"];
+    if (ch < 1 || ch > 4)
+        return r;
+    var nmv = "actname" + suf[ch];
+    var cav = "canact" + suf[ch];
+    if (!variable_global_exists(nmv))
+        return r;
+    var nms = variable_global_get(nmv);
+    var cas = variable_global_exists(cav) ? variable_global_get(cav) : -1;
+    if (!is_array(nms) || e >= array_length(nms) || !is_array(nms[e]))
+        return r;
+    for (var i = 0; i < min(6, array_length(nms[e])); i++)
+    {
+        var nm = nms[e][i];
+        var can = (is_array(cas) && e < array_length(cas) && is_array(cas[e]) && i < array_length(cas[e])) ? cas[e][i] : 1;
+        if (can == 1 && is_string(nm) && string_replace_all(nm, " ", "") != "")
+            array_push(r, [i, nm]);
+    }
+    return r;
+}
+
+// The cursor of the first choice, or v itself if it is one of them.
+function mp_plan_first(opts, v)
+{
+    for (var i = 0; i < array_length(opts); i++)
+    {
+        if (opts[i][0] == v)
+            return v;
+    }
+    return array_length(opts) > 0 ? opts[0][0] : 0;
+}
+
+function mp_plan_snd(nm)
+{
+    var snd = asset_get_index(nm);
+    if (snd >= 0)
+        snd_play(snd);
+}
+
+// Levels 1 and 2 of the plan: up/left and down/right move, Z goes on, X goes back.
+function mp_plan_input(s)
+{
+    var d = global.mp_pl_d;
+    var opts = mp_plan_opts(s, global.mp_pl_v[0], d, global.mp_pl_v[1]);
+    if (array_length(opts) == 0)
+    {
+        global.mp_pl_d = d - 1;
+        return;
+    }
+    var cur = 0;
+    for (var i = 0; i < array_length(opts); i++)
+    {
+        if (opts[i][0] == global.mp_pl_v[d])
+            cur = i;
+    }
+    var mv = 0;
+    if (global.input_pressed[0] || global.input_pressed[1])
+        mv = 1;
+    if (global.input_pressed[2] || global.input_pressed[3])
+        mv = -1;
+    if (mv != 0)
+    {
+        cur = (cur + mv + array_length(opts)) mod array_length(opts);
+        global.mp_pl_ready = 0;
+        mp_plan_snd("snd_menumove");
+    }
+    global.mp_pl_v[d] = opts[cur][0];
+    if (global.input_pressed[4] || global.input_pressed[7])
+    {
+        var nxt = d < 2 ? mp_plan_opts(s, global.mp_pl_v[0], d + 1, global.mp_pl_v[1]) : [];
+        if (array_length(nxt) > 0)
+        {
+            global.mp_pl_d = d + 1;
+            global.mp_pl_v[d + 1] = mp_plan_first(nxt, global.mp_pl_v[d + 1]);
+            global.mp_pl_n = d;
+            global.mp_pl_ready = 0;
+        }
+        else
+        {
+            global.mp_pl_n = d;
+            if (!global.mp_pl_ready)
+                mp_log("choose ahead: slot " + string(s) + " plan " + string(global.mp_pl_v[0]) + "/" + string(global.mp_pl_v[1]) + "/" + string(global.mp_pl_v[2]) + " ready");
+            global.mp_pl_ready = 1;
+        }
+        mp_plan_snd("snd_select");
+    }
+    else if (global.input_pressed[5])
+    {
+        if (global.mp_pl_ready)
+            global.mp_pl_ready = 0;
+        else
+        {
+            global.mp_pl_d = d - 1;
+            global.mp_pl_n = max(0, d - 2);
+        }
+        mp_plan_snd("snd_menumove");
+    }
+}
+
+// A planned cursor at menu level lv, made possible: the first possible choice when it no longer is.
+function mp_plan_fix(lv, v, s)
+{
+    var opts = [];
+    switch (lv)
+    {
+        case 1: case 3: case 11: case 12:
+            opts = mp_plan_enemies();
+            break;
+        case 7: case 8:
+            opts = mp_plan_heroes();
+            break;
+        case 2:
+            opts = mp_plan_spells(global.char[s]);
+            break;
+        case 4:
+            opts = mp_plan_items(s);
+            break;
+        case 9:
+            opts = mp_plan_acts(global.char[s], global.bmenucoord[11][s]);
+            break;
+        default:
+            return v;
+    }
+    return mp_plan_first(opts, v);
+}
+
+// My turn, with a plan for this hero: my Z on the main row plays it; each next level gets its
+// planned cursor and a Z, as soon as the menu takes presses again.
+function mp_plan_run()
+{
+    var s = global.charturn;
+    if (global.mp_pl_slot != s || global.mp_pl_turn != global.mp_bturn || (!global.mp_pl_ready && global.mp_pl_n == 0))
+    {
+        global.mp_pl_run = 0;
+        return;
+    }
+    if (!global.mp_pl_run)
+    {
+        if (global.bmenuno == 0 && (global.input_pressed[4] || global.input_pressed[7]) && global.mp_pl_n > 0)
+        {
+            global.bmenucoord[0][s] = global.mp_pl_v[0];
+            global.mp_pl_run = 1;
+            global.mp_pl_step = 1;
+            global.mp_pl_t = global.mp_frame;
+            mp_log("choose ahead: playing the plan for slot " + string(s));
+        }
+        return;
+    }
+    if (global.input_pressed[5] || (global.mp_frame - global.mp_pl_t) > 45 || global.mp_pl_step > global.mp_pl_n)
+    {
+        global.mp_pl_run = 0;
+        global.mp_pl_slot = -1;
+        return;
+    }
+    if (global.bmenuno == 0 || (global.mp_frame - global.mp_mn_last) < 5 || !mp_menu_ready())
+        return;
+    var lv = global.bmenuno;
+    var v = mp_plan_fix(lv, global.mp_pl_v[global.mp_pl_step], s);
+    global.bmenucoord[lv][s] = v;
+    global.input_pressed[4] = 1;
+    global.input_held[4] = 1;
+    mp_log("choose ahead: level " + string(lv) + " -> " + string(v));
+    global.mp_pl_step += 1;
+    global.mp_pl_t = global.mp_frame;
+}
+
+// GUI: the plan being made, over the battle (my next hero, while someone else chooses).
+function mp_plan_draw()
+{
+    if (!mp_battle_on() || global.mp_presel < 0 || global.mp_pl_slot != global.mp_presel || global.charturn >= 3)
+        return;
+    if (global.myfight != 0 || global.mnfight != 0 || global.mp_owner[global.charturn] == global.mp_myid)
+        return;
+    var s = global.mp_pl_slot;
+    var path = mp_presel_name(s);
+    for (var d = 1; d <= 2; d++)
+    {
+        if (d > global.mp_pl_d && d > global.mp_pl_n)
+            break;
+        var o = mp_plan_opts(s, global.mp_pl_v[0], d, global.mp_pl_v[1]);
+        for (var i = 0; i < array_length(o); i++)
+        {
+            if (o[i][0] == global.mp_pl_v[d])
+                path += " > " + o[i][1];
+        }
+    }
+    var hero = string(global.charname[global.char[s]]);
+    var l1 = "Next for " + hero + ": " + path + (global.mp_pl_ready ? "   (ready: Z on your turn)" : "");
+    var l2 = "";
+    if (global.mp_pl_d > 0 && !global.mp_pl_ready)
+    {
+        var oc = mp_plan_opts(s, global.mp_pl_v[0], global.mp_pl_d, global.mp_pl_v[1]);
+        for (var j = 0; j < array_length(oc); j++)
+            l2 += (oc[j][0] == global.mp_pl_v[global.mp_pl_d] ? "> " + oc[j][1] + " <" : oc[j][1]) + "   ";
+    }
+    var l3 = global.mp_pl_d == 0 ? "Left/Right: action   Z: choose more" : "Arrows: choose   Z: next   X: back";
+    var gw = display_get_gui_width();
+    var sc = max(1, floor(gw / 640));
+    var of = draw_get_font();
+    draw_set_font(global.mp_font);
+    var w = max(string_width(l1), string_width(l2), string_width(l3)) + 16;
+    var lh = string_height("A") + 2;
+    var h = lh * (l2 != "" ? 3 : 2) + 8;
+    var bx = (gw - w * sc) / 2;
+    var by = (display_get_gui_height() * 0.6) - (h * sc); // (just above the party's bar)
+    draw_set_alpha(0.85);
+    draw_set_colour(c_black);
+    draw_rectangle(bx, by, bx + w * sc, by + h * sc, false);
+    draw_set_alpha(1);
+    draw_set_colour(c_white);
+    draw_rectangle(bx, by, bx + w * sc, by + h * sc, true);
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    var ty = by + 4 * sc;
+    draw_set_colour(global.mp_pl_ready ? c_yellow : c_white);
+    draw_text_transformed(bx + 8 * sc, ty, l1, sc, sc, 0);
+    ty += lh * sc;
+    if (l2 != "")
+    {
+        draw_set_colour(c_aqua);
+        draw_text_transformed(bx + 8 * sc, ty, l2, sc, sc, 0);
+        ty += lh * sc;
+    }
+    draw_set_colour(c_gray);
+    draw_text_transformed(bx + 8 * sc, ty, l3, sc, sc, 0);
+    draw_set_colour(c_white);
+    draw_set_font(of);
 }

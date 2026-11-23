@@ -638,6 +638,37 @@ function mp_test_input()
             }
             return;
         }
+        // fulltp: TP full at every menu turn (spells can be cast). botslow: in the menu, a press every
+        // 30 frames instead of 6 (others get time to choose ahead).
+        if (mp_test_has("fulltp") && instance_exists(obj_battlecontroller) && global.myfight == 0 && global.mnfight == 0)
+            global.tension = 250;
+        if (mp_test_has("botslow") && global.myfight == 0 && global.mnfight == 0 && global.charturn < 3 && global.mp_owner[global.charturn] == global.mp_myid && (f mod 30) != 0)
+            return;
+        // plan:<bar>:<n1>:<n2>: while someone else chooses, plan my next hero's action: that bar,
+        // then n1 presses down on level 1, n2 on level 2 (Z between). The bot's Z plays it after.
+        if (mp_test_arg("plan") != "" && (f mod 6) == 0 && global.mp_presel >= 0 && global.mp_pl_slot == global.mp_presel && !global.mp_pl_ready && global.charturn < 3 && global.mp_owner[global.charturn] != global.mp_myid)
+        {
+            var pv = string_split(mp_test_arg("plan"), ":");
+            if (!variable_global_exists("mp_test_pl_k") || global.mp_test_pl_t != global.mp_bturn)
+            {
+                global.mp_test_pl_k = 0;
+                global.mp_test_pl_t = global.mp_bturn;
+            }
+            var lvl = global.mp_pl_d;
+            if (lvl == 0 && global.bmenucoord[0][global.mp_presel] != real(pv[0]))
+                global.input_pressed[1] = 1;
+            else if (lvl > 0 && global.mp_test_pl_k < real(pv[lvl]))
+            {
+                global.input_pressed[0] = 1;
+                global.mp_test_pl_k += 1;
+            }
+            else
+            {
+                global.input_pressed[4] = 1;
+                global.mp_test_pl_k = 0;
+            }
+            return;
+        }
         if ((f mod 6) == 0)
         {
             var menu = global.myfight == 0 && global.mnfight == 0;
