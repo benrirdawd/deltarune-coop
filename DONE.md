@@ -4,6 +4,28 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Puzzles together: pushable blocks (2026-11-23)
+
+Chapter 1's pushable blocks (`obj_pushableblock`: the box puzzle in `room_field_boxpuzzle` and the
+blocks Rudinn's events make) were only moved in the game of whoever pushed them. Now (scr_mp_world,
+"shared puzzles"):
+
+* A push that goes ahead sends message 80 (room, the block's starting place, where the push began, the
+  direction), relayed by the host. In every other game in that room the same block slides the same
+  40 px (only the block: the pushing player's pause stays theirs). The solved tiles follow by
+  themselves (they react to the block touching them).
+* Every game remembers where each block was left (room + starting place -> position); a block that is
+  created again (someone walks into the room, the room is rebuilt) goes there.
+* When nobody is in a room any more, its blocks go back to their places, as the game does when you
+  leave a room.
+* Design choice: no ordering by the host; each game plays the pushes in the order it hears them.
+
+**Tested** (Chapter 1 `room_field_boxpuzzle`, plot 50, speed 4): the host pushes a block twice: both
+games have it at 280,240; with `chaos:10:120:60` and the client's room built again afterwards
+(`restartroom`): the block is still where it was pushed; 3 players, both clients pushing at once with a
+bad network: all three games end with the block at 280,240. New test tokens `pushblock:<dir>:<frame>`,
+`logblocks`, `restartroom:<frame>`.
+
 ## The C menu names my character (2026-11-23)
 
 The request was that the party menu's status page show my character's name where it says "Kris" (the

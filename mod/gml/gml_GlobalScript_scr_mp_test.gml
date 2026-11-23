@@ -39,6 +39,9 @@
 //                   the cutscene catch-up (mp_dlg_speed) still doubles on top of it
 //   fastboot        with speed: the title / file select before `party` runs fast as well
 //   connectat:<frame> client: connect only from this frame of its game on (joining late, mid-cutscene)
+//   pushblock:<d>:<f> push the room's first pushable block in direction d at room frame f (Chapter 1)
+//   restartroom:<f> build the room again at room frame f (once)
+//   logblocks       log the room's pushable blocks every 5 s ([MPBLOCKS] lines)
 //   menupage:<n>    with openmenu: pick C-menu entry n (0 items, 1 equipment, 3 power/status)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)
 
@@ -477,6 +480,42 @@ function mp_test_input()
     {
         global.input_pressed[6] = 1;
         global.input_held[6] = 1;
+    }
+    // restartroom:<frame>: build the room again at that frame of the room (once), like walking back in.
+    if (mp_test_has("restartroom") && !variable_global_exists("mp_test_rrdone") && variable_global_exists("mp_test_timer") && global.mp_test_timer == real(mp_test_arg("restartroom")))
+    {
+        global.mp_test_rrdone = 1;
+        mp_log("test: room built again");
+        room_restart();
+    }
+    // logblocks: log where the room's pushable blocks are, every 5 s.
+    if (mp_test_has("logblocks") && (global.mp_frame mod 150) == 0 && asset_get_index("obj_pushableblock") >= 0)
+    {
+        var bl = "";
+        with (asset_get_index("obj_pushableblock"))
+            bl += " " + string(round(xstart)) + "," + string(round(ystart)) + "->" + string(round(x)) + "," + string(round(y));
+        show_debug_message("[MPBLOCKS] room=" + room_get_name(room) + bl);
+    }
+    // pushblock:<dir>:<frame>: push the room's first pushable block in direction dir (0 down, 1 right,
+    // 2 up, 3 left) at that frame of the room, as if I pushed it (made pushable if the story hasn't yet).
+    if (mp_test_has("pushblock") && variable_global_exists("mp_test_timer") && global.interact == 0)
+    {
+        var pb = mp_test_arg("pushblock");
+        var pc = string_pos(":", pb);
+        if (global.mp_test_timer == real(string_delete(pb, 1, pc)))
+        {
+            var bo = asset_get_index("obj_pushableblock");
+            if (bo >= 0 && instance_exists(bo))
+            {
+                global.facing = real(string_copy(pb, 1, pc - 1));
+                with (instance_find(bo, 0))
+                {
+                    event = 0;
+                    event_user(0);
+                }
+                mp_log("test: pushed a block, confirm=" + string(instance_find(bo, 0).confirm) + " movecourse=" + string(instance_find(bo, 0).movecourse));
+            }
+        }
     }
     // menupage:<n>: with openmenu, then pick entry n of the C menu (0 items, 1 equipment, 3 power/status).
     if (mp_test_has("menupage") && variable_global_exists("mp_test_timer") && global.mp_test_timer == 190 && global.interact == 5 && variable_global_exists("menucoord"))

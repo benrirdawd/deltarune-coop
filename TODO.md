@@ -11,12 +11,15 @@ block only happens in the game of the player who did it, so a friend can't help 
 the two games can end up with different rooms). Goal: solve puzzles together, each player's move
 changing the room for everyone.
 
-* Share each puzzle object's state through the host (position of pushed boxes/blocks, switch on/off,
-  tile colours, "solved"), like the money and the bag: the player who touches it sends the change, the
-  host orders it and sends it to everyone in the room; a player entering the room gets the current state.
-* Start with the commonest kinds and one room each: Chapter 1 box puzzle (`room_field_boxpuzzle`),
-  switches/levers, the tile puzzles; then go chapter by chapter.
-* Two players pushing the same box at once: the host's order wins, the other one's push is undone.
+* **Done: Chapter 1 pushable blocks** (`obj_pushableblock`, the box puzzle), see DONE.md.
+* Next: switches/levers and the tile puzzles (tiles stepped on by the others: their figures don't touch
+  the tiles in my game), then chapter by chapter (Chapters 2-5 have no `obj_pushableblock`; their
+  puzzle objects are still to be listed).
+* Two players pushing the same block at the same moment: today each game plays both pushes in the
+  order it hears them (simplest; the games could disagree if one push is blocked in one game only).
+  If it shows up in play: the host's order wins, the other push is undone.
+* A player who joins the session after a block was pushed doesn't get its position (only players
+  already connected hear the push).
 * Effort: M per puzzle type.
 
 ## Spectating and Game Over (user request, 2026-11-23)

@@ -209,6 +209,24 @@ string_hash_to_newline\(global\.charname\[charcoord\]\)
 string_hash_to_newline(mp_menu_charname(charcoord))
 @end
 
+;; Puzzles together (Chapter 1 pushable blocks): a push is shared with everyone in the room.
+#chapters 1
+@find gml_Object_obj_pushableblock_Other_10
+        movecourse = 1;
+        movetimer = 0;
+@with
+        movecourse = 1;
+        movetimer = 0;
+        mp_puz_pushed();
+@end
+
+@prepend gml_Object_obj_pushableblock_Step_0
+mp_puz_block_step();
+
+@append gml_Object_obj_pushableblock_Create_0
+mp_puz_block_create();
+#chapters all
+
 ;; Noclip (F6): the player's wall checks find no walls while it is on.
 @regex gml_Object_obj_mainchara_Step_0
 place_meeting\(([^()]*), obj_solidblock\)

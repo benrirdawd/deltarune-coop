@@ -16,6 +16,7 @@ function mp_world_init()
     global.mp_need_warp = 0;
     global.mp_open_wait = 0;
     global.mp_open_held = 0;
+    global.mp_puz = {};         // shared puzzle objects: "room:xstart:ystart" -> [x, y]
     global.mp_warp_delay = 0;
     global.mp_fol_mask = 0;     // party followers drawn this frame, by the character shown
     global.mp_swap_prev = 1;
@@ -877,6 +878,8 @@ function mp_world_tick()
     }
     mp_room_refresh_tick();
     mp_music_tick();
+    if ((global.mp_frame mod 30) == 0)
+        mp_puz_forget_tick();
 }
 
 // Moves the local player to (rm, xx, yy). action: 0 none, 1 start pulled battle.
@@ -2106,4 +2109,112 @@ function mp_mirror_flip_sprite(spr)
     var r = (o >= 0 && sprite_exists(o)) ? o : spr;
     global.mp_mflip[spr] = r;
     return r;
+}
+
+// ---------------------------------------------------------------- shared puzzles
+
+// Pushable blocks (Chapter 1 box puzzles): a push in one game moves the same block in every game in
+// that room (message 80, relayed by the host), and someone entering the room finds the blocks where
+// they were left. When nobody is in a room any more its blocks go back to their places, as the game
+// does when you leave the room.
+function mp_puz_key(rm, xs, ys)
+{
+    return string(rm) + ":" + string(round(xs)) + ":" + string(round(ys));
+}
+
+function mp_puz_dx(dir)
+{
+    return dir == 1 ? 8 : (dir == 3 ? -8 : 0);
+}
+
+function mp_puz_dy(dir)
+{
+    return dir == 0 ? 8 : (dir == 2 ? -8 : 0);
+}
+
+// obj_pushableblock User Event 0, once the push goes ahead (self: the block).
+function mp_puz_pushed()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    variable_struct_set(global.mp_puz, mp_puz_key(room, xstart, ystart), [x + 5 * mp_puz_dx(movedir), y + 5 * mp_puz_dy(movedir)]);
+    mp_begin(80);
+    mp_wu16(room);
+    mp_ws16(xstart);
+    mp_ws16(ystart);
+    mp_ws16(x);
+    mp_ws16(y);
+    mp_wu8(movedir);
+    mp_send();
+}
+
+function mp_puz_recv(sender, b)
+{
+    var rm = buffer_read(b, buffer_u16);
+    var xs = buffer_read(b, buffer_s16);
+    var ys = buffer_read(b, buffer_s16);
+    var sx = buffer_read(b, buffer_s16);
+    var sy = buffer_read(b, buffer_s16);
+    var dir = buffer_read(b, buffer_u8);
+    variable_struct_set(global.mp_puz, mp_puz_key(rm, xs, ys), [sx + 5 * mp_puz_dx(dir), sy + 5 * mp_puz_dy(dir)]);
+    if (room != rm)
+        return;
+    var bo = asset_get_index("obj_pushableblock");
+    if (bo < 0)
+        return;
+    with (bo)
+    {
+        if (round(xstart) == xs && round(ystart) == ys)
+        {
+            // (Only the block moves here: the push and its pause belong to the other player.)
+            x = sx;
+            y = sy;
+            movecourse = 0;
+            mp_rmove = 5;
+            mp_rdir = dir;
+        }
+    }
+    mp_log("puzzle: player " + string(sender) + " pushed the block from " + string(xs) + "," + string(ys));
+}
+
+// Prepended to obj_pushableblock's Step: another player's push, played here.
+function mp_puz_block_step()
+{
+    if (!variable_instance_exists(id, "mp_rmove") || mp_rmove <= 0)
+        return;
+    mp_rmove -= 1;
+    x += mp_puz_dx(mp_rdir);
+    y += mp_puz_dy(mp_rdir);
+    sprite_index = asset_get_index("spr_npc_block");
+}
+
+// Appended to obj_pushableblock's Create: where the others left it.
+function mp_puz_block_create()
+{
+    if (!variable_global_exists("mp_inited") || !instance_exists(id))
+        return;
+    var k = mp_puz_key(room, xstart, ystart);
+    if (variable_struct_exists(global.mp_puz, k))
+    {
+        var p = variable_struct_get(global.mp_puz, k);
+        x = p[0];
+        y = p[1];
+    }
+}
+
+function mp_puz_forget_tick()
+{
+    var ks = variable_struct_get_names(global.mp_puz);
+    for (var i = 0; i < array_length(ks); i++)
+    {
+        var rm = real(string_copy(ks[i], 1, string_pos(":", ks[i]) - 1));
+        var used = rm == room;
+        for (var j = 0; j < 8 && !used; j++)
+        {
+            if (j != global.mp_myid && global.mp_pconn[j] && global.mp_proom[j] == rm)
+                used = true;
+        }
+        if (!used)
+            variable_struct_remove(global.mp_puz, ks[i]);
+    }
 }

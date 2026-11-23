@@ -549,6 +549,11 @@ function mp_handle(type, sender, b, sock, endpos)
         mp_mirror_recv(type, sender, b);
         return;
     }
+    if (type == 80) // a pushed puzzle block
+    {
+        mp_puz_recv(sender, b);
+        return;
+    }
     if (type == 61) // the host brings everyone over
     {
         mp_bring_recv(sender);
