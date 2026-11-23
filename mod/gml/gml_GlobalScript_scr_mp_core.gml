@@ -666,6 +666,7 @@ function mp_end_tick()
         return;
     if (mp_on() && !global.mp_hold)
         mp_ghosts_update();
+    mp_chaos_tick();
     mp_flush();
 }
 

@@ -603,6 +603,9 @@ function mp_host_turn_check()
     }
     if (!ready)
         return;
+    // A hero's last HP report can arrive in the same frame as its player's "turn done" (one
+    // datagram, e.g. a resend): take it in before the turn's state is written down.
+    mp_battle_apply_hp();
     mp_party_grow();
     mp_compute_owners();
     var tension = global.tension;

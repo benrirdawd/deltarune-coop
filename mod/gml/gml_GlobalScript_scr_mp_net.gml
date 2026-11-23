@@ -460,7 +460,81 @@ function mp_net_async()
     var size = ds_map_find_value(async_load, "size");
     var ip = ds_map_find_value(async_load, "ip");
     var port = ds_map_find_value(async_load, "port");
+    if (mp_chaos_on())
+    {
+        mp_chaos_in(b, size, ip, port);
+        return;
+    }
     mp_net_packet(b, size, ip, port);
+}
+
+// ---------------------------------------------------------------- bad network, for tests
+
+// Test token chaos:<loss %>:<lag ms>:<jitter ms> (e.g. chaos:10:120:60): every datagram this game
+// receives is dropped with that chance, the others are handed over late (lag plus up to jitter ms,
+// so they also come out of order). Its own RNG: GameMaker's is the battle sync's.
+function mp_chaos_on()
+{
+    if (!variable_global_exists("mp_chaos"))
+    {
+        global.mp_chaos = [0, 0, 0];
+        global.mp_chaos_q = ds_list_create();
+        global.mp_chaos_n = 0;
+        global.mp_chaos_lost = 0;
+        global.mp_chaos_lcg = 4242 + (global.mp_myid * 97);
+        if (variable_global_exists("mp_test") && global.mp_test != "" && mp_test_has("chaos"))
+        {
+            var a = string_split(mp_test_arg("chaos") + "::", ":");
+            for (var i = 0; i < 3; i++)
+                global.mp_chaos[i] = (a[i] == "") ? 0 : real(a[i]);
+            mp_log("bad network: " + string(global.mp_chaos[0]) + "% lost, " + string(global.mp_chaos[1]) + "+" + string(global.mp_chaos[2]) + " ms late");
+        }
+    }
+    return global.mp_chaos[0] > 0 || global.mp_chaos[1] > 0 || global.mp_chaos[2] > 0;
+}
+
+function mp_chaos_rand(n)
+{
+    global.mp_chaos_lcg = ((global.mp_chaos_lcg * 75) + 74) mod 65537;
+    return (global.mp_chaos_lcg / 65537) * n;
+}
+
+function mp_chaos_in(b, size, ip, port)
+{
+    global.mp_chaos_n += 1;
+    if (mp_chaos_rand(100) < global.mp_chaos[0])
+    {
+        global.mp_chaos_lost += 1;
+        return;
+    }
+    var cb = buffer_create(max(1, size), buffer_fixed, 1);
+    buffer_copy(b, 0, size, cb, 0);
+    ds_list_add(global.mp_chaos_q, [current_time + global.mp_chaos[1] + mp_chaos_rand(global.mp_chaos[2]), cb, size, ip, port]);
+}
+
+// Each frame (mp_end_tick, before sending): hands over the datagrams that are due.
+function mp_chaos_tick()
+{
+    if (!variable_global_exists("mp_chaos") || !mp_chaos_on())
+        return;
+    var now = current_time;
+    var i = 0;
+    while (i < ds_list_size(global.mp_chaos_q))
+    {
+        var e = ds_list_find_value(global.mp_chaos_q, i);
+        if (e[0] <= now)
+        {
+            ds_list_delete(global.mp_chaos_q, i);
+            mp_net_packet(e[1], e[2], e[3], e[4]);
+            buffer_delete(e[1]);
+        }
+        else
+        {
+            i += 1;
+        }
+    }
+    if ((global.mp_frame mod 600) == 0 && global.mp_chaos_n > 0)
+        mp_log("bad network: " + string(global.mp_chaos_lost) + " of " + string(global.mp_chaos_n) + " datagrams lost, " + string(ds_list_size(global.mp_chaos_q)) + " on the way");
 }
 
 // One datagram from ip:port (UDP), or from Steam peer <port> (ip "steam", scr_mp_steam).
