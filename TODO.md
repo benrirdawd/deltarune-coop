@@ -30,6 +30,31 @@ party menu's status screen, the hero shown as "Kris" (the one I control) should 
 name, i.e. the menu names the character I play instead of Kris. Remove the "You: <character>" label
 and change the name the status screen draws (and check the other C-menu pages that name Kris).
 
+## Puzzles and map objects together (user request, 2026-11-23)
+
+Simple things on the map are still local: pushing a box, pressing a switch, stepping on tiles, moving a
+block only happens in the game of the player who did it, so a friend can't help solve anything (and
+the two games can end up with different rooms). Goal: solve puzzles together, each player's move
+changing the room for everyone.
+
+* Share each puzzle object's state through the host (position of pushed boxes/blocks, switch on/off,
+  tile colours, "solved"), like the money and the bag: the player who touches it sends the change, the
+  host orders it and sends it to everyone in the room; a player entering the room gets the current state.
+* Start with the commonest kinds and one room each: Chapter 1 box puzzle (`room_field_boxpuzzle`),
+  switches/levers, the tile puzzles; then go chapter by chapter.
+* Two players pushing the same box at once: the host's order wins, the other one's push is undone.
+* Effort: M per puzzle type.
+
+## Spectating and Game Over (user request, 2026-11-23)
+
+* **A spectator only watches:** a player who watches someone (same character as another player, left
+  out of a fight, or chose to spectate) should see that person's screen (camera following them) and
+  have no character of their own to control, instead of walking around as a figure. Switch between
+  the players being watched with left/right; F9 to stop spectating.
+* **Any player can press Continue at the Game Over:** today the clients wait for the host to reload.
+  Whoever presses Continue first should continue for everyone (the host reloads, the others follow).
+  Check what a client's Continue does now.
+
 ## Needs information from a player
 
 | Issue | What is needed |
@@ -60,7 +85,6 @@ These were fixed or should be fixed by other changes, but only a real play-throu
 |---|---|---|
 | Special battle styles (Spamton NEO, Berdly/Queen, Chapter 4/5 gimmick fights) likely only partly sync. | Detect special battles and fall back to "one player drives the battle, everyone else spectates and dodges". Later, hand-sync individual fights people care about. | S–M fallback; L per fight |
 | Minigames played together (each player now plays their own copy; the others are hidden and see "Playing ..."). | Per minigame. **Rhythm game:** each player plays their character's chart (the game has three: Kris guitar, Susie drums, Ralsei vocals; the last two are on autoplay), hits sent and the score added up. **Quiz / game show:** each player buzzes for their character. **Throw minigame:** Susie throws, Kris's player presses a button mid-air for a sword swing. Inputs sent like the battle menu so every game plays the same thing. | L per minigame |
-| Puzzles shared: one player's move changes the room for everyone. | Share the puzzle's state (switches, blocks, tiles) per puzzle type, instead of each player solving their own copy. | M per puzzle type |
 | Chapter 5 platformer: everyone is drawn as Kris there; hits, enemies and pickups aren't shared. | A per-character platformer figure (like climbing), then shared pickups. | M |
 | Separate fights: players left out of a fight (hero not in the story party, taken, or a 4th+ player) only watch. | Support for up to 5 players and a proper spectator role. | L |
 | A player in a fight, seen from the map, only shows a battle stance. | Show them choosing and dodging. | L |
