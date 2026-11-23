@@ -309,3 +309,7 @@ mp_draw_ow_heart($1,
 @prepend gml_Object_obj_overworldbulletparent_Other_15
 if (active == 1)
     mp_ow_hit_target();
+
+;; The hallway mirror at home (Light World) reflects the character I play, not Kris.
+@append? gml_Object_obj_hallway_mirror_Step_2
+mp_mirror_reflect_me();

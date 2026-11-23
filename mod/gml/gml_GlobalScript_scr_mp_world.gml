@@ -1810,3 +1810,12 @@ function mp_battle_idle_sprite(ch)
         s = asset_get_index("spr_ralsei_idle");
     return (s >= 0 && sprite_exists(s)) ? s : -1;
 }
+
+// obj_hallway_mirror's End Step, after it copied Kris's sprite onto the reflection: mine instead.
+function mp_mirror_reflect_me()
+{
+    if (!mp_on() || !mp_swaps_enabled() || global.mp_cfg_char == 1)
+        return;
+    with (shadow)
+        sprite_index = mp_swap_sprite(sprite_index, 1, global.mp_cfg_char);
+}
