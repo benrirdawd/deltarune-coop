@@ -20,9 +20,9 @@ changing the room for everyone.
 
 * **Done: Chapter 1 pushable blocks** (`obj_pushableblock`, the box puzzle), see DONE.md.
 * **Done: Chapter 1 switches and floor tiles** (eye switches, the hourglass tile puzzles), see DONE.md.
-* Next: the rest of Chapter 1 (`obj_ob_checkertile` paths, `obj_suitspuzzle_event`,
-  `obj_cloverpuzzle_event`, `obj_forest_area5_puzzle`), then chapter by chapter (Chapters 2-5: their
-  puzzle objects are still to be listed).
+* **Done: the rest of Chapter 1** (suits puzzles shared; checker paths and the forest area 5 lines
+  stay each player's own), see DONE.md.
+* Next: chapter by chapter (Chapters 2-5: their puzzle objects are still to be listed).
 * A switch pressed or a block pushed before another player connected isn't known to them (only
   players already connected hear it).
 * Two players pushing the same block at the same moment: today each game plays both pushes in the
@@ -104,6 +104,10 @@ These were fixed or should be fixed by other changes, but only a real play-throu
   real play-through of whole chapters.
 
 ## Low priority / known small differences
+
+* On a bad network a player standing still can be missing from the others' screens for up to 1.5 s
+  when they arrive (their first position lost; positions of someone not moving are only resent every
+  1.5 s). Seen in the suits puzzle test with `chaos:10:120:60`.
 
 * Snowgrave route (Chapter 2): untested. It relies on Noelle-specific battle flow and flags, so expect
   oddities if players disagree. Possible fix: route choices follow whoever plays Noelle (or the host).

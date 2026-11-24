@@ -4,6 +4,21 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Puzzles together: the rest of Chapter 1 (2026-11-24)
+
+* **Suits puzzles** (`obj_suitspuzz` with its three buttons: `room_field_secret1`, the suits scene
+  room and the clover room in the forest): a button pressed in one game presses the same button in
+  every game in the room (the switch message, 81), so everyone sees the same suits and the spikes
+  open for all.
+* Design choice, kept local on purpose (each player's own hazard, nothing to solve together):
+  the checker paths (`obj_ob_checkertile`, moving tiles to dodge; the reset flash was already
+  local) and the forest area 5 lines (`obj_forest_area5_puzzle`, how much the darkner sees *you*).
+* New test token `useseq:<object>:<i>@<frame>/...` (use the i-th instance at given frames);
+  `logpuz` also logs the suits.
+
+**Tested** (`room_field_secret1`, plot 30, speed 4): the host pressed spade, diamond, swap, the
+client then spade: both games show suits 3,4,1; same with `chaos:10:120:60` in both games.
+
 ## Watch a cutscene, then go back to where you were (2026-11-24)
 
 * A player pulled into someone's cutscene (the mirror) remembers the room and spot they were pulled

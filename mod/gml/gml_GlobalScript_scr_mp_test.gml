@@ -42,7 +42,8 @@
 //   pushblock:<d>:<f> push the room's first pushable block in direction d at room frame f (Chapter 1)
 //   restartroom:<f> build the room again at room frame f (once)
 //   useobj:<o>:<f>  use (as with Z) the room's first <o> at room frame f
-//   logpuz          log the tile puzzle's state every 5 s ([MPPUZ] lines)
+//   useseq:<o>:<i>@<f>/<i>@<f>...  use the room's <i>-th <o> at room frame <f>, for each pair
+//   logpuz          log the tile puzzle's / suits puzzle's state every 5 s ([MPPUZ] lines)
 //   logblocks       log the room's pushable blocks every 5 s ([MPBLOCKS] lines)
 //   menupage:<n>    with openmenu: pick C-menu entry n (0 items, 1 equipment, 3 power/status)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)
@@ -501,6 +502,35 @@ function mp_test_input()
             mp_log("test: using " + object_get_name(uo));
             with (instance_find(uo, 0))
                 event_user(0);
+        }
+    }
+    // useseq:<object>:<i>@<frame>/<i>@<frame>...: use the i-th <object> at each of those room frames.
+    if (mp_test_has("useseq") && variable_global_exists("mp_test_timer"))
+    {
+        var qa = mp_test_arg("useseq");
+        var qc = string_pos(":", qa);
+        var qo = asset_get_index(string_copy(qa, 1, qc - 1));
+        var qs = string_split(string_delete(qa, 1, qc), "/");
+        for (var qi = 0; qi < array_length(qs) && qo >= 0; qi++)
+        {
+            var qp = string_split(qs[qi], "@");
+            if (array_length(qp) == 2 && global.mp_test_timer == real(qp[1]) && instance_number(qo) > real(qp[0]))
+            {
+                mp_log("test: using " + object_get_name(qo) + " #" + qp[0]);
+                with (instance_find(qo, real(qp[0])))
+                    event_user(0);
+            }
+        }
+    }
+    // logpuz, suits puzzles: the suits shown, every 5 s.
+    if (mp_test_has("logpuz") && (global.mp_frame mod 150) == 0 && asset_get_index("obj_suitspuzz") >= 0 && instance_exists(asset_get_index("obj_suitspuzz")))
+    {
+        with (asset_get_index("obj_suitspuzz"))
+        {
+            var su = "";
+            for (var si = 0; si < max_suit; si++)
+                su += string(suit[si]);
+            show_debug_message("[MPPUZ] suits=" + su + " won=" + string(won));
         }
     }
     // logpuz: the tile puzzle's state every 5 s (switch on, tiles stood on, rounds won).

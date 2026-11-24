@@ -231,6 +231,11 @@ mp_puz_switch_used();
 
 @prepend gml_Object_obj_glowtilepuzz_Other_10
 mp_puz_switch_used();
+
+;; The suits puzzles' buttons (spade, diamond, swap: room_field_secret1, the forest's clover and suits
+;; rooms): a press in one game presses the same button in every game in the room.
+@prepend gml_Object_obj_suitspuzz_button_Other_10
+mp_puz_switch_used();
 #chapters all
 
 ;; Noclip (F6): the player's wall checks find no walls while it is on.
