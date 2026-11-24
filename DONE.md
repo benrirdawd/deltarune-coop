@@ -4,6 +4,23 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 4 piano puzzle: solved by one, solved for everyone (2026-11-24)
+
+* `room_dw_church_pianopuzzle`: playing the right tune on the piano opens the cage, sets story flag 892
+  (shared) and starts a scene. A friend's solve already reached me as their scene (pulled in and
+  watched), but my room kept its cage and would have solved again, scene and all. Now when flag 892
+  arrives while my room still waits, the room jumps to the solved state it uses when you come back
+  later: cage gone, piano done, no second scene (`mp_piano_puzzle_follow`, `scr_mp_shelf`).
+* Simplest choice: the solve is shared, not each note. Playing the piano stays each player's own;
+  the tune only counts in the game of the one who plays it.
+* The organ room (`obj_dw_church_organpuzzle`) is left local on purpose: it plays songs for Susie's
+  and Ralsei's reactions, with nothing to solve; a scene it starts is shared the usual way.
+* Test token `pianosolve:<f>` (the piano counts as played right at that room frame); `logpuz` logs
+  the room (`[MPPIANO]`).
+* Test, Chapter 4 `room_dw_church_pianopuzzle`, plot 250, both with `chaos:10:120:60`, `mash`
+  (`work/fol/piano2`). The client solved it, got the scene lock and played the scene. The host's room
+  followed (con 99, cage gone), the host watched P2's cutscene, and its scene didn't play a second time.
+
 ## Chapter 4 bookshelf puzzle shared; the train tracks stay local (2026-11-24)
 
 * **Bookshelf puzzle** (`room_dw_church_bookshelfpuzzle` and its reversed copy): the remote pianos

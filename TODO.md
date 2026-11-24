@@ -22,7 +22,8 @@ pull request, or ask on Discord (**b.001**).
    run with the real ACTs: the test simulates one (`fakeactg`).
 2. **Done:** Chapter 4 bookshelf puzzle shared; the train tracks stay local on purpose (DONE.md).
    Still to run: a real piano move (the test sets the shelf's flag instead).
-3. Piano and organ puzzles (Chapter 4): share each note played. Effort: M.
+3. **Done:** the piano puzzle solved by one player is solved for everyone; the organ stays local on purpose
+   (DONE.md). Not looked at yet: the piano pieces rooms (`obj_dw_church_pianopiece_left/right`).
 
 ## Stage-changing scenes: everyone agrees first (later)
 

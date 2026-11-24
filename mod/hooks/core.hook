@@ -278,6 +278,10 @@ mp_shelf_follow();
 @append gml_Object_obj_dw_church_bookshelfpuzzle_Step_0
 mp_shelf_test();
 
+;; Chapter 4 piano puzzle: solved by a friend (shared story flag 892), solved in my room too.
+@prepend gml_Object_obj_dw_church_pianopuzzle_Step_0
+mp_piano_puzzle_follow();
+
 ;; Chapter 5 pushable blocks (the garden): pushed in every game in the room, like Chapter 1's.
 #chapters 5
 @find gml_Object_obj_pushable_block_Other_10

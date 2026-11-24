@@ -93,3 +93,46 @@ function mp_shelf_test()
         show_debug_message("[MPSHELF] room=" + room_get_name(room) + s);
     }
 }
+
+// ---------------------------------------------------------------- the piano puzzle
+
+// room_dw_church_pianopuzzle: playing the right tune on the piano opens the cage (story flag 892,
+// shared) and starts a scene. A friend who solved it in their game: their scene reaches me the
+// usual way (pulled in / watched), but my room still had the cage and would solve it again, scene
+// and all. So when flag 892 arrives while my room still waits, my room jumps to the solved state the
+// room itself uses when you come back later (cage gone, piano done, no second scene).
+// Prepended to obj_dw_church_pianopuzzle's Step.
+function mp_piano_puzzle_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    // (Test token pianosolve:<frame>: at that room frame the piano counts as played right, as when
+    // the tune is finished. logpuz logs the room's state every 5 s.)
+    if (global.mp_test != "" && variable_global_exists("mp_test_timer"))
+    {
+        if (mp_test_has("pianosolve") && global.mp_test_timer == real(mp_test_arg("pianosolve")))
+        {
+            mp_log("[test] pianosolve");
+            with (obj_church_piano_playable)
+                solved = 1;
+        }
+        if (mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+            show_debug_message("[MPPIANO] con=" + string(con) + " flag892=" + string(global.flag[892]) + " cage=" + string(instance_exists(obj_dw_church_steelstaff)) + " solved=" + string(obj_church_piano_playable.solved));
+    }
+    if (con != 0 || !init || global.flag[892] != 1)
+        return;
+    mp_log("piano puzzle: solved by a friend, my room follows");
+    with (blackoverlay)
+        instance_destroy();
+    with (obj_church_piano_playable)
+    {
+        solved = 1;
+        forceend = 1;
+        dontresetproperly = true;
+        dontdrawmenu = true;
+    }
+    with (obj_church_piano_hint)
+        instance_destroy();
+    rhint = 999;
+    con = 99;
+}
