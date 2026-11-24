@@ -544,6 +544,11 @@ function mp_apply_tgo(st)
         }
     }
     mp_susie_update();
+    // Joined the fight late (pulled in mid-fight: waiting for its first turn, the leader is further
+    // on): my heroes take the fight's HP too, not the full HP my own game started them with.
+    var late = global.mp_bwait_turn == 0 && turn > 0;
+    if (late)
+        mp_log("joined the fight at turn " + string(turn) + ": taking its HP for my heroes too");
     if (turn > 0)
     {
         global.tension = st[2];
@@ -555,6 +560,8 @@ function mp_apply_tgo(st)
                 global.mp_rhp[s2] = st[6 + s2];
                 global.mp_rhp_known[s2] = 1;
             }
+            else if (c > 0 && late)
+                global.hp[c] = st[6 + s2];
             if (global.monster[s2])
             {
                 global.monsterhp[s2] = st[9 + s2];

@@ -33,6 +33,7 @@
 //   staleplot:<a>:<b>  when the plot reaches a (outside battles), set it back to b once
 //   noenemysync     (test of the touched-enemy sync) don't share touched overworld enemies
 //   nomono          (test of the stale-plot guard) accept a lower plot from the others
+//   battlesolo      with battle: the host starts it before anyone joined (joining mid-fight)
 //   story           with battle: the encounter is treated as a story battle (calls everyone)
 //   bringat:<frame> host: bring everyone over at this frame
 //   battleclk:<ms>  with battle: wait for this moment of the shared clock (host's ms since start)
@@ -368,10 +369,10 @@ function mp_test_tick()
     var battle_delay = mp_test_arg("battleat") != "" ? real(mp_test_arg("battleat")) : 120;
     // battleclk:<ms>: start the battle at this moment of the shared clock (two players at once)
     var clk_ok = mp_test_arg("battleclk") == "" || (mp_on() && mp_clock_now() >= real(mp_test_arg("battleclk")));
-    if (mp_test_has("battle") && clk_ok && !global.mp_test_battled && instance_exists(obj_mainchara) && global.mp_test_timer > battle_delay && global.interact == 0 && (mp_on() || global.mp_role == 0))
+    if (mp_test_has("battle") && clk_ok && !global.mp_test_battled && instance_exists(obj_mainchara) && global.mp_test_timer > battle_delay && global.interact == 0 && (mp_on() || global.mp_role == 0 || mp_test_has("battlesolo")))
     {
         var other_ready = true;
-        if (global.mp_role == 1)
+        if (global.mp_role == 1 && !mp_test_has("battlesolo"))
             other_ready = mp_player_count() > 1 && global.mp_proom[1] == room;
         if (other_ready)
         {

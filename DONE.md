@@ -9,6 +9,13 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+
+## Joining while the host is in a fight (2026-11-24)
+
+| Problem | Fix | Test |
+|---|---|---|
+| A player who joined the session mid-fight ("Everyone" fights: pulled in, playing from the next turn) kept their own game's full HP for the hero they took over (Susie 140 against 112 in the host's game): the turn state differed. | `mp_apply_tgo`: the first turn-go of a fight a player joined late (waiting for turn 0, the leader further on) gives their own heroes the fight's HP too. `mpcheck.py`: "players reached different turns" compares the last turn reached, not how many (a late joiner sees fewer). New test token `battlesolo` (the host starts the fight before anyone joined). | **Tested**, Chapter 2, encounter 53, `everyone`, 20x: the host fought alone, the client joined at turn 2 and was pulled in; turn 2 identical in both games, then the same Game Over. With `chaos:10:120:60` it joined at turn 4, turns 4-5 identical. Open-world fights (default): the newcomer stays on the map, by design; see TODO.md. |
+
 ## Changing character mid-session (2026-11-24)
 
 | Problem | Fix | Test |

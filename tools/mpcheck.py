@@ -336,9 +336,10 @@ def main():
             vals = {turns[n][k] for n in names}
             if len(vals) > 1:
                 fails["battle"].append(f"{k} differs: " + " | ".join(f"{n}: {turns[n][k]}" for n in names))
-        lens = [len(turns[n]) for n in names]
-        if max(lens) - min(lens) > 1:
-            fails["battle"].append(f"players reached different turns: " + ", ".join(f"{n} {len(turns[n])}" for n in names))
+        # (The last turn each reached, not how many: a player who joined mid-fight saw fewer.)
+        last = {n: max((int(k.split("=")[1]) for k in turns[n]), default=-1) for n in names}
+        if max(last.values()) - min(last.values()) > 1:
+            fails["battle"].append(f"players reached different turns: " + ", ".join(f"{n} {last[n]}" for n in names))
     if fails["state"]:
         # Which flags differ (from the [MPFLAGS] dumps closest to the end)
         dumps = {}
