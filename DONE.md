@@ -4,6 +4,23 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Joining mid-cutscene and coming back after a crash, every chapter (2026-11-24)
+
+`tools/latejoin.sh` now has a crash scenario for each chapter (`ch1crash`, `ch3crash`, `ch4crash`,
+`ch5crash`, like `ch2crash`: the client's game is killed 24 s in, mid-scene, and started again; always on a
+bad network) and `XT=<tokens>` adds tokens to both sides of any scenario. No code change was needed.
+Results (speed 20, `chaos:10:120:60` everywhere):
+* Crash, Chapters 1, 3, 4, 5: the restarted client joins again, is pulled into the host's scene and
+  watches it ("Watching Host's cutscene"); in 1, 4 and 5 it goes back to where it was when the scene
+  ends in its own room; in 3 it follows the host's scene on to `room_torhouse_sepia`. The only mpcheck
+  failure is the killed game itself ("stopped responding"), plus "nobody moved" in Chapter 1.
+  (After a restart the client may get its old player number back; mpcheck then lists only the
+  before-crash log for it.)
+* Joining late, Chapters 1-5 on a bad network (`work/t_late_ch*_x`): pulled in and watching in each;
+  Chapter 3 goes on into the story fight together; all end in the same room. Chapter 2's state check
+  shows the known test artifact (the room starts at plot 53, its scene writes 33 in the host's game,
+  the client refuses the stale 33, and both end at 53).
+
 ## Code review: a counter sent in the middle of the flag message (2026-11-24)
 
 Found reviewing the code: when an ordinary flag and a counter flag changed in the same scan, the counter's

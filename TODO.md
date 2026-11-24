@@ -4,6 +4,17 @@ Only open work is here; everything finished (and how it was tested) is in [`DONE
 Effort: S = small, M = medium, L = large. Help is welcome: pick anything below, open an issue or a
 pull request, or ask on Discord (**b.001**).
 
+## Next features (user request, 2026-11-24), in this order
+
+1. **Done:** tests per chapter of joining mid-cutscene and coming back after a crash, see DONE.md.
+2. CONTRIBUTING.md: how to build, test, and where each thing is in the code (for helpers from the
+   coop-anything server).
+3. F9 button that zips multiplayer_log.txt and multiplayer_crash.txt onto the desktop, for bug reports.
+4. Short text chat in F9: quick messages ("wait", "come here", "I'm saving").
+5. Map ping: a key that shows the others an arrow pointing to where you are.
+6. Spectator: jump between players; an indicator of who is reading a text box.
+7. Clearer version check on joining: show each side's version when they don't match.
+
 ## Stage-changing scenes: everyone agrees first (later)
 
 Watching a cutscene and going back to where you were is done (DONE.md, 2026-11-24): a scene that ends
