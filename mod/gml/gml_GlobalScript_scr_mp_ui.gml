@@ -6,6 +6,8 @@ function mp_ui_init()
     global.mp_ui_sel = 0;
     global.mp_chat_sel = 0;    // F9 "Say": which quick message
     global.mp_chat_t = 0;      // when I last sent one
+    global.mp_pping_t = array_create(8, -100000);   // when each player last pinged (F5)
+    global.mp_ping_sent = -100000;
     global.mp_ui_edit = -1;    // which text field is being edited (-1 none)
     global.mp_ui_text = "";
     global.mp_ui_page = 0;     // 0 main, 1 settings, 2 controls & info
@@ -69,6 +71,8 @@ function mp_ui_input()
 {
     if (keyboard_check_pressed(vk_f7) && !global.mp_ui_open)
         mp_stop_all_sound();
+    if (keyboard_check_pressed(vk_f5) && !global.mp_ui_open && mp_on())
+        mp_ping_send();
     if (keyboard_check_pressed(vk_f6) && !global.mp_ui_open)
         mp_noclip_toggle();
     if (keyboard_check_pressed(vk_f8) && !global.mp_ui_open && mp_on())
@@ -703,6 +707,8 @@ function mp_draw_gui()
         mp_draw_text_outlined((gw - string_width(wt2)) / 2, gh / 2 + lh / 2, wt2, c_gray);
     }
 
+    mp_ping_draw(gw, gh, sc);
+
     // Player list.
     if (global.mp_role != 0 && global.mp_cfg_hud)
     {
@@ -1068,4 +1074,118 @@ function mp_chat_recv(sender, b)
     global.mp_pchat[sender] = msgs[i];
     global.mp_pchat_t[sender] = current_time;
     mp_notify(global.mp_pname[sender] + ": " + msgs[i]);
+}
+
+// ---------------------------------------------------------------- map ping (F5)
+
+// F5: "here I am". For 3 s everyone in my room sees an arrow bouncing over me (at the screen's edge,
+// pointing my way, when I'm off their screen); someone in another room gets a note. (Message 85, the
+// room; the arrow uses the position they already have for me.)
+function mp_ping_send()
+{
+    if (current_time - global.mp_ping_sent < 1000)
+        return;
+    global.mp_ping_sent = current_time;
+    global.mp_pping_t[global.mp_myid] = current_time;
+    mp_begin(85);
+    mp_wu16(room);
+    mp_send();
+    mp_notify("Ping! The others see where you are.");
+}
+
+function mp_ping_recv(sender, b)
+{
+    var rm = buffer_read(b, buffer_u16);
+    if (sender < 0 || sender >= 8)
+        return;
+    global.mp_pping_t[sender] = current_time;
+    if (rm == room)
+        mp_notify(global.mp_pname[sender] + " pings: here!");
+    else
+        mp_notify(global.mp_pname[sender] + " pings from another room" + (room_exists(rm) ? " (" + room_get_name(rm) + ")" : "") + ".");
+}
+
+// Where player p is in my room: the point above their name tag (world coordinates), or -1. (The
+// same top-centre the name tag uses: sprite origins differ between sprites.)
+function mp_ping_where(p)
+{
+    var r = -1;
+    if (p == global.mp_myid)
+    {
+        with (obj_mainchara)
+            r = [x + (((sprite_get_width(sprite_index) / 2) - sprite_get_xoffset(sprite_index)) * image_xscale), y - (sprite_get_yoffset(sprite_index) * image_yscale) - 16];
+        return r;
+    }
+    if (global.mp_proom[p] != room)
+        return -1;
+    with (obj_mp_ghost)
+    {
+        if (pid == p && fol < 0 && visible && sprite_exists(sprite_index))
+            r = [x + (((sprite_get_width(sprite_index) / 2) - sprite_get_xoffset(sprite_index)) * image_xscale), y - (sprite_get_yoffset(sprite_index) * image_yscale) - 16];
+    }
+    return r;
+}
+
+// From mp_draw_gui: the arrows of the players who pinged in the last 3 s.
+function mp_ping_draw(gw, gh, sc)
+{
+    if (!mp_on() || mp_in_battle_scene())
+        return;
+    var cam = view_camera[0];
+    var cx = camera_get_view_x(cam);
+    var cy = camera_get_view_y(cam);
+    var cw = camera_get_view_width(cam);
+    var ch = camera_get_view_height(cam);
+    if (cw <= 0 || ch <= 0)
+        return;
+    for (var p = 0; p < 8; p++)
+    {
+        var age = current_time - global.mp_pping_t[p];
+        if (age > 3000 || (p != global.mp_myid && !global.mp_pconn[p]))
+            continue;
+        var w = mp_ping_where(p);
+        if (!is_array(w))
+            continue;
+        var gx = (w[0] - cx) * gw / cw;
+        var gy = (w[1] - cy) * gh / ch;
+        var col = mp_char_color(global.mp_pchar[p]);
+        var m = 14 * sc;
+        var a = (age < 2500) ? 1 : (3000 - age) / 500;
+        draw_set_alpha(a);
+        if (gx >= m && gx <= gw - m && gy >= m && gy <= gh - m)
+        {
+            // On screen: a bouncing arrow pointing down at them.
+            var by = gy - (8 * sc) - abs(sin(age / 120)) * 10 * sc;
+            mp_ping_arrow(gx, by, 270, col, sc);
+        }
+        else
+        {
+            // Off screen: at the edge, pointing towards them.
+            var ex = clamp(gx, m, gw - m);
+            var ey = clamp(gy, m, gh - m);
+            mp_ping_arrow(ex, ey, point_direction(ex, ey, gx, gy), col, sc);
+        }
+        draw_set_alpha(1);
+    }
+}
+
+// A filled arrow head at (xx, yy) pointing in direction dir (degrees, GameMaker's: 270 = down).
+function mp_ping_arrow(xx, yy, dir, col, sc)
+{
+    var l = 18 * sc;
+    var w = 11 * sc;
+    var tx = xx + lengthdir_x(l / 2, dir);
+    var ty = yy + lengthdir_y(l / 2, dir);
+    var bx = xx - lengthdir_x(l / 2, dir);
+    var by = yy - lengthdir_y(l / 2, dir);
+    var x1 = bx + lengthdir_x(w, dir + 90);
+    var y1 = by + lengthdir_y(w, dir + 90);
+    var x2 = bx + lengthdir_x(w, dir - 90);
+    var y2 = by + lengthdir_y(w, dir - 90);
+    draw_set_color(c_black);
+    draw_triangle(tx + sc, ty + sc, x1 + sc, y1 + sc, x2 + sc, y2 + sc, false);
+    draw_set_color(col);
+    draw_triangle(tx, ty, x1, y1, x2, y2, false);
+    draw_set_color(c_white);
+    draw_triangle(tx, ty, x1, y1, x2, y2, true);
 }

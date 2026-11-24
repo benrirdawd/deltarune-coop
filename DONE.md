@@ -4,6 +4,23 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Map ping: F5 (2026-11-24)
+
+F5 (free in every chapter and in the mod) sends a ping (new message 85: the room; at most one a
+second). For 3 s, everyone in the same room sees an arrow in the pinger's colour bouncing above their
+name tag (the pinger sees it over themselves too), drawn in the GUI from the position they already have;
+when the pinger is off screen the arrow sits at the screen's edge pointing their way. Players in another
+room get a note: "P2 pings from another room (room_name)." Simplest choice: no new position data, the
+ghost's own position. Test token `pingat:<frame>`. Tests (host + client):
+* Chapter 5 garden room (`work/fol/ping1`): both notes arrive, arrows over each other; the first arrows
+  sat too low (on the name tag), so they were moved and made bigger.
+* Chapter 2 `room_dw_cyber_intro_2`, `chaos:10:120:60` (`work/fol/ping3`): the client walked through a
+  door before pinging, and each got the "from another room" note with the other's room; mpcheck passes.
+* Same room, one walked away (`work/fol/ping4`, `ping5`): first the arrows were on the head (the ghost's
+  collision box isn't its drawn sprite); now they use the name tag's anchor and sit just above it, for
+  both players' arrows (screenshot `ping5/c1_5.png`).
+Not seen on screen: the edge arrow for a player off screen (TODO).
+
 ## Quick messages: F9 "Say" (2026-11-24)
 
 A new F9 row in a session, "Say: < Wait for me! > (Z: send)": left/right picks one of ten fixed

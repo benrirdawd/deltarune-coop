@@ -544,6 +544,11 @@ function mp_handle(type, sender, b, sock, endpos)
             mp_vote_recv(sender, vv, vfinal);
         return;
     }
+    if (type == 85) // a map ping (F5, scr_mp_ui: mp_ping_recv)
+    {
+        mp_ping_recv(sender, b);
+        return;
+    }
     if (type == 84) // a quick message (F9 "Say", scr_mp_ui: mp_chat_recv)
     {
         mp_chat_recv(sender, b);

@@ -150,6 +150,9 @@ Handy things:
   "I'm saving.", "Let's go!", "Help!"...; Z to send). Everyone sees it on screen and, for a few
   seconds, in a bubble over you.
 * **"Watch"** in the F9 menu follows another player with the camera (left/right to switch).
+* **F5** (ping) shows the others where you are: for 3 seconds an arrow in your colour bounces over you
+  on their screens (at the edge of the screen, pointing your way, if you're off it). Players in
+  another room get a note saying which room you're in.
 * Several players can pick the same character (with more players than party members someone
   has to). Everyone walks around as their pick; in battle the first player (lowest number)
   controls that character and the others watch. The F9 picker shows "(also P2: you watch

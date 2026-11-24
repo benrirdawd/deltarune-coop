@@ -10,7 +10,9 @@ pull request, or ask on Discord (**b.001**).
 2. **Done:** CONTRIBUTING.md, see DONE.md.
 3. **Done:** F9 "Save logs for a bug report" (zip on the desktop), see DONE.md.
 4. **Done:** quick messages, F9 "Say", see DONE.md.
-5. Map ping: a key that shows the others an arrow pointing to where you are.
+5. **Done:** map ping (F5), see DONE.md. Not seen yet on screen: the arrow at the screen's edge for
+   a player who is off screen (the same drawing, turned); and if someone sets the voice talk key to F5,
+   pressing it also pings.
 6. Spectator: jump between players; an indicator of who is reading a text box.
 7. Clearer version check on joining: show each side's version when they don't match.
 
