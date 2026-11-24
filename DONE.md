@@ -11,6 +11,13 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+
+## Rooms that hide or move the followers (2026-11-24)
+
+| Problem | Fix | Test |
+|---|---|---|
+| Rooms whose own controller hides the followers (`with (obj_caterpillarchara) visible = 0` in a room object's Create) were never checked with two players. | None needed for the followers. | The room objects that do it were listed from the decompiled code (1/4/13/25/21 per chapter, cutscenes left out). Six of them run with 2 players, bots, 20x, the client joining from another room: `room_dw_changing_room` 169 and `room_dw_console_room` 279 (Ch3), `room_lw_church_office` 219 and `room_dw_churchb_fountain` 229 (Ch4), `room_dw_garden_aqua` 291 and `room_town_school` 100 (Ch5). The follower check passed in all six. Two other problems found there are in TODO.md (a story fight's party in `room_dw_garden_aqua`, a crash in `room_town_school`). |
+
 ## Positions held back by a resend backlog (2026-11-24)
 
 | Problem | Fix | Test |
