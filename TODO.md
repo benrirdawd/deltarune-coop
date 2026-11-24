@@ -92,10 +92,6 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Not looked at yet
 
-* After a Game Over through the CONTINUE screen (`PLACE_FAILURE`) on a bad network, the host kept the
-  client's old position (from the room before) for about 7 s although it knew the client's new room,
-  so the client wasn't shown (test `work/jbec`, 2026-11-24: `chaos:10:120:60`, mid-fight join, wipe).
-  Not seen without chaos. Not investigated yet.
 * Rooms where the game hides or repositions followers (Light World followers in Chapter 4 are covered).
 * More `interact` cases in later chapters (save points, shops, the C menu are Z-triggered and local;
   unprompted text boxes only pull after 4 s).

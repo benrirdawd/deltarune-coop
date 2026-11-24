@@ -394,34 +394,9 @@ function mp_flush_peer(p)
     var packets = 0;
     var has = false;
     mp_pkt_begin(p);
-    // Reliable: new messages and those whose retransmit timer expired (with backoff).
-    // At most 4 datagrams per frame so resends can't flood a slow connection.
-    var n = ds_list_size(p.sendq);
-    for (var i = 0; i < n; i++)
-    {
-        var e = ds_list_find_value(p.sendq, i);
-        if (e[4] > 0 && (now - e[3]) < (rto * min(e[4], 4)))
-            continue;
-        if ((buffer_tell(pk) + 5 + e[2]) > 1200)
-        {
-            if (!has)
-                continue;
-            mp_pkt_send(p);
-            packets += 1;
-            if (packets >= 4)
-                return;
-            mp_pkt_begin(p);
-            has = false;
-        }
-        buffer_write(pk, buffer_u8, 1);
-        buffer_write(pk, buffer_u16, e[0]);
-        buffer_write(pk, buffer_u16, e[2]);
-        buffer_copy(e[1], 0, e[2], pk, buffer_tell(pk));
-        buffer_seek(pk, buffer_seek_relative, e[2]);
-        ds_list_set(p.sendq, i, [e[0], e[1], e[2], now, e[4] + 1]);
-        has = true;
-    }
-    // Unreliable: newest positions.
+    // Unreliable first: newest positions (small). After them, reliable messages; with a big
+    // backlog (resends on a bad network after a room change) those fill all 4 datagrams of a
+    // frame and used to keep positions from going out for seconds.
     while (ds_list_size(p.unrel) > 0)
     {
         var ub = ds_list_find_value(p.unrel, 0);
@@ -449,6 +424,33 @@ function mp_flush_peer(p)
         p.useq = (p.useq + 1) mod 65536;
         buffer_delete(ub);
         ds_list_delete(p.unrel, 0);
+        has = true;
+    }
+    // Reliable: new messages and those whose retransmit timer expired (with backoff).
+    // At most 4 datagrams per frame so resends can't flood a slow connection.
+    var n = ds_list_size(p.sendq);
+    for (var i = 0; i < n; i++)
+    {
+        var e = ds_list_find_value(p.sendq, i);
+        if (e[4] > 0 && (now - e[3]) < (rto * min(e[4], 4)))
+            continue;
+        if ((buffer_tell(pk) + 5 + e[2]) > 1200)
+        {
+            if (!has)
+                continue;
+            mp_pkt_send(p);
+            packets += 1;
+            if (packets >= 4)
+                return;
+            mp_pkt_begin(p);
+            has = false;
+        }
+        buffer_write(pk, buffer_u8, 1);
+        buffer_write(pk, buffer_u16, e[0]);
+        buffer_write(pk, buffer_u16, e[2]);
+        buffer_copy(e[1], 0, e[2], pk, buffer_tell(pk));
+        buffer_seek(pk, buffer_seek_relative, e[2]);
+        ds_list_set(p.sendq, i, [e[0], e[1], e[2], now, e[4] + 1]);
         has = true;
     }
     // Pure acknowledgement / keep-alive.

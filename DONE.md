@@ -10,6 +10,13 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+
+## Positions held back by a resend backlog (2026-11-24)
+
+| Problem | Fix | Test |
+|---|---|---|
+| After a Game Over through the CONTINUE screen on a bad network, the host kept the client's old position for about 7 s (the client wasn't shown) although the client sent its new one. Cause: each frame a peer gets at most 4 datagrams; reliable messages went in first, and with a big backlog of resends (a room change sends a lot) they filled all 4 and the function returned before the positions. | `mp_flush_peer`: the newest positions (unreliable, small) go in first, the reliable messages after them. Same packet format. | **Tested**, the same scenario (Chapter 2, "Everyone" fights, the client joining mid-fight, wipe, CONTINUE, `chaos:10:120:60`): every check passed (before: 71 "not shown"). Two normal 2-player fights with chaos: one passed everything, the other had 19 "not shown" right after joining (the other, older issue in TODO.md low priority). |
+
 ## Joining while the host is in a fight (2026-11-24)
 
 | Problem | Fix | Test |
