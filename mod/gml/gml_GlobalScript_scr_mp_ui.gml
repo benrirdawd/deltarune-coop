@@ -4,6 +4,8 @@ function mp_ui_init()
 {
     global.mp_ui_open = 0;
     global.mp_ui_sel = 0;
+    global.mp_chat_sel = 0;    // F9 "Say": which quick message
+    global.mp_chat_t = 0;      // when I last sent one
     global.mp_ui_edit = -1;    // which text field is being edited (-1 none)
     global.mp_ui_text = "";
     global.mp_ui_page = 0;     // 0 main, 1 settings, 2 controls & info
@@ -47,7 +49,7 @@ function mp_ui_rows()
     }
     else
     {
-        array_push(r, "goto", "spec");
+        array_push(r, "goto", "spec", "chat");
         if (global.mp_role == 1)
             array_push(r, "bring");
         if (global.mp_role == 1 && variable_global_exists("mp_steam_code") && global.mp_steam_code != "")
@@ -227,6 +229,11 @@ function mp_ui_input()
         }
         if (row == "spec")
             mp_ui_adjust(row, 1);
+        if (row == "chat")
+        {
+            global.mp_ui_open = 0;
+            mp_chat_send(global.mp_chat_sel);
+        }
         if (row == "battles" || row == "noai" || row == "vote" || row == "hud" || row == "tags" || row == "souls" || row == "vmode" || row == "vrange" || row == "vmic" || row == "vsens")
             mp_ui_adjust(row, 1);
         if (row == "steam_host")
@@ -383,6 +390,10 @@ function mp_ui_adjust(row, d)
             break;
         case "spec":
             mp_spec_set(mp_spec_next(mp_spec_on() ? global.mp_spec : (d > 0 ? -1 : 8), d));
+            return;
+        case "chat":
+            var nm = array_length(mp_chat_msgs());
+            global.mp_chat_sel = (global.mp_chat_sel + d + nm) mod nm;
             return;
         case "hud":
             global.mp_cfg_hud = !global.mp_cfg_hud;
@@ -564,6 +575,9 @@ function mp_ui_rowtext(row)
             return "Refresh";
         case "spec":
             return "Watch:  < " + (mp_spec_on() ? global.mp_pname[global.mp_spec] : "off") + " >";
+        case "chat":
+            var cm = mp_chat_msgs();
+            return "Say:  < " + cm[global.mp_chat_sel] + " >  (Z: send)";
         case "goto":
             var gt = mp_goto_target();
             if (gt < 0)
@@ -1019,4 +1033,39 @@ function mp_report_zip(out_dir)
     mp_notify("Logs saved " + (out_dir == "" ? "on your desktop" : "in " + out_dir) + ": " + filename_name(p) + ". Send it with your bug report (Discord b.001).");
     mp_log("bug report: saved " + p);
     return p;
+}
+
+// ---------------------------------------------------------------- quick messages
+
+// F9 "Say": a few fixed messages (left/right to pick, Z to send). Only the number goes out
+// (message 84); it shows as a note for everyone and for 4 s in a bubble over the sender's figure.
+// (A fixed list, simplest: no typing, which the game would also see as key presses.)
+function mp_chat_msgs()
+{
+    return ["Wait for me!", "Come here!", "I'm saving.", "Let's go!", "Yes", "No", "Thanks!", "Be right back", "Help!", "Over here!"];
+}
+
+function mp_chat_send(i)
+{
+    if (!mp_on() || current_time - global.mp_chat_t < 1000)
+        return;
+    var msgs = mp_chat_msgs();
+    if (i < 0 || i >= array_length(msgs))
+        return;
+    global.mp_chat_t = current_time;
+    mp_begin(84);
+    mp_wu8(i);
+    mp_send();
+    mp_notify("You: " + msgs[i]);
+}
+
+function mp_chat_recv(sender, b)
+{
+    var i = buffer_read(b, buffer_u8);
+    var msgs = mp_chat_msgs();
+    if (sender < 0 || sender >= 8 || i >= array_length(msgs))
+        return;
+    global.mp_pchat[sender] = msgs[i];
+    global.mp_pchat_t[sender] = current_time;
+    mp_notify(global.mp_pname[sender] + ": " + msgs[i]);
 }

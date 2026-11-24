@@ -9,7 +9,7 @@ pull request, or ask on Discord (**b.001**).
 1. **Done:** tests per chapter of joining mid-cutscene and coming back after a crash, see DONE.md.
 2. **Done:** CONTRIBUTING.md, see DONE.md.
 3. **Done:** F9 "Save logs for a bug report" (zip on the desktop), see DONE.md.
-4. Short text chat in F9: quick messages ("wait", "come here", "I'm saving").
+4. **Done:** quick messages, F9 "Say", see DONE.md.
 5. Map ping: a key that shows the others an arrow pointing to where you are.
 6. Spectator: jump between players; an indicator of who is reading a text box.
 7. Clearer version check on joining: show each side's version when they don't match.

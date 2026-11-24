@@ -32,7 +32,9 @@ function mp_init()
     global.mp_ppostime = array_create(8, 0);
     global.mp_proom_t = array_create(8, 0);
     global.mp_ptalk = array_create(8, "");     // what they are reading with an NPC (talk bubble)
-    global.mp_ptalk_t = array_create(8, 0);   // when they last changed room (as I heard it)
+    global.mp_ptalk_t = array_create(8, 0);
+    global.mp_pchat = array_create(8, "");     // their last quick message (F9 "Say"), shown in a bubble
+    global.mp_pchat_t = array_create(8, -100000);   // when they last changed room (as I heard it)
     global.mp_pmg = array_create(8, "");       // the minigame they are playing ("" none)
     global.mp_pmg_t = array_create(8, 0);
     global.mp_vote_v = array_create(8, -1);    // scene choice votes (mp_vote_*)
@@ -540,6 +542,11 @@ function mp_handle(type, sender, b, sock, endpos)
         var vfinal = buffer_read(b, buffer_u8);
         if (sender < 8)
             mp_vote_recv(sender, vv, vfinal);
+        return;
+    }
+    if (type == 84) // a quick message (F9 "Say", scr_mp_ui: mp_chat_recv)
+    {
+        mp_chat_recv(sender, b);
         return;
     }
     if (type == 83) // a counter flag went up (scr_mp_world: mp_recv_counter)

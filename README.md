@@ -146,6 +146,10 @@ Handy things:
   want to catch up.
 * **F7** (or "Stop all music and sounds" in the F9 menu) stops everything that is playing. Use it if the
   music gets out of step; the game starts a room's music again the next time you enter a room.
+* **"Say"** in the F9 menu sends a quick message (left/right to pick: "Wait for me!", "Come here!",
+  "I'm saving.", "Let's go!", "Help!"...; Z to send). Everyone sees it on screen and, for a few
+  seconds, in a bubble over you.
+* **"Watch"** in the F9 menu follows another player with the camera (left/right to switch).
 * Several players can pick the same character (with more players than party members someone
   has to). Everyone walks around as their pick; in battle the first player (lowest number)
   controls that character and the others watch. The F9 picker shows "(also P2: you watch

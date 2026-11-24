@@ -4,6 +4,19 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Quick messages: F9 "Say" (2026-11-24)
+
+A new F9 row in a session, "Say: < Wait for me! > (Z: send)": left/right picks one of ten fixed
+messages (Wait for me!, Come here!, I'm saving., Let's go!, Yes, No, Thanks!, Be right back, Help!,
+Over here!), Z sends it and closes the menu. Simplest choice: a fixed list, no typing (typed letters would
+also reach the game as key presses), and only its number goes out (new message 84, forwarded by the
+host; an older version just ignores it, so no protocol change). Everyone gets a note ("P2: Come here!",
+"You: ..." for the sender) and the text shows for 4 s in a bubble over the sender's figure (the talk
+bubble). At most one a second. New test token `chat:<i>@<frame>`. Tests, Chapter 5, host + client:
+`work/fol/chat1` (`chaos:10:120:60`): each side's message reached the other; mpcheck passes except
+"moved" (nobody walks). `work/fol/chat2` (screenshots): the client shows "Come here!" over the host and
+the host shows "I'm saving." over P2, with the notes at the bottom. README lists "Say" and "Watch".
+
 ## F9 "Save logs for a bug report" (2026-11-24)
 
 A new F9 row zips `multiplayer_log.txt`, `multiplayer_log_prev.txt` (the session before: after a crash

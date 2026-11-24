@@ -1938,6 +1938,9 @@ function mp_draw_talk_bubble(pid, cx, ty)
     var t = global.mp_ptalk[pid];
     if ((current_time - global.mp_ptalk_t[pid]) > 2500)
         t = "";
+    // A quick message (F9 "Say") for 4 s.
+    if (t == "" && (current_time - global.mp_pchat_t[pid]) < 4000)
+        t = global.mp_pchat[pid];
     // Away in a minigame: say so over where they stand.
     if (t == "" && mp_player_minigame(pid) != "")
         t = "Playing " + mp_player_minigame(pid) + "...";
