@@ -2438,15 +2438,21 @@ function mp_puz_ghost_here()
             continue;
         var px = global.mp_pix[p];
         var py = global.mp_piy[p];
+        // (While I watch someone my character has an empty mask: the test uses its real one.)
+        var msk = (variable_global_exists("mp_spec_masked") && global.mp_spec_masked) ? global.mp_spec_mask : -2;
         with (obj_mainchara)
         {
             var ox = x;
             var oy = y;
+            var om = mask_index;
+            if (msk != -2)
+                mask_index = msk;
             x = px;
             y = py;
             hit = place_meeting(x, y, sw);
             x = ox;
             y = oy;
+            mask_index = om;
         }
     }
     return hit;

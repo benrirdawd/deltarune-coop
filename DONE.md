@@ -4,6 +4,27 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## A watcher's character touches nothing (2026-11-24)
+
+* From the code review: while I watch someone (F9 "Watch"), my hidden character stands where they
+  are so the camera follows them, and it could still touch things in my game. An enemy wandering
+  differently in my game could start a fight of mine and pull the others in, and a trigger zone
+  could start a scene. Now my character gets an empty collision mask (the game's own `spr_nothing`,
+  which it uses for the same thing on bullets) while it stands in for the camera. The mask is given
+  back when watching stops, or when a fight, a scene or a pull takes over. Where the chapter has no
+  `spr_nothing`, nothing changes.
+* The check for friends standing on floor switches borrows my character to test their spot, so it
+  puts the real mask back for that test. The first run showed why: while I watched, the switch my
+  friend stood on stayed up in my game.
+* Tests, all with `chaos:10:120:60`:
+  * Chapter 5 `room_dw_fcastle_foxhunt_chaos`: the host watches P2, who stands on the switch. It was
+    pressed in both games about 1 s apart, and the mask came back when P2 left (`work/fol/specmask2`).
+  * Chapter 2 `room_dw_cyber_intro_1`, 3 players, at 20x: P2 watched the host, then P3 in the other
+    room, and was warped there; the mask was given back for the warp and emptied again in the new
+    room (`work/fol/specmask3`).
+  * Not reproduced: an enemy or trigger actually set off by a watcher. There is no deterministic
+    setup for that here.
+
 ## A watcher no longer holds floor switches (2026-11-24)
 
 * From the code review: a player watching another one (F9 "Watch") has a hidden figure standing where

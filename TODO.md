@@ -67,10 +67,7 @@ changing the room for everyone.
 The loop's changes since the 2026-11-23 review were read again (mod/gml, core.hook, launcher; the
 patcher didn't change). Fixed: a counter sent in the middle of the flag message (DONE.md). Not changed,
 to check in play:
-* Watching on the map (`scr_mp_spec`): my hidden character is put where the watched player stands, so
-  it still touches things in my game: an enemy that wanders differently in my game could start a fight
-  of mine (and pull the others), and a trigger zone could start a scene. If it shows up: give my
-  character no collision mask while watching (and back after). Effort: S.
+* **Done:** a watcher's character no longer touches things (see DONE.md).
 
 ## Needs information from a player
 

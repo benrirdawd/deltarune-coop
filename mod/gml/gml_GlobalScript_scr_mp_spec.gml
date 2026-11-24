@@ -4,12 +4,41 @@
 // watched player stands, so the game's own camera follows them; I follow them into other rooms
 // too. Left/right switch between the players; F9 "Watch: off" (or the player leaving) stops it.
 // The others don't see me (my character is hidden, so my position goes out as not drawn).
+// While it stands in for the camera, my character touches nothing (an empty collision mask): an
+// enemy or a trigger zone in my game would otherwise start a fight or a scene of mine.
 // Battles, cutscenes and pulls work as for anyone else: while one is on, it takes over.
 
 function mp_spec_init()
 {
     global.mp_spec = -1;          // the player I watch, or -1
     global.mp_spec_was = 0;       // my character was hidden for it (to show it again)
+    global.mp_spec_masked = 0;    // my character's collision mask is emptied (to give it back)
+    global.mp_spec_mask = -1;     // the mask it had
+}
+
+// Empties (on) or gives back (off) my character's collision mask while watching.
+function mp_spec_mask(on)
+{
+    var none = asset_get_index("spr_nothing");
+    if (none < 0 || !instance_exists(obj_mainchara))
+        return;
+    if (on)
+    {
+        if (obj_mainchara.mask_index != none)
+        {
+            global.mp_spec_mask = obj_mainchara.mask_index;
+            obj_mainchara.mask_index = none;
+            mp_log("spectate: my character touches nothing (mask " + string(global.mp_spec_mask) + ")");
+        }
+        global.mp_spec_masked = 1;
+    }
+    else if (global.mp_spec_masked)
+    {
+        global.mp_spec_masked = 0;
+        if (obj_mainchara.mask_index == none)
+            obj_mainchara.mask_index = global.mp_spec_mask;
+        mp_log("spectate: my character's mask given back");
+    }
 }
 
 function mp_spec_on()
@@ -56,6 +85,7 @@ function mp_spec_set(p)
 
 function mp_spec_show_me()
 {
+    mp_spec_mask(false);
     if (!global.mp_spec_was)
         return;
     global.mp_spec_was = 0;
@@ -99,7 +129,11 @@ function mp_spec_tick()
         return;
     }
     if (!mp_spec_free())
+    {
+        // (A fight, a scene or a pull takes over: my character as the game made it.)
+        mp_spec_mask(false);
         return;
+    }
     if (global.mp_proom[p] < 0 || !mp_room_ok(global.mp_proom[p]))
         return;
     if (global.mp_proom[p] != room)
@@ -111,6 +145,7 @@ function mp_spec_tick()
         return;
     }
     global.mp_spec_was = 1;
+    mp_spec_mask(true);
     var tx = global.mp_pix[p];
     var ty = global.mp_piy[p];
     with (obj_mainchara)
