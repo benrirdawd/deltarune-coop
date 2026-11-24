@@ -217,9 +217,11 @@ function mp_test_tick()
         {
             global.flag[bn] += 1;
             global.mp_test_bumped += 1;
+            // (And an ordinary flag scanned in the same slice, before it: flag 1600 + my number = how far I am.)
+            global.flag[1600 + global.mp_myid] = global.mp_test_bumped;
         }
         if ((global.mp_frame mod 60) == 0)
-            mp_log("[test] bumpflag " + string(bn) + " = " + string(global.flag[bn]) + " (bumped " + string(global.mp_test_bumped) + ")");
+            mp_log("[test] bumpflag " + string(bn) + " = " + string(global.flag[bn]) + " (bumped " + string(global.mp_test_bumped) + ") flags 1600-1601 = " + string(global.flag[1600]) + "," + string(global.flag[1601]));
     }
     // bringat:<frame>: (host) bring everyone over.
     if (mp_test_arg("bringat") != "" && global.mp_frame == real(mp_test_arg("bringat")))

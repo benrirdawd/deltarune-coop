@@ -4,8 +4,16 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Code review: a counter sent in the middle of the flag message (2026-11-24)
 
-
+Found reviewing the code: when an ordinary flag and a counter flag changed in the same scan, the counter's
+message 83 was built in the same buffer the flag message was still being written to (`mp_begin` starts the
+buffer again), so the ordinary flag changes were lost and the end of the flag message went out as a second
+copy of the counter (counted twice). Counters are now collected and sent after the flag message. Also
+removed `mp_sync_follow` (never called). Test token `bumpflag` now also sets flag 1600 + the player's number
+in the same scan slice. Test, Chapter 5, flag 1905, 40 each, `chaos:10:120:60` (`work/fol/bump5`): both games
+ended with the counter at 80 and flags 1600-1601 at 40,40; mpcheck scene/music/world PASS. Release v18
+(`v1.1-dev-18`) was published before this fix; it goes in the next one.
 
 
 

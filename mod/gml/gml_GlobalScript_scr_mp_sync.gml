@@ -940,16 +940,6 @@ function mp_room_event_active()
 }
 
 // I am now playing the cutscene `from` leads, in my own game.
-function mp_sync_follow(from)
-{
-    global.mp_slead = from;
-    global.mp_sstate = 2;
-    global.mp_idle = 0;
-    global.mp_lead_done = 0;
-    global.mp_choice_seq = 0;
-    ds_map_clear(global.mp_choices);
-}
-
 function mp_close_local_dialogue()
 {
     with (obj_writer)

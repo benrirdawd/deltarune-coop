@@ -1401,6 +1401,7 @@ function mp_digest_recv(from, type, b, p)
 function mp_vars_send_changes(full)
 {
     var started = false;
+    var counters = []; // (sent after the flag message: mp_begin would wipe the one being built)
     for (var v = 0; v < global.mp_vcount; v++)
     {
         if (!mp_vars_valid(v))
@@ -1432,7 +1433,7 @@ function mp_vars_send_changes(full)
                     // once both count: as absolute values, the two "+1"s crossing would make one.
                     if (nm == "flag" && !full && is_real(val[i]) && is_real(sh[i]) && val[i] > sh[i] && mp_flag_counter(i))
                     {
-                        mp_send_counter(i, val[i] - sh[i]);
+                        array_push(counters, [i, val[i] - sh[i]]);
                         global.mp_vshadow[v][i] = val[i];
                         continue;
                     }
@@ -1481,6 +1482,8 @@ function mp_vars_send_changes(full)
         mp_wu8(255);
         mp_send();
     }
+    for (var c = 0; c < array_length(counters); c++)
+        mp_send_counter(counters[c][0], counters[c][1]);
 }
 
 // Applies shared-state changes that arrived while we were busy.
