@@ -270,6 +270,11 @@ mp_puz_switch_used();
 @prepend gml_Object_obj_ch3_PGS01B_eyepuzzle_switch_Other_10
 mp_puz_switch_used();
 
+;; Chapter 3 TV quizzes: a friend's right answer (the quiz's shared flag) finishes my TV too
+;; (scr_mp_teevie).
+@prepend gml_Object_obj_dw_ch3_teevie_quiz_controller_Step_0
+mp_tvquiz_follow();
+
 ;; Chapters 4 and 5: floor switches are held down by a friend standing on them too.
 #chapters 4,5
 @regex gml_Object_obj_floorswitch_Step_0

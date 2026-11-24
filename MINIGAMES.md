@@ -101,7 +101,8 @@ each real one).
 | 3 | Glowing tiles' hourglass | `obj_glowtilepuzz` | **Shared** (as in Chapter 1; not run separately). |
 | 3 | Board puzzles (ice, bridges, switches, blocks, the maze escape) | `obj_board_icepuzzle_*`, `obj_b2bridgepuzzle*`, `obj_board_*switch*`, `obj_b2d_mazeescape` | Own copy (each player plays their own board). |
 | 3 | Eye puzzle | `obj_ch3_PGS01B_eyepuzzle_switch` | Shared: Kris's switch pressed by anyone opens the bridge in every game (message 81). |
-| 3 | TV keyboard tiles, puzzle closets | `obj_dw_ch3_teevie_keyboard_tile`, `obj_puzzlecloset_manager` | Local, not looked at. |
+| 3 | TV quizzes (A/B floor tiles) | `obj_dw_ch3_teevie_quiz_controller`, `obj_dw_ch3_teevie_keyboard_tile` | Shared result: a friend's right answer finishes my TV (`scr_mp_teevie`); the quiz plays as a shared scene. |
+| 3 | Puzzle closets | `obj_puzzlecloset_manager` | Local, not looked at. |
 | 4 | Floor switches | `obj_floorswitch` | **Shared**: friends hold them down (a watcher doesn't). |
 | 4 | Bookshelf puzzle (remote pianos slide the shelves) | `obj_dw_church_bookshelfpuzzle`, `obj_bookshelf_moveable2x2`, `obj_dw_church_remote_piano` | **Shared**: each shelf follows its place flags (`scr_mp_shelf`). (`obj_dw_church_pushableshelf*` are only in test rooms.) |
 | 4 | Piano puzzle (the cage) | `obj_dw_church_pianopuzzle`, `obj_church_piano_playable` | **Shared**: solved by one player, solved in every game (flag 892). Each player plays their own piano. |

@@ -34,8 +34,9 @@ pull request, or ask on Discord (**b.001**).
    Left local after a look: the first mice room (`room_dw_city_mice`: its solve is plot 72, already
    shared, and the room's switch reads the plot every frame) and the shape puzzle (one player steers).
 7. **Done:** Chapter 3's couch-world eye puzzle: Kris's switch pressed by anyone opens the bridge in
-   every game (DONE.md). Not looked at yet: the TV keyboard tiles (`obj_dw_ch3_teevie_keyboard_tile`)
-   and the puzzle closets (`obj_puzzlecloset_manager`).
+   every game (DONE.md). The TV keyboard tiles are the TV quizzes' A/B answers: a friend's right
+   answer now finishes my TV too (DONE.md). Not looked at yet: the puzzle closets
+   (`obj_puzzlecloset_manager`).
 5. **Done:** Chapter 2 keyboard puzzles follow a friend's solve (DONE.md). Simplest choice: the solve
    is shared, not each key. Puzzles 2 and 3 only checked by reading the code (same path as puzzle 1).
 

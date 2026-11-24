@@ -4,6 +4,20 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 3 TV quizzes: answered by one, done for everyone (2026-11-24)
+
+* The TV quizzes (`obj_dw_ch3_teevie_quiz_controller`, `room_dw_teevie_large_02` and the maze):
+  walking up to the TV starts a quiz scene, answered on the A/B floor tiles
+  (`obj_dw_ch3_teevie_keyboard_tile`). A right answer sets the quiz's flag (1131, 1132..., shared)
+  and lowers the spikes. The quiz reads its flag only when the room is built, so after a friend's
+  quiz my TV still waited: walking up to it would start the same quiz again, with my spikes up.
+  Now when the flag arrives while my quiz waits, my TV is done as when you come back later (no
+  quiz, spikes down) (`mp_tvquiz_follow`, new `scr_mp_teevie`, Chapter 3 only).
+* Simplest choice: the result is shared. The quiz itself plays as a shared scene (lock and mirror).
+* Test, Chapter 3 `room_dw_teevie_large_02`, plot 100, both with `chaos:10:120:60`
+  (`work/fol/tvquiz`): the client set flag 1131; its quiz A and the host's (about 7 s later) went
+  from waiting (con 0) to done (con -1); quiz B (flag 1132) stayed waiting in both. No crash.
+
 ## Chapter 3 eye puzzle: Kris's switch pressed for everyone (2026-11-24)
 
 * `room_dw_couch_overworld_02`: Susie and Ralsei walk to their switches by themselves; Kris's switch
