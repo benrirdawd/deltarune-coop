@@ -100,10 +100,6 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Low priority / known small differences
 
-* On a bad network a player standing still can be missing from the others' screens for up to 1.5 s
-  when they arrive (their first position lost; positions of someone not moving are only resent every
-  1.5 s). Seen in the suits puzzle test with `chaos:10:120:60`.
-
 * Snowgrave route (Chapter 2): untested. It relies on Noelle-specific battle flow and flags, so expect
   oddities if players disagree. Possible fix: route choices follow whoever plays Noelle (or the host).
 * Light World Ralsei/Noelle have no Light World walk sprites; they use their Dark World ones.

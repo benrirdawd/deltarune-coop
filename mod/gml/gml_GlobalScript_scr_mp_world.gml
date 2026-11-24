@@ -20,6 +20,7 @@ function mp_world_init()
     global.mp_puz_remote = 0;   // running another player's switch press
     global.mp_puz_tile_objs = [asset_get_index("obj_glowtile"), asset_get_index("obj_blocktile")];
     global.mp_warp_delay = 0;
+    global.mp_pos_fast_until = 0;
     global.mp_fol_mask = 0;     // party followers drawn this frame, by the character shown
     global.mp_swap_prev = 1;
     global.mp_swap_fade = -1;       // [sprite, frame, x, y, xscale, yscale, start time]
@@ -524,7 +525,10 @@ function mp_send_pos(force, sock)
     for (var f = 0; f < nf; f++)
         fsig += "|" + string(fol[f][1]) + "," + string(floor(fol[f][2])) + "," + string(round(fol[f][3])) + "," + string(round(fol[f][4]));
     var sig = string(room) + "," + string(round(px)) + "," + string(round(py)) + "," + string(pspr) + "," + string(pimg) + "," + string(vis) + "," + string(mp_state_bits()) + fsig;
-    if (!force && sig == global.mp_pos_last && (current_time - global.mp_pos_time) < 1500)
+    // Standing still: sent again every 1.5 s, but every 250 ms for the first 3 s in a room or after
+    // someone joins (a lost first position would leave me missing from their screen until the next one).
+    var still_every = (global.mp_room_frames < 90 || current_time < global.mp_pos_fast_until) ? 250 : 1500;
+    if (!force && sig == global.mp_pos_last && (current_time - global.mp_pos_time) < still_every)
         return;
     global.mp_pos_last = sig;
     global.mp_pos_time = current_time;

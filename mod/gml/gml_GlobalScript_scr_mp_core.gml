@@ -498,6 +498,9 @@ function mp_handle(type, sender, b, sock, endpos)
         }
         mp_player_set(pid, conn, nm, chr);
         global.mp_ppick[pid] = pick;
+        // Someone new (or me, just joined): my position goes out often for a moment (mp_send_pos).
+        if (!was && conn)
+            global.mp_pos_fast_until = current_time + 3000;
         // (Players already in the session when we joined arrive right after WELCOME: no pop-up.)
         if (!was && conn && pid != global.mp_myid && global.mp_role == 2 && global.mp_linkstate == 3 && (current_time - global.mp_welcome_time) > 2000)
             mp_notify(nm + " joined!");

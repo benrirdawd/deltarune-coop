@@ -13,6 +13,16 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+## A player standing still shown right away on a bad network (2026-11-24)
+
+The position of a player who isn't moving is only sent again every 1.5 s, so on a bad network a lost first
+position left them missing from the others' screens for up to 1.5 s when they arrived or someone joined.
+Now it goes out every 250 ms for the first 3 s in a room and for 3 s after someone connects (both sides:
+the host when a player joins, the newcomer when it's in). Test: Chapter 1 `room_field_secret1` (plot 30),
+both standing still, `chaos:10:120:60`: before, the ghost check failed in all 4 runs (11-39 problems right
+after "P2 joined", `stillbase1-2`, `still1-2`); now it passes in all 3 (`still3-5`). ("moved" fails there
+only because nobody walks in this test.)
+
 ## Pulled into a fight, taken out by a door first (2026-11-24)
 
 In `room_dw_garden_aqua` 291 (chaos, `aqua9`, `aqua10`) the pulled player sometimes went through a door to
