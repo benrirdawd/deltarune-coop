@@ -7,8 +7,7 @@ pull request, or ask on Discord (**b.001**).
 ## Next features (user request, 2026-11-24), in this order
 
 1. **Done:** tests per chapter of joining mid-cutscene and coming back after a crash, see DONE.md.
-2. CONTRIBUTING.md: how to build, test, and where each thing is in the code (for helpers from the
-   coop-anything server).
+2. **Done:** CONTRIBUTING.md, see DONE.md.
 3. F9 button that zips multiplayer_log.txt and multiplayer_crash.txt onto the desktop, for bug reports.
 4. Short text chat in F9: quick messages ("wait", "come here", "I'm saving").
 5. Map ping: a key that shows the others an arrow pointing to where you are.

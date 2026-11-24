@@ -4,6 +4,15 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## CONTRIBUTING.md (2026-11-24)
+
+For helpers (the coop-anything server): what's needed, building (patcher, chapters, launcher), one
+targeted test with `mptest.sh` + `mpcheck.py`, the common test tokens, the ready-made scenarios, where
+each part of the code is, the hook file format, how messages are built and numbered (next free type 84,
+one message at a time, raise `mp_version` when a message changes), GML notes and what a bug report needs.
+Linked from the README's Contributing section. Checked against the code (function names, token formats,
+hook directives, log file names); no build needed (documentation only).
+
 ## Joining mid-cutscene and coming back after a crash, every chapter (2026-11-24)
 
 `tools/latejoin.sh` now has a crash scenario for each chapter (`ch1crash`, `ch3crash`, `ch4crash`,

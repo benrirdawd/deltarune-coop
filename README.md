@@ -344,7 +344,7 @@ a game crashes.
 ## Contributing
 
 Help is welcome: bug reports, play-testing, code. Open an issue or a pull request on
-[deltarune-coop](https://github.com/benrirdawd/deltarune-coop), or talk to me on Discord (**b.001**).
+[deltarune-coop](https://github.com/benrirdawd/deltarune-coop), or talk to me on Discord (**b.001**). How to build, test, and where each thing is in the code: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 What is planned and what is known to be broken is in [`TODO.md`](TODO.md); what is finished, and how it was tested, in [`DONE.md`](DONE.md). Building and testing are
 described in [Testing that was done](#testing-that-was-done) and `tools/` (`tools/build.sh` patches
 all five chapters, `tools/mptest.sh` runs two or more games against each other). A bug report helps
