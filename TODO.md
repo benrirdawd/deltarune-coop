@@ -28,8 +28,8 @@ pull request, or ask on Discord (**b.001**).
    local: Chapter 4's piano pieces rooms. They give the piano puzzle's hints (story flags, already
    shared) and slide shelves with a remote piano, whose places the piano writes itself (flags
    863-866), so the shelf follow doesn't cover them. Effort: S, if it matters in play.
-5. Chapter 2 keyboard puzzles (`obj_controller_keyboard_puzzle_1..3`): the same check (solve flag),
-   else share each key pressed. Effort: M.
+5. **Done:** Chapter 2 keyboard puzzles follow a friend's solve (DONE.md). Simplest choice: the solve
+   is shared, not each key. Puzzles 2 and 3 only checked by reading the code (same path as puzzle 1).
 
 ## Stage-changing scenes: everyone agrees first (later)
 

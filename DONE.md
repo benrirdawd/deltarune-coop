@@ -4,6 +4,23 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 2 keyboard puzzles: solved by one, solved for everyone (2026-11-24)
+
+* `room_dw_cyber_keyboard_puzzle_1..3`: typing the right word sets a story flag (390, 333, 420;
+  shared). The rooms' own controllers already watch those flags every frame, but the keyboard's
+  screen reads its flag only when the room is built, and puzzle 1's force field only goes while that
+  screen shows the win. So a friend's solve left my force field up. Now the screen follows the flag
+  the way it starts when you come back later: the right word, the win picture, force field gone
+  (`mp_kbpuzzle_follow`, `scr_mp_keyboard`, Chapter 2 only).
+* Simplest choice: the solve is shared, not each key.
+* New general test token `setflag:<n>=<v>@<f>` (sets a story flag at a room frame, as a friend's
+  game would); `logpuz` logs the keyboard room (`[MPKEYB]`).
+* Test, Chapter 2 `room_dw_cyber_keyboard_puzzle_1`, plot 60, both with `chaos:10:120:60`
+  (`work/fol/keyb1`): the client set flag 390; its screen showed the win and the force field went.
+  The host's flag arrived about 5 s later (chaos), and its screen and force field followed on the same
+  frame. No crash. Puzzles 2 and 3 were not run (same code path; their own controllers react to the
+  flag).
+
 ## Chapter 5 castle puzzles: solved by one, open for everyone (2026-11-24)
 
 * These rooms keep "solved" as a bit of a story flag. Story flags are shared, but the rooms read the

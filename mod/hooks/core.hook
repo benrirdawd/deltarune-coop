@@ -247,6 +247,11 @@ place_meeting\(x, y, obj_mainchara\)
 (place_meeting(x, y, obj_mainchara) || mp_puz_ghost_here())
 @end
 
+;; Chapter 2 keyboard puzzles: a friend's solve (shared flag) shows on my keyboard's screen too, and
+;; puzzle 1's force field goes (scr_mp_keyboard).
+@prepend gml_Object_obj_ch2_keyboardpuzzle_controller_Step_0
+mp_kbpuzzle_follow();
+
 ;; Chapter 3: the glowing tiles' hourglass (as in Chapter 1; the tiles themselves are pressed by the
 ;; others' figures in every chapter).
 #chapters 3
