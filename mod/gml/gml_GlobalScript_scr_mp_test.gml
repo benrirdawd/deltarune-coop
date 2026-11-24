@@ -58,6 +58,7 @@
 //   watchnext:<f>   while watching, switch to the next player at room frame f
 //   <name>/<token>  only for the player with that name (-mpname), e.g. P3/away:room_x:100
 //   logreading      log who the player list shows as "(reading)" every 30 frames
+//   fakever:<n>:<b> pretend to have network version n and build b (version check)
 //   reportzip       at frame 400, do F9 "Save logs for a bug report" into the save folder (not the desktop)
 //   menupage:<n>    with openmenu: pick C-menu entry n (0 items, 1 equipment, 3 power/status)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)
@@ -1028,7 +1029,7 @@ function mp_filelog_init()
             file_delete("multiplayer_log_prev.txt");
         file_rename("multiplayer_log.txt", "multiplayer_log_prev.txt");
     }
-    mp_log("session start: chapter " + string(__CHAPTER__) + ", " + date_datetime_string(date_current_datetime()) + ", mod protocol " + string(global.mp_version));
+    mp_log("session start: chapter " + string(__CHAPTER__) + ", " + date_datetime_string(date_current_datetime()) + ", mod build " + string(global.mp_build) + ", protocol " + string(global.mp_version));
 }
 
 function mp_filelog_flush()

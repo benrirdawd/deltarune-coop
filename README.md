@@ -347,7 +347,7 @@ a game crashes.
   state could still drift.
 * Remote players' text boxes advance on their own, so players can be a few seconds apart.
   The turn barrier brings everyone back together each turn.
-* Everyone must run the same chapter and the same mod version (checked on join).
+* Everyone must run the same chapter and the same mod version (checked on join: when they differ, each side's version is shown and who needs to update).
 * Not affiliated with Toby Fox or the DELTARUNE team. The patched game files are generated
   on your machine from your own copy of the game.
 

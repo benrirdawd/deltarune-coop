@@ -155,7 +155,8 @@ then `mp_send()`, and handled in `mp_handle` (`scr_mp_core`, `if (type == N)`; b
 players. The next free type is **86** (check with `grep -n "type == 86" mod/gml/*.gml`). Only one
 message can be built at a time: don't call anything that sends while you are in the middle of one
 (collect what to send and send it after). When you change what an existing message carries, raise
-`global.mp_version` (`scr_mp_core`): players on different versions can't join each other.
+`global.mp_version` (`scr_mp_core`): players on different versions can't join each other. Raise `global.mp_build` (same file) with
+each release: it is only shown, so players can see who has the older one.
 
 ### GML notes
 

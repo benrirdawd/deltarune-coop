@@ -6,6 +6,7 @@ function mp_init()
         return;
     global.mp_inited = 1;
     global.mp_version = 12;
+    global.mp_build = 19;   // the release's build number (DeltaruneOnline-v19.zip): raise it with each release
     global.mp_chapter = __CHAPTER__;
     global.mp_frame = 0;
     mp_filelog_init();
@@ -279,7 +280,20 @@ function mp_char_max()
 function mp_notify(text)
 {
     mp_log("[note] " + text);
-    ds_list_add(global.mp_notes, text);
+    // (Notes are one line each: a long one is split at spaces so it stays on screen.)
+    var rest = text;
+    while (string_length(rest) > 68)
+    {
+        var cut = 68;
+        while (cut > 30 && string_char_at(rest, cut) != " ")
+            cut -= 1;
+        if (cut <= 30)
+            cut = 68;
+        ds_list_add(global.mp_notes, string_copy(rest, 1, cut));
+        ds_list_add(global.mp_note_time, current_time);
+        rest = "  " + string_delete(rest, 1, cut);
+    }
+    ds_list_add(global.mp_notes, rest);
     ds_list_add(global.mp_note_time, current_time);
     while (ds_list_size(global.mp_notes) > 5)
     {
@@ -461,6 +475,15 @@ function mp_parse_cmdline()
             kept += (kept == "" ? "" : ",") + tk;
         }
         global.mp_test = kept;
+    }
+    // fakever:<network>:<build>: pretend to be another version (version check tests).
+    if (global.mp_test != "" && string_pos("fakever:", global.mp_test) > 0)
+    {
+        var fvs = string_split(string_copy(global.mp_test, string_pos("fakever:", global.mp_test) + 8, 20) + ",", ",");
+        var fp = string_split(fvs[0] + ":", ":");
+        global.mp_version = real(fp[0]);
+        if (fp[1] != "")
+            global.mp_build = real(fp[1]);
     }
 }
 

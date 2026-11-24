@@ -476,7 +476,7 @@ function mp_ui_help()
         "It uses about 8 KB/s for each person talking.",
         "",
         "== PLAYING ONLINE ==",
-        "Everyone needs the same version of this mod (the launcher keeps it updated). Network version: " + string(global.mp_version),
+        "Everyone needs the same version of this mod (the launcher keeps it updated). This is build " + string(global.mp_build) + " (network " + string(global.mp_version) + ").",
         "The host chooses 'Host a game', and needs UDP port " + string(global.mp_cfg_port) + " open.",
         "Everyone else enters the host's address under 'Host address', then Join.",
         "No router access? Use Radmin VPN, ZeroTier or Tailscale and the host's address there.",

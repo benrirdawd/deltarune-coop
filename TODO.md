@@ -14,7 +14,7 @@ pull request, or ask on Discord (**b.001**).
    a player who is off screen (the same drawing, turned); and if someone sets the voice talk key to F5,
    pressing it also pings.
 6. **Done:** spectator jumps between players; "(reading)" in the player list, see DONE.md.
-7. Clearer version check on joining: show each side's version when they don't match.
+7. **Done:** clearer version check on joining (each side's build and network version), see DONE.md.
 
 ## Stage-changing scenes: everyone agrees first (later)
 

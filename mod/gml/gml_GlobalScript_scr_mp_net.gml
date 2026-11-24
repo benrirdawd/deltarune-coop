@@ -144,6 +144,7 @@ function mp_join(ip, port)
     mp_wu8(global.mp_chapter);
     mp_wstr(global.mp_cfg_name);
     mp_wu8(global.mp_cfg_char);
+    mp_wu16(global.mp_build);   // (since build 19; older hosts don't read it)
     mp_send_to(global.mp_hub);
     mp_notify(ip == "steam" ? "Connecting to the host over Steam ..." : "Contacting " + ip + ":" + string(port) + " ...");
     return 1;
@@ -728,9 +729,14 @@ function mp_handle_link(type, sender, b, p, endpos = -1)
         var ch = buffer_read(b, buffer_u8);
         var nm = buffer_read(b, buffer_string);
         var chr = buffer_read(b, buffer_u8);
+        // (Build 19 on: the joiner's release build. Unknown for older ones: older than 19.)
+        var bld = (magic == "DRMP" && (endpos < 0 || buffer_tell(b) < endpos)) ? buffer_read(b, buffer_u16) : 0;
         var err = "";
         if (magic != "DRMP" || ver != global.mp_version)
-            err = "Mod version mismatch (host v" + string(global.mp_version) + ", you v" + string(ver) + ")";
+        {
+            err = mp_version_text(bld, ver);
+            mp_notify(nm + " couldn't join: " + (bld > 0 ? "build " + string(bld) : "an older build") + ", you have build " + string(global.mp_build) + ".");
+        }
         else if (ch != global.mp_chapter)
             err = "Host is playing Chapter " + string(global.mp_chapter) + ". Open that chapter to join.";
         var pid = -1;
@@ -1069,4 +1075,15 @@ function mp_migrate_accept()
     mp_host_start(global.mp_cfg_port);
     if (global.mp_role != 1)
         global.mp_mig_next = mg;
+}
+
+// The refusal a joiner with another version gets (written by the host, so any version shows it):
+// both builds, and who should update.
+function mp_version_text(bld, ver)
+{
+    var mine = "build " + string(global.mp_build) + " (network " + string(global.mp_version) + ")";
+    var theirs = (bld > 0 ? "build " + string(bld) : "an older build") + " (network " + string(ver) + ")";
+    var older_you = (bld > 0) ? (bld < global.mp_build) : (ver < global.mp_version);
+    return "Different versions: the host has " + mine + ", you have " + theirs + ". "
+        + (older_you ? "Update yours: open the DELTARUNE Online launcher, it installs the new version." : "The host needs to update: they open the DELTARUNE Online launcher.");
 }

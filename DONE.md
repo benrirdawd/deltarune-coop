@@ -4,6 +4,21 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Clearer version check on joining (2026-11-24)
+
+* HELLO now also carries the mod's build number (`global.mp_build`, raised with each release; 19 now)
+  after the network version. When they don't match, the joining player reads "Different versions: the
+  host has build 19 (network 12), you have build 18 (network 11)" and who must update ("Update yours:
+  open the DELTARUNE Online launcher..." or "The host needs to update..."); the host sees "P2 couldn't
+  join: build 18, you have build 19". An older mod that sends no build is shown as "an older build"
+  (`mp_version_text` in `scr_mp_net`). Simplest choice: only the network version decides who may join,
+  as before; the build number is only shown.
+* Long notifications now wrap at 68 characters (`mp_notify`), so the message fits on screen.
+* Test token `fakever:<network>:<build>` pretends to be another version. Tests, Chapter 5, with
+  `chaos:10:120:60`: `ver_old` (client `fakever:11:18`: client told to update, host note), `ver_new`
+  (client newer: told the host must update), `ver_same` (joins, "P2 joined!"), `ver_old2` (screenshot:
+  the wrapped note fits on screen). All in `work/fol/ver_*`.
+
 ## Spectator jumps between players; who is reading (2026-11-24)
 
 * Watching (F9 "Watch") already switched players with left/right; now tested with three players in two
