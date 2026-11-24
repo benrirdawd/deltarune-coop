@@ -39,7 +39,9 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
 
 * **Pick a party member.** Each player plays as Kris, Susie, Ralsei or (Chapter 2+) Noelle.
   Your character is what you walk around as, and in battle you choose that character's
-  actions (FIGHT / ACT / MAGIC / ITEM / SPARE / DEFEND) and press for their attacks.
+  actions (FIGHT / ACT / MAGIC / ITEM / SPARE / DEFEND) and press for their attacks. An ACT
+  with its own little game (Maus' baskets, Tasque Manager's quiz, Chapter 5's scissors...) is
+  played by that hero's player; the others see it and get the same result.
 * **Everyone dodges.** In the bullet phase every player controls their own SOUL. A hit only
   hurts the character *you* play. If all of your characters are down, hits do nothing.
   Your grazes add to the shared TP bar.
@@ -65,8 +67,10 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   someone who joins later finds the blocks where they were left), switches and buttons are
   pressed for everyone (Chapter 1's eye switches and suits puzzles, Chapter 2's traffic lights,
   the glowing tiles' hourglass), and a friend standing on a glowing tile or a floor switch
-  counts in your game (so two players can hold two switches). Hazards like the checker paths stay
-  each player's own.
+  counts in your game (so two players can hold two switches). A puzzle someone solves is solved
+  for everyone: Chapter 4's bookshelves (a shelf slid with a piano slides in every game) and the
+  piano cage, Chapter 5's terracotta statues and orange door. Hazards like the checker paths stay
+  each player's own. The full list is in [`MINIGAMES.md`](MINIGAMES.md).
 * **Shared progress.** Story flags, items, gold, equipment and HP are kept in sync. The host's
   world is the shared one. Counters (enemies defeated, people talked to) add up when two
   players count at the same time. The party menu (C) names your character in Kris's place.
