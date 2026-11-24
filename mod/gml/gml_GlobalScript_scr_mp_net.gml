@@ -106,6 +106,8 @@ function mp_host_start(port, steam = false)
     global.mp_role = 1;
     global.mp_linkstate = 3;
     global.mp_myid = 0;
+    global.mp_mig = global.mp_mig_next;
+    global.mp_mig_next = 0;
     global.mp_seed = (current_time * 7919 + get_timer()) mod 1000000007;
     mp_players_clear();
     mp_player_set(0, 1, global.mp_cfg_name, global.mp_cfg_char);
@@ -131,6 +133,8 @@ function mp_join(ip, port)
     global.mp_linkstate = 2;
     global.mp_join_ip = ip;
     global.mp_join_port = port;
+    global.mp_sess_steam = "";
+    global.mp_sess_mig = 0;
     global.mp_connect_time = current_time;
     global.mp_hub = mp_peer_new(ip, port);
     global.mp_hub.pid = 0;
@@ -704,7 +708,7 @@ function mp_host_drop(p, why)
 // ---------------------------------------------------------------- link-level handlers
 
 // Returns true if the message was a link-level message (handled here).
-function mp_handle_link(type, sender, b, p)
+function mp_handle_link(type, sender, b, p, endpos = -1)
 {
     if (type == 1 && global.mp_role == 1) // HELLO
     {
@@ -851,6 +855,12 @@ function mp_handle_link(type, sender, b, p)
             if (pid8 < 8)
                 global.mp_paddr[pid8] = ip8;
         }
+        // (Since 2026-11-24: the session's Steam code and host-change count, for a new host.)
+        if (endpos < 0 || buffer_tell(b) < endpos)
+        {
+            global.mp_sess_steam = buffer_read(b, buffer_string);
+            global.mp_sess_mig = buffer_read(b, buffer_u8);
+        }
         return true;
     }
     return type < 8 && type != 3;
@@ -947,6 +957,8 @@ function mp_send_addresses()
         mp_wu8(list[i][0]);
         mp_wstr(list[i][1]);
     }
+    mp_wstr(variable_global_exists("mp_steam_code") ? global.mp_steam_code : "");
+    mp_wu8(min(global.mp_mig, 255));
     mp_send();
 }
 
@@ -969,7 +981,13 @@ function mp_migrate_prepare()
     global.mp_migrate_name = mp >= 0 ? global.mp_pname[mp] : "";
     global.mp_migrate_ip = mp >= 0 ? global.mp_paddr[mp] : "";
     global.mp_migrate_port = global.mp_join_port;
-    global.mp_migrate_steam = global.mp_join_ip == "steam" && mp_steam_on() ? global.mp_steam_joined : "";
+    // (The session's Steam code: the new host opens a Steam lobby with it too, whether they
+    // joined over Steam or by IP, so both kinds of players find them.)
+    global.mp_migrate_via_steam = global.mp_join_ip == "steam" && mp_steam_on();
+    global.mp_migrate_steam = global.mp_sess_steam;
+    if (global.mp_migrate_steam == "" && global.mp_migrate_via_steam)
+        global.mp_migrate_steam = global.mp_steam_joined;
+    global.mp_mig_next = min(global.mp_sess_mig + 1, 255);
     global.mp_migrate_me = mp >= 0 && mp == global.mp_myid;
     // (Only if someone else is left to play with.)
     var others = 0;
@@ -997,9 +1015,12 @@ function mp_migrate_start()
     }
     global.mp_migrate_to = global.mp_migrate_name;
     mp_notify("The host left. Waiting for " + global.mp_migrate_name + " to become the host...");
-    if (global.mp_migrate_steam != "")
+    if (global.mp_migrate_via_steam && global.mp_migrate_steam != "")
     {
         mp_steam_globals();
+        // (Only the new host's lobby: the old one, with the same code, may still be there.)
+        global.mp_steam_want_mig = global.mp_mig_next;
+        global.mp_mig_next = 0;
         // (Looked for as long as the new host's "Become the host" offer stays open: 2 minutes.)
         global.mp_steam_retries = 40;
         mp_steam_join_code(global.mp_migrate_steam);
@@ -1027,13 +1048,22 @@ function mp_migrate_offer_on()
 function mp_migrate_accept()
 {
     global.mp_migrate_offer = 0;
+    global.mp_cfg_port = global.mp_migrate_port;
+    // On Steam and UDP both (on the same port as before) when the session was on Steam and Steam
+    // starts here; else UDP only.
     if (global.mp_migrate_steam != "")
     {
         mp_steam_globals();
-        global.mp_steam_want = global.mp_migrate_steam;
-        mp_steam_host();
-        return;
+        if (mp_steam_start())
+        {
+            global.mp_steam_want = global.mp_migrate_steam;
+            mp_steam_host();
+            if (global.mp_role == 1)
+                return;
+        }
     }
-    global.mp_cfg_port = global.mp_migrate_port;
+    var mg = global.mp_mig_next;
     mp_host_start(global.mp_cfg_port);
+    if (global.mp_role != 1)
+        global.mp_mig_next = mg;
 }

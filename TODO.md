@@ -46,11 +46,8 @@ changing the room for everyone.
 
 ## Left from the code review (2026-11-23)
 
-* Steam + UDP in one session: when the host leaves, a new host who joined by IP opens only UDP, and the
-  Steam players look for a lobby that never comes (the other way round now shows a message). Fix: a new
-  host on Steam whenever Steam is up, plus UDP.
-* After migration a client can land in the old Steam lobby (the other clients are still in it, with the
-  same code). Fix: a migration counter (or the new host's Steam id) in the lobby data, checked on join.
+* Host change in a session with both Steam and IP players, and the old-lobby check (done 2026-11-24,
+  see DONE.md): only the IP side could be run here. Re-test with two Steam accounts.
 * Re-test the Steam session fixes with two real Steam accounts.
 
 ## Needs information from a player

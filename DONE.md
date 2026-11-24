@@ -4,6 +4,14 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+
+## Host change: Steam and IP together (2026-11-24)
+
+| Problem | Fix | Test |
+|---|---|---|
+| A new host who had joined by IP opened only UDP, so the Steam players looked for a lobby that never came. | The host now sends the session's Steam code with the address list (message 8, added at the end; older versions ignore it). The new host opens a Steam lobby with that code whenever Steam starts on their PC, plus UDP on the same port as before; without Steam, UDP only. IP players still reconnect by IP, Steam players by code. | IP side **tested**, 3 players, Chapter 2 (`leaveat:900`, `autohost`): the host left, the next player hosted, the third reconnected in ~3 s; the same with `chaos:10:120:60` (the goodbye was lost for one player, who noticed after 10 s and took over). **Not testable here:** the Steam side (one Steam account). |
+| After a host change a Steam player could land in the old lobby (still there with the same code). | A host-change count: sent in message 8 and set on the lobby as `drm_mig`. A player looking for the new host leaves a lobby with a lower count and looks again (up to 40 times, 3 s apart). Simplest choice: a count instead of the new host's Steam id (an IP player doesn't know it). | Built; Steam side not testable here. |
+
 ## Game Over: whoever continues first continues for everyone (2026-11-24)
 
 * Continuing from the Game Over screen (`mp_gameover_continued`, from `scr_load`, or seen on the

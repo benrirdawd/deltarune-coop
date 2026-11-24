@@ -143,6 +143,7 @@ function mp_ui_input()
             if (rows[global.mp_ui_edit] == "steam_code" && t != "")
             {
                 global.mp_ui_open = 0;
+                global.mp_steam_want_mig = 0;
                 mp_steam_join_code(t);
             }
             mp_config_save();

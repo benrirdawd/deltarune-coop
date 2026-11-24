@@ -19,6 +19,7 @@ function mp_steam_globals()
     global.mp_steam_retries = 0;    // look for the code again when it isn't found (next chapter)
     global.mp_steam_retry_at = 0;
     global.mp_steam_retry_code = "";
+    global.mp_steam_want_mig = 0;   // (after a host change) only a lobby with this count or newer
 }
 
 // Starts Steam the first time it is needed; false (and says why) when it can't.
@@ -95,6 +96,7 @@ function mp_steam_join_lobby(lobby, who)
         return;
     mp_disconnect("");
     global.mp_steam_code = "";
+    global.mp_steam_want_mig = 0;
     drs_join_lobby(lobby);
     mp_notify("Joining " + who + " on Steam...");
 }
@@ -142,6 +144,7 @@ function mp_steam_tick()
                 drs_lobby_set("drm_online", "1");
                 drs_lobby_set("drm_code", global.mp_steam_code);
                 drs_lobby_set("drm_chapter", string(global.mp_chapter));
+                drs_lobby_set("drm_mig", string(global.mp_mig));
                 mp_notify("Hosting on Steam. Code: " + global.mp_steam_code + "  (friends can also join from the F9 menu)");
                 break;
             case "host_failed":
@@ -150,6 +153,26 @@ function mp_steam_tick()
                 break;
             case "joined":
                 // In the host's lobby: now the game's own join, to the host's Steam peer.
+                // (After a host change: the old host's lobby, still there with the same code, is
+                // left again, and the code looked for once more.)
+                var lm = string_digits(drs_lobby_get("drm_mig"));
+                if (global.mp_steam_want_mig > 0 && (lm == "" ? 0 : real(lm)) < global.mp_steam_want_mig)
+                {
+                    mp_log("steam: old lobby (host change " + lm + "), looking again");
+                    drs_leave();
+                    if (global.mp_steam_retries > 0)
+                    {
+                        global.mp_steam_retries -= 1;
+                        global.mp_steam_retry_at = current_time + 3000;
+                    }
+                    else
+                    {
+                        global.mp_steam_want_mig = 0;
+                        mp_notify("The new host's Steam game wasn't found: ask them for the code (F9).");
+                    }
+                    break;
+                }
+                global.mp_steam_want_mig = 0;
                 global.mp_steam_retries = 0;
                 global.mp_steam_joined = drs_lobby_get("drm_code");
                 global.mp_join_retries = 0;
@@ -165,6 +188,7 @@ function mp_steam_tick()
                     global.mp_steam_retry_at = current_time + 3000;
                     break;
                 }
+                global.mp_steam_want_mig = 0;
                 mp_notify("No Steam game with that code. Check it, and that the host is still hosting.");
                 break;
             case "join_request":

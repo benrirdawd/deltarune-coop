@@ -69,6 +69,11 @@ function mp_init()
     global.mp_migrate_me = false;
     global.mp_migrate_offer = 0;
     global.mp_migrate_to = "";
+    global.mp_migrate_via_steam = false;
+    global.mp_sess_steam = "";        // (client) the session's Steam code, "" if it isn't on Steam
+    global.mp_sess_mig = 0;           // (client) how many times the session changed host
+    global.mp_mig = 0;                // (host) the same, for my session
+    global.mp_mig_next = 0;           // the count the next session I host starts with
     global.mp_resume_done = 0;
     mp_parse_cmdline();
     mp_resume_load();
@@ -462,7 +467,7 @@ function mp_on_session_end()
 
 function mp_handle(type, sender, b, sock, endpos)
 {
-    if (mp_handle_link(type, sender, b, sock))
+    if (mp_handle_link(type, sender, b, sock, endpos))
         return;
     if (type == 3) // PINFO
     {
@@ -640,6 +645,7 @@ function mp_after_input()
             mp_steam_globals();
             // (The host's game may still be starting its chapter: look again for a while.)
             global.mp_steam_retries = 20;
+            global.mp_steam_want_mig = 0;
             mp_steam_join_code(global.mp_resume_code);
         }
         else
