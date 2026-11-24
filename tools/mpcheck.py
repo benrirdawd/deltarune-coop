@@ -132,10 +132,14 @@ def main():
     counts = defaultdict(int)
     for pid, P in players.items():
         nm = P["name"]
+        prev_want = None
         for s in P["s"]:
             free = FREE(s) and (s["x"] != -1 or s.get("plat") == "1")
-            # char
-            if free and s["vis"] == "1" and s.get("plat") != "1":
+            # char (not in the sample where the character was just changed: the sprite follows a
+            # frame later)
+            just_changed = prev_want is not None and prev_want != s["want"]
+            prev_want = s["want"]
+            if free and s["vis"] == "1" and s.get("plat") != "1" and not just_changed:
                 counts["char"] += 1
                 if s["drawn"] != s["want"]:
                     fails["char"].append(f"{nm} t={s['wc']:.1f} {s['room']}: wants {s['want']} but drawn as {s['drawn']} ({s['spr']})")

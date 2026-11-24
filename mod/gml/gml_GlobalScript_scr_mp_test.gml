@@ -20,6 +20,7 @@
 //   gotohost:<n>    press the "go to the other player" action n frames after the party setup
 //   nododge         bot: don't dodge in the bullet phase (heroes go down)
 //   battleat:<n>    with battle: start the encounter n frames after arriving (default 120)
+//   charto:<c>@<f> change my character to c (1-4) at session frame f, as F9 "Play as" does
 //   song:<file>     play this song after the party setup (music sync tests)
 //   mashevery:<n>   mash presses Z every n frames (default 10); mashfrom:<n> only after n frames in the room
 //   stuck:<n>       fake a stuck sync state n frames after the party setup (F8 must free it)
@@ -397,6 +398,14 @@ function mp_test_tick()
         var a = mp_num(iv);
         var r = real(iv);
         show_debug_message("[NUMTEST] raw " + typeof(iv) + " " + string(iv / 90) + " | mp_num " + typeof(a) + " " + string(a / 90) + " " + string(a) + " | real() " + typeof(r) + " " + string(r / 90));
+    }
+    // charto:<c>@<frame>: change my character to c (1-4) then, as with F9 "Play as".
+    if (mp_test_arg("charto") != "" && mp_on())
+    {
+        var cto = mp_test_arg("charto");
+        var cat = string_pos("@", cto);
+        if (cat > 0 && global.mp_frame == real(string_copy(cto, cat + 1, 9)))
+            mp_char_change(real(string_copy(cto, 1, cat - 1)));
     }
     if (mp_test_has("crashtest") && global.mp_test_timer == 100)
         show_debug_message(real(global.mp_test));

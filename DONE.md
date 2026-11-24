@@ -8,6 +8,13 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+
+## Changing character mid-session (2026-11-24)
+
+| Problem | Fix | Test |
+|---|---|---|
+| Changing character through F9 during a session was never tested. | The F9 code moved into `mp_char_change(c)` (also used by the new test token `charto:<c>@<frame>`). `mpcheck.py`: the "char" check skips the one sample taken in the frame of a change (the sprite follows a frame later). | **Tested**, Chapter 2, 2 players, 20x: the client (Susie) changed to Ralsei at frame 600; its own figure and the host's ghost of it became Ralsei, and the host's fight a little later was Kris + Ralsei with the client playing Ralsei. Every check passed. With `chaos:10:120:60` the same, except "host not shown" for about 0.5 s right after joining, before the change (the known slow first position on a bad network, TODO.md low priority). |
+
 ## Chapter 4 church, plot 289: no error any more (2026-11-24)
 
 | Problem | Fix | Test |

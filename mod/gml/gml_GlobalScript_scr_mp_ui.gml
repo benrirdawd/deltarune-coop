@@ -180,17 +180,7 @@ function mp_ui_input()
         var d = 1;
         if (global.input_pressed[3])
             d = -1;
-        global.mp_cfg_char = ((global.mp_cfg_char - 1 + d + mp_char_max()) mod mp_char_max()) + 1;
-        mp_config_save();
-        if (mp_on())
-        {
-            mp_pick_note(global.mp_myid, global.mp_cfg_char);
-            global.mp_pchar[global.mp_myid] = global.mp_cfg_char;
-            mp_send_pinfo(global.mp_myid);
-            var taken = mp_char_player_other(global.mp_cfg_char);
-            if (taken >= 0)
-                mp_notify(global.mp_pname[taken] + " already plays " + mp_char_name(global.mp_cfg_char) + ": you'll watch them in fights, and take over if they change or leave.");
-        }
+        mp_char_change(((global.mp_cfg_char - 1 + d + mp_char_max()) mod mp_char_max()) + 1);
     }
     if (row == "story" && (global.input_pressed[1] || global.input_pressed[3]))
     {
@@ -343,6 +333,23 @@ function mp_ui_test_off()
 }
 
 // Left and right on a settings row.
+// F9 "Play as" (or the test's charto): my character, now and in the settings, told to everyone.
+function mp_char_change(c)
+{
+    global.mp_cfg_char = c;
+    mp_config_save();
+    if (mp_on())
+    {
+        mp_pick_note(global.mp_myid, global.mp_cfg_char);
+        global.mp_pchar[global.mp_myid] = global.mp_cfg_char;
+        mp_send_pinfo(global.mp_myid);
+        mp_log("character changed to " + mp_char_name(c));
+        var taken = mp_char_player_other(global.mp_cfg_char);
+        if (taken >= 0)
+            mp_notify(global.mp_pname[taken] + " already plays " + mp_char_name(global.mp_cfg_char) + ": you'll watch them in fights, and take over if they change or leave.");
+    }
+}
+
 function mp_ui_adjust(row, d)
 {
     switch (row)

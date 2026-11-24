@@ -92,8 +92,6 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Not looked at yet
 
-* Changing character mid-session through F9 (picking it before joining, at the file select or in game,
-  is covered by `tools/flow.py`).
 * Joining while the host is in a battle (joining from the file select and mid-cutscene are covered).
 * Rooms where the game hides or repositions followers (Light World followers in Chapter 4 are covered).
 * More `interact` cases in later chapters (save points, shops, the C menu are Z-triggered and local;
