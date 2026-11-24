@@ -13,6 +13,16 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+## Story fight "deadlock" on a bad network: a test artifact (2026-11-24)
+
+The stuck `room_dw_garden_aqua` 291 fight with `chaos:10:120:60` (`work/fol/aqua5`) was the test: both games
+ran `mash`, which doesn't press keys inside battles, so the leader sat in Kris's menu and the late pulled
+player waited for the next turn, as designed (a player who arrives after turn 0 was released enters at the
+next TURN_GO). Re-run with `bot` (`work/fol/aqua6`, chaos): turns 0 and 1 played in both fights, a Game Over
+and Continue, no crash, char/follower/sync/battle checks pass. The `mash` doc now says to add `bot` for
+battles. Seen: a pulled player whose pull arrives after the fight already ended keeps the pre-fight text and
+song for ~7 s until "the fight I was called to is gone" (one music-check hit); noted in TODO, low priority.
+
 ## Story fight party changed back by the room (2026-11-24)
 
 | Problem | Fix | Test |

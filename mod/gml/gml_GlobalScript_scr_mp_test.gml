@@ -8,7 +8,7 @@
 //   log             log battle state every turn
 //   check           log a self-check line twice a second (character drawn, followers drawn,
 //                   other players' positions, shared state hash, sync state) for tools/mpcheck.py
-//   mash            press Z through title screens, menus and cutscenes (real game start)
+//   mash            press Z through title screens, menus and cutscenes (real game start; not in battles: add bot)
 //   wander          walk around randomly in free roam
 //   partyat:<n>     do `party` after n frames (default 60)
 //   walk:<d>:<t>:<n>  hold direction d (l/r/u/d) for n frames, t frames after arriving
