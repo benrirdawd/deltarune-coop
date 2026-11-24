@@ -53,12 +53,18 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   the text pages for everyone once they've finished typing on every screen. One shared
   cutscene at a time: the host gives the go, and a cutscene waits while someone is in a fight.
   When the host is in the cutscene, the host answers its questions. Talking to an NPC on your
-  own shows the text in a bubble over you on everyone's screen.
+  own shows the text in a bubble over you on everyone's screen. When a cutscene you were
+  pulled into ends where it began, you go back to where you were; one that moves the story
+  somewhere else (another room, the other world) takes everyone along.
 * **Joining mid-story.** Someone who joins (or comes back after a crash) while a cutscene is on
   watches it with the others. In Chapter 1's opening the vessel is the host's: a client skips
   its own (or waits on a "the host is creating the vessel" screen) and goes to the host.
-* **Puzzles together** (Chapter 1 so far). A block pushed by anyone moves in everyone's game,
-  switches are pressed for everyone, and a friend standing on a glowing tile counts in your game.
+* **Puzzles together.** A block pushed by anyone moves in everyone's game (Chapters 1 and 5;
+  someone who joins later finds the blocks where they were left), switches and buttons are
+  pressed for everyone (Chapter 1's eye switches and suits puzzles, Chapter 2's traffic lights,
+  the glowing tiles' hourglass), and a friend standing on a glowing tile or a floor switch
+  counts in your game (so two players can hold two switches). Hazards like the checker paths stay
+  each player's own.
 * **Shared progress.** Story flags, items, gold, equipment and HP are kept in sync. The host's
   world is the shared one. The party menu (C) names your character in Kris's place.
 * **Built for bad connections.** It uses UDP with its own reliability layer: position updates
@@ -197,7 +203,7 @@ video or state.
 |---|---|
 | Walking around | Your room, position and current sprite, ~10×/s and only when they change (unreliable, latest wins). Others draw you as a smoothly interpolated "ghost". |
 | Story state | `plot`, flags (≥60), items, key items, equipment, gold, party, HP/stats. Changes are scanned every 2 frames and sent as small deltas. The full state goes out once on join. A player who loads a save re-fetches the host's state, and a host who loads pushes theirs to everyone. |
-| Cutscene | If `global.interact` goes non-zero without the player pressing Z on something (or a door hands straight over to it), it may be a story cutscene. It counts once a new cutscene controller appears or the story progresses within 20 frames, or if it lasts over 4 s (so "you can't go that way" messages don't pull anyone). The others mirror it (`scr_mp_mirror`): they go to its room, whose instances are switched off so its own copy of the scene never runs, and draw the sprites the leader's game has on screen, sent every frame in drawing order with the camera (what each object draws is worked out by the patcher from its Draw event, `patcher/MirrorInfo.cs`). The leader's text boxes open as real text boxes in their games (same face, font and typing sound), the leader's sounds and music play, and choice boxes show the leader's answer. The leader turns the pages for everyone, once the page has finished typing on every screen (at most 15 s). At the end everyone is moved to where the leader ended up and their room is built again with the story changes. A player busy with their own cutscene joins afterwards if the other one is still going; pulls from earlier in the story than you are are ignored. Your character's look fades into the story's party when a cutscene starts. |
+| Cutscene | If `global.interact` goes non-zero without the player pressing Z on something (or a door hands straight over to it), it may be a story cutscene. It counts once a new cutscene controller appears or the story progresses within 20 frames, or if it lasts over 4 s (so "you can't go that way" messages don't pull anyone). The others mirror it (`scr_mp_mirror`): they go to its room, whose instances are switched off so its own copy of the scene never runs, and draw the sprites the leader's game has on screen, sent every frame in drawing order with the camera (what each object draws is worked out by the patcher from its Draw event, `patcher/MirrorInfo.cs`). The leader's text boxes open as real text boxes in their games (same face, font and typing sound), the leader's sounds and music play, and choice boxes show the leader's answer. The leader turns the pages for everyone, once the page has finished typing on every screen (at most 15 s). At the end, if the scene ended in the room it began in (and the same world), everyone goes back to where they were pulled from; otherwise they are moved to where the leader ended up. Their room is built again with the story changes. A player busy with their own cutscene joins afterwards if the other one is still going; pulls from earlier in the story than you are are ignored. Your character's look fades into the story's party when a cutscene starts. |
 | Battle start | The initiator's encounter number is sent. Others start the same encounter (same music and "!" intro, same party) through an invisible `obj_testoverworldenemy`. Players busy in their own cutscene join after it ends. Late joiners enter at the start of the next turn. |
 | Battle menu | The player who owns the character whose turn it is drives the menu. Their button presses, with the original frame spacing (at least 5 frames apart, so a press the menu would ignore as too early is never accepted in someone else's replay), are replayed in everyone's game, so every game's menu state machine (TP, items, ACT partners, going back with X) stays identical. |
 | Attack timing | Each player presses only for their own character's bolts. Results are shared, and remote bolts wait for their owner's result. Damage is computed identically from the points. |

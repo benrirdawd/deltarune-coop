@@ -29,8 +29,8 @@ changing the room for everyone.
   see DONE.md. Still local, one by one if they matter in play: Chapter 4's bookshelf
   (`obj_dw_church_bookshelfpuzzle`), piano, ripple and train-track puzzles; Chapter 5's castle puzzles
   (`obj_dw_fcastle_*_puzzle`, the terracotta one); Chapter 2's mice and keyboard puzzles.
-* A switch pressed or a block pushed before another player connected isn't known to them (only
-  players already connected hear it).
+* A switch pressed before another player connected isn't known to them (switches have no lasting
+  state to send; blocks are sent to newcomers since 2026-11-24).
 * Two players pushing the same block at the same moment: today each game plays both pushes in the
   order it hears them (simplest; the games could disagree if one push is blocked in one game only).
   If it shows up in play: the host's order wins, the other push is undone.

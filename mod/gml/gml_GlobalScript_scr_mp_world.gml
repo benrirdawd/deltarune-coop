@@ -1540,6 +1540,8 @@ function mp_vars_send_full(sock, repair = false)
     }
     mp_wu8(255);
     mp_vars_send_chunk(sock);
+    if (!repair)
+        mp_puz_send_all(sock);
 }
 
 function mp_vars_send_chunk(sock)
@@ -2173,8 +2175,11 @@ function mp_puz_recv(sender, b)
             x = sx;
             y = sy;
             movecourse = 0;
-            mp_rmove = 5;
-            mp_rdir = dir;
+            if (dir < 4)
+            {
+                mp_rmove = 5;
+                mp_rdir = dir;
+            }
         }
     }
     mp_log("puzzle: player " + string(sender) + " pushed the block from " + string(xs) + "," + string(ys));
@@ -2187,6 +2192,30 @@ function mp_puz_block_obj()
     if (bo < 0)
         bo = asset_get_index("obj_pushable_block");
     return bo;
+}
+
+// The host, to someone who just joined (with the shared state): where the blocks of the rooms that
+// players are in were left (message 80 with direction 255: put there, no push).
+function mp_puz_send_all(sock)
+{
+    var ks = variable_struct_get_names(global.mp_puz);
+    for (var i = 0; i < array_length(ks); i++)
+    {
+        var parts = string_split(ks[i], ":");
+        var p = variable_struct_get(global.mp_puz, ks[i]);
+        if (array_length(parts) != 3 || !is_array(p))
+            continue;
+        mp_begin(80);
+        mp_wu16(real(parts[0]));
+        mp_ws16(real(parts[1]));
+        mp_ws16(real(parts[2]));
+        mp_ws16(p[0]);
+        mp_ws16(p[1]);
+        mp_wu8(255);
+        mp_vars_send_chunk(sock);
+    }
+    if (array_length(ks) > 0)
+        mp_log("puzzle: sent " + string(array_length(ks)) + " block places to a newcomer");
 }
 
 // Prepended to the pushable block's Step: another player's push, played here.
@@ -2219,6 +2248,13 @@ function mp_puz_block_create()
 
 function mp_puz_forget_tick()
 {
+    // (Not while someone's room isn't known yet: a newcomer gets the block places before it hears
+    // where everyone is.)
+    for (var q = 0; q < 8; q++)
+    {
+        if (q != global.mp_myid && global.mp_pconn[q] && global.mp_proom[q] < 0)
+            return;
+    }
     var ks = variable_struct_get_names(global.mp_puz);
     for (var i = 0; i < array_length(ks); i++)
     {

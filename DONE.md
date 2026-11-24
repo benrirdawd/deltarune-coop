@@ -4,6 +4,19 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Puzzles together: a newcomer finds the blocks where they were left (2026-11-24)
+
+* Someone who joins (or reconnects) gets, with the host's shared state, where the blocks of the rooms
+  that players are in were left (`mp_puz_send_all`: message 80 with direction 255, "put it there").
+  A player's game no longer forgets those places while it doesn't yet know where everyone is.
+* Switches have no lasting state to send (pressing is the shared action), so a switch pressed before
+  someone joined is still only known to those who were there; most of them reset when you leave the
+  room anyway.
+
+**Tested** (Chapter 1 `room_field_boxpuzzle`, plot 50, speed 4, `chaos:10:120:60` in both games): the
+host pushed a block up twice alone, the client connected afterwards (`connectat:600`) and its block is
+at 280,240 like the host's.
+
 ## Puzzles together: Chapters 3-5 (2026-11-24)
 
 * **Chapter 5 pushable blocks** (`obj_pushable_block`, the garden): the same sharing as Chapter 1's
