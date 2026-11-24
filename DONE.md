@@ -7,6 +7,13 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+
+## Chapter 4 church, plot 289: no error any more (2026-11-24)
+
+| Problem | Fix | Test |
+|---|---|---|
+| Sweep of 2026-10-10: `obj_ch4_DCB03` Step, "Variable obj_ch4_DCB03.su... not set" in `room_lw_church_main` (the game sends it on to `room_lw_church_entrance`, where `obj_ch4_DCB03` is), plot 289, 2 players. | None needed: gone since (fixed by later changes). | Re-run, 2 players, 400 s game time with the client walking around: no error, no crash, every check passed; the same with `chaos:10:120:60`. |
+
 ## Chapter 5 platformer: each player as their own character (2026-11-24)
 
 | Problem | Fix | Test |

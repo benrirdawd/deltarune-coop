@@ -78,6 +78,9 @@ These were fixed or should be fixed by other changes, but only a real play-throu
 
 ## Special content (priority 3)
 
+The large (L) items below were passed over by the autonomous loop (2026-11-24): each needs a design
+choice and real players to judge it; the platformer figure and the special-fight fallback were done.
+
 | Issue | Plan | Effort |
 |---|---|---|
 | Special battle styles: the fallback is done (DONE.md, 2026-11-24). Still to do: hand-sync single fights people care about, so everyone plays their hero there too; Chapter 5 bosses aren't on the list yet (not looked at). | Per fight, from the list in `mp_battle_special`. | L per fight |
@@ -89,8 +92,6 @@ These were fixed or should be fixed by other changes, but only a real play-throu
 
 ## Not looked at yet
 
-* Chapter 4 `room_lw_church_main`, plot 289: `obj_ch4_DCB03` Step, "Variable obj_ch4_DCB03.su... not
-  set" (2 players, sweep of 2026-10-10). May be gone since; not re-run.
 * Ghost mismatches around doors at the top of town rooms (`room_library`, `room_diner`,
   `room_town_church`, `room_town_noellehouse`, `room_board_dungeon_3`): the other player sees a stale
   position for 2-4 s when someone is moved onto a door trigger (sweep of 2026-10-10).
