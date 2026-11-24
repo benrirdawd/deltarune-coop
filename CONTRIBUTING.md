@@ -111,6 +111,7 @@ mod/gml/                     the mod's code (one GML file per part; read each fi
   scr_mp_spec                watching another player on the map (F9 Watch)
   scr_mp_voice               proximity voice chat
   scr_mp_climb               Chapters 4-5 climbing walls
+  scr_mp_shelf               Chapter 4 bookshelf puzzle (shelves follow their place flags)
   scr_mp_ui                  F9 menu, HUD, notifications, name tags
   scr_mp_test                test tokens and the [MPCHK] self-check lines
   ch3/scr_mp_board           Chapter 3 board game (the top-level file is a stub for other chapters)

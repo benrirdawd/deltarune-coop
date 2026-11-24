@@ -261,6 +261,23 @@ place_meeting\(x, y, obj_mainchara\)
 (place_meeting(x, y, obj_mainchara) || mp_puz_ghost_here())
 @end
 
+;; Chapter 4 bookshelf puzzle: a shelf a friend slid with a piano slides in my game too (it follows
+;; its story flags, scr_mp_shelf).
+#chapters 4
+@find gml_Object_obj_bookshelf_moveable2x2_Step_0
+        global.flag[yflag] = y;
+    }
+}
+@with
+        global.flag[yflag] = y;
+    }
+}
+mp_shelf_follow();
+@end
+
+@append gml_Object_obj_dw_church_bookshelfpuzzle_Step_0
+mp_shelf_test();
+
 ;; Chapter 5 pushable blocks (the garden): pushed in every game in the room, like Chapter 1's.
 #chapters 5
 @find gml_Object_obj_pushable_block_Other_10

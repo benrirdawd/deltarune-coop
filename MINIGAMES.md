@@ -101,11 +101,11 @@ each real one).
 | 3 | Board puzzles (ice, bridges, switches, blocks, the maze escape) | `obj_board_icepuzzle_*`, `obj_b2bridgepuzzle*`, `obj_board_*switch*`, `obj_b2d_mazeescape` | Own copy (each player plays their own board). |
 | 3 | Eye puzzle, TV keyboard tiles, puzzle closets | `obj_ch3_PGS01B_eyepuzzle`, `obj_dw_ch3_teevie_keyboard_tile`, `obj_puzzlecloset_manager` | Local, not looked at. |
 | 4 | Floor switches | `obj_floorswitch` | **Shared**: friends hold them down (a watcher doesn't). |
-| 4 | Bookshelf puzzle | `obj_dw_church_bookshelfpuzzle`, `obj_dw_church_pushableshelf*` | Local. Idea: share pushes like the blocks. |
+| 4 | Bookshelf puzzle (remote pianos slide the shelves) | `obj_dw_church_bookshelfpuzzle`, `obj_bookshelf_moveable2x2`, `obj_dw_church_remote_piano` | **Shared**: each shelf follows its place flags (`scr_mp_shelf`). (`obj_dw_church_pushableshelf*` are only in test rooms.) |
 | 4 | Piano puzzles (pieces, remote piano, sliding piano) | `obj_dw_church_pianopuzzle`, `obj_dw_church_pianopiece_*`, `obj_dw_church_remote_piano` | Local. Idea: share each note played. |
 | 4 | Organ puzzle | `obj_dw_church_organpuzzle` | Local. Same idea as the piano. |
 | 4 | Ripple puzzles | `obj_church_ripple*`, `obj_dw_churchb_ripple1` | Local, not looked at. |
-| 4 | Train tracks | `obj_traintrack_*`, `obj_train_switch` | Local. Idea: share the track switches like the traffic lights. |
+| 4 | Train tracks | `obj_traintrack_*`, `obj_train_switch` | Local on purpose: pressed by the heart in the Light World section at home (a solo part). |
 | 4 | Dark maze, prophecy maze, falling tiles | `obj_dw_church_darkmaze`, `obj_dw_churchb_prophecymaze`, `obj_dw_churchc_fallingtiles` | Local, not looked at. |
 | 5 | Pushable blocks (garden) | `obj_pushable_block` | **Shared** |
 | 5 | Floor switches | `obj_floorswitch` | **Shared** |
@@ -123,7 +123,7 @@ Known limits of the shared puzzles:
 ## Suggested order
 
 1. **Done 2026-11-24:** ACTs with their own game are played by the hero's owner and the mercy is corrected (DONE.md). Next: run each real ACT.
-2. Chapter 4 bookshelf and train tracks: they reuse the block and switch messages. M each.
+2. **Done 2026-11-24:** Chapter 4 bookshelf shared; train tracks local on purpose.
 3. Piano and organ puzzles: share each note played. M.
 4. Rhythm game per character, then quiz buzzers: the most fun together. L each.
 5. Chapter 3 shared board: the biggest. L.

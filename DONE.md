@@ -4,6 +4,28 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 4 bookshelf puzzle shared; the train tracks stay local (2026-11-24)
+
+* **Bookshelf puzzle** (`room_dw_church_bookshelfpuzzle` and its reversed copy): the remote pianos
+  slide the coloured shelves (`obj_bookshelf_moveable2x2`). The game already keeps each shelf's place
+  in two story flags (876-881), written when a move ends, and story flags are shared. So now a shelf
+  follows its flags: when they say it is somewhere else (a friend moved it in their game), it slides
+  there the way a reset slides it (`mp_shelf_follow`, new file `scr_mp_shelf`, Chapter 4 only; hook
+  right after the shelf writes its own flags, so my own move is never undone). Someone entering the
+  room later already got the shelves from the flags (the game's own Create). Simplest choice: no new
+  message. Two players moving the same shelf at once end where the last move put it, in every game.
+* **Train tracks** (`obj_traintrack_switch`, `obj_train_switch`): pressed only by the heart
+  (`obj_homealone_heart`) or a snowball, in the Light World section where the player walks a heart
+  at home alone. That is a solo part of the story, so it is left local on purpose.
+* Test tokens: `shelfflag:<i>:<dx>@<f>` (as if a friend's game had moved the i-th shelf: its place
+  flag changes) and `moveshelf:<i>:<dir>@<f>` (slide it as its piano does; in the test it didn't move,
+  since the room decides which walls count from the floor the player stands on). `logpuz` also logs
+  the shelves (`[MPSHELF]`).
+* Test, Chapter 4 `room_dw_church_bookshelfpuzzle`, plot 242, both with `chaos:10:120:60`
+  (`work/fol/shelf2`): the client's shelf flag went from 1120 to 1040. Its own shelf slid there, the
+  flag reached the host, and the host's shelf slid to 1040,1120 too. Not run: a move made with a
+  real piano.
+
 ## ACTs with their own little game: the hero's player plays them (2026-11-24)
 
 * Some ACTs open a little game of their own (listed in MINIGAMES.md): Maus' baskets and Tasque

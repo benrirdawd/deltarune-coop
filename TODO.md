@@ -20,7 +20,8 @@ pull request, or ask on Discord (**b.001**).
 
 1. **Done:** ACTs that open their own little game are played by the hero's owner (DONE.md). Still to
    run with the real ACTs: the test simulates one (`fakeactg`).
-2. Chapter 4 bookshelf and train tracks: share them through the block and switch messages. Effort: M.
+2. **Done:** Chapter 4 bookshelf puzzle shared; the train tracks stay local on purpose (DONE.md).
+   Still to run: a real piano move (the test sets the shelf's flag instead).
 3. Piano and organ puzzles (Chapter 4): share each note played. Effort: M.
 
 ## Stage-changing scenes: everyone agrees first (later)
