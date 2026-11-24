@@ -151,7 +151,7 @@ A GML file whose first line is `// @chapters 1,2` is only compiled into those ch
 A message is built with `mp_begin(<type>)`, `mp_wu8` / `mp_wu16` / `mp_ws16` / `mp_wstr` / `mp_wval`...,
 then `mp_send()`, and handled in `mp_handle` (`scr_mp_core`, `if (type == N)`; battle messages in
 `scr_mp_battle`). Types below 8 are link-level; the host forwards everything from 8 up to the other
-players. The next free type is **84** (check with `grep -n "type == 84" mod/gml/*.gml`). Only one
+players. The next free type is **85** (check with `grep -n "type == 85" mod/gml/*.gml`). Only one
 message can be built at a time: don't call anything that sends while you are in the middle of one
 (collect what to send and send it after). When you change what an existing message carries, raise
 `global.mp_version` (`scr_mp_core`): players on different versions can't join each other.
