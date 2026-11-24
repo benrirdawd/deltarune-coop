@@ -182,6 +182,13 @@ a tie goes to the host.
 While you play a minigame (the rhythm game, the chefs, a quiz, a race, climbing...) the other
 players aren't drawn over it, and they see "Playing the rhythm game..." over where you stand.
 Climbing walls (Chapters 4-5), you see the other climbers on the wall, each as their own character.
+In Chapter 5's platforming sections the others are shown as their own character too (Susie,
+Ralsei; Kris and Noelle use Kris's figure).
+A few fights have their own rules (Spamton NEO, Queen and Giga Queen, Berdly's plug, Chapter 3's
+Knight, Shadow Mantle and Tenna's board fight, Chapter 4's Titan and Gerson's): there the fight's
+leader plays every hero and the others watch; everyone is told who plays.
+If the host leaves, the next player can take over from F9 ("Become the host"); a session with
+Steam and IP players carries on for both.
 Every 5 s the host's story state is compared with yours; a difference that stays is fixed from
 the host's copy by itself (logged as `[MPDRIFT]`).
 

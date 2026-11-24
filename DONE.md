@@ -6,6 +6,13 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+
+## Chapter 5 platformer: each player as their own character (2026-11-24)
+
+| Problem | Fix | Test |
+|---|---|---|
+| In the platforming sections everyone was drawn as Kris (the game's platformer figure is always Kris). | A player who plays Susie or Ralsei sends the matching sprite of the game's own platformer follower for that character (`spr_idle`, `spr_run`, `spr_halt`, `spr_turn`, `spr_jump`, `spr_fall`, `spr_land`, `spr_climb`, picked from the name of Kris's current sprite), placed with its feet where Kris's figure stands. Kris and Noelle (no platformer sprites) stay Kris. Simplest choice: only what the others see changes; your own figure is still the game's Kris. | **Tested**, `room_dw_garden_aquaplatforming`, 2 players: a Susie player sent `spr_plat_susie_run/idle` and every check passed (ghost, sync, follower); a Ralsei player, with `chaos:10:120:60`, sent `spr_plat_ralsei_run/idle`, ghost checks passed, and the host's screenshot shows Ralsei running on the floor. |
+
 ## Fights with their own rules: one player plays them (2026-11-24)
 
 | Problem | Fix | Test |
