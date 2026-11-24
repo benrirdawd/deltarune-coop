@@ -112,6 +112,7 @@ mod/gml/                     the mod's code (one GML file per part; read each fi
   scr_mp_voice               proximity voice chat
   scr_mp_climb               Chapters 4-5 climbing walls
   scr_mp_shelf               Chapter 4 puzzles: bookshelves follow their place flags, the piano puzzle
+  scr_mp_castle              Chapter 5 castle puzzles: a friend's solve opens my room
   scr_mp_ui                  F9 menu, HUD, notifications, name tags
   scr_mp_test                test tokens and the [MPCHK] self-check lines
   ch3/scr_mp_board           Chapter 3 board game (the top-level file is a stub for other chapters)

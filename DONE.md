@@ -4,6 +4,25 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 5 castle puzzles: solved by one, open for everyone (2026-11-24)
+
+* These rooms keep "solved" as a bit of a story flag. Story flags are shared, but the rooms read the
+  bit only when they are built, so a friend's solve reached my flags and not my room. Now
+  (`scr_mp_castle`, Chapter 5 only):
+  * `room_dw_fcastle_terracotta_puzzle` (statues on the floor switches open the shortcut; flag 1744
+    bit 10): my room runs its own opening step when the bit arrives.
+  * `room_dw_fcastle_right_puzzle` (the orange key opens the orange door; flag 1317 bit 0): my room
+    opens the door the way it does when you come back later.
+  * Simplest choice: the result is shared, not each step of the puzzle.
+* `room_dw_fcastle_sidepuzzle` was looked at and left alone: a platforming room with a sign, nothing
+  to solve together.
+* Test token `castlesolve:<f>` (sets the room's solved bit, as a friend's solve does); `logpuz` logs
+  the room (`[MPCASTLE]`).
+* Tests, Chapter 5, plot 100, both with `chaos:10:120:60` (`work/fol/castle_terracotta_puzzle`,
+  `castle_right_puzzle`): the client set the bit. Both rooms opened in both games, the host's about
+  1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
+  gone.
+
 ## Chapter 4 piano puzzle: solved by one, solved for everyone (2026-11-24)
 
 * `room_dw_church_pianopuzzle`: playing the right tune on the piano opens the cage, sets story flag 892

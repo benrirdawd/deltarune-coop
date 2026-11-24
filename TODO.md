@@ -24,9 +24,10 @@ pull request, or ask on Discord (**b.001**).
    Still to run: a real piano move (the test sets the shelf's flag instead).
 3. **Done:** the piano puzzle solved by one player is solved for everyone; the organ stays local on purpose
    (DONE.md). Not looked at yet: the piano pieces rooms (`obj_dw_church_pianopiece_left/right`).
-4. Chapter 5 castle puzzles (`obj_dw_fcastle_terracotta_puzzle`, `_sidepuzzle`, `_right_puzzle`) and
-   Chapter 4's piano pieces rooms: look at each. Where the solve ends in a story flag, do the same
-   as the piano puzzle: a room that still waits follows a friend's solve. Effort: S-M each.
+4. **Done:** Chapter 5 castle puzzles (terracotta, orange door) follow a friend's solve (DONE.md). Still
+   local: Chapter 4's piano pieces rooms. They give the piano puzzle's hints (story flags, already
+   shared) and slide shelves with a remote piano, whose places the piano writes itself (flags
+   863-866), so the shelf follow doesn't cover them. Effort: S, if it matters in play.
 5. Chapter 2 keyboard puzzles (`obj_controller_keyboard_puzzle_1..3`): the same check (solve flag),
    else share each key pressed. Effort: M.
 

@@ -62,6 +62,7 @@
 //   fakeactg        battle: as if an ACT's own game ran at the first hero action of each fight (90
 //                   frames); its player gains 10 mercy on the first enemy in their game only
 //   shelfflag:<i>:<dx>@<f>, moveshelf:<i>:<dir>@<f>, pianosolve:<f>: Chapter 4 puzzles (scr_mp_shelf)
+//   castlesolve:<f> Chapter 5 castle puzzle rooms: set the room's solved bit (scr_mp_castle)
 //   reportzip       at frame 400, do F9 "Save logs for a bug report" into the save folder (not the desktop)
 //   menupage:<n>    with openmenu: pick C-menu entry n (0 items, 1 equipment, 3 power/status)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)

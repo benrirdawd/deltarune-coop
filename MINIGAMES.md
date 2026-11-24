@@ -110,7 +110,8 @@ each real one).
 | 4 | Dark maze, prophecy maze, falling tiles | `obj_dw_church_darkmaze`, `obj_dw_churchb_prophecymaze`, `obj_dw_churchc_fallingtiles` | Local, not looked at. |
 | 5 | Pushable blocks (garden) | `obj_pushable_block` | **Shared** |
 | 5 | Floor switches | `obj_floorswitch` | **Shared** |
-| 5 | Castle puzzles (terracotta, side, right) | `obj_dw_fcastle_terracotta_puzzle`, `obj_dw_fcastle_sidepuzzle`, `obj_dw_fcastle_right_puzzle` | Local, to look at one by one. |
+| 5 | Castle puzzles: terracotta statues, the orange door | `obj_dw_fcastle_terracotta_puzzle`, `obj_dw_fcastle_right_puzzle` | **Shared**: a friend's solve opens my room too (`scr_mp_castle`). |
+| 5 | Castle side room | `obj_dw_fcastle_sidepuzzle` | Local: platforming and a sign, nothing to solve together. |
 | 5 | Flower arena puzzle | `obj_flower_arena_puzzle_manager` | Local, not looked at. |
 | 5 | New glowing tiles, blocks that remember | `obj_glowtile_puzzle_new`, `obj_pushable_block_memory` | Local, not looked at. |
 | 5 | Shape puzzle | `obj_shapepuzzle` | Local (as in Chapter 2). |

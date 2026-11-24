@@ -282,6 +282,14 @@ mp_shelf_test();
 @prepend gml_Object_obj_dw_church_pianopuzzle_Step_0
 mp_piano_puzzle_follow();
 
+;; Chapter 5 castle puzzles: a friend's solve (a shared flag bit) opens my room too (scr_mp_castle).
+#chapters 5
+@prepend gml_Object_obj_dw_fcastle_terracotta_puzzle_Step_0
+mp_castle_terracotta_follow();
+
+@prepend gml_Object_obj_dw_fcastle_right_puzzle_Step_0
+mp_castle_right_follow();
+
 ;; Chapter 5 pushable blocks (the garden): pushed in every game in the room, like Chapter 1's.
 #chapters 5
 @find gml_Object_obj_pushable_block_Other_10
