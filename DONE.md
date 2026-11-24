@@ -13,6 +13,18 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+## Called to a fight that already ended: no 7 s wait (2026-11-24)
+
+A player pulled into a fight whose pull arrives late (slow network) waited 7 s at the "!" before "the fight I
+was called to is gone", with the pre-fight text and song on. Now the player who called them is watched: seen
+in the fight and then out of it again (a Game Over right away, a quick win) ends the wait at once
+("encounter: the fight I was called to ended before I got there"). On cancelling, a story fight's party taken
+from the pull is put back to the party I had before it, and not applied again at the next room start
+(`aqua7` showed the client keeping the fight's party 100 for 7 s while the host was back to 123).
+Tests, `room_dw_garden_aqua` 291 with `chaos:10:120:60`: `aqua7` hit the case (ended 0.1 s after the
+caller's Game Over instead of 7 s); `aqua8` all checks pass (the host came in at turn 1, as a late joiner).
+The party put back on cancel wasn't hit again in two more runs (the race is rare); built and reviewed only.
+
 ## Chapter 5 platforming with movement (2026-11-24)
 
 `room_dw_garden_aquaplatforming` (plot 291), two players with `wander` and `mash` and `chaos:10:120:60`

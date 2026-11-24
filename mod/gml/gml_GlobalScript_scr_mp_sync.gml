@@ -51,6 +51,7 @@ function mp_sync_init()
     global.mp_pre_party = [1, 0, 0];
     global.mp_pull_party = -1;
     global.mp_calm_party = [1, 0, 0];
+    global.mp_party_prepull = -1;
     global.mp_calm_dz = 0;
     global.mp_calm_room = -1;
     global.mp_room_plot = 0;
@@ -760,6 +761,8 @@ function mp_sync_try_pull()
     var dz_changed = mp_dz_take(p[10]);
     var party_changed = false;
     var local_party = kind == 1 && global.mp_open && !p[13];
+    // (Put back if the fight is over before I get there: mp_enc_cancel.)
+    global.mp_party_prepull = (kind == 1 && !local_party) ? [global.char[0], global.char[1], global.char[2]] : -1;
     for (var i = 0; i < 3; i++)
     {
         if (global.char[i] != pp[i])
@@ -790,6 +793,8 @@ function mp_sync_try_pull()
         global.mp_sstate = 0;
         global.encounterno = p[5];
         global.mp_battle_pulled = 1;
+        global.mp_battle_from = from;
+        global.mp_battle_from_seen = 0;
         mp_notify("Joining " + global.mp_pname[from] + "'s battle!");
         global.mp_warp_mus = from;
         // (A room switched off for a mirrored cutscene is built again.)

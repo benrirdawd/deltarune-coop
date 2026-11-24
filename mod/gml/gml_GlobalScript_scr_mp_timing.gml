@@ -34,6 +34,8 @@ function mp_timing_init()
     global.mp_tgo_pending = -1;
     global.mp_enc_waiting = 0;
     global.mp_enc_since = 0;
+    global.mp_battle_from = -1;      // who called me to the fight I'm on my way to,
+    global.mp_battle_from_seen = 0;  // and whether they've been seen in it since
     global.mp_enc_open = 0;
     global.mp_enc_open_since = 0;
     global.mp_enc_no = 0;
@@ -475,6 +477,20 @@ function mp_enc_gate()
         mp_sync_log("horn");
         return true;
     }
+    // Called to a fight that ended before I got there (a slow network, a Game Over right away): the
+    // one who called me was seen in it and is out of it again, so don't wait out the 7 s.
+    var bf = global.mp_battle_from;
+    if (global.mp_battle_pulled && bf >= 0 && bf < 8 && global.mp_pconn[bf])
+    {
+        if (global.mp_pstate[bf] & 1)
+            global.mp_battle_from_seen = 1;
+        else if (global.mp_battle_from_seen)
+        {
+            mp_log("encounter: the fight I was called to ended before I got there");
+            mp_enc_cancel();
+            return false;
+        }
+    }
     if ((current_time - global.mp_enc_since) > 7000)
     {
         // Called to a fight that ended meanwhile: nothing to join.
@@ -494,11 +510,22 @@ function mp_enc_gate()
 // This player won't fight this encounter after all: back to walking around.
 function mp_enc_cancel()
 {
+    global.mp_battle_pulled_was = global.mp_battle_pulled;
     global.mp_enc_waiting = 0;
     global.mp_enc_go_unused = 0;
     global.mp_battle_pulled = 0;
     global.mp_battle_seen = 0;
     mp_party_restore();
+    // A story fight's party taken from the pull: my own again, and not put back at the next room start.
+    if (global.mp_battle_pulled_was && is_array(global.mp_party_prepull))
+    {
+        var vc = mp_var_index("char");
+        for (var i = 0; i < 3; i++)
+            mp_var_apply(vc, i, global.mp_party_prepull[i]);
+        mp_log("encounter cancelled: my party " + string(global.mp_party_prepull[0]) + string(global.mp_party_prepull[1]) + string(global.mp_party_prepull[2]) + " again");
+    }
+    global.mp_party_prepull = -1;
+    global.mp_pull_party = -1;
     mp_gid_clear();
     global.interact = 0;
     instance_destroy();

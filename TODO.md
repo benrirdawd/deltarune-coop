@@ -92,6 +92,11 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Not looked at yet
 
+* Story fight in `room_dw_garden_aqua` 291 (chaos, `work/fol/aqua9`, `aqua10`): the pulled player lands at the
+  leader's spot (302,258) and on the next frame its game goes through a door to
+  `room_dw_garden_wateringcan_aqua` (`interact 0->3` at room frame 2), so it never reaches the fight; the
+  leader fights alone. Seen in 2 of 4 runs; not in `aqua7`/`aqua8`. Maybe the room's own scene starting in
+  the pulled game, or a door trigger at that spot.
 * More `interact` cases: save point checked (Chapter 4, DONE.md); shops and NPCs in Chapters 3-5 can now be
   run with the `touch:<obj>@<f>` token when it matters.
 * Tests don't cover yet: Chapter 1 new game (the vessel creation writes save files, so it isn't run here;
@@ -100,9 +105,6 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Low priority / known small differences
 
-* A pulled player whose pull arrives after the fight already ended (slow network, e.g. a Game Over right
-  away) stays in the pre-fight text and song for ~7 s until the "fight is gone" check lets them go
-  (`work/fol/aqua6`). Could be shortened by sending "fight over" to players still on their way.
 * On a bad network a player standing still can be missing from the others' screens for up to 1.5 s
   when they arrive (their first position lost; positions of someone not moving are only resent every
   1.5 s). Seen in the suits puzzle test with `chaos:10:120:60`.
