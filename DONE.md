@@ -4,6 +4,24 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Watching another player on the map (2026-11-24)
+
+* F9 **"Watch: < off / name >"** (`scr_mp_spec`): my character is hidden, takes no input and is kept
+  where the watched player really stands, so the game's own camera follows them; when they go through
+  a door I follow them into that room. Left/right on the map switch between the players; "Watch: off"
+  (or the player leaving) stops it. The others don't see me (my character is hidden). Map hazards
+  don't hurt me while watching (my hidden character stands where they are: their game takes the hit).
+* Design choice (simplest that works): watching is something a player picks in F9. Battles, cutscenes
+  and pulls go on as for anyone (watching only acts in free roam); a player with no hero in a fight
+  already watches it (SOUL hidden). Not done: switching automatically to watching when a player has
+  nothing to play.
+* Test token `watch:<frame>`.
+
+**Tested** (Chapter 2 `room_dw_cyber_intro_1`, plot 50, speed 4, with and without `chaos:10:120:60`):
+the client watches the host from frame 600: it follows the host's path in the room (184 -> 364 -> 300
+-> 184), then into `room_dw_cyber_intro_connector` when the host goes there, ends at the host's spot,
+not drawn (`vis=0`); all checks pass.
+
 ## Puzzles together: a newcomer finds the blocks where they were left (2026-11-24)
 
 * Someone who joins (or reconnects) gets, with the host's shared state, where the blocks of the rooms

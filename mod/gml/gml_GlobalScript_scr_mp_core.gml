@@ -55,6 +55,7 @@ function mp_init()
     mp_timing_init();
     mp_battle_init();
     mp_ui_init();
+    mp_spec_init();
     global.mp_resumed = 0;
     global.mp_resume_code = "";
     global.mp_paddr = array_create(8, "");

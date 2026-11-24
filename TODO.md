@@ -38,10 +38,9 @@ changing the room for everyone.
 
 ## Spectating and Game Over (user request, 2026-11-23)
 
-* **A spectator only watches:** a player who watches someone (same character as another player, left
-  out of a fight, or chose to spectate) should see that person's screen (camera following them) and
-  have no character of their own to control, instead of walking around as a figure. Switch between
-  the players being watched with left/right; F9 to stop spectating.
+* **Done: watching a player on the map** (F9 "Watch", left/right to switch), see DONE.md. Still to do:
+  switching to watching automatically for a player who has nothing to play (same character as another
+  player, a 4th+ player).
 * **Any player can press Continue at the Game Over:** today the clients wait for the host to reload.
   Whoever presses Continue first should continue for everyone (the host reloads, the others follow).
   Check what a client's Continue does now.

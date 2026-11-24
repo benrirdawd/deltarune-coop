@@ -47,7 +47,7 @@ function mp_ui_rows()
     }
     else
     {
-        array_push(r, "goto");
+        array_push(r, "goto", "spec");
         if (global.mp_role == 1)
             array_push(r, "bring");
         if (global.mp_role == 1 && variable_global_exists("mp_steam_code") && global.mp_steam_code != "")
@@ -234,6 +234,8 @@ function mp_ui_input()
             mp_ui_block();
             return;
         }
+        if (row == "spec")
+            mp_ui_adjust(row, 1);
         if (row == "battles" || row == "noai" || row == "vote" || row == "hud" || row == "tags" || row == "souls" || row == "vmode" || row == "vrange" || row == "vmic" || row == "vsens")
             mp_ui_adjust(row, 1);
         if (row == "steam_host")
@@ -369,6 +371,9 @@ function mp_ui_adjust(row, d)
                 mp_open_send();
             }
             break;
+        case "spec":
+            mp_spec_set(mp_spec_next(mp_spec_on() ? global.mp_spec : (d > 0 ? -1 : 8), d));
+            return;
         case "hud":
             global.mp_cfg_hud = !global.mp_cfg_hud;
             break;
@@ -547,6 +552,8 @@ function mp_ui_rowtext(row)
             return "No friends in a game right now";
         case "frrefresh":
             return "Refresh";
+        case "spec":
+            return "Watch:  < " + (mp_spec_on() ? global.mp_pname[global.mp_spec] : "off") + " >";
         case "goto":
             var gt = mp_goto_target();
             if (gt < 0)

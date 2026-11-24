@@ -42,6 +42,7 @@
 //   pushblock:<d>:<f>[/<f>...] push the room's first pushable block in direction d at room frame(s) f (Chapters 1, 5)
 //   restartroom:<f> build the room again at room frame f (once)
 //   useobj:<o>:<f>  use (as with Z) the room's first <o> at room frame f
+//   watch:<f>       watch the first other player (F9 Watch) from room frame f
 //   useseq:<o>:<i>@<f>/<i>@<f>...  use the room's <i>-th <o> at room frame <f>, for each pair
 //   logpuz          log the tile puzzle's / suits puzzle's state every 5 s ([MPPUZ] lines)
 //   logblocks       log the room's pushable blocks every 5 s ([MPBLOCKS] lines)
@@ -504,6 +505,9 @@ function mp_test_input()
                 event_user(0);
         }
     }
+    // watch:<frame>: start watching the first other player at that room frame.
+    if (mp_test_has("watch") && variable_global_exists("mp_test_timer") && global.mp_test_timer == real(mp_test_arg("watch")) && mp_on())
+        mp_spec_set(mp_spec_next(-1, 1));
     // useseq:<object>:<i>@<frame>/<i>@<frame>...: use the i-th <object> at each of those room frames.
     if (mp_test_has("useseq") && variable_global_exists("mp_test_timer"))
     {

@@ -150,6 +150,7 @@ function mp_in_battle_scene()
 // Called from mp_after_input: spectators must not move.
 function mp_sync_input()
 {
+    mp_spec_input();
     if (mp_host_picks_here() || mp_vote_active())
         return;
     if (global.mp_sstate == 5 || global.mp_sstate == 4 || global.mp_sstate == 3 || (global.mp_sstate == 2 && instance_exists(obj_choicer_neo)))
@@ -922,6 +923,7 @@ function mp_sync_arrived()
 
 function mp_sync_tick()
 {
+    mp_spec_tick();
     mp_talk_tick();
     mp_minigame_tick();
     var ia = global.interact;
