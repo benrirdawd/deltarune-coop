@@ -13,6 +13,17 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+## Z-started things stay local: save point checked in Chapter 4 (2026-11-24)
+
+New test token `touch:<obj>@<f>`: f frames into the room, stand just below the first `<obj>` (collision
+boxes lined up), face it and press Z. Test: Chapter 4 `room_dw_church_savepoint` (plot 289), the host
+touches `obj_savepoint`, the other player stands in the room, both with `chaos:10:120:60`
+(`work/fol/touch3`): the save menu opens on the Z (`z=0`), nothing is pulled, the other game stays free; all
+checks pass. On the way (`touch2`): a Z put in by the test after the game's own Z check isn't seen, so the
+open save menu looked like a scene after 5 s and pulled the other player; the token now records its Z like
+`mash` does. A real player's Z is seen by the check, so play isn't affected. Not run: shops and the C menu
+(the C menu sets interact 5, never taken for a scene), NPCs in Chapters 3-5.
+
 ## `room_town_school` plot 100 crash: the test's start, not the mod (2026-11-24)
 
 Run with the host alone (`work/fol/school1`, and `school2` with `lightworld`): it crashes the same way with

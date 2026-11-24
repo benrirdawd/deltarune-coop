@@ -92,8 +92,8 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Not looked at yet
 
-* More `interact` cases in later chapters (save points, shops, the C menu are Z-triggered and local;
-  unprompted text boxes only pull after 4 s).
+* More `interact` cases: save point checked (Chapter 4, DONE.md); shops and NPCs in Chapters 3-5 can now be
+  run with the `touch:<obj>@<f>` token when it matters.
 * Tests don't cover yet: Chapter 1 new game (the vessel creation; Chapter 1 is tested by loading a
   save), cutscenes started with Z, platforming beyond standing in the room, a
   real play-through of whole chapters.

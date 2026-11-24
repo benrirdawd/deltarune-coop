@@ -12,6 +12,7 @@
 //   wander          walk around randomly in free roam
 //   partyat:<n>     do `party` after n frames (default 60)
 //   walk:<d>:<t>:<n>  hold direction d (l/r/u/d) for n frames, t frames after arriving
+//   touch:<obj>@<f> f frames into the room, stand below the first <obj> facing it and press Z (NPC, save point)
 //   away:<room>:<n>[:<x>:<y>] once connected, n frames after the party setup, go to <room> (like walking through a door)
 //                   (also from the opening's PLACE_* rooms: the host leaving its vessel creation)
 //   fakescene       (test of the pulled-battle cleanup) start a cutscene of our own while being pulled into a battle
@@ -171,6 +172,31 @@ function mp_test_tick()
                 mp_log("[test] walked up to player " + string(wi));
                 break;
             }
+        }
+    }
+    // touch:<object>@<frame>: stand just below the first instance of <object>, facing it, and press Z
+    // (talking to an NPC, a save point...). The Z goes out on the next few frames (mp_test_input).
+    var tv = mp_test_arg("touch");
+    if (tv != "" && !variable_global_exists("mp_test_touched") && instance_exists(obj_mainchara))
+    {
+        var ta = string_pos("@", tv);
+        var tf = ta > 0 ? real(string_delete(tv, 1, ta)) : 300;
+        var tobj = asset_get_index(ta > 0 ? string_copy(tv, 1, ta - 1) : tv);
+        if (global.mp_room_frames >= tf && global.interact == 0)
+        {
+            global.mp_test_touched = 1;
+            if (tobj >= 0 && instance_exists(tobj))
+            {
+                var tinst = instance_find(tobj, 0);
+                // (Collision boxes lined up: my box's top just under the object's box, centred on it.)
+                obj_mainchara.x += round(((tinst.bbox_left + tinst.bbox_right) - (obj_mainchara.bbox_left + obj_mainchara.bbox_right)) / 2);
+                obj_mainchara.y += (tinst.bbox_bottom + 2) - obj_mainchara.bbox_top;
+                obj_mainchara.facing = 2;
+                global.mp_test_touchz = global.mp_frame + 3;
+                mp_log("[test] touch " + tv + " (box " + string(tinst.bbox_left) + "," + string(tinst.bbox_top) + "-" + string(tinst.bbox_right) + "," + string(tinst.bbox_bottom) + ") at " + string(obj_mainchara.x) + "," + string(obj_mainchara.y));
+            }
+            else
+                mp_log("[test] touch: no " + tv + " here");
         }
     }
     // bringat:<frame>: (host) bring everyone over.
@@ -735,6 +761,16 @@ function mp_test_input()
     // holdx: hold X all the time (speeds text up; set in the input state, so it works unfocused).
     if (mp_test_has("holdx"))
         global.input_held[5] = 1;
+    // touch: the Z press, facing up.
+    if (variable_global_exists("mp_test_touchz") && global.mp_frame >= global.mp_test_touchz && global.mp_frame < global.mp_test_touchz + 2)
+    {
+        global.input_held[2] = 1;
+        if (global.mp_frame == global.mp_test_touchz + 1)
+        {
+            global.input_pressed[4] = 1;
+            global.mp_lastz = global.mp_frame; // (injected after the game's own Z check, as for mash)
+        }
+    }
     // failz: press Continue on the Game Over screen.
     if (mp_test_has("failz") && string_pos("room_gameover", room_get_name(room)) == 1 && (f mod 4) == 0)
         global.input_pressed[4] = 1;
