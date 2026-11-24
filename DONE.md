@@ -13,6 +13,14 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+## Chapter 5 platforming with movement (2026-11-24)
+
+`room_dw_garden_aquaplatforming` (plot 291), two players with `wander` and `mash` and `chaos:10:120:60`
+(`work/fol/plat1`): the host ran, jumped, slashed and landed across x 2000-3600 (sprites `slash_ground`,
+`slash_air`, `land`), the client (Susie) stood near the end; the client's view of the host passed the ghost
+check 456 times, sync 482, follower 481, no crash. Not run: the Chapter 1 new game (the vessel creation
+writes the game's own save files, and tests must not write saves).
+
 ## Story scenes started with Z are shared (2026-11-24)
 
 Pressing Z on Chapter 2's arcade machine (`room_dw_cyber_queen_boxing`, plot 33) starts the whole Queen
