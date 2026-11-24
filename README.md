@@ -49,7 +49,7 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
 * **Battles and story cutscenes bring everyone together.** When someone touches an enemy
   or triggers a story cutscene, everyone else is pulled into that room. A story cutscene
   plays only in the game of whoever triggered it; everyone else sees exactly what that
-  player's screen shows (characters, text boxes, sounds and music), and anyone's Z turns
+  player's screen shows (characters, text boxes, sounds, and music at the same volume and pitch), and anyone's Z turns
   the text pages for everyone once they've finished typing on every screen. One shared
   cutscene at a time: the host gives the go, and a cutscene waits while someone is in a fight.
   When the host is in the cutscene, the host answers its questions. Talking to an NPC on your
@@ -68,9 +68,12 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   counts in your game (so two players can hold two switches). Hazards like the checker paths stay
   each player's own.
 * **Shared progress.** Story flags, items, gold, equipment and HP are kept in sync. The host's
-  world is the shared one. The party menu (C) names your character in Kris's place.
+  world is the shared one. Counters (enemies defeated, people talked to) add up when two
+  players count at the same time. The party menu (C) names your character in Kris's place.
 * **Built for bad connections.** It uses UDP with its own reliability layer: position updates
   are latest-only, and game events are acknowledged, retransmitted and delivered in order.
+  Someone standing still is resent quickly for a few seconds after a room change or a join,
+  so nobody is missing from the room on a lossy line.
   Measured traffic is roughly 0.2–0.5 KB/s per player while walking and up to ~2 KB/s on
   the host during a 3-player battle. Tested at ~500 ms round-trip, 5% packet loss and
   64 kbit/s.
@@ -210,10 +213,10 @@ video or state.
 
 | Situation | What is synchronised |
 |---|---|
-| Walking around | Your room, position and current sprite, ~10×/s and only when they change (unreliable, latest wins). Others draw you as a smoothly interpolated "ghost". |
-| Story state | `plot`, flags (≥60), items, key items, equipment, gold, party, HP/stats. Changes are scanned every 2 frames and sent as small deltas. The full state goes out once on join. A player who loads a save re-fetches the host's state, and a host who loads pushes theirs to everyone. |
+| Walking around | Your room, position and current sprite, ~10×/s and only when they change (unreliable, latest wins). Standing still it is resent every 1.5 s, or every 250 ms for 3 s after a room change or someone joining. Others draw you as a smoothly interpolated "ghost". |
+| Story state | `plot`, flags (≥60), items, key items, equipment, gold, party, HP/stats. Changes are scanned every 2 frames and sent as small deltas. Counter flags (kills, talks, slashes) are sent as additions, so two players counting at once both count. The full state goes out once on join. A player who loads a save re-fetches the host's state, and a host who loads pushes theirs to everyone. |
 | Cutscene | If `global.interact` goes non-zero without the player pressing Z on something (or a door hands straight over to it), it may be a story cutscene. Started with Z, it counts only if a new cutscene controller runs it and it hides the player, moves the story or brings in actors within 5 s (compared with the room on the last free frame, since the scene's first step runs before the check). It counts once a new cutscene controller appears or the story progresses within 20 frames, or if it lasts over 4 s (so "you can't go that way" messages don't pull anyone). The others mirror it (`scr_mp_mirror`): they go to its room, whose instances are switched off so its own copy of the scene never runs, and draw the sprites the leader's game has on screen, sent every frame in drawing order with the camera (what each object draws is worked out by the patcher from its Draw event, `patcher/MirrorInfo.cs`). The leader's text boxes open as real text boxes in their games (same face, font and typing sound), the leader's sounds and music play, and choice boxes show the leader's answer. The leader turns the pages for everyone, once the page has finished typing on every screen (at most 15 s). At the end, if the scene ended in the room it began in (and the same world), everyone goes back to where they were pulled from; otherwise they are moved to where the leader ended up. Their room is built again with the story changes. A player busy with their own cutscene joins afterwards if the other one is still going; pulls from earlier in the story than you are are ignored. Your character's look fades into the story's party when a cutscene starts. |
-| Battle start | The initiator's encounter number is sent. Others start the same encounter (same music and "!" intro, same party) through an invisible `obj_testoverworldenemy`. Players busy in their own cutscene join after it ends. Late joiners enter at the start of the next turn. |
+| Battle start | The initiator's encounter number is sent. Others start the same encounter (same music and "!" intro, same party) through an invisible `obj_testoverworldenemy`. Players busy in their own cutscene join after it ends. A pulled player stands still until their fight starts (so a door under where they arrive can't take them away), and is let go at once if the caller's fight ends before they get there. Late joiners enter at the start of the next turn. |
 | Battle menu | The player who owns the character whose turn it is drives the menu. Their button presses, with the original frame spacing (at least 5 frames apart, so a press the menu would ignore as too early is never accepted in someone else's replay), are replayed in everyone's game, so every game's menu state machine (TP, items, ACT partners, going back with X) stays identical. |
 | Attack timing | Each player presses only for their own character's bolts. Results are shared, and remote bolts wait for their owner's result. Damage is computed identically from the points. |
 | Randomness | `random_set_seed` with the same seed at the start of the attack phase, enemy dialogue phase and bullet phase. |
@@ -227,7 +230,7 @@ One UDP socket. Each datagram (≤1200 bytes) carries a cumulative ack plus a 32
 selective-ack field and any number of records. Reliable records are retransmitted with an
 RTT-based timeout and back-off, at most 4 datagrams per frame. Unreliable records (positions)
 replace older queued ones and are dropped if they arrive out of order. The host is the hub and
-forwards everything to the other players. Protocol version 10 (older versions can't join). Peers time out after 10 s of silence.
+forwards everything to the other players. Protocol version 12 (older versions can't join). Peers time out after 10 s of silence.
 
 ### Source layout
 
