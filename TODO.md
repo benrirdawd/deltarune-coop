@@ -100,6 +100,9 @@ These were fixed or should be fixed by other changes, but only a real play-throu
 
 ## Special content (priority 3)
 
+Every minigame, puzzle and ACT with its own game, chapter by chapter, with what co-op does with it
+today and the idea for each: [`MINIGAMES.md`](MINIGAMES.md).
+
 The large (L) items below were passed over by the autonomous loop (2026-11-24): each needs a design
 choice and real players to judge it; the platformer figure and the special-fight fallback were done.
 
