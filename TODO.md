@@ -50,6 +50,18 @@ changing the room for everyone.
   see DONE.md): only the IP side could be run here. Re-test with two Steam accounts.
 * Re-test the Steam session fixes with two real Steam accounts.
 
+## Left from the code review (2026-11-24)
+
+The loop's changes since the 2026-11-23 review were read again (mod/gml, core.hook, launcher; the
+patcher didn't change). Fixed: a counter sent in the middle of the flag message (DONE.md). Not changed,
+to check in play:
+* Watching on the map (`scr_mp_spec`): my hidden character is put where the watched player stands, so
+  it still touches things in my game: an enemy that wanders differently in my game could start a fight
+  of mine (and pull the others), and a trigger zone could start a scene. If it shows up: give my
+  character no collision mask while watching (and back after). Effort: S.
+* A watcher's hidden figure still holds friends' floor switches (`mp_puz_ghost_here` skips only players
+  in a fight). Effort: S, if it matters.
+
 ## Needs information from a player
 
 | Issue | What is needed |
