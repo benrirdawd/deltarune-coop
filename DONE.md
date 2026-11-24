@@ -4,6 +4,18 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## A watcher no longer holds floor switches (2026-11-24)
+
+* From the code review: a player watching another one (F9 "Watch") has a hidden figure standing where
+  the watched player is, and it still held floor switches down in the others' games. `mp_puz_ghost_here`
+  now also skips players whose figure isn't drawn (`mp_pvis`). Small in play: the watched player
+  usually stands there too; it mattered when they were in a fight (skipped) or moving away.
+* Test, Chapter 5 `room_dw_fcastle_foxhunt_chaos`, plot 100, 3 players, all with `chaos:10:120:60`:
+  P2 stands on the switch at 460,460 (`away:...:900:465:430`), P3 watches the host, then P2
+  (`watch:300`, `watchnext:1300`). The switch is pressed in all three games once P2 is on it (host 11,
+  P2 12, P3 12 log lines pressed): the friend's figure still holds it, the watcher's adds nothing.
+  `work/fol/specswitch3`.
+
 ## Clearer version check on joining (2026-11-24)
 
 * HELLO now also carries the mod's build number (`global.mp_build`, raised with each release; 19 now)

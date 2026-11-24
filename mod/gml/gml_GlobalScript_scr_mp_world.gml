@@ -2433,7 +2433,8 @@ function mp_puz_ghost_here()
     var hit = false;
     for (var p = 0; p < 8 && !hit; p++)
     {
-        if (p == global.mp_myid || !global.mp_pconn[p] || global.mp_proom[p] != room || (global.mp_pstate[p] & 3) != 0)
+        // (Not someone in a fight or a cutscene, nor a hidden figure: a player watching another one.)
+        if (p == global.mp_myid || !global.mp_pconn[p] || global.mp_proom[p] != room || (global.mp_pstate[p] & 3) != 0 || !global.mp_pvis[p])
             continue;
         var px = global.mp_pix[p];
         var py = global.mp_piy[p];

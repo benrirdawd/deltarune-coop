@@ -71,8 +71,6 @@ to check in play:
   it still touches things in my game: an enemy that wanders differently in my game could start a fight
   of mine (and pull the others), and a trigger zone could start a scene. If it shows up: give my
   character no collision mask while watching (and back after). Effort: S.
-* A watcher's hidden figure still holds friends' floor switches (`mp_puz_ghost_here` skips only players
-  in a fight). Effort: S, if it matters.
 
 ## Needs information from a player
 
