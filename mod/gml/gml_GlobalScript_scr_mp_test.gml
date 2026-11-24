@@ -533,6 +533,22 @@ function mp_test_input()
             show_debug_message("[MPPUZ] suits=" + su + " won=" + string(won));
         }
     }
+    // logpuz, Chapter 2 traffic lights and alley switches: on or off, every 5 s.
+    if (mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+    {
+        var tso = asset_get_index("obj_traffic_switch");
+        if (tso >= 0)
+        {
+            with (tso)
+                show_debug_message("[MPPUZ] traffic " + string(round(xstart)) + "," + string(round(ystart)) + " active=" + string(active));
+        }
+        var aso = asset_get_index("obj_alleySwitch");
+        if (aso >= 0)
+        {
+            with (aso)
+                show_debug_message("[MPPUZ] alley " + string(round(xstart)) + "," + string(round(ystart)) + " toggle=" + string(toggle));
+        }
+    }
     // logpuz: the tile puzzle's state every 5 s (switch on, tiles stood on, rounds won).
     if (mp_test_has("logpuz") && (global.mp_frame mod 150) == 0 && asset_get_index("obj_glowtilepuzz") >= 0 && instance_exists(asset_get_index("obj_glowtilepuzz")))
     {

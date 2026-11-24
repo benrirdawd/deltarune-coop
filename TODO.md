@@ -22,7 +22,10 @@ changing the room for everyone.
 * **Done: Chapter 1 switches and floor tiles** (eye switches, the hourglass tile puzzles), see DONE.md.
 * **Done: the rest of Chapter 1** (suits puzzles shared; checker paths and the forest area 5 lines
   stay each player's own), see DONE.md.
-* Next: chapter by chapter (Chapters 2-5: their puzzle objects are still to be listed).
+* **Done: Chapter 2 traffic lights and the alley switch**, see DONE.md. Chapter 2 still local: the
+  mice rooms' switches (they release mice that move on their own), the keyboard puzzles, the shape
+  puzzle (one player steers a piece).
+* Next: Chapters 3-5 (their puzzle objects are still to be listed).
 * A switch pressed or a block pushed before another player connected isn't known to them (only
   players already connected hear it).
 * Two players pushing the same block at the same moment: today each game plays both pushes in the

@@ -2266,6 +2266,7 @@ function mp_puz_switch_used()
     mp_wu16(object_index);
     mp_ws16(xstart);
     mp_ws16(ystart);
+    mp_wu8(global.facing);
     mp_send();
 }
 
@@ -2275,9 +2276,14 @@ function mp_puz_switch_recv(sender, b)
     var oi = buffer_read(b, buffer_u16);
     var xs = buffer_read(b, buffer_s16);
     var ys = buffer_read(b, buffer_s16);
+    var fc = buffer_read(b, buffer_u8);
     if (room != rm || !object_exists(oi) || mp_in_battle_scene() || global.mp_sstate == 5)
         return;
     global.mp_puz_remote = 1;
+    // (Pressed facing the way they faced: Chapter 2's traffic lights only work when not pressed
+    // from above.)
+    var f0 = global.facing;
+    global.facing = fc;
     with (oi)
     {
         if (round(xstart) == xs && round(ystart) == ys)
@@ -2286,5 +2292,35 @@ function mp_puz_switch_recv(sender, b)
             mp_log("puzzle: player " + string(sender) + " used " + object_get_name(oi));
         }
     }
+    global.facing = f0;
     global.mp_puz_remote = 0;
+}
+
+// Floor switches that look for my character on them (Chapter 2 `obj_alleySwitch`): true when
+// another player in my room stands on this one (self: the switch). Checked with my own character's
+// collision mask put where they really stand, so it is the same test their game makes.
+function mp_puz_ghost_here()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || global.mp_sstate == 5 || !instance_exists(obj_mainchara))
+        return false;
+    var sw = id;
+    var hit = false;
+    for (var p = 0; p < 8 && !hit; p++)
+    {
+        if (p == global.mp_myid || !global.mp_pconn[p] || global.mp_proom[p] != room || (global.mp_pstate[p] & 3) != 0)
+            continue;
+        var px = global.mp_pix[p];
+        var py = global.mp_piy[p];
+        with (obj_mainchara)
+        {
+            var ox = x;
+            var oy = y;
+            x = px;
+            y = py;
+            hit = place_meeting(x, y, sw);
+            x = ox;
+            y = oy;
+        }
+    }
+    return hit;
 }

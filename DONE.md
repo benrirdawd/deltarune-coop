@@ -4,6 +4,24 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Puzzles together: Chapter 2 traffic lights and the alley switch (2026-11-24)
+
+* **Traffic light switches** (`obj_traffic_switch`, the city's traffic rooms and the mansion's): a
+  press in one game presses the same switch in every game in the room (message 81). The message now
+  also carries the presser's facing, used for the press in the other games (the switch refuses a
+  press made facing down, so it must be the presser's).
+* **The alley floor switch** (`obj_alleySwitch`, `room_dw_city_big_2`): held down in my game by
+  another player standing on it too (`mp_puz_ghost_here`: my character's own collision mask tried at
+  their real position, the same test their game makes), so two players can hold both switches.
+* Not done: the mice rooms' switches (`obj_mouseSpawnSwitch`, `obj_mice2Switch`,
+  `obj_mice3_platSwitch`: they release mice that move on their own), the shape puzzle (one player
+  steers a piece: a minigame), the keyboard puzzles. No placed `obj_pushable_block` in any Chapter 2
+  room, so nothing to share there.
+
+**Tested** (speed 4, both games with `chaos:10:120:60` and without): `room_dw_city_traffic_1`, plot
+75: the host (facing up) pressed the switch at 1144,176: on in both games. `room_dw_city_big_2`,
+plot 75: the client stood on the switch at 480,1120: pressed in its game and in the host's.
+
 ## Puzzles together: the rest of Chapter 1 (2026-11-24)
 
 * **Suits puzzles** (`obj_suitspuzz` with its three buttons: `room_field_secret1`, the suits scene
