@@ -24,10 +24,12 @@ pull request, or ask on Discord (**b.001**).
    Still to run: a real piano move (the test sets the shelf's flag instead).
 3. **Done:** the piano puzzle solved by one player is solved for everyone; the organ stays local on purpose
    (DONE.md). Not looked at yet: the piano pieces rooms (`obj_dw_church_pianopiece_left/right`).
-4. **Done:** Chapter 5 castle puzzles (terracotta, orange door) follow a friend's solve (DONE.md). Still
-   local: Chapter 4's piano pieces rooms. They give the piano puzzle's hints (story flags, already
-   shared) and slide shelves with a remote piano, whose places the piano writes itself (flags
-   863-866), so the shelf follow doesn't cover them. Effort: S, if it matters in play.
+4. **Done:** Chapter 5 castle puzzles (terracotta, orange door) follow a friend's solve (DONE.md).
+   Chapter 4's piano pieces rooms were looked at again (2026-11-24): nothing to solve together.
+   They are talks with Susie and Ralsei (the couch for Ralsei's room, story flags 865/866, scenes
+   shared the usual way). The remote piano that writes flags 863-866 is only in
+   `room_dw_church_bookshelfpuzzle1`, which has no shelves for it and no door from the story
+   (a leftover room). Left as is.
 5. **Done:** Chapter 2 keyboard puzzles follow a friend's solve (DONE.md). Simplest choice: the solve
    is shared, not each key. Puzzles 2 and 3 only checked by reading the code (same path as puzzle 1).
 
