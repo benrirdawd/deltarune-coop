@@ -442,6 +442,26 @@ function mp_parse_cmdline()
         if (p == "-mptest")
             global.mp_test = v;
     }
+    // (Tests with several clients, which all get the same tokens: "P3/<token>" is only P3's.)
+    if (global.mp_test != "" && string_pos("/", global.mp_test) > 0)
+    {
+        var parts = string_split(global.mp_test, ",");
+        var kept = "";
+        for (var t = 0; t < array_length(parts); t++)
+        {
+            var tk = parts[t];
+            var sl = string_pos("/", tk);
+            // (A '/' after a ':' is part of a value, e.g. useseq's list.)
+            if (sl > 0 && (string_pos(":", tk) == 0 || string_pos(":", tk) > sl))
+            {
+                if (string_copy(tk, 1, sl - 1) != global.mp_cfg_name)
+                    continue;
+                tk = string_delete(tk, 1, sl);
+            }
+            kept += (kept == "" ? "" : ",") + tk;
+        }
+        global.mp_test = kept;
+    }
 }
 
 // ---------------------------------------------------------------- session lifecycle

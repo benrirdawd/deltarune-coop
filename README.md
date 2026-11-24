@@ -149,7 +149,10 @@ Handy things:
 * **"Say"** in the F9 menu sends a quick message (left/right to pick: "Wait for me!", "Come here!",
   "I'm saving.", "Let's go!", "Help!"...; Z to send). Everyone sees it on screen and, for a few
   seconds, in a bubble over you.
-* **"Watch"** in the F9 menu follows another player with the camera (left/right to switch).
+* **"Watch"** in the F9 menu follows another player with the camera (left/right to switch to the next
+  player, wherever they are: you go to their room).
+* The player list (top left) shows "(reading)" next to someone reading a text box: talking to someone
+  on their own, or not done with the current page of a shared cutscene.
 * **F5** (ping) shows the others where you are: for 3 seconds an arrow in your colour bounces over you
   on their screens (at the edge of the screen, pointing your way, if you're off it). Players in
   another room get a note saying which room you're in.

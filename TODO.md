@@ -13,7 +13,7 @@ pull request, or ask on Discord (**b.001**).
 5. **Done:** map ping (F5), see DONE.md. Not seen yet on screen: the arrow at the screen's edge for
    a player who is off screen (the same drawing, turned); and if someone sets the voice talk key to F5,
    pressing it also pings.
-6. Spectator: jump between players; an indicator of who is reading a text box.
+6. **Done:** spectator jumps between players; "(reading)" in the player list, see DONE.md.
 7. Clearer version check on joining: show each side's version when they don't match.
 
 ## Stage-changing scenes: everyone agrees first (later)

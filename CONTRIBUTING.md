@@ -79,6 +79,7 @@ python tools/mpcheck.py work/fol/mytest
   120 ms lag, 60 ms jitter; in `scr_mp_net`). The full list is at the top of
   `mod/gml/gml_GlobalScript_scr_mp_test.gml`; add a new token there when a test needs one (with a line
   in that list).
+* All clients get the same tokens; `P3/<token>` is only for the player named P3 (clients are P2, P3...).
 * `CRASH_AT=<s>` kills client 1's game after `<s>` seconds and starts it again (reconnect tests).
 
 Ready-made scenarios: `tools/latejoin.sh ch1 ... ch5crash` (joining mid-cutscene, coming back after a

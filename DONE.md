@@ -4,6 +4,24 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Spectator jumps between players; who is reading (2026-11-24)
+
+* Watching (F9 "Watch") already switched players with left/right; now tested with three players in two
+  rooms: the watcher goes to the next player's room straight away (`mp_spec_tick`'s warp). New test
+  tokens `watchnext:<frame>` (as pressing right) and `<name>/<token>` (a token only for the player with
+  that name: all clients get the same tokens). Test, Chapter 2 `room_dw_cyber_intro_1`, 3 players,
+  `chaos:10:120:60` (`work/fol/spec3`): P3 went to `room_dw_cyber_intro_2`, P2 watched the host, then
+  switched to P3 and was warped to P3's room; only P2 watched and only P3 left (the per-player tokens
+  work); mpcheck passes except "moved".
+* "(reading)" in the player list (`mp_player_reading`): someone talking to an NPC on their own (the talk
+  bubble's text, as before), or, in the shared cutscene I'm in, someone whose copy of the current box
+  hasn't finished (each game already reports its box and whether it's done, message 60; the same box
+  check the page turning uses). No new message. Test token `logreading`. Test, Chapter 2 Queen boxing
+  scene, client joining late and watching (`work/fol/read2`, and `read1` with `chaos:10:120:60`): the
+  host shows P2 as reading on each box (0-15) and P2 shows the host as reading on each box. (The first
+  version compared box numbers, which differ between the leader and the watchers: the host never saw
+  P2 reading; it now checks the box key.)
+
 ## Map ping: F5 (2026-11-24)
 
 F5 (free in every chapter and in the mod) sends a ping (new message 85: the room; at most one a

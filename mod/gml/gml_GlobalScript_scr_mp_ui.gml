@@ -738,6 +738,8 @@ function mp_draw_gui()
                 st = mp_state_bits();
             if (mp_voice_speaking(i))
                 label += " (talking)";
+            if (i != global.mp_myid && mp_player_reading(i))
+                label += " (reading)";
             var pmg = (i == global.mp_myid) ? global.mp_mg : mp_player_minigame(i);
             if (st & 1)
                 label += " [battle]";
@@ -1188,4 +1190,15 @@ function mp_ping_arrow(xx, yy, dir, col, sc)
     draw_triangle(tx, ty, x1, y1, x2, y2, false);
     draw_set_color(c_white);
     draw_triangle(tx, ty, x1, y1, x2, y2, true);
+}
+
+// Player p is reading a text box: talking to someone on their own (the talk bubble's text), or, in the
+// shared cutscene I'm in too, their copy of the current page hasn't finished typing / been read yet
+// (mp_dlg_recv: what each game says about its box). Shown as "(reading)" in the player list.
+function mp_player_reading(p)
+{
+    if (global.mp_ptalk[p] != "" && (current_time - global.mp_ptalk_t[p]) < 2500)
+        return true;
+    // (Same box: mp_dlg_counted, as the page turning uses.)
+    return global.mp_sstate != 0 && mp_dlg_counted(p) && instance_exists(obj_writer) && !global.mp_pdlg_ready[p];
 }

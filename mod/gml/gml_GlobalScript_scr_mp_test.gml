@@ -55,6 +55,9 @@
 //   logblocks       log the room's pushable blocks every 5 s ([MPBLOCKS] lines)
 //   chat:<i>@<f>    send quick message i (F9 "Say") at frame f
 //   pingat:<f>      press F5 (map ping) at frame f
+//   watchnext:<f>   while watching, switch to the next player at room frame f
+//   <name>/<token>  only for the player with that name (-mpname), e.g. P3/away:room_x:100
+//   logreading      log who the player list shows as "(reading)" every 30 frames
 //   reportzip       at frame 400, do F9 "Save logs for a bug report" into the save folder (not the desktop)
 //   menupage:<n>    with openmenu: pick C-menu entry n (0 items, 1 equipment, 3 power/status)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)
@@ -588,6 +591,21 @@ function mp_test_input()
                 event_user(0);
         }
     }
+    // logreading: every 5 frames, who the player list shows as "(reading)".
+    if (mp_test_has("logreading") && mp_on() && (global.mp_frame mod 5) == 0)
+    {
+        var rd = "";
+        for (var ri = 0; ri < 8; ri++)
+        {
+            if (ri != global.mp_myid && global.mp_pconn[ri] && mp_player_reading(ri))
+                rd += global.mp_pname[ri] + " ";
+        }
+        if (rd != "")
+            mp_log("[test] reading: " + rd + "(box " + string(global.mp_dlg_n) + ")");
+    }
+    // watchnext:<frame>: switch to watching the next player (as right on the map while watching).
+    if (mp_test_has("watchnext") && variable_global_exists("mp_test_timer") && global.mp_test_timer == real(mp_test_arg("watchnext")) && mp_on() && mp_spec_on())
+        mp_spec_set(mp_spec_next(global.mp_spec, 1) < 0 ? mp_spec_next(-1, 1) : mp_spec_next(global.mp_spec, 1));
     // watch:<frame>: start watching the first other player at that room frame.
     if (mp_test_has("watch") && variable_global_exists("mp_test_timer") && global.mp_test_timer == real(mp_test_arg("watch")) && mp_on())
         mp_spec_set(mp_spec_next(-1, 1));
