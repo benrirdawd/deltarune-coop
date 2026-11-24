@@ -13,6 +13,17 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+## `room_town_school` plot 100 crash: the test's start, not the mod (2026-11-24)
+
+Run with the host alone (`work/fol/school1`, and `school2` with `lightworld`): it crashes the same way with
+nobody connected, on the room's first frame ("Trying to draw non-existing sprite", `obj_actor` Draw). Plot 100
+is a real story point here: the room makes `obj_ch5_LW11A` (Noelle by the school), whose trigger is
+`x <= 260, y >= 160`. The test's `room_goto` puts Kris at the room's default spot, already inside that
+trigger, so the scene makes its actors (`scr_maincharacters_actors`, copying the followers' sprites) on the
+very first frame, before the followers have a sprite. In the game you arrive through a door, away from the
+trigger. The mod doesn't touch this scene or actor creation. Choice: no change; for this room, test with
+another plot or arrive by walking in.
+
 ## Story fight "deadlock" on a bad network: a test artifact (2026-11-24)
 
 The stuck `room_dw_garden_aqua` 291 fight with `chaos:10:120:60` (`work/fol/aqua5`) was the test: both games

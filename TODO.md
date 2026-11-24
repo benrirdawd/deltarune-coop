@@ -92,9 +92,6 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Not looked at yet
 
-* `room_town_school` plot 100 (Chapter 5): the host crashed before anyone joined, "Trying to draw
-  non-existing sprite" in `obj_actor` Draw. May be the test's story point (plot 100 isn't a real one
-  for this room) rather than the mod; check with the host alone (`sweep.py --solo`).
 * More `interact` cases in later chapters (save points, shops, the C menu are Z-triggered and local;
   unprompted text boxes only pull after 4 s).
 * Tests don't cover yet: Chapter 1 new game (the vessel creation; Chapter 1 is tested by loading a
