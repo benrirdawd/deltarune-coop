@@ -4,22 +4,12 @@ Only open work is here; everything finished (and how it was tested) is in [`DONE
 Effort: S = small, M = medium, L = large. Help is welcome: pick anything below, open an issue or a
 pull request, or ask on Discord (**b.001**).
 
-## Next up: watch a cutscene, then go back (user idea, 2026-11-23)
+## Stage-changing scenes: everyone agrees first (later)
 
-Today a story cutscene pulls everyone into its room and, when it ends, everyone is moved to where the
-leader ended up: a player exploring a corner of the map loses their place. New rule:
-
-1. **Watch and come back (default).** A player pulled into someone's cutscene watches it (the mirror
-   still needs them in the scene's room: it draws over their own copy of the room) and, when it ends,
-   goes back to the room and spot they were pulled from. The story changes it made are already synced.
-   If that place no longer makes sense, they follow the leader as today.
-2. **Scenes that change the stage of the game** (into the Dark World, out of town, the end of a
-   chapter, a way back that closes): decided when the scene ends (simplest that works): if it ended in
-   another area (a different room than it started in, a Light/Dark World change, a chapter end),
-   everyone follows the leader as today.
-3. **Later: everyone agrees first.** A list of the stage-changing scenes (from the story sweeps: scenes
-   that end in another room); for those the scene stops at its first text box with "P1 wants to move
-   the story on: Z to agree (2/3)" and goes on when everyone agreed or the host forces it.
+Watching a cutscene and going back to where you were is done (DONE.md, 2026-11-24): a scene that ends
+in another room or world takes everyone along. Later: a list of those stage-changing scenes (from the
+story sweeps: scenes that end in another room); for them the scene stops at its first text box with
+"P1 wants to move the story on: Z to agree (2/3)" and goes on when everyone agreed or the host forces it.
 
 ## Puzzles and map objects together (user request, 2026-11-23)
 

@@ -19,10 +19,12 @@ declare -A S=(
 )
 # Scenarios with their own token lists: name -> "chapter|seconds|host tokens|client tokens". The host walks
 # (away:) into the scene while the client has gone to another room, like a player running ahead.
+# ch2_return: the client stays behind; after watching the scene it must be back where it stood.
 declare -A X=(
   [ch2_library]="2|120|party,room:room_library,plot:19,check,mash,log,partyat:400|party,room:room_krisroom,plot:19,check,mash,log,wander"
   [ch2_card_scene]="2|120|party,room:room_dw_castle_area_2_transformed,plot:15,check,mash,log,partyat:400|party,room:room_dw_castle_area_1,plot:15,check,mash,log,wander"
   [ch2_schooldoor]="2|120|party,room:room_schooldoor,plot:16,check,mash,log,partyat:400|party,room:room_krisroom,plot:16,check,mash,log,wander"
+  [ch2_return]="2|150|party,room:room_dw_cyber_intro_2,plot:53,check,mash,log,away:room_dw_cyber_queen_boxing:900:450:141|party,room:room_dw_cyber_intro_2,plot:53,check,mash,log"
   [ch2_queen]="2|300|party,room:room_dw_cyber_intro_1,plot:50,check,mash,log,bot,botrand,weak,away:room_dw_cyber_intro_2:900:560:240|party,room:room_dw_cyber_intro_1,plot:50,check,mash,log,bot,botrand,weak,away:room_dw_cyber_intro_connector:300"
 )
 # CS_EXTRA: more tokens for every game (e.g. CS_EXTRA=chaos:10:120:60 for a bad network).

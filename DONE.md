@@ -4,6 +4,23 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Watch a cutscene, then go back to where you were (2026-11-24)
+
+* A player pulled into someone's cutscene (the mirror) remembers the room and spot they were pulled
+  from (`mp_mirror_start`, `global.mp_mir_home`). When the scene ends **in the room it began in and
+  in the same world** (Light/Dark), they go back there (`mp_mirror_home`, `mp_mirror_end`); its story
+  changes are already shared. A scene that ends somewhere else (another room, the other world, the
+  credits) takes everyone to the leader, as before.
+* Design choice (simplest that works): "changes the stage of the game" is decided at the end, by where
+  the scene ended, not from a list of scenes. Players who were already in the scene's room go back to
+  their own spot in it.
+
+**Tested** (new scenario `cutscenes.sh ch2_return`: both players in `room_dw_cyber_intro_2`, the host
+alone walks into the Queen boxing scene): the client watched it and was back at 200,240 in
+`room_dw_cyber_intro_2`; same with `CS_EXTRA=chaos:10:120:60`, and `ch2_entry`, `ch2_library`,
+`ch2_schooldoor`, `ch2_card_scene`, `ch4_entry`, `ch2_queen` still pass. The "scene ended elsewhere,
+follow the leader" branch is the old code path, not run separately here.
+
 ## Puzzles together: switches and floor tiles (2026-11-23)
 
 * **Floor tiles** that react to someone standing on them (Chapter 1 `obj_glowtile`, the timed puzzles
