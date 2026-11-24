@@ -144,8 +144,8 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Not looked at yet
 
-* More `interact` cases: save point checked (Chapter 4, DONE.md); a Chapter 5 shop checked (DONE.md).
-  NPCs in Chapters 3-5 can be run with the `touch:<obj>@<f>` token when it matters.
+* More `interact` cases: save point (Chapter 4), a Chapter 5 shop and a Chapter 4 readable checked
+  (DONE.md). Other NPCs can be run with the `touch:<obj>@<f>` token when one misbehaves in play.
 * Tests don't cover yet: Chapter 1 new game (the vessel creation writes save files, so it isn't run here;
   Chapter 1 is tested by loading a save), more cutscenes started with Z (one tested), a real play-through of
   whole chapters. Platforming with running and jumping is tested (DONE.md).

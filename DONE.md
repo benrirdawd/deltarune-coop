@@ -4,6 +4,13 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 4 readable with Z: stays local (2026-11-24)
+
+* Test, Chapter 4 `room_dw_ralsei_castle_1f`, plot 289, the host reads an `obj_readable_room1`
+  (`touch`, then `mash` to close the text), both with `chaos:10:120:60` (`work/fol/npc4`): the text
+  box opens in the host's game only (interact 0->1, then back to 0), the client isn't pulled, every
+  check passes (char, follower, ghost, state, sync, scene, world; no crash).
+
 ## Chapter 5 shop with two players checked; Chapter 3 puzzle closets looked at (2026-11-24)
 
 * Shops are rooms of their own (entered through a door, not with Z). Test, Chapter 5
