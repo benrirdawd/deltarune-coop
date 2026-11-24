@@ -35,8 +35,9 @@ pull request, or ask on Discord (**b.001**).
    shared, and the room's switch reads the plot every frame) and the shape puzzle (one player steers).
 7. **Done:** Chapter 3's couch-world eye puzzle: Kris's switch pressed by anyone opens the bridge in
    every game (DONE.md). The TV keyboard tiles are the TV quizzes' A/B answers: a friend's right
-   answer now finishes my TV too (DONE.md). Not looked at yet: the puzzle closets
-   (`obj_puzzlecloset_manager`).
+   answer now finishes my TV too (DONE.md). The puzzle closets (`obj_puzzlecloset_manager`,
+   `room_dw_puzzlecloset_1..3`) were looked at: they are part of the Chapter 3 board (the camera,
+   photos counted in flags 1228/1245, shared), so the board's handling covers them. Left as is.
 5. **Done:** Chapter 2 keyboard puzzles follow a friend's solve (DONE.md). Simplest choice: the solve
    is shared, not each key. Puzzles 2 and 3 only checked by reading the code (same path as puzzle 1).
 
@@ -143,8 +144,8 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Not looked at yet
 
-* More `interact` cases: save point checked (Chapter 4, DONE.md); shops and NPCs in Chapters 3-5 can now be
-  run with the `touch:<obj>@<f>` token when it matters.
+* More `interact` cases: save point checked (Chapter 4, DONE.md); a Chapter 5 shop checked (DONE.md).
+  NPCs in Chapters 3-5 can be run with the `touch:<obj>@<f>` token when it matters.
 * Tests don't cover yet: Chapter 1 new game (the vessel creation writes save files, so it isn't run here;
   Chapter 1 is tested by loading a save), more cutscenes started with Z (one tested), a real play-through of
   whole chapters. Platforming with running and jumping is tested (DONE.md).

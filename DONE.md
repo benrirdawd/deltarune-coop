@@ -4,6 +4,16 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 5 shop with two players checked; Chapter 3 puzzle closets looked at (2026-11-24)
+
+* Shops are rooms of their own (entered through a door, not with Z). Test, Chapter 5
+  `room_shop_ch5`, plot 291, both players in the shop, the host mashing Z, both with
+  `chaos:10:120:60` (`work/fol/shop5`): the host went through the shop's menus to "Buy it for $333?"
+  while the client's shop stayed on its own first page (screenshots): each player has their own shop
+  menu, nobody pulled, every check passes (state, sync, scene, music, world; no crash).
+* The Chapter 3 puzzle closets (`room_dw_puzzlecloset_1..3`) are part of the board (the camera and
+  photos, flags 1228/1245, shared): covered by the board's handling, left as is.
+
 ## Chapter 3 TV quizzes: answered by one, done for everyone (2026-11-24)
 
 * The TV quizzes (`obj_dw_ch3_teevie_quiz_controller`, `room_dw_teevie_large_02` and the maze):
