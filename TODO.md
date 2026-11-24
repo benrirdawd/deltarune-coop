@@ -37,6 +37,9 @@ Watching a cutscene and going back to where you were is done (DONE.md, 2026-11-2
 in another room or world takes everyone along. Later: a list of those stage-changing scenes (from the
 story sweeps: scenes that end in another room); for them the scene stops at its first text box with
 "P1 wants to move the story on: Z to agree (2/3)" and goes on when everyone agreed or the host forces it.
+Not started (2026-11-24): a scene is known to change the stage only when it ends, so this needs the
+list first (one sweep per chapter logging the scenes that end in another room, `mp_mirror_home` = -1).
+Skipped by the loop until that list exists.
 
 ## Puzzles and map objects together (user request, 2026-11-23)
 
@@ -65,9 +68,10 @@ changing the room for everyone.
 
 ## Spectating and Game Over (user request, 2026-11-23)
 
-* **Done: watching a player on the map** (F9 "Watch", left/right to switch), see DONE.md. Still to do:
-  switching to watching automatically for a player who has nothing to play (same character as another
-  player, a 4th+ player).
+* **Done: watching a player on the map** (F9 "Watch", left/right to switch), see DONE.md. A player
+  with nothing to play in fights (same character as someone who picked it first) is told once that
+  F9 > Watch follows that player (DONE.md). Simplest choice: a hint, not watching on its own, since
+  walking around as your pick still works.
 * **Done: anyone's Continue at the Game Over continues for everyone**, see DONE.md. Not run: the
   CONTINUE choice on the second screen (`PLACE_FAILURE`), only the quick retry.
 

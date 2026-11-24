@@ -4,6 +4,18 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Same character as another player: a hint to watch them (2026-11-24)
+
+* Several players may pick the same character; in fights the first to pick it plays it and the others
+  watch. Those others are now told once, on the map: "<name> plays your character in fights (you
+  watch them). F9 > Watch follows them on the map too." Told again only if who plays it changes
+  (`mp_spec_hint`, `scr_mp_spec`).
+* Simplest choice: a hint, not switching to watching on its own: walking around as your own pick
+  still works and some players want it.
+* Test, Chapter 2, plot 60, both on Kris (`MPCHARS="1"`), both with `chaos:10:120:60`
+  (`work/fol/spechint`): the client got the hint once (4 s in, after the room was ready), the host
+  none. No crash.
+
 ## Chapter 2 keyboard puzzles: solved by one, solved for everyone (2026-11-24)
 
 * `room_dw_cyber_keyboard_puzzle_1..3`: typing the right word sets a story flag (390, 333, 420;

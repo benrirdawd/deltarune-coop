@@ -14,6 +14,7 @@ function mp_spec_init()
     global.mp_spec_was = 0;       // my character was hidden for it (to show it again)
     global.mp_spec_masked = 0;    // my character's collision mask is emptied (to give it back)
     global.mp_spec_mask = -1;     // the mask it had
+    global.mp_spec_told = -1;     // the player I was told plays my character in fights (-1 none)
 }
 
 // Empties (on) or gives back (off) my character's collision mask while watching.
@@ -117,9 +118,31 @@ function mp_spec_input()
     }
 }
 
+// A player with nothing of their own to play in fights (someone who picked the same character
+// first plays it; I watch their battles): told once, on the map, that they can watch them there
+// too. Simplest choice: a hint, not watching on its own, since walking around as my pick still works.
+function mp_spec_hint()
+{
+    if (!mp_on() || mp_spec_on() || !mp_spec_free() || global.mp_ui_open)
+        return;
+    var c = mp_char_controller(global.mp_pchar[global.mp_myid]);
+    if (c == global.mp_myid || c < 0)
+    {
+        global.mp_spec_told = -1;
+        return;
+    }
+    if (c == global.mp_spec_told)
+        return;
+    global.mp_spec_told = c;
+    mp_notify(global.mp_pname[c] + " plays your character in fights (you watch them). F9 > Watch follows them on the map too.");
+    mp_log("spectate: hint, my character is played by " + string(c) + " in fights");
+}
+
 // Every frame (mp_sync_tick).
 function mp_spec_tick()
 {
+    if ((global.mp_frame mod 30) == 0)
+        mp_spec_hint();
     if (!mp_spec_on())
         return;
     var p = global.mp_spec;
