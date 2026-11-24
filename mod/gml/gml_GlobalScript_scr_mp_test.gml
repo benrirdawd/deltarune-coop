@@ -58,6 +58,7 @@
 //   logblocks       log the room's pushable blocks every 5 s ([MPBLOCKS] lines)
 //   chat:<i>@<f>    send quick message i (F9 "Say") at frame f
 //   pingat:<f>      press F5 (map ping) at frame f
+//   pinglong        ping arrows stay on screen 30 s (for screenshots)
 //   watchnext:<f>   while watching, switch to the next player at room frame f
 //   <name>/<token>  only for the player with that name (-mpname), e.g. P3/away:room_x:100
 //   logreading      log who the player list shows as "(reading)" every 30 frames

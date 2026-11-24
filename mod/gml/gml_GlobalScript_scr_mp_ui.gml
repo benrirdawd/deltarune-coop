@@ -1143,6 +1143,9 @@ function mp_ping_draw(gw, gh, sc)
     for (var p = 0; p < 8; p++)
     {
         var age = current_time - global.mp_pping_t[p];
+        // (Test token pinglong: the arrows stay 30 s, long enough for a screenshot.)
+        if (global.mp_test != "" && mp_test_has("pinglong") && age <= 30000)
+            age = min(age, 2000);
         if (age > 3000 || (p != global.mp_myid && !global.mp_pconn[p]))
             continue;
         var w = mp_ping_where(p);
@@ -1165,6 +1168,13 @@ function mp_ping_draw(gw, gh, sc)
             // Off screen: at the edge, pointing towards them.
             var ex = clamp(gx, m, gw - m);
             var ey = clamp(gy, m, gh - m);
+            // (Not under the player list in the top-left corner: just below it.)
+            var nl = 1;
+            for (var q = 0; q < 8; q++)
+                nl += global.mp_pconn[q] ? 1 : 0;
+            var hud_b = (12 + 16 * nl) * sc + m;
+            if (ex < 140 * sc && ey < hud_b)
+                ey = hud_b;
             mp_ping_arrow(ex, ey, point_direction(ex, ey, gx, gy), col, sc);
         }
         draw_set_alpha(1);

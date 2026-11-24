@@ -4,6 +4,16 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Map ping: the edge arrow seen, moved out from under the player list (2026-11-24)
+
+* First look at the arrow for a pinger who is off screen (Chapter 2 `room_dw_city_big_2`, the host
+  pings from far up-left of the client, both with `chaos:10:120:60`, `work/fol/pingedge4`): the
+  arrow was drawn at the screen's corner, under the player list, hard to see. Now an edge arrow that
+  would fall in the list's corner sits just below the list (the list's height follows the number of
+  players). Screenshot `work/fol/pingedge5/c1_24.png`: the host's blue arrow below the list, pointing
+  up-left towards the host.
+* New test token `pinglong` (arrows stay 30 s, for screenshots: the shots come a few seconds late).
+
 ## Chapter 4 readable with Z: stays local (2026-11-24)
 
 * Test, Chapter 4 `room_dw_ralsei_castle_1f`, plot 289, the host reads an `obj_readable_room1`

@@ -10,9 +10,8 @@ pull request, or ask on Discord (**b.001**).
 2. **Done:** CONTRIBUTING.md, see DONE.md.
 3. **Done:** F9 "Save logs for a bug report" (zip on the desktop), see DONE.md.
 4. **Done:** quick messages, F9 "Say", see DONE.md.
-5. **Done:** map ping (F5), see DONE.md. Not seen yet on screen: the arrow at the screen's edge for
-   a player who is off screen (the same drawing, turned); and if someone sets the voice talk key to F5,
-   pressing it also pings.
+5. **Done:** map ping (F5), see DONE.md. The edge arrow for a player off screen is seen now (DONE.md).
+   Still: if someone sets the voice talk key to F5, pressing it also pings.
 6. **Done:** spectator jumps between players; "(reading)" in the player list, see DONE.md.
 7. **Done:** clearer version check on joining (each side's build and network version), see DONE.md.
 
