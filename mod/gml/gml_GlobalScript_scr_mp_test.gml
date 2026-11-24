@@ -13,6 +13,7 @@
 //   partyat:<n>     do `party` after n frames (default 60)
 //   walk:<d>:<t>:<n>  hold direction d (l/r/u/d) for n frames, t frames after arriving
 //   bumpflag:<n>:<c> count story flag n up c times, fast, once someone else is in the room (counters add up)
+//   songext:<v>:<p> with song: play it at volume v and pitch p (mus_loop_ext, as some Chapter 1 scenes do)
 //   touch:<obj>@<f> f frames into the room, stand below the newest <obj> facing it and press Z (NPC, save point)
 //   away:<room>:<n>[:<x>:<y>] once connected, n frames after the party setup, go to <room> (like walking through a door)
 //                   (also from the opening's PLACE_* rooms: the host leaving its vessel creation)
@@ -392,7 +393,15 @@ function mp_test_tick()
         if (snd_is_playing(global.currentsong[1]))
             snd_stop(global.currentsong[1]);
         global.currentsong[0] = snd_init(mp_test_arg("song"));
-        global.currentsong[1] = mus_loop(global.currentsong[0]);
+        // songext:<volume>:<pitch>: play it as some Chapter 1 scenes do (mus_loop_ext).
+        var sx = mp_test_arg("songext");
+        if (sx != "")
+        {
+            var sc = string_pos(":", sx);
+            global.currentsong[1] = mus_loop_ext(global.currentsong[0], real(string_copy(sx, 1, sc - 1)), real(string_delete(sx, 1, sc)));
+        }
+        else
+            global.currentsong[1] = mus_loop(global.currentsong[0]);
         mp_log("[test] playing " + mp_test_arg("song"));
     }
     // stuck:<n>: n frames after the party setup, fake a stuck sync state (as after a cutscene that was cut short):

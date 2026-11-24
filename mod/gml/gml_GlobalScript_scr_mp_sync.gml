@@ -33,6 +33,9 @@ function mp_sync_init()
     global.mp_mus_until = 0;
     global.mp_mus_sent = "";
     global.mp_pmus = array_create(8, "");
+    global.mp_pmus_vol = array_create(8, 1);
+    global.mp_pmus_pitch = array_create(8, 1);
+    global.mp_mus_from = -1;    // whose song I'm playing (mp_music_follow), until my own starts
     global.mp_ms_new = 0;
     global.mp_ms_song = "";
     global.mp_ms_pos = 0;
@@ -300,9 +303,14 @@ function mp_sync_recv(type, from, b)
     if (type == 34) // the song the sender is playing
     {
         global.mp_pmus[from] = buffer_read(b, buffer_string);
+        global.mp_pmus_vol[from] = buffer_read(b, buffer_u8) / 100;
+        global.mp_pmus_pitch[from] = max(0.1, buffer_read(b, buffer_u8) / 100);
         // Mirroring their cutscene: their music.
         if (global.mp_sstate == 5 && from == global.mp_slead && global.mp_pmus[from] != "")
             mp_music_follow(from);
+        // A song I took from them: their room's volume for it (Chapter 1 rooms that play it at 0.7).
+        else if (global.mp_mus_from == from && global.mp_pmus[from] == mp_music_name() && variable_global_exists("currentsong"))
+            mus_volume(global.currentsong[1], global.mp_pmus_vol[from], 15);
         return;
     }
     if (type == 37) // the music clock of the host or of my fight's leader
@@ -486,13 +494,36 @@ function mp_music_tick()
     if ((global.mp_frame mod 15) != 0 || !mp_on())
         return;
     var nm = mp_music_name();
-    if (nm != global.mp_mus_sent || (global.mp_frame mod 300) == 0)
+    // (Also every 2 s: a song that fades in or out sends its volume as it goes.)
+    if (nm != global.mp_mus_sent || (global.mp_frame mod 60) == 0)
     {
         global.mp_mus_sent = nm;
         mp_begin(34);
         mp_wstr(nm);
+        mp_wu8(round(mp_music_vol() * 100));
+        mp_wu8(round(mp_music_pitch() * 100));
         mp_send();
     }
+}
+
+// The room's volume for the song I'm playing (0-1), without my own volume setting.
+function mp_music_vol()
+{
+    if (!variable_global_exists("currentsong") || !is_array(global.currentsong) || !snd_is_playing(global.currentsong[1]))
+        return 1;
+    var master = global.flag[16];
+    if (!is_real(master) || master <= 0)
+        return 1;
+    // (mus_loop_ext sets it on the song itself, mus_volume on the playing copy.)
+    return clamp(audio_sound_get_gain(global.currentsong[0]) * audio_sound_get_gain(global.currentsong[1]) / master, 0, 1);
+}
+
+// Its pitch (mus_loop_ext: some Chapter 1 scenes play their song slower).
+function mp_music_pitch()
+{
+    if (!variable_global_exists("currentsong") || !is_array(global.currentsong) || !snd_is_playing(global.currentsong[1]))
+        return 1;
+    return clamp(audio_sound_get_pitch(global.currentsong[0]), 0.1, 2.5);
 }
 
 // Music clock: once a second the host sends its song and how far into it it is. A client in the
@@ -607,8 +638,11 @@ function mp_music_follow(pid)
     if (snd_is_playing(global.currentsong[1]))
         snd_stop(global.currentsong[1]);
     global.currentsong[0] = snd_init(want);
+    snd_pitch(global.currentsong[0], global.mp_pmus_pitch[pid]);
     global.currentsong[1] = mus_loop(global.currentsong[0]);
-    mp_log("music follows player " + string(pid) + ": " + want);
+    mus_volume(global.currentsong[1], global.mp_pmus_vol[pid], 0);
+    global.mp_mus_from = pid;
+    mp_log("music follows player " + string(pid) + ": " + want + " at " + string(global.mp_pmus_vol[pid]) + ", pitch " + string(global.mp_pmus_pitch[pid]));
 }
 
 // Tries to act on a received pull; may be deferred while a local dialogue finishes.

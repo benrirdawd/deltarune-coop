@@ -13,6 +13,17 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+## Following someone's music: their volume and pitch too (2026-11-24)
+
+A player who took another player's song (moved to them, or watching their cutscene) played it at full volume
+and normal pitch, while some Chapter 1 scenes play theirs quieter and slower (`mus_loop_ext`, e.g. 0.7 and
+0.75). The song announcement (message 34) now also carries the song's volume (the song's and the playing
+copy's gain, without the player's own volume setting) and pitch, sent every 2 s so fades come along; the
+follower plays it with both and keeps the volume updated while it plays their song. New test token
+`songext:<volume>:<pitch>`. Test, Chapter 1, host playing `lancer.ogg` at 0.7/0.75, client brought over with
+`gotohost`, `chaos:10:120:60` (`work/fol/vol5`): "music follows player 0: lancer.ogg at 0.60, pitch 0.75"
+(0.60 = 0.7 x the volume setting 0.85, the same as the host's), music clock in sync (drift under 0.07 s).
+
 ## Counter flags add up between players (2026-11-24)
 
 Story flags the game only ever counts up (kills, times talked to someone, Chapter 5's slashes...) kept the
