@@ -150,7 +150,8 @@ Handy things:
   "I'm saving.", "Let's go!", "Help!"...; Z to send). Everyone sees it on screen and, for a few
   seconds, in a bubble over you.
 * **"Watch"** in the F9 menu follows another player with the camera (left/right to switch to the next
-  player, wherever they are: you go to their room).
+  player, wherever they are: you go to their room). While you watch, your hidden character doesn't
+  touch anything: no enemy, scene trigger or floor switch reacts to it.
 * The player list (top left) shows "(reading)" next to someone reading a text box: talking to someone
   on their own, or not done with the current page of a shared cutscene.
 * **F5** (ping) shows the others where you are: for 3 seconds an arrow in your colour bounces over you
@@ -199,6 +200,8 @@ players aren't drawn over it, and they see "Playing the rhythm game..." over whe
 Climbing walls (Chapters 4-5), you see the other climbers on the wall, each as their own character.
 In Chapter 5's platforming sections the others are shown as their own character too (Susie,
 Ralsei; Kris and Noelle use Kris's figure).
+Every minigame, puzzle and ACT with its own game, and what multiplayer does with each one so far,
+is listed in [`MINIGAMES.md`](MINIGAMES.md).
 A few fights have their own rules (Spamton NEO, Queen and Giga Queen, Berdly's plug, Chapter 3's
 Knight, Shadow Mantle and Tenna's board fight, Chapter 4's Titan and Gerson's): there the fight's
 leader plays every hero and the others watch; everyone is told who plays.
