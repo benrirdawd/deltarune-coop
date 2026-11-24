@@ -16,6 +16,10 @@ function mp_sync_init()
     global.mp_local_dlg = 0;
     global.mp_lastz = -100;
     global.mp_classify = 0;
+    global.mp_pre_z = 0;
+    global.mp_free_master = -1;
+    global.mp_free_actors = 0;
+    global.mp_free_vis = 1;
     global.mp_solo_scene = 0;
     global.mp_lead_mask = 0;
     global.mp_idle = 0;
@@ -718,7 +722,7 @@ function mp_sync_try_pull()
         return;
     }
     var busy = global.interact != 0 && global.mp_sstate == 0;
-    if (kind == 2 && busy && global.mp_classify > 0 && room == p[2])
+    if (kind == 2 && busy && global.mp_classify > 0 && !global.mp_pre_z && room == p[2])
     {
         // The same cutscene just started in my game too: watch theirs instead (mine is switched off).
         global.mp_pull = -1;
@@ -805,7 +809,7 @@ function mp_sync_try_pull()
 // Something that is (or may become) a story cutscene is playing in my own game.
 function mp_cutscene_running()
 {
-    if (global.mp_classify > 0)
+    if (global.mp_classify > 0 && !global.mp_pre_z)
         return true;
     var cm = asset_get_index("obj_cutscene_master");
     if (cm >= 0 && instance_exists(cm))
@@ -970,6 +974,14 @@ function mp_sync_tick()
 
     if (ia != 0 && room == global.mp_last_cs_room)
         global.mp_last_cs_end = current_time;
+    // The room as it was on the last free frame: a scene started with Z already ran its first step
+    // (cutscene controller, actors, hiding me) before the rise is seen here.
+    if (ia == 0)
+    {
+        global.mp_free_master = mp_newest_master();
+        global.mp_free_actors = mp_actor_count();
+        global.mp_free_vis = instance_exists(obj_mainchara) ? obj_mainchara.visible : 1;
+    }
     if (ia != global.mp_prev_interact)
         mp_log("interact " + string(global.mp_prev_interact) + "->" + string(ia) + " sst=" + string(global.mp_sstate) + " room=" + room_get_name(room) + " rf=" + string(global.mp_room_frames) + " z=" + string(global.mp_frame - global.mp_lastz) + " plot=" + string(global.plot));
     switch (global.mp_sstate)
@@ -1177,7 +1189,7 @@ function mp_story_rise(ia, battle)
     if (!rise)
         return false;
     var talked = (global.mp_frame - global.mp_lastz) <= 3;
-    if (ia != 1 || talked || battle || global.mp_warp_pending || mp_battle_starting())
+    if (ia != 1 || battle || global.mp_warp_pending || mp_battle_starting())
         return false;
     // Events on the Chapter 3 board happen on each player's own board, and the end credits
     // run in each player's own game (their rooms need the credits' own objects).
@@ -1206,6 +1218,9 @@ function mp_story_rise(ia, battle)
     global.mp_pre_actors = mp_actor_count();
     global.mp_last_cs_room = room;
     global.mp_last_cs_plot = global.mp_pre_plot;
+    // Started with Z (talking, a save point, a shop): only mine, unless it turns out to be a story
+    // scene (mp_classify_step: Chapter 2's Queen arcade starts the whole boxing scene from a Z).
+    global.mp_pre_z = talked;
     global.mp_pre_vis = 1;
     global.mp_pre_mx = 0;
     global.mp_pre_my = 0;
@@ -1214,6 +1229,12 @@ function mp_story_rise(ia, battle)
         global.mp_pre_vis = obj_mainchara.visible;
         global.mp_pre_mx = obj_mainchara.x;
         global.mp_pre_my = obj_mainchara.y;
+    }
+    if (talked)
+    {
+        global.mp_pre_master = global.mp_free_master;
+        global.mp_pre_actors = global.mp_free_actors;
+        global.mp_pre_vis = global.mp_free_vis;
     }
     return true;
 }
@@ -1294,6 +1315,24 @@ function mp_classify_step(ia, battle)
     // that way") doesn't: starts a cutscene controller (Chapter 2+), moves the story on,
     // creates actors, hides or moves the player, or stops the party following.
     var strong = mp_newest_master() > global.mp_pre_master || global.plot != global.mp_pre_plot || mp_actor_count() > global.mp_pre_actors;
+    // Started with Z: a story scene only if a new cutscene controller runs it and it hides me, moves
+    // the story on or brings in actors (a save point, a shop or a chat does none of that). Decided
+    // within 5 s, then it stays mine.
+    if (global.mp_pre_z)
+    {
+        var zhid = instance_exists(obj_mainchara) && global.mp_pre_vis && !obj_mainchara.visible;
+        if (global.mp_classify == 149)
+            mp_log("Z check: master " + string(mp_newest_master()) + "/" + string(global.mp_pre_master) + " hid " + string(zhid) + " plot " + string(global.plot) + "/" + string(global.mp_pre_plot) + " actors " + string(mp_actor_count()) + "/" + string(global.mp_pre_actors));
+        if (mp_newest_master() > global.mp_pre_master && (zhid || global.plot != global.mp_pre_plot || mp_actor_count() > global.mp_pre_actors))
+        {
+            global.mp_classify = 0;
+            mp_log("started with Z, but a story scene: sharing it");
+            return true;
+        }
+        if (global.mp_classify >= 150)
+            global.mp_classify = 0;
+        return false;
+    }
     // Chapter 1 has no cutscene controller, and some of its scenes (Jevil's) neither move the
     // story nor create actors at first. Two more signs: it started on walking into the room, or
     // it's still going after 5 s without the player having pressed Z on anything to start it.

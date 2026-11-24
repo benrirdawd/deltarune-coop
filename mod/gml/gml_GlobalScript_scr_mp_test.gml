@@ -12,7 +12,7 @@
 //   wander          walk around randomly in free roam
 //   partyat:<n>     do `party` after n frames (default 60)
 //   walk:<d>:<t>:<n>  hold direction d (l/r/u/d) for n frames, t frames after arriving
-//   touch:<obj>@<f> f frames into the room, stand below the first <obj> facing it and press Z (NPC, save point)
+//   touch:<obj>@<f> f frames into the room, stand below the newest <obj> facing it and press Z (NPC, save point)
 //   away:<room>:<n>[:<x>:<y>] once connected, n frames after the party setup, go to <room> (like walking through a door)
 //                   (also from the opening's PLACE_* rooms: the host leaving its vessel creation)
 //   fakescene       (test of the pulled-battle cleanup) start a cutscene of our own while being pulled into a battle
@@ -174,7 +174,7 @@ function mp_test_tick()
             }
         }
     }
-    // touch:<object>@<frame>: stand just below the first instance of <object>, facing it, and press Z
+    // touch:<object>@<frame>: stand just below the newest instance of <object>, facing it, and press Z
     // (talking to an NPC, a save point...). The Z goes out on the next few frames (mp_test_input).
     var tv = mp_test_arg("touch");
     if (tv != "" && !variable_global_exists("mp_test_touched") && instance_exists(obj_mainchara))
@@ -187,11 +187,12 @@ function mp_test_tick()
             global.mp_test_touched = 1;
             if (tobj >= 0 && instance_exists(tobj))
             {
-                var tinst = instance_find(tobj, 0);
+                var tinst = instance_find(tobj, instance_number(tobj) - 1); // (the newest one)
                 // (Collision boxes lined up: my box's top just under the object's box, centred on it.)
                 obj_mainchara.x += round(((tinst.bbox_left + tinst.bbox_right) - (obj_mainchara.bbox_left + obj_mainchara.bbox_right)) / 2);
                 obj_mainchara.y += (tinst.bbox_bottom + 2) - obj_mainchara.bbox_top;
                 obj_mainchara.facing = 2;
+                global.facing = 2;
                 global.mp_test_touchz = global.mp_frame + 3;
                 mp_log("[test] touch " + tv + " (box " + string(tinst.bbox_left) + "," + string(tinst.bbox_top) + "-" + string(tinst.bbox_right) + "," + string(tinst.bbox_bottom) + ") at " + string(obj_mainchara.x) + "," + string(obj_mainchara.y));
             }

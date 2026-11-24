@@ -13,6 +13,20 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+## Story scenes started with Z are shared (2026-11-24)
+
+Pressing Z on Chapter 2's arcade machine (`room_dw_cyber_queen_boxing`, plot 33) starts the whole Queen
+boxing scene, but anything started with Z was taken as "only mine": the other player stayed free at the old
+story point (`work/fol/zscene1`). Now a Z-started interaction is a story scene when, within 5 s, a new
+cutscene controller runs it and it hides the player, moves the story or brings in actors. Save points, shops
+and chats do none of that. The "before" state is the room on the last free frame: the scene's first step
+runs in the same frame as the Z, before the mod's check (`zscene6`, where the arcade's controller and actors
+counted as "already there"). A Z chat also no longer counts as "my own scene starting" when someone else's
+pull arrives (it isn't switched off). The `touch` token now also sets `global.facing` and picks the newest
+instance. Tests, both with `chaos:10:120:60`: arcade (`zscene8`): "started with Z, but a story scene", the
+other player watches the host's scene; all checks pass. Chapter 4 save point (`touch4`): still local, no
+pull, all pass.
+
 ## Z-started things stay local: save point checked in Chapter 4 (2026-11-24)
 
 New test token `touch:<obj>@<f>`: f frames into the room, stand just below the first `<obj>` (collision

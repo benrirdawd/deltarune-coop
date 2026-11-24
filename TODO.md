@@ -95,7 +95,7 @@ choice and real players to judge it; the platformer figure and the special-fight
 * More `interact` cases: save point checked (Chapter 4, DONE.md); shops and NPCs in Chapters 3-5 can now be
   run with the `touch:<obj>@<f>` token when it matters.
 * Tests don't cover yet: Chapter 1 new game (the vessel creation; Chapter 1 is tested by loading a
-  save), cutscenes started with Z, platforming beyond standing in the room, a
+  save), more cutscenes started with Z (one tested, DONE.md), platforming beyond standing in the room, a
   real play-through of whole chapters.
 
 ## Low priority / known small differences
