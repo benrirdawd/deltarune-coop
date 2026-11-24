@@ -5,7 +5,7 @@ function mp_init()
     if (variable_global_exists("mp_inited"))
         return;
     global.mp_inited = 1;
-    global.mp_version = 11;
+    global.mp_version = 12;
     global.mp_chapter = __CHAPTER__;
     global.mp_frame = 0;
     mp_filelog_init();
@@ -540,6 +540,11 @@ function mp_handle(type, sender, b, sock, endpos)
         var vfinal = buffer_read(b, buffer_u8);
         if (sender < 8)
             mp_vote_recv(sender, vv, vfinal);
+        return;
+    }
+    if (type == 83) // a counter flag went up (scr_mp_world: mp_recv_counter)
+    {
+        mp_recv_counter(b);
         return;
     }
     if (type == 69) // the minigame a player is playing

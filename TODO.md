@@ -101,10 +101,8 @@ choice and real players to judge it; the platformer figure and the special-fight
 ## Low priority / known small differences
 
 * Snowgrave route (Chapter 2): untested. It relies on Noelle-specific battle flow and flags, so expect
-  oddities if players disagree. Possible fix: route choices follow whoever plays Noelle (or the host).
-* Light World Ralsei/Noelle have no Light World walk sprites; they use their Dark World ones.
-* Per-player statistics stored as story flags (Chapter 5 "slashes" count) keep the last writer's value
-  instead of adding up.
+  oddities if players disagree. Possible fix: route choices follow whoever plays Noelle (or the host). Not testable here: the bots
+  can't play the chain of Noelle choices it needs (2026-11-24).
 * Chapter 1: a following player plays a room's song at full volume (some rooms start it at 0.7).
 
 ## Out of scope for now

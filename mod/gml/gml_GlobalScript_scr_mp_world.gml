@@ -1428,6 +1428,14 @@ function mp_vars_send_changes(full)
             {
                 if (val[i] != sh[i])
                 {
+                    // A counter that went up goes out as "+ n" (message 83), so two players counting at
+                    // once both count: as absolute values, the two "+1"s crossing would make one.
+                    if (nm == "flag" && !full && is_real(val[i]) && is_real(sh[i]) && val[i] > sh[i] && mp_flag_counter(i))
+                    {
+                        mp_send_counter(i, val[i] - sh[i]);
+                        global.mp_vshadow[v][i] = val[i];
+                        continue;
+                    }
                     if (!mp_var_local_only(v, i))
                     {
                         if (!started)
@@ -1664,6 +1672,50 @@ function mp_vars_recv(pid, b)
         mp_wu8(255);
         mp_send();
     }
+}
+
+function mp_send_counter(idx, delta)
+{
+    var mb = global.mp_msg;
+    mp_begin(83);
+    buffer_write(mb, buffer_u16, idx);
+    buffer_write(mb, buffer_s32, delta);
+    mp_send();
+}
+
+// Message 83: someone's counter flag went up by delta. Added here too, and to the copy last synced,
+// so it isn't sent back.
+function mp_recv_counter(b)
+{
+    var idx = buffer_read(b, buffer_u16);
+    var delta = buffer_read(b, buffer_s32);
+    var v = mp_var_index("flag");
+    if (v < 0 || !variable_global_exists("flag") || idx >= array_length(global.flag) || !is_real(global.flag[idx]))
+        return;
+    global.flag[idx] += delta;
+    if (is_array(global.mp_vshadow[v]) && idx < array_length(global.mp_vshadow[v]) && is_real(global.mp_vshadow[v][idx]))
+        global.mp_vshadow[v][idx] += delta;
+}
+
+// Story flags the chapter's code only ever counts up (or resets to 0): found by scanning each
+// chapter's code for flag[n]++ / += 1 / scr_flag_set(n, scr_flag_get(n) + 1) with no other writes.
+function mp_flag_counter(idx)
+{
+    if (!variable_global_exists("mp_flag_counters"))
+    {
+        var lists = [[],
+            [101, 102, 231, 250, 267, 277, 293, 294, 500, 502, 504, 520, 521, 522, 523, 524],
+            [65, 66, 101, 102, 267, 272, 347, 423, 458, 462, 500, 522, 526, 919, 924, 925, 926],
+            [101, 102, 267, 272, 354, 423, 500, 509, 510, 522, 919, 925, 926, 1003, 1006, 1011, 1025, 1037, 1049, 1051, 1061, 1089, 1096, 1108, 1119, 1122, 1126, 1127, 1128, 1129, 1130, 1171, 1229, 1245, 1255, 1257, 1262, 1277],
+            [101, 102, 267, 337, 354, 423, 500, 509, 510, 522, 853, 919, 925, 926, 1037, 1579, 1583, 1594, 1598, 1643, 1661],
+            [101, 102, 267, 337, 354, 423, 500, 522, 919, 925, 926, 1037, 1305, 1319, 1340, 1341, 1342, 1364, 1401, 1745, 1824, 1873, 1890, 1904, 1905]];
+        var ch = clamp(global.chapter, 0, 5);
+        global.mp_flag_counters = array_create(2000, 0);
+        var lc = lists[ch];
+        for (var i = 0; i < array_length(lc); i++)
+            global.mp_flag_counters[lc[i]] = 1;
+    }
+    return idx >= 0 && idx < 2000 && global.mp_flag_counters[idx] == 1;
 }
 
 // Applies one shared value. Returns false if it was refused: in normal play the story only

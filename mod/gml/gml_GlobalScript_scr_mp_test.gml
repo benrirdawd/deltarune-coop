@@ -12,6 +12,7 @@
 //   wander          walk around randomly in free roam
 //   partyat:<n>     do `party` after n frames (default 60)
 //   walk:<d>:<t>:<n>  hold direction d (l/r/u/d) for n frames, t frames after arriving
+//   bumpflag:<n>:<c> count story flag n up c times, fast, once someone else is in the room (counters add up)
 //   touch:<obj>@<f> f frames into the room, stand below the newest <obj> facing it and press Z (NPC, save point)
 //   away:<room>:<n>[:<x>:<y>] once connected, n frames after the party setup, go to <room> (like walking through a door)
 //                   (also from the opening's PLACE_* rooms: the host leaving its vessel creation)
@@ -199,6 +200,25 @@ function mp_test_tick()
             else
                 mp_log("[test] touch: no " + tv + " here");
         }
+    }
+    // bumpflag:<n>:<count>: count story flag n up, count times, every 2 frames (in the same moments of the shared clock) from 300 frames into the
+    // room once someone else is here (two games doing it at once: the counts must add up); logs the end.
+    var bfv = mp_test_arg("bumpflag");
+    if (bfv != "" && global.mp_room_frames >= 300 && mp_player_count() > 1)
+    {
+        var bc = string_pos(":", bfv);
+        var bn = real(string_copy(bfv, 1, bc - 1));
+        var bcount = real(string_delete(bfv, 1, bc));
+        if (!variable_global_exists("mp_test_bumped"))
+            global.mp_test_bumped = 0;
+        // (Only in the first second of each 5 s of the shared clock: both games count at the same time.)
+        if (global.mp_test_bumped < bcount && (global.mp_frame mod 2) == 0 && (floor(mp_clock_now()) mod 5000) < 1000)
+        {
+            global.flag[bn] += 1;
+            global.mp_test_bumped += 1;
+        }
+        if ((global.mp_frame mod 60) == 0)
+            mp_log("[test] bumpflag " + string(bn) + " = " + string(global.flag[bn]) + " (bumped " + string(global.mp_test_bumped) + ")");
     }
     // bringat:<frame>: (host) bring everyone over.
     if (mp_test_arg("bringat") != "" && global.mp_frame == real(mp_test_arg("bringat")))

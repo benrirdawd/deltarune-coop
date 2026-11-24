@@ -13,6 +13,21 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+## Counter flags add up between players (2026-11-24)
+
+Story flags the game only ever counts up (kills, times talked to someone, Chapter 5's slashes...) kept the
+last writer's value: the shared state is sent as absolute values, so two players counting at the same time
+both sent "old + 1" and one count was lost. Now those flags go out as additions (new message 83, "flag n
++= d", forwarded by the host; protocol version 12), and an addition received is added to the copy last
+synced too, so it isn't sent back. Which flags: found by scanning each chapter's code for `flag[n]++`,
+`+= 1` or `scr_flag_set(n, scr_flag_get(n) + 1)` with no other writes except resetting to 0 (a list per
+chapter in `mp_flag_counter`). A counter set back (to 0) still goes out as a value; joining and loading
+still send the full state. New test token `bumpflag:<n>:<count>` (both games count at the same moments of
+the shared clock). Test, Chapter 5, flag 1905, 40 each, `chaos:10:120:60`: with values (first try) both
+ended at 12; with additions (`work/fol/bump4`) both at 80. Also: Light World walking sprites: Noelle's are
+already used; Ralsei has none in any chapter's files, nothing to do. Snowgrave route: not tested (it needs
+a long chain of Noelle choices in Chapter 2 fights that the bots can't play).
+
 ## A player standing still shown right away on a bad network (2026-11-24)
 
 The position of a player who isn't moving is only sent again every 1.5 s, so on a bad network a lost first
