@@ -56,6 +56,8 @@ function mp_init()
     mp_battle_init();
     mp_ui_init();
     mp_spec_init();
+    global.mp_go_sent = 0;
+    global.mp_go_remote = 0;
     global.mp_resumed = 0;
     global.mp_resume_code = "";
     global.mp_paddr = array_create(8, "");
@@ -548,6 +550,11 @@ function mp_handle(type, sender, b, sock, endpos)
     if (type >= 70 && type < 80) // cutscene mirror
     {
         mp_mirror_recv(type, sender, b);
+        return;
+    }
+    if (type == 82) // someone chose CONTINUE on the Game Over screen
+    {
+        mp_gameover_recv(sender);
         return;
     }
     if (type == 81) // a puzzle switch someone pressed

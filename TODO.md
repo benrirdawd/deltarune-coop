@@ -41,9 +41,8 @@ changing the room for everyone.
 * **Done: watching a player on the map** (F9 "Watch", left/right to switch), see DONE.md. Still to do:
   switching to watching automatically for a player who has nothing to play (same character as another
   player, a 4th+ player).
-* **Any player can press Continue at the Game Over:** today the clients wait for the host to reload.
-  Whoever presses Continue first should continue for everyone (the host reloads, the others follow).
-  Check what a client's Continue does now.
+* **Done: anyone's Continue at the Game Over continues for everyone**, see DONE.md. Not run: the
+  CONTINUE choice on the second screen (`PLACE_FAILURE`), only the quick retry.
 
 ## Left from the code review (2026-11-23)
 

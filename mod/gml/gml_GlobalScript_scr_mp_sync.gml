@@ -924,6 +924,7 @@ function mp_sync_arrived()
 function mp_sync_tick()
 {
     mp_spec_tick();
+    mp_gameover_tick();
     mp_talk_tick();
     mp_minigame_tick();
     var ia = global.interact;

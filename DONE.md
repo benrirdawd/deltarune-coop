@@ -4,6 +4,20 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Game Over: whoever continues first continues for everyone (2026-11-24)
+
+* Continuing from the Game Over screen (`mp_gameover_continued`, from `scr_load`, or seen on the
+  choice) sends message 82; everyone else still on it continues too: the quick retry (Z four times
+  while the SOUL breaks, `obj_gameover_init`) if they are still there, CONTINUE on the choice
+  (`DEVICE_FAILURE` in `PLACE_FAILURE`) if they got that far. GIVE UP stays each player's own. Each
+  game reloads its own save; clients still meet the host once it has reloaded.
+* Design choice: anyone's continue counts (not only the host's); the first one wins.
+
+**Tested** (Chapter 1 `room_field1`, encounter 13, both players `nododge`, only the host presses Z on
+the Game Over, `chaos:10:120:60`): the host retried, the client got "Host chose CONTINUE." and retried
+by itself; both back in `room_field1`. The `PLACE_FAILURE` choice path was not run (the test tokens
+only press Z on the first screen).
+
 ## Watching another player on the map (2026-11-24)
 
 * F9 **"Watch: < off / name >"** (`scr_mp_spec`): my character is hidden, takes no input and is kept

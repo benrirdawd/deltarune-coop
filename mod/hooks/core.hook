@@ -151,6 +151,7 @@ mp_choice_step();
 (function scr_load\([^)]*\)\s*\{)
 @with
 $1
+    mp_gameover_continued();
     if (mp_wipe_return())
         return;
     mp_on_save_loaded();

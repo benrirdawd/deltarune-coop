@@ -2372,3 +2372,92 @@ function mp_puz_ghost_here()
     }
     return hit;
 }
+
+
+// ---------------------------------------------------------------- Game Over: Continue for everyone
+
+// Whoever continues first on the Game Over screen continues for everyone who is on it (message
+// 82). Both ways of continuing count: Z pressed four times while the SOUL breaks (room_gameover,
+// obj_gameover_init's quick retry) and CONTINUE on the choice that follows (PLACE_FAILURE,
+// DEVICE_FAILURE). The others' games then do the same: the quick retry if they're still on the
+// breaking SOUL, CONTINUE if they're at the choice. (GIVE UP stays each player's own.) Each game
+// reloads its own save; clients meet the host once it has reloaded (mp_on_save_loaded).
+function mp_gameover_room()
+{
+    var n = room_get_name(room);
+    return string_pos("room_gameover", n) == 1 || n == "PLACE_FAILURE";
+}
+
+function mp_gameover_tick()
+{
+    if (!mp_on() || !mp_gameover_room())
+    {
+        global.mp_go_sent = 0;
+        global.mp_go_remote = 0;
+        return;
+    }
+    var gi = asset_get_index("obj_gameover_init");
+    var df = asset_get_index("DEVICE_FAILURE");
+    var mine = false;
+    if (gi >= 0 && instance_exists(gi))
+    {
+        with (gi)
+        {
+            if (global.mp_go_remote && !global.mp_go_sent && timer >= 80 && timer < 149)
+            {
+                Z_COUNT = 4;   // (its Step then retries, as after four Z presses)
+                global.mp_go_sent = 1;
+                mp_log("game over: retrying with the others");
+            }
+            else if (Z_COUNT >= 4)
+                mine = true;
+        }
+    }
+    if (df >= 0 && instance_exists(df))
+    {
+        var ev = df.EVENT;
+        if (global.mp_go_remote && !global.mp_go_sent && ev == 5 && global.choice != 0)
+        {
+            var dc = asset_get_index("DEVICE_CHOICE");
+            if (dc >= 0)
+            {
+                with (dc)
+                    instance_destroy();
+            }
+            global.choice = 0;
+            global.mp_go_sent = 1;
+            mp_log("game over: continuing with the others");
+            return;
+        }
+        if (global.choice == 0 && ev >= 5 && ev < 26)
+            mine = true;
+    }
+    if (mine && !global.mp_go_sent)
+    {
+        global.mp_go_sent = 1;
+        mp_begin(82);
+        mp_send();
+        mp_log("game over: I continue, for everyone");
+    }
+}
+
+// From scr_load (prepended, before the wipe return or the reload): continuing from the Game Over
+// screen is what just happened if I'm still on it.
+function mp_gameover_continued()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || !mp_gameover_room() || global.mp_go_sent)
+        return;
+    global.mp_go_sent = 1;
+    mp_begin(82);
+    mp_send();
+    mp_flush();
+    mp_log("game over: I continue, for everyone");
+}
+
+function mp_gameover_recv(sender)
+{
+    if (!mp_gameover_room() || global.mp_go_sent)
+        return;
+    global.mp_go_remote = 1;
+    mp_notify(global.mp_pname[sender] + " chose CONTINUE.");
+}
