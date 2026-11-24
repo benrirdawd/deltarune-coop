@@ -39,7 +39,7 @@
 //                   the cutscene catch-up (mp_dlg_speed) still doubles on top of it
 //   fastboot        with speed: the title / file select before `party` runs fast as well
 //   connectat:<frame> client: connect only from this frame of its game on (joining late, mid-cutscene)
-//   pushblock:<d>:<f> push the room's first pushable block in direction d at room frame f (Chapter 1)
+//   pushblock:<d>:<f>[/<f>...] push the room's first pushable block in direction d at room frame(s) f (Chapters 1, 5)
 //   restartroom:<f> build the room again at room frame f (once)
 //   useobj:<o>:<f>  use (as with Z) the room's first <o> at room frame f
 //   useseq:<o>:<i>@<f>/<i>@<f>...  use the room's <i>-th <o> at room frame <f>, for each pair
@@ -542,6 +542,12 @@ function mp_test_input()
             with (tso)
                 show_debug_message("[MPPUZ] traffic " + string(round(xstart)) + "," + string(round(ystart)) + " active=" + string(active));
         }
+        var fso = asset_get_index("obj_floorswitch");
+        if (fso >= 0)
+        {
+            with (fso)
+                show_debug_message("[MPPUZ] floorswitch " + string(round(xstart)) + "," + string(round(ystart)) + " pressed=" + string(pressed));
+        }
         var aso = asset_get_index("obj_alleySwitch");
         if (aso >= 0)
         {
@@ -559,10 +565,10 @@ function mp_test_input()
             show_debug_message("[MPPUZ] active=" + string(active) + " won=" + string(wonamt) + " tiles:" + tl);
     }
     // logblocks: log where the room's pushable blocks are, every 5 s.
-    if (mp_test_has("logblocks") && (global.mp_frame mod 150) == 0 && asset_get_index("obj_pushableblock") >= 0)
+    if (mp_test_has("logblocks") && (global.mp_frame mod 150) == 0 && mp_puz_block_obj() >= 0)
     {
         var bl = "";
-        with (asset_get_index("obj_pushableblock"))
+        with (mp_puz_block_obj())
             bl += " " + string(round(xstart)) + "," + string(round(ystart)) + "->" + string(round(x)) + "," + string(round(y));
         show_debug_message("[MPBLOCKS] room=" + room_get_name(room) + bl);
     }
@@ -572,9 +578,13 @@ function mp_test_input()
     {
         var pb = mp_test_arg("pushblock");
         var pc = string_pos(":", pb);
-        if (global.mp_test_timer == real(string_delete(pb, 1, pc)))
+        var pfr = string_split(string_delete(pb, 1, pc), "/");
+        var pnow = false;
+        for (var pq = 0; pq < array_length(pfr); pq++)
+            pnow = pnow || global.mp_test_timer == real(pfr[pq]);
+        if (pnow)
         {
-            var bo = asset_get_index("obj_pushableblock");
+            var bo = mp_puz_block_obj();
             if (bo >= 0 && instance_exists(bo))
             {
                 global.facing = real(string_copy(pb, 1, pc - 1));

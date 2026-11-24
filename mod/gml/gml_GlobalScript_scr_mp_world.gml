@@ -2162,7 +2162,7 @@ function mp_puz_recv(sender, b)
     variable_struct_set(global.mp_puz, mp_puz_key(rm, xs, ys), [sx + 5 * mp_puz_dx(dir), sy + 5 * mp_puz_dy(dir)]);
     if (room != rm)
         return;
-    var bo = asset_get_index("obj_pushableblock");
+    var bo = mp_puz_block_obj();
     if (bo < 0)
         return;
     with (bo)
@@ -2180,7 +2180,16 @@ function mp_puz_recv(sender, b)
     mp_log("puzzle: player " + string(sender) + " pushed the block from " + string(xs) + "," + string(ys));
 }
 
-// Prepended to obj_pushableblock's Step: another player's push, played here.
+// The pushable block object of this chapter (Chapter 1 obj_pushableblock, Chapter 5 obj_pushable_block).
+function mp_puz_block_obj()
+{
+    var bo = asset_get_index("obj_pushableblock");
+    if (bo < 0)
+        bo = asset_get_index("obj_pushable_block");
+    return bo;
+}
+
+// Prepended to the pushable block's Step: another player's push, played here.
 function mp_puz_block_step()
 {
     if (!variable_instance_exists(id, "mp_rmove") || mp_rmove <= 0)
@@ -2188,7 +2197,10 @@ function mp_puz_block_step()
     mp_rmove -= 1;
     x += mp_puz_dx(mp_rdir);
     y += mp_puz_dy(mp_rdir);
-    sprite_index = asset_get_index("spr_npc_block");
+    if (object_get_name(object_index) == "obj_pushableblock")
+        sprite_index = asset_get_index("spr_npc_block");
+    else if (mp_rmove == 0 && variable_instance_exists(id, "flag") && flag > 0)
+        global.flag[flag] = (x * 10000) + y;   // (Chapter 5 blocks keep their place in a flag)
 }
 
 // Appended to obj_pushableblock's Create: where the others left it.

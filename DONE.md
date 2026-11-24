@@ -4,6 +4,25 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Puzzles together: Chapters 3-5 (2026-11-24)
+
+* **Chapter 5 pushable blocks** (`obj_pushable_block`, the garden): the same sharing as Chapter 1's
+  blocks (message 80; someone entering the room finds them where they were left); a push played from
+  another game also stores the block's place in its flag, as the game does.
+* **Floor switches, Chapters 4 and 5** (`obj_floorswitch`): those the player can press
+  (`maincharapressable`, e.g. `room_dw_fcastle_foxhunt_chaos`) are held down by a friend standing on
+  them too (`mp_puz_ghost_here`). (The garden's switches only take blocks: shared through the blocks.)
+* **Chapter 3 glowing tiles** (`room_dw_couch_overworld_03`): the hourglass is shared like Chapter 1's
+  (the tiles were already pressed by the others' figures in every chapter). Not run separately.
+* Left local: the Chapter 3 board's tiles and blocks (each player plays their own board), Chapter 4's
+  bookshelf, piano, ripple and train-track puzzles, Chapter 5's castle puzzles (to look at one by one).
+* Test token `pushblock` takes several frames (`pushblock:1:300/340/...`) and Chapter 5 blocks.
+
+**Tested** (speed 4, both games with `chaos:10:120:60`): `room_dw_garden_mushrooms`: the host pushed
+the block right: 840,720 -> 880,720 in both games (further pushes refused by the room itself, in the
+host's game). `room_dw_fcastle_foxhunt_chaos`: the client stood on the switch at 460,460: pressed in
+its game and, from then on, in the host's.
+
 ## Puzzles together: Chapter 2 traffic lights and the alley switch (2026-11-24)
 
 * **Traffic light switches** (`obj_traffic_switch`, the city's traffic rooms and the mansion's): a

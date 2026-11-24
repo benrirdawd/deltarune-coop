@@ -25,7 +25,10 @@ changing the room for everyone.
 * **Done: Chapter 2 traffic lights and the alley switch**, see DONE.md. Chapter 2 still local: the
   mice rooms' switches (they release mice that move on their own), the keyboard puzzles, the shape
   puzzle (one player steers a piece).
-* Next: Chapters 3-5 (their puzzle objects are still to be listed).
+* **Done: Chapters 3-5** (Chapter 5 blocks, Chapters 4-5 floor switches, Chapter 3 glowing tiles),
+  see DONE.md. Still local, one by one if they matter in play: Chapter 4's bookshelf
+  (`obj_dw_church_bookshelfpuzzle`), piano, ripple and train-track puzzles; Chapter 5's castle puzzles
+  (`obj_dw_fcastle_*_puzzle`, the terracotta one); Chapter 2's mice and keyboard puzzles.
 * A switch pressed or a block pushed before another player connected isn't known to them (only
   players already connected hear it).
 * Two players pushing the same block at the same moment: today each game plays both pushes in the
