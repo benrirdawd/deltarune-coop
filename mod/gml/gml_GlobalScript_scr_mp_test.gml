@@ -26,6 +26,7 @@
 //   stuck:<n>       fake a stuck sync state n frames after the party setup (F8 must free it)
 //   weak            enemies have 1 HP (battle ends quickly)
 //   sturdy          heroes have 10 times their HP in fights (long fights)
+//   dbgchar         log every party change made by the shared state, with the call stack
 //   save            save the game to slot 0 once in free roam (for later load tests)
 //   load:<slot>     load save slot <slot> from the title screen
 //   solo            with `party`: Kris alone

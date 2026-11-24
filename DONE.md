@@ -12,6 +12,13 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+
+## Story fight party changed back by the room (2026-11-24)
+
+| Problem | Fix | Test |
+|---|---|---|
+| Chapter 5 `room_dw_garden_aqua` 291: the story fight is Kris alone (the room's script calls `scr_setparty(0)` first), but a player pulled into it fought with Kris, Susie and Ralsei: the pull took the leader's party, then the pull's warp entered the room again and the room's Create (`setparty(1, 1)`) put the whole party back. Turn 0 differed between the games. | The pull keeps the leader's party (`mp_pull_party`) and Room Start (after the room's Create events) puts it back if the room changed it; cleared when the fight starts. Logs: the party sent with a pull and taken from it. New test token `dbgchar` (logs party changes from the shared state with the call stack). | **Tested**, 2 players, 20x, twice: "room start: the fight's party 100 again (the room set 123)", turn 0 identical, every check passed. With `chaos:10:120:60` the party was put back the same way; that run then hit a separate deadlock (TODO.md). |
+
 ## Rooms that hide or move the followers (2026-11-24)
 
 | Problem | Fix | Test |

@@ -1075,6 +1075,19 @@ function mp_room_start()
     global.mp_room_frames = 0;
     global.mp_room_calm = 0;
     global.mp_room_plot = variable_global_exists("plot") ? global.plot : 0;
+    // Pulled into a story fight: the fight's party again, if the room's own Create changed it.
+    if (variable_global_exists("mp_pull_party") && is_array(global.mp_pull_party))
+    {
+        var pp = global.mp_pull_party;
+        global.mp_pull_party = -1;
+        if (global.char[0] != pp[0] || global.char[1] != pp[1] || global.char[2] != pp[2])
+        {
+            mp_log("room start: the fight's party " + string(pp[0]) + string(pp[1]) + string(pp[2]) + " again (the room set " + string(global.char[0]) + string(global.char[1]) + string(global.char[2]) + ")");
+            var vc = mp_var_index("char");
+            for (var i = 0; i < 3; i++)
+                mp_var_apply(vc, i, pp[i]);
+        }
+    }
     mp_checkpoint_take();
     mp_enemy_gone_room_start();
     // The mod's warp keeps interact at 3 for a few frames; objects that read variables the
@@ -1713,6 +1726,8 @@ function mp_var_array_write(nm, idx, val)
             global.phone[idx] = val;
             break;
         case "char":
+            if (global.char[idx] != val && mp_test_has("dbgchar"))
+                mp_log("DBGCHAR " + string(idx) + "=" + string(val) + " " + string(debug_get_callstack()));
             global.char[idx] = val;
             break;
         case "hp":

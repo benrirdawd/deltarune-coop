@@ -45,6 +45,7 @@ function mp_sync_init()
     global.mp_pre_y = 0;
     global.mp_pre_plot = 0;
     global.mp_pre_party = [1, 0, 0];
+    global.mp_pull_party = -1;
     global.mp_calm_party = [1, 0, 0];
     global.mp_calm_dz = 0;
     global.mp_calm_room = -1;
@@ -209,6 +210,7 @@ function mp_send_pull_to(kind, sock)
     var party = [global.char[0], global.char[1], global.char[2]];
     if (kind == 2)
         party = global.mp_pre_party;
+    mp_log("pull party " + string(party[0]) + string(party[1]) + string(party[2]));
     for (var i = 0; i < 3; i++)
         mp_wu8(party[i]);
     mp_wu8(dz);
@@ -761,6 +763,7 @@ function mp_sync_try_pull()
         if (!local_party)
             mp_var_apply(vc, i, pp[i]);
     }
+    mp_log("pull: leader's party " + string(pp[0]) + string(pp[1]) + string(pp[2]) + (local_party ? " (kept mine)" : " taken"));
     var was_mirror = global.mp_sstate == 5;
     if (was_mirror)
         mp_mirror_reset();
@@ -774,6 +777,9 @@ function mp_sync_try_pull()
         global.mp_tgo_sent = -1;
         if (local_party)
             mp_party_set_local(pp);
+        // (Entering the room again can run the room's own party setup, e.g. Chapter 5's
+        // obj_dw_garden_aqua: setparty(1, 1) on Create. The leader's party is put back at Room Start.)
+        global.mp_pull_party = local_party ? -1 : [pp[0], pp[1], pp[2]];
         with (obj_mainchara)
             visible = 1;
         global.interact = 0;

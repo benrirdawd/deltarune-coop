@@ -92,9 +92,11 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Not looked at yet
 
-* `room_dw_garden_aqua` plot 291 (Chapter 5): a story fight (`fight 4097`, mask 255) had a different
-  party in the two games at turn 0 (host: Kris, Susie and Ralsei with no owner; client: Kris only).
-  Found 2026-11-24 (test `work/fol/room_dw_garden_aqua`); not investigated.
+* Story fight deadlock on a bad network: in `room_dw_garden_aqua` 291 with `chaos:10:120:60` (test
+  `work/fol/aqua5`, 2026-11-24) the pulled player reached the fight only after the leader had already
+  released turn 0 (the leader's story-fight wait gave up first); the pulled player then waited for
+  turn 0 forever and the leader for them at turn 1. Late joiners are handled for open fights
+  (`mp_tdone_late`), apparently not here. Not investigated further.
 * `room_town_school` plot 100 (Chapter 5): the host crashed before anyone joined, "Trying to draw
   non-existing sprite" in `obj_actor` Draw. May be the test's story point (plot 100 isn't a real one
   for this room) rather than the mod; check with the host alone (`sweep.py --solo`).

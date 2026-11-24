@@ -280,6 +280,8 @@ function mp_battle_seed(phase)
 // Appended to obj_battlecontroller's Create event.
 function mp_battle_created()
 {
+    // (A pull's party is for the room it re-entered, before the fight: not for any later room.)
+    global.mp_pull_party = -1;
     if (!mp_on())
         return;
     mp_battle_reset();
