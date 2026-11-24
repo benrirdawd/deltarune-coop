@@ -202,7 +202,7 @@ Alternatively, everyone can join the same virtual LAN (Tailscale, ZeroTier, Radm
 use the host's address on that network. A UDP tunnelling service (e.g. playit.gg) also
 works.
 
-Settings are saved in `multiplayer.ini` next to DELTARUNE's save files, and each session writes `multiplayer_log.txt` there (the one before is kept as `multiplayer_log_prev.txt`): send it along with a bug report. For testing, you
+Settings are saved in `multiplayer.ini` next to DELTARUNE's save files, and each session writes `multiplayer_log.txt` there (the one before is kept as `multiplayer_log_prev.txt`): send it along with a bug report. F9 "Save logs for a bug report" puts both, with `multiplayer_crash.txt` if there is one, in a zip on your desktop. For testing, you
 can also launch a chapter with `-mphost`, `-mpjoin <ip[:port]>`, `-mpname <name>`,
 `-mpchar <1-4>` and `-mpport <port>`.
 
@@ -348,7 +348,7 @@ Help is welcome: bug reports, play-testing, code. Open an issue or a pull reques
 What is planned and what is known to be broken is in [`TODO.md`](TODO.md); what is finished, and how it was tested, in [`DONE.md`](DONE.md). Building and testing are
 described in [Testing that was done](#testing-that-was-done) and `tools/` (`tools/build.sh` patches
 all five chapters, `tools/mptest.sh` runs two or more games against each other). A bug report helps
-most with `multiplayer_log.txt` from `%LOCALAPPDATA%\DELTARUNE_ONLINE`.
+most with the logs: F9 "Save logs for a bug report" zips them onto your desktop.
 
 ## License
 

@@ -54,7 +54,7 @@ function mp_ui_rows()
             array_push(r, "steam_show");
         array_push(r, "leave");
     }
-    array_push(r, "help", "settings", "stopsound", "noclip");
+    array_push(r, "help", "settings", "stopsound", "noclip", "logzip");
     // Softlock tools that change the shared story: the host's (or a single player's) to use.
     if (mp_story_tools_allowed() && variable_global_exists("plot"))
         array_push(r, "story", "rewind");
@@ -295,6 +295,8 @@ function mp_ui_input()
         }
         if (row == "stopsound")
             mp_stop_all_sound();
+        if (row == "logzip")
+            mp_report_zip("");
         if (row == "noclip")
             mp_noclip_toggle();
         if (row == "story")
@@ -621,6 +623,8 @@ function mp_ui_rowtext(row)
             return "Back";
         case "stopsound":
             return "Stop all music and sounds  (F7)";
+        case "logzip":
+            return "Save logs for a bug report (zip on the desktop)";
         case "noclip":
             return "Noclip (walk through walls):  " + (global.mp_noclip ? "ON" : "OFF") + "  (F6)";
         case "story":
@@ -996,4 +1000,23 @@ function mp_menu_charname(c)
     if (shown >= 0 && shown < array_length(global.charname) && is_string(global.charname[shown]) && global.charname[shown] != "")
         return global.charname[shown];
     return global.charname[c];
+}
+
+// F9 "Save logs for a bug report": this session's log, the one before (after a crash and a restart,
+// that's the crashed one) and multiplayer_crash.txt, zipped onto the desktop (drm_steam.dll,
+// drs_report_zip). out_dir "" = the desktop (tests pass a folder).
+function mp_report_zip(out_dir)
+{
+    mp_log("bug report: saving the logs");
+    mp_filelog_flush();
+    var p = drs_report_zip(game_save_id, out_dir);
+    if (p == "")
+    {
+        mp_notify("Couldn't save the logs: " + drs_error());
+        mp_log("bug report: failed, " + drs_error());
+        return "";
+    }
+    mp_notify("Logs saved " + (out_dir == "" ? "on your desktop" : "in " + out_dir) + ": " + filename_name(p) + ". Send it with your bug report (Discord b.001).");
+    mp_log("bug report: saved " + p);
+    return p;
 }

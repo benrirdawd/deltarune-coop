@@ -27,8 +27,8 @@ PLAY
 HELP AND BUG REPORTS
 Join the Discord: https://discord.gg/GRX6XbTYRG
 To reach the maintainer of this version: Discord b.001
-For a bug, say which chapter and what happened, and attach multiplayer_log.txt
-from %LOCALAPPDATA%\DELTARUNE_ONLINE.
+For a bug, say which chapter and what happened, and attach the logs: in game, F9 >
+"Save logs for a bug report" puts them in a zip on your desktop.
 
 SAVES
 This mod keeps its own save files in %LOCALAPPDATA%\DELTARUNE_ONLINE, so you start fresh.

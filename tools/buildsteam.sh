@@ -7,7 +7,7 @@
 ZIG=${ZIG:-$(ls -d "$HOME"/tools/zig-*/zig* 2>/dev/null | grep -E 'zig(\.exe)?$' | head -1)}
 [ -x "$ZIG" ] || { echo "zig not found (set ZIG)"; exit 1; }
 mkdir -p "$ROOT/mod/dll"
-"$ZIG" cc -shared -O2 -target x86_64-windows-gnu -o "$ROOT/mod/dll/drm_steam.dll" "$ROOT/steam/drm_steam.c" || exit 1
+"$ZIG" cc -shared -O2 -target x86_64-windows-gnu -o "$ROOT/mod/dll/drm_steam.dll" "$ROOT/steam/drm_steam.c" -lshell32 || exit 1
 rm -f "$ROOT/mod/dll/drm_steam.lib" "$ROOT/mod/dll/drm_steam.pdb"
 [ -n "$STEAM_API" ] && cp "$STEAM_API" "$ROOT/mod/dll/drm_steam_api64.dll"
 [ -f "$ROOT/mod/dll/drm_steam_api64.dll" ] || echo "warning: no mod/dll/drm_steam_api64.dll (set STEAM_API)"

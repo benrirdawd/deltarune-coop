@@ -4,6 +4,20 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## F9 "Save logs for a bug report" (2026-11-24)
+
+A new F9 row zips `multiplayer_log.txt`, `multiplayer_log_prev.txt` (the session before: after a crash
+and a restart, that's the one that crashed) and `multiplayer_crash.txt` from the save folder into
+`DELTARUNE-Online-logs-<date>-<time>.zip` on the desktop, and says so on screen. GameMaker can't write
+outside its save folder or make zips, so it's a function in the mod's DLL (`drs_report_zip` in
+`steam/drm_steam.c`, declared in `mod/extensions.txt`; `tools/buildsteam.sh` now links shell32 for the
+desktop folder). Simplest choice: the files are stored, not compressed (a few MB of text; no zlib).
+New test token `reportzip` (frame 400, into the save folder instead of the desktop). Test, Chapter 5,
+host + client, `chaos:10:120:60` (`work/fol/zip1`, `zip2`): the zip is made, Python's zipfile reads it
+without errors, and its three files match the ones on disk; mpcheck passes except "moved" (nobody walks).
+The desktop path was checked by calling the DLL directly: the zip appeared on the desktop, was valid, and
+was deleted. README, CONTRIBUTING.md and the package's READ ME FIRST.txt point to the button.
+
 ## CONTRIBUTING.md (2026-11-24)
 
 For helpers (the coop-anything server): what's needed, building (patcher, chapters, launcher), one

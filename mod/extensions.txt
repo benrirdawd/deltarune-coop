@@ -21,3 +21,4 @@ drs_recv_peer d
 drs_peer_name s d
 drs_in_lobby d
 drs_lobby_get s s
+drs_report_zip s s s

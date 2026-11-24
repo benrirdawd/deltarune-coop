@@ -53,6 +53,7 @@
 //   useseq:<o>:<i>@<f>/<i>@<f>...  use the room's <i>-th <o> at room frame <f>, for each pair
 //   logpuz          log the tile puzzle's / suits puzzle's state every 5 s ([MPPUZ] lines)
 //   logblocks       log the room's pushable blocks every 5 s ([MPBLOCKS] lines)
+//   reportzip       at frame 400, do F9 "Save logs for a bug report" into the save folder (not the desktop)
 //   menupage:<n>    with openmenu: pick C-menu entry n (0 items, 1 equipment, 3 power/status)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)
 
@@ -223,6 +224,9 @@ function mp_test_tick()
         if ((global.mp_frame mod 60) == 0)
             mp_log("[test] bumpflag " + string(bn) + " = " + string(global.flag[bn]) + " (bumped " + string(global.mp_test_bumped) + ") flags 1600-1601 = " + string(global.flag[1600]) + "," + string(global.flag[1601]));
     }
+    // reportzip: the bug report zip, into the save folder.
+    if (mp_test_has("reportzip") && global.mp_frame == 400)
+        mp_report_zip(game_save_id);
     // bringat:<frame>: (host) bring everyone over.
     if (mp_test_arg("bringat") != "" && global.mp_frame == real(mp_test_arg("bringat")))
         mp_bring_everyone();

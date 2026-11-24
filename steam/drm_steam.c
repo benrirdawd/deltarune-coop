@@ -534,3 +534,94 @@ EXPORT const char *drs_lobby_get(const char *key)
     const char *v = p_GetLobbyData(g_mm, g_lobby, key);
     return v ? v : "";
 }
+
+// ---------------------------------------------------------------- bug report zip
+// (Not Steam: it lives here because this is the mod's only DLL.) F9 "Save logs for a bug report":
+// multiplayer_log.txt, multiplayer_log_prev.txt (the session before: the one that crashed, after a
+// restart) and multiplayer_crash.txt from the save folder, in one zip on the desktop (or out_dir).
+// Stored, not compressed: a few MB of text, and no zlib needed. Returns the zip's path, "" on error.
+#include <shlobj.h>
+
+static uint32_t zcrc(const unsigned char *p, size_t n)
+{
+    uint32_t c = 0xFFFFFFFFu;
+    for (size_t i = 0; i < n; i++)
+    {
+        c ^= p[i];
+        for (int k = 0; k < 8; k++) c = (c >> 1) ^ (0xEDB88320u & (0u - (c & 1u)));
+    }
+    return ~c;
+}
+
+static void zw16(FILE *f, unsigned v) { fputc(v & 255, f); fputc((v >> 8) & 255, f); }
+static void zw32(FILE *f, uint32_t v) { zw16(f, v & 0xFFFF); zw16(f, v >> 16); }
+
+static unsigned char *zread(const wchar_t *path, size_t *n)
+{
+    FILE *f = _wfopen(path, L"rb");
+    if (!f) return NULL;
+    fseek(f, 0, SEEK_END);
+    long len = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    if (len < 0 || len > 64 * 1024 * 1024) { fclose(f); return NULL; }
+    unsigned char *b = (unsigned char *)malloc(len ? (size_t)len : 1);
+    if (b && fread(b, 1, (size_t)len, f) != (size_t)len) { free(b); b = NULL; }
+    fclose(f);
+    *n = (size_t)len;
+    return b;
+}
+
+EXPORT const char *drs_report_zip(const char *save_dir, const char *out_dir)
+{
+    static const char *names[] = { "multiplayer_log.txt", "multiplayer_log_prev.txt", "multiplayer_crash.txt" };
+    wchar_t wsave[MAX_PATH], wout[MAX_PATH], wzip[MAX_PATH + 64], wf[MAX_PATH + 64];
+    g_out[0] = 0;
+    if (!MultiByteToWideChar(CP_UTF8, 0, save_dir, -1, wsave, MAX_PATH)) { snprintf(g_err, sizeof g_err, "bad save folder"); return ""; }
+    if (out_dir && out_dir[0])
+        MultiByteToWideChar(CP_UTF8, 0, out_dir, -1, wout, MAX_PATH);
+    else if (SHGetFolderPathW(NULL, CSIDL_DESKTOPDIRECTORY, NULL, 0, wout) != S_OK)
+    { snprintf(g_err, sizeof g_err, "no desktop folder"); return ""; }
+    size_t ls = wcslen(wsave), lo = wcslen(wout);
+    if (ls && wsave[ls - 1] != 92 && wsave[ls - 1] != L'/') wcscat(wsave, L"\\");
+    if (lo && wout[lo - 1] != 92 && wout[lo - 1] != L'/') wcscat(wout, L"\\");
+    SYSTEMTIME t;
+    GetLocalTime(&t);
+    swprintf(wzip, MAX_PATH + 64, L"%lsDELTARUNE-Online-logs-%04d%02d%02d-%02d%02d%02d.zip", wout, t.wYear, t.wMonth, t.wDay, t.wHour, t.wMinute, t.wSecond);
+    FILE *z = _wfopen(wzip, L"wb");
+    if (!z) { snprintf(g_err, sizeof g_err, "can't write the zip"); return ""; }
+    unsigned dtime = (t.wHour << 11) | (t.wMinute << 5) | (t.wSecond / 2);
+    unsigned ddate = ((t.wYear - 1980) << 9) | (t.wMonth << 5) | t.wDay;
+    uint32_t offs[3], crcs[3], sizes[3];
+    int have[3] = { 0, 0, 0 }, count = 0;
+    for (int i = 0; i < 3; i++)
+    {
+        swprintf(wf, MAX_PATH + 64, L"%ls%hs", wsave, names[i]);
+        size_t n = 0;
+        unsigned char *b = zread(wf, &n);
+        if (!b) continue;
+        have[i] = 1; count++;
+        offs[i] = (uint32_t)ftell(z); crcs[i] = zcrc(b, n); sizes[i] = (uint32_t)n;
+        unsigned nl = (unsigned)strlen(names[i]);
+        zw32(z, 0x04034b50); zw16(z, 10); zw16(z, 0); zw16(z, 0); zw16(z, dtime); zw16(z, ddate);
+        zw32(z, crcs[i]); zw32(z, sizes[i]); zw32(z, sizes[i]); zw16(z, nl); zw16(z, 0);
+        fwrite(names[i], 1, nl, z);
+        fwrite(b, 1, n, z);
+        free(b);
+    }
+    uint32_t cd = (uint32_t)ftell(z);
+    for (int i = 0; i < 3; i++)
+    {
+        if (!have[i]) continue;
+        unsigned nl = (unsigned)strlen(names[i]);
+        zw32(z, 0x02014b50); zw16(z, 20); zw16(z, 10); zw16(z, 0); zw16(z, 0); zw16(z, dtime); zw16(z, ddate);
+        zw32(z, crcs[i]); zw32(z, sizes[i]); zw32(z, sizes[i]); zw16(z, nl); zw16(z, 0); zw16(z, 0);
+        zw16(z, 0); zw16(z, 0); zw32(z, 0); zw32(z, offs[i]);
+        fwrite(names[i], 1, nl, z);
+    }
+    uint32_t cdlen = (uint32_t)ftell(z) - cd;
+    zw32(z, 0x06054b50); zw16(z, 0); zw16(z, 0); zw16(z, count); zw16(z, count); zw32(z, cdlen); zw32(z, cd); zw16(z, 0);
+    fclose(z);
+    if (count == 0) { _wremove(wzip); snprintf(g_err, sizeof g_err, "no log files found"); return ""; }
+    WideCharToMultiByte(CP_UTF8, 0, wzip, -1, g_out, sizeof g_out, NULL, NULL);
+    return g_out;
+}

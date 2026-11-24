@@ -174,6 +174,6 @@ message can be built at a time: don't call anything that sends while you are in 
 ## Reporting a bug
 
 Say which chapter, where (room or story moment), what happened and what you expected, and attach
-`multiplayer_log.txt` (and `multiplayer_crash.txt` if there is one) from
-`%LOCALAPPDATA%\DELTARUNE_ONLINE`, from every player if you can. Send it on Discord (**b.001**) or in a
-GitHub issue.
+the zip that F9 "Save logs for a bug report" puts on your desktop, from every player if you can (it
+holds `multiplayer_log.txt`, the session before's `multiplayer_log_prev.txt` and `multiplayer_crash.txt`
+from `%LOCALAPPDATA%\DELTARUNE_ONLINE`). Send it on Discord (**b.001**) or in a GitHub issue.
