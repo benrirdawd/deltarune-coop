@@ -59,6 +59,8 @@
 //   <name>/<token>  only for the player with that name (-mpname), e.g. P3/away:room_x:100
 //   logreading      log who the player list shows as "(reading)" every 30 frames
 //   fakever:<n>:<b> pretend to have network version n and build b (version check)
+//   fakeactg        battle: as if an ACT's own game ran at the first hero action of each fight (90
+//                   frames); its player gains 10 mercy on the first enemy in their game only
 //   reportzip       at frame 400, do F9 "Save logs for a bug report" into the save folder (not the desktop)
 //   menupage:<n>    with openmenu: pick C-menu entry n (0 items, 1 equipment, 3 power/status)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)

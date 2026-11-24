@@ -19,31 +19,32 @@ Where it says "idea", nothing is built yet.
 
 ## Battle ACTs and SOUL modes with their own game
 
-How battles work today: the menu is played by the owner of the hero whose turn it is, and their
-presses are replayed in every game. Attack timing is pressed by each player for their own hero.
-Bullets are dodged by everyone with their own SOUL. **An ACT that opens its own little game takes
-each game's own keys.** Only the menu is replayed, so after the menu each player plays the ACT in
-their own game. The random numbers are seeded the same in every game, but the results can still
-differ between games if the players press differently. This has not been checked one by one.
+How battles work: the menu is played by the owner of the hero whose turn it is, and their presses are
+replayed in every game. Attack timing is pressed by each player for their own hero. Bullets are dodged
+by everyone with their own SOUL. **ACTs that open their own little game** (the objects in
+`mp_actg_objs`, `scr_mp_battle`, 2026-11-24) are played by the acting hero's owner: their keys are
+replayed in the other games, and the mercy it gave is corrected everywhere to the owner's result.
+"Replayed" in the table below means it is on that list (tested with a simulated ACT, not yet with
+each real one).
 
 | Ch | ACT / mode | Objects | Today | Idea |
 |---|---|---|---|---|
-| 2 | Tasque Manager's quiz | `obj_tm_quizzler` (from her fight) | Local (each answers in their own game) | The ACT's owner answers and their presses are replayed, like the menu. Or each player answers and the majority wins. |
-| 2 | Maus / Mauswheel baskets (Susie's version too) | `obj_maus_basket`, `obj_maus_basket_susie`, `obj_maus_split_basket` | Local | Replay the owner's keys. Susie's basket could be played by Susie's player. |
+| 2 | Tasque Manager's quiz | `obj_tm_quizzler` (from her fight) | Replayed (owner plays) | The ACT's owner answers and their presses are replayed, like the menu. Or each player answers and the majority wins. |
+| 2 | Maus / Mauswheel baskets (Susie's version too) | `obj_maus_basket`, `obj_maus_basket_susie`, `obj_maus_split_basket` | Replayed (owner plays) | Replay the owner's keys. Susie's basket could be played by Susie's player. |
 | 2 | Spamton NEO: Susie's ACT, BIG SHOT | `obj_sneo_susie_act`, `obj_sneo_bigshot` | One plays (special fight) | Hand-sync this fight: Susie's player does her ACT, Kris's player does BIG SHOT. |
 | 2 | Giga Queen (boxing) | `obj_gigaqueen_enemy`, `obj_rocketpunch_*` | One plays | Idea: one player per punch hand, or take turns. L. |
 | 2 | Queen, Berdly's plug | `obj_queen_enemy`, `obj_berdlyplug_enemy` | One plays | One at a time, if people want it. |
-| 3 | Tenna's fight: the "popular boy" ACT | `obj_popularboy_act` (from `obj_tenna_enemy`) | Local | Replay the owner's keys. |
+| 3 | Tenna's fight: the "popular boy" ACT | `obj_popularboy_act` (from `obj_tenna_enemy`) | Replayed (owner plays) | Replay the owner's keys. |
 | 3 | Shadowguys' tommy gun (shooting SOUL) | `obj_shadowman_tommygun` (enemy turn) | Each player plays with their own SOUL, like dodging | Check that damage dealt to the enemies is shared. |
 | 3 | The Knight's sword tunnel | `obj_sword_tunnel_*` (enemy turn) | One plays (the Knight is a special fight) | — |
 | 3 | Shadow Mantle, Tenna's board fight | `obj_shadow_mantle_enemy`, `obj_tenna_board4_enemy` | One plays | — |
 | 4 | Holy water ACT line | `obj_holywater_act_line` (enemy turn) | Each player with their own SOUL | Check that the result is shared. |
 | 4 | Organ enemy | `obj_organ_enemy` | Normal fight sync | Check in play. |
 | 4 | Titan, Gerson (Hammer and Sound of Justice) | `obj_titan_enemy`, `obj_hammer_of_justice_enemy`, `obj_sound_of_justice_enemy` | One plays | — |
-| 5 | Flowery's ACT menu (a SOUL picks the ACT) | `obj_flowery_act_menu_*` | Local | Replay the owner's SOUL movement and presses, as the menu is replayed. |
-| 5 | Scissors ACT (cutting a line) | `obj_scissors_act_*` | Local | The same: the owner plays, everyone sees it. |
-| 5 | Sharing food (pink enemy) | `obj_sharefood_act` | Local | The same. Or each player gives food to their own hero. |
-| 5 | Pink nodes (heart ACT) | `obj_pinknodeact`, `obj_dokiheart` | Local | The same. |
+| 5 | Flowery's ACT menu (a SOUL picks the ACT) | `obj_flowery_act_menu_*` | Replayed (owner plays) | Replay the owner's SOUL movement and presses, as the menu is replayed. |
+| 5 | Scissors ACT (cutting a line) | `obj_scissors_act_*` | Replayed (owner plays) | The same: the owner plays, everyone sees it. |
+| 5 | Sharing food (pink enemy) | `obj_sharefood_act` | Replayed (owner plays) | The same. Or each player gives food to their own hero. |
+| 5 | Pink nodes (heart ACT) | `obj_pinknodeact`, `obj_dokiheart` | Replayed (owner plays) | The same. |
 | 5 | Shooting SOUL modes | `obj_kawkaw_shooter`, `obj_flowery_shooter` | Each player with their own SOUL | Check that damage is shared. |
 | 5 | Bosses | — | Not looked at yet | Add any that have their own rules to the special list. |
 
@@ -121,7 +122,7 @@ Known limits of the shared puzzles:
 
 ## Suggested order
 
-1. ACTs with their own game (Maus, Tasque Manager, Tenna, Chapter 5's Flowery, scissors and food): replay the ACT owner's keys like the menu. This is one mechanism for all of them, so the games no longer disagree. M.
+1. **Done 2026-11-24:** ACTs with their own game are played by the hero's owner and the mercy is corrected (DONE.md). Next: run each real ACT.
 2. Chapter 4 bookshelf and train tracks: they reuse the block and switch messages. M each.
 3. Piano and organ puzzles: share each note played. M.
 4. Rhythm game per character, then quiz buzzers: the most fun together. L each.

@@ -18,11 +18,8 @@ pull request, or ask on Discord (**b.001**).
 
 ## More co-op improvements (found 2026-11-24, from MINIGAMES.md)
 
-1. ACTs that open their own little game: today each game plays it with its own player's keys, so
-   the games can end with different results. This affects Maus' baskets and Tasque Manager's quiz
-   (Chapter 2), Tenna's "popular boy" (Chapter 3), and Flowery's ACT menu, the scissors, sharing food
-   and the pink nodes (Chapter 5). Plan: replay the keys of the hero's owner, the way the battle menu
-   is replayed. Effort: M.
+1. **Done:** ACTs that open their own little game are played by the hero's owner (DONE.md). Still to
+   run with the real ACTs: the test simulates one (`fakeactg`).
 2. Chapter 4 bookshelf and train tracks: share them through the block and switch messages. Effort: M.
 3. Piano and organ puzzles (Chapter 4): share each note played. Effort: M.
 

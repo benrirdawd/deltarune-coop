@@ -4,6 +4,34 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## ACTs with their own little game: the hero's player plays them (2026-11-24)
+
+* Some ACTs open a little game of their own (listed in MINIGAMES.md): Maus' baskets and Tasque
+  Manager's quiz (Chapter 2), Tenna's "popular boy" (Chapter 3), and Flowery's ACT menu, the scissors,
+  sharing food and the pink nodes (Chapter 5). Only the battle menu was replayed, so each game played
+  it with its own player's keys, and the host's result won at the turn's end (the TURN_GO message
+  carries its enemies' mercy). Now, while one of those objects is running in the acting phase
+  (`mp_actg_*`, end of `scr_mp_battle`):
+  * The owner of the acting hero plays it. Their keys (held or pressed) are sent each time they
+    change (message 58, kind 0). The other games play those keys instead of their own, one change per
+    frame, so their copy looks about the same, a little later.
+  * When it ends, the owner sends how much it changed each enemy's mercy and HP (kind 1). The other
+    games correct their mercy by the difference from their own copy.
+  * Simplest choices: a list of objects (one line per new ACT game), and mercy is corrected but HP
+    only logged (an attack landing inside one game's window would otherwise count twice; the turn's
+    end still brings the host's HP).
+* Test token `fakeactg`: as if an ACT game ran for 90 frames at each fight's first hero action; its
+  player gains 10 mercy on the first enemy, in their own game only.
+* Tests, Chapter 2 `room_dw_cyber_maze_virokun`, encounter 53, bots, `chaos:10:120:60`:
+  * `actg1`, 20x, host plays Kris: the client played the host's key changes and its mercy was
+    corrected by +10.
+  * `actg2`, 20x, client plays Kris (host `charto:2@60`): the host was told "P2 plays it" and corrected
+    by +10. At 20x the 90-frame window ended before the keys arrived (0 played), and the HP difference
+    (-46) showed why HP isn't corrected. mpcheck: all PASS.
+  * `actg3`, at 2x, the same: 22 of the 28 key changes were played in the host's game before the
+    window ended, and mercy was corrected by +10.
+  * Not run: the real ACTs. The bots don't pick a given ACT.
+
 ## A watcher's character touches nothing (2026-11-24)
 
 * From the code review: while I watch someone (F9 "Watch"), my hidden character stands where they

@@ -71,6 +71,7 @@ function mp_battle_reset()
     global.mp_tension_b0 = 0;
     global.mp_act_wn = 0;
     global.mp_act_wr = false;
+    mp_actg_init();
     global.mp_presel = -1;
     global.mp_susie_lock_log = -1;
     global.mp_t_mine = 0;           // TP my own SOUL earned (grazes) or lost (hits while down) this bullet phase
@@ -458,6 +459,11 @@ function mp_battle_recv(type, from, b)
         }
         return;
     }
+    if (type == 58) // an ACT's own game: the owner's keys, then its result
+    {
+        mp_actg_recv(from, b);
+        return;
+    }
     if (type == 41) // MENU INPUT
     {
         var bid = buffer_read(b, buffer_u16);
@@ -804,6 +810,8 @@ function mp_battle_input()
         return;
     }
     var menu = global.myfight == 0 && global.mnfight == 0 && global.charturn < 3;
+    if (!menu)
+        mp_actg_tick();
     if (!menu)
         mp_btext_input();
     if (!menu)
@@ -2241,4 +2249,229 @@ function mp_plan_draw()
     draw_text_transformed(bx + 8 * sc, ty, l3, sc, sc, 0);
     draw_set_colour(c_white);
     draw_set_font(of);
+}
+
+// ---------------------------------------------------------------- ACTs with their own little game
+
+// Some ACTs open a little game of their own (Maus' baskets, Tasque Manager's quiz, Tenna's "popular
+// boy", Chapter 5's Flowery menu, scissors, sharing food, pink nodes). Only the battle menu is
+// replayed, so each game used to play it with its own player's keys and could end with a different
+// result. Now the player who owns the acting hero plays it: their held keys are sent as they change
+// (message 58, kind 0) and the others' games play those keys instead of their own, a little later.
+// When it ends, the owner sends what it changed (each enemy's mercy and HP, kind 1) and every other
+// game corrects its mercy by the difference, so all agree whatever the timing did.
+// Simplest choice: a list of the objects that run those games; one more is a line here.
+
+function mp_actg_init()
+{
+    global.mp_actg_on = 0;
+    global.mp_actg_n = 0;
+    global.mp_actg_owner = -1;
+    global.mp_actg_m0 = array_create(3, 0);
+    global.mp_actg_h0 = array_create(3, 0);
+    global.mp_actg_sent = -1;
+    global.mp_actg_cur = 0;
+    global.mp_actg_keys = 0;
+    global.mp_actg_q = [];        // [n, mask] keys received from the owner
+    global.mp_actg_res = [];      // [n, dm0..2, dh0..2] results received from the owner
+    global.mp_actg_mine = [];     // [n, dm0..2, dh0..2] what my own copy changed
+}
+
+function mp_actg_objs()
+{
+    if (!variable_global_exists("mp_actg_list"))
+    {
+        var names = ["obj_maus_basket", "obj_maus_basket_susie", "obj_maus_split_basket", "obj_tm_quizzler", "obj_popularboy_act", "obj_flowery_act_menu_controller", "obj_scissors_act_controller", "obj_scissors_act_player", "obj_sharefood_act", "obj_pinknodeact"];
+        global.mp_actg_list = [];
+        for (var i = 0; i < array_length(names); i++)
+        {
+            var o = asset_get_index(names[i]);
+            if (o >= 0 && object_exists(o))
+                array_push(global.mp_actg_list, o);
+        }
+    }
+    return global.mp_actg_list;
+}
+
+// An ACT's own game is running in my battle.
+function mp_actg_running()
+{
+    if (global.myfight == 0 || global.mnfight != 0)
+        return false;
+    // (Test token fakeactg: as if one ran for 90 frames at the first hero action of each battle;
+    // the one who plays it gains 10 mercy on the first enemy, only in their own game.)
+    if (global.mp_test != "" && mp_test_has("fakeactg"))
+    {
+        if (!variable_global_exists("mp_test_actg_bid") || global.mp_test_actg_bid != global.mp_bid)
+        {
+            global.mp_test_actg_bid = global.mp_bid;
+            global.mp_test_actg_f = 90;
+        }
+        if (global.mp_test_actg_f > 0)
+            global.mp_test_actg_f -= 1;
+        return global.mp_test_actg_f > 0;
+    }
+    var l = mp_actg_objs();
+    for (var i = 0; i < array_length(l); i++)
+    {
+        if (instance_exists(l[i]))
+            return true;
+    }
+    return false;
+}
+
+// Called from mp_battle_input every frame of a hero's action (outside the menu).
+function mp_actg_tick()
+{
+    var on = mp_actg_running();
+    if (on && !global.mp_actg_on)
+    {
+        global.mp_actg_on = 1;
+        global.mp_actg_n += 1;
+        var ct = global.charturn;
+        global.mp_actg_owner = (ct >= 0 && ct < 3) ? global.mp_owner[ct] : global.mp_owner[0];
+        if (global.mp_actg_owner == 255 || global.mp_actg_owner < 0 || global.mp_actg_owner > 7 || !global.mp_pconn[global.mp_actg_owner])
+            global.mp_actg_owner = global.mp_b_leader;
+        for (var s = 0; s < 3; s++)
+        {
+            global.mp_actg_m0[s] = global.mercymod[s];
+            global.mp_actg_h0[s] = global.monsterhp[s];
+        }
+        global.mp_actg_sent = -1;
+        global.mp_actg_cur = 0;
+        global.mp_actg_keys = 0;
+        mp_log("act game " + string(global.mp_actg_n) + ": " + (global.mp_actg_owner == global.mp_myid ? "I play it" : global.mp_pname[global.mp_actg_owner] + " plays it"));
+    }
+    else if (!on && global.mp_actg_on)
+    {
+        global.mp_actg_on = 0;
+        if (global.mp_test != "" && mp_test_has("fakeactg") && global.mp_actg_owner == global.mp_myid && global.monster[0])
+            global.mercymod[0] = min(100, global.mercymod[0] + 10);
+        var d = [global.mp_actg_n];
+        for (var s2 = 0; s2 < 3; s2++)
+            array_push(d, global.mercymod[s2] - global.mp_actg_m0[s2]);
+        for (var s3 = 0; s3 < 3; s3++)
+            array_push(d, global.monsterhp[s3] - global.mp_actg_h0[s3]);
+        mp_log("act game " + string(global.mp_actg_n) + " over (" + string(global.mp_actg_keys) + " key changes " + (global.mp_actg_owner == global.mp_myid ? "sent" : "played") + "): mercy " + string(d[1]) + "/" + string(d[2]) + "/" + string(d[3]) + " hp " + string(d[4]) + "/" + string(d[5]) + "/" + string(d[6]));
+        if (global.mp_actg_owner == global.mp_myid)
+        {
+            mp_begin_b(58);
+            mp_wu8(1);
+            mp_wu16(global.mp_bid);
+            mp_wu16(global.mp_actg_n);
+            for (var k = 1; k < 7; k++)
+                mp_wf64(d[k]);
+            mp_send();
+        }
+        else
+        {
+            array_push(global.mp_actg_mine, d);
+            mp_actg_apply();
+        }
+    }
+    if (!global.mp_actg_on)
+        return;
+    if (global.mp_actg_owner == global.mp_myid)
+    {
+        var mask = 0;
+        for (var i = 0; i < 10; i++)
+        {
+            if (global.input_held[i] || global.input_pressed[i])
+                mask |= (1 << i);
+        }
+        if (mask != global.mp_actg_sent)
+        {
+            global.mp_actg_sent = mask;
+            global.mp_actg_keys += 1;
+            mp_begin_b(58);
+            mp_wu8(0);
+            mp_wu16(global.mp_bid);
+            mp_wu16(global.mp_actg_n);
+            mp_wu16(mask);
+            mp_send();
+        }
+        return;
+    }
+    // Someone else plays it: their keys, one change per frame, instead of mine.
+    var prev = global.mp_actg_cur;
+    var q = global.mp_actg_q;
+    var nq = [];
+    var took = false;
+    for (var j = 0; j < array_length(q); j++)
+    {
+        if (q[j][0] < global.mp_actg_n)
+            continue;
+        if (!took && q[j][0] == global.mp_actg_n)
+        {
+            took = true;
+            global.mp_actg_cur = q[j][1];
+            global.mp_actg_keys += 1;
+            continue;
+        }
+        array_push(nq, q[j]);
+    }
+    global.mp_actg_q = nq;
+    var cur = global.mp_actg_cur;
+    for (var b2 = 0; b2 < 10; b2++)
+    {
+        var h = (cur >> b2) & 1;
+        var ph = (prev >> b2) & 1;
+        global.input_held[b2] = h;
+        global.input_pressed[b2] = h && !ph;
+        if (variable_global_exists("input_released"))
+            global.input_released[b2] = ph && !h;
+    }
+}
+
+// The owner's result and my copy's are both known: correct mine by the difference.
+function mp_actg_apply()
+{
+    var keep = [];
+    for (var r = 0; r < array_length(global.mp_actg_res); r++)
+    {
+        var res = global.mp_actg_res[r];
+        var found = -1;
+        for (var m = 0; m < array_length(global.mp_actg_mine); m++)
+        {
+            if (global.mp_actg_mine[m][0] == res[0])
+                found = m;
+        }
+        if (found < 0)
+        {
+            array_push(keep, res);
+            continue;
+        }
+        var mine = global.mp_actg_mine[found];
+        for (var s = 0; s < 3; s++)
+        {
+            var dm = res[1 + s] - mine[1 + s];
+            var dh = res[4 + s] - mine[4 + s];
+            if (dm != 0 && global.monster[s])
+                global.mercymod[s] = clamp(global.mercymod[s] + dm, 0, 100);
+            // (HP is only logged: an attack landing in one game's window and not the other's would
+            // be counted twice. The turn's end brings everyone the host's HP anyway.)
+            if (dm != 0 || dh != 0)
+                mp_log("act game " + string(res[0]) + ": enemy " + string(s) + " mercy corrected by " + string(dm) + " (the player's result; hp differed by " + string(dh) + ", left)");
+        }
+    }
+    global.mp_actg_res = keep;
+}
+
+function mp_actg_recv(from, b)
+{
+    var kind = buffer_read(b, buffer_u8);
+    var bid = buffer_read(b, buffer_u16);
+    var n = buffer_read(b, buffer_u16);
+    if (bid != global.mp_bid)
+        return;
+    if (kind == 0)
+    {
+        array_push(global.mp_actg_q, [n, buffer_read(b, buffer_u16)]);
+        return;
+    }
+    var res = [n];
+    for (var k = 0; k < 6; k++)
+        array_push(res, buffer_read(b, buffer_f64));
+    array_push(global.mp_actg_res, res);
+    mp_actg_apply();
 }
