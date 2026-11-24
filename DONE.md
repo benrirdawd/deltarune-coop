@@ -13,6 +13,15 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 
 
+## Pulled into a fight, taken out by a door first (2026-11-24)
+
+In `room_dw_garden_aqua` 291 (chaos, `aqua9`, `aqua10`) the pulled player sometimes went through a door to
+`room_dw_garden_wateringcan_aqua` on the room's second frame and never reached the fight. Its game only
+creates the fight's invisible enemy a few frames after the room starts (`mp_warp_delay`), and was free to
+move until then, standing on the door at the leader's spot. Now a warp into a fight holds `interact` at 1
+until the fight starts. Test: three runs with `chaos:10:120:60` (`aqua11`-`aqua13`): all six pulls reached
+the fight, every check passes in all three.
+
 ## Called to a fight that already ended: no 7 s wait (2026-11-24)
 
 A player pulled into a fight whose pull arrives late (slow network) waited 7 s at the "!" before "the fight I

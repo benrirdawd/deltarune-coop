@@ -844,6 +844,10 @@ function mp_world_tick()
     if (global.mp_warp_delay > 0)
     {
         global.mp_warp_delay -= 1;
+        // Going into a fight: stand still until it starts. The room's start spot (or the leader's)
+        // may be on a door, which would take me out of the room first (Chapter 5 garden).
+        if (global.mp_warp_action == 1 && global.interact == 0)
+            global.interact = 1;
         if (global.mp_warp_delay == 0)
             mp_warp_place();
     }
