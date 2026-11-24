@@ -66,7 +66,7 @@
 //                   frames); its player gains 10 mercy on the first enemy in their game only
 //   shelfflag:<i>:<dx>@<f>, moveshelf:<i>:<dir>@<f>, pianosolve:<f>: Chapter 4 puzzles (scr_mp_shelf)
 //   castlesolve:<f> Chapter 5 castle puzzle rooms: set the room's solved bit (scr_mp_castle)
-//   setflag:<n>=<v>@<f> set story flag n to v at room frame f
+//   setflag:<n>=<v>@<f>[/<n>=<v>@<f>...] set story flag n to v at room frame f
 //   reportzip       at frame 400, do F9 "Save logs for a bug report" into the save folder (not the desktop)
 //   menupage:<n>    with openmenu: pick C-menu entry n (0 items, 1 equipment, 3 power/status)
 //   players:<n>     with speed: speed up once n players (me included) are connected (default 2)
@@ -445,14 +445,18 @@ function mp_test_tick()
     // setflag:<n>=<v>@<frame>: set story flag n to v at that room frame (as a friend's game would).
     if (mp_test_has("setflag"))
     {
-        var sfa = mp_test_arg("setflag");
-        var sfe = string_pos("=", sfa);
-        var sft = string_pos("@", sfa);
-        if (sfe > 0 && sft > sfe && global.mp_test_timer == real(string_delete(sfa, 1, sft)))
+        var sfl = string_split(mp_test_arg("setflag"), "/");
+        for (var sfi = 0; sfi < array_length(sfl); sfi++)
         {
-            var sfn = real(string_copy(sfa, 1, sfe - 1));
-            global.flag[sfn] = real(string_copy(sfa, sfe + 1, sft - sfe - 1));
-            mp_log("[test] setflag " + string(sfn) + " = " + string(global.flag[sfn]));
+            var sfa = sfl[sfi];
+            var sfe = string_pos("=", sfa);
+            var sft = string_pos("@", sfa);
+            if (sfe > 0 && sft > sfe && global.mp_test_timer == real(string_delete(sfa, 1, sft)))
+            {
+                var sfn = real(string_copy(sfa, 1, sfe - 1));
+                global.flag[sfn] = real(string_copy(sfa, sfe + 1, sft - sfe - 1));
+                mp_log("[test] setflag " + string(sfn) + " = " + string(global.flag[sfn]));
+            }
         }
     }
     // setvars: change a story flag and gold after a while; logvars: report them.

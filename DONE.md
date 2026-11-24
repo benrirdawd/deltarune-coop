@@ -4,6 +4,22 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 2 mice switch room: solved by one, open for everyone (2026-11-24)
+
+* `room_dw_city_mice2`: a mouse (or Noelle) landing on the switch turns off the force field and
+  ends the room's puzzle (story flags 368 and 915, shared). The room reads them only when it's built,
+  so a friend's solve left my force field up. Now when flag 368 arrives from someone else, my room
+  does what it does when you come back later: switch frozen down, force field gone, the room's
+  controller gone (`mp_mice2_follow`, in `scr_mp_keyboard`, Chapter 2).
+* "From someone else": the flag changed between two of my controller's steps (my own solve sets it
+  inside the step; `mp_mice2_after` keeps the value the step left).
+* Simplest choice: the result is shared, not the mice.
+* `setflag` takes several flags now (`setflag:915=5@400/368=1@402`); `logpuz` logs the room
+  (`[MPMICE]`).
+* Test, Chapter 2 `room_dw_city_mice2`, plot 75, both with `chaos:10:120:60` (`work/fol/mice2b`):
+  the client set flags 915 and 368; its room and the host's (about 3 s later) followed. No crash.
+  A first run with flag 915 alone (`mice2`) changed nothing, as expected.
+
 ## Game Over choice screen: a client was frozen there; CONTINUE now tested (2026-11-24)
 
 * Bug: `PLACE_FAILURE` (the Game Over's CONTINUE / GIVE UP screen) starts with `PLACE_`, so a

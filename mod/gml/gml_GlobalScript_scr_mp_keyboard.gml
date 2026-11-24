@@ -32,3 +32,52 @@ function mp_kbpuzzle_follow()
     currentString = idealString;
     imageTimer = sprite_get_number(victorySprite) - 0.5;
 }
+
+// ---------------------------------------------------------------- the mice switch room
+
+// room_dw_city_mice2: a mouse (or Noelle) landing on the switch turns the force field off and ends the
+// room's puzzle: story flags 368 (solved) and 915, shared. The room reads them only when it is built,
+// so a friend's solve left my force field up and my room still waiting. Now, when flag 368 arrives
+// from someone else (it changed between two of my controller's steps: my own solve sets it inside
+// the step), my room does what it does when you come back later: the switch frozen down, the force
+// field gone, the room's controller gone. Simplest choice: the result is shared, not the mice.
+
+// Prepended to obj_controller_city_mice2's Step.
+function mp_mice2_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (!variable_instance_exists(id, "mp_f368"))
+        mp_f368 = global.flag[368];
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+        show_debug_message("[MPMICE] flag368=" + string(global.flag[368]) + " flag915=" + string(global.flag[915]) + " victory=" + string(victory) + " forcefield=" + string(instance_number(obj_forcefield)));
+    if (mp_f368 == 1 || global.flag[368] != 1)
+        return;
+    mp_log("mice switch room: solved by a friend, my room follows");
+    if (global.flag[915] != 0)
+    {
+        with (obj_mice2Switch)
+        {
+            toggle = 1;
+            depth = 600000;
+            scr_createFrozen(0);
+        }
+        with (obj_rotationController_track)
+            scr_createFrozen(1);
+    }
+    with (obj_forcefield)
+        instance_destroy();
+    if (!instance_exists(obj_cutscene_master) && !d_ex() && global.flag[7] == 1)
+    {
+        global.flag[7] = 0;
+        global.interact = 0;
+    }
+    instance_destroy();
+}
+
+// Appended to its Step: the flag as my own step left it.
+function mp_mice2_after()
+{
+    if (variable_global_exists("mp_inited") && instance_exists(id))
+        mp_f368 = global.flag[368];
+}

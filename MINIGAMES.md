@@ -91,6 +91,7 @@ each real one).
 | 2 | Traffic lights (city, mansion) | `obj_traffic_switch` | **Shared** |
 | 2 | Alley floor switch | `obj_alleySwitch` | **Shared**: a friend standing on it holds it down. |
 | 2 | Mice rooms' switches | `obj_mouseSpawnSwitch`, `obj_mice2Switch`, `obj_mice3_platSwitch` | Local: they release mice that move on their own. |
+| 2 | Mice switch room | `room_dw_city_mice2`, `obj_controller_city_mice2`, `obj_mice2Switch` | Shared result: a friend's solve (flags 368, 915) opens my force field (`mp_mice2_follow`). The mice stay local. |
 | 2 | Keyboard puzzles | `obj_controller_keyboard_puzzle_1..3`, `obj_ch2_keyboardpuzzle_*` | Shared result: a friend's solve (flags 390, 333, 420) shows on my keyboard and opens puzzle 1's force field (`scr_mp_keyboard`). Keys stay local. |
 | 2 | Shape puzzle | `obj_shapepuzzle` | Local: one player steers a piece. Idea: send the moves. |
 | 2 | Noelle's puzzle (keys, force field) | `obj_ch2_noellepuzzle_*` | Local, not looked at. |

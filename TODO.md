@@ -30,6 +30,9 @@ pull request, or ask on Discord (**b.001**).
    shared the usual way). The remote piano that writes flags 863-866 is only in
    `room_dw_church_bookshelfpuzzle1`, which has no shelves for it and no door from the story
    (a leftover room). Left as is.
+6. **Done:** Chapter 2's mice switch room (`room_dw_city_mice2`) follows a friend's solve (DONE.md).
+   Still local: the first mice room (`room_dw_city_mice`, mice released by a switch: each game its own
+   mice) and the shape puzzle.
 5. **Done:** Chapter 2 keyboard puzzles follow a friend's solve (DONE.md). Simplest choice: the solve
    is shared, not each key. Puzzles 2 and 3 only checked by reading the code (same path as puzzle 1).
 

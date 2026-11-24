@@ -252,6 +252,13 @@ place_meeting\(x, y, obj_mainchara\)
 @prepend gml_Object_obj_ch2_keyboardpuzzle_controller_Step_0
 mp_kbpuzzle_follow();
 
+;; Chapter 2 mice switch room: a friend's solve (flags 368/915) opens my room too (scr_mp_keyboard).
+@prepend gml_Object_obj_controller_city_mice2_Step_0
+mp_mice2_follow();
+
+@append gml_Object_obj_controller_city_mice2_Step_0
+mp_mice2_after();
+
 ;; Chapter 3: the glowing tiles' hourglass (as in Chapter 1; the tiles themselves are pressed by the
 ;; others' figures in every chapter).
 #chapters 3
