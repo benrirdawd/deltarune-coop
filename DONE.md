@@ -4,6 +4,17 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 3 eye puzzle: Kris's switch pressed for everyone (2026-11-24)
+
+* `room_dw_couch_overworld_02`: Susie and Ralsei walk to their switches by themselves; Kris's switch
+  then opens the bridge and moves the story on (plot 21). It was pressed only in the game of whoever
+  pressed it. Now it is one more switch shared with message 81 (hook on its User Event 0, as the
+  Chapter 1 switches): every game in the room plays the same press and opens the bridge.
+* Simplest choice: the press is shared; Susie and Ralsei's walk stays each game's own.
+* Test, Chapter 3, plot 20, both with `chaos:10:120:60` (`work/fol/eye3`): the client pressed the
+  switch (`useobj`); the host got "player 1 used obj_ch3_PGS01B_eyepuzzle_switch", played the
+  bridge sequence and ended at plot 21 with control back (interact 0), as the client did. No crash.
+
 ## Chapter 2 mice switch room: solved by one, open for everyone (2026-11-24)
 
 * `room_dw_city_mice2`: a mouse (or Noelle) landing on the switch turns off the force field and

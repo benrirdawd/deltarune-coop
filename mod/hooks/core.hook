@@ -265,6 +265,11 @@ mp_mice2_after();
 @prepend gml_Object_obj_glowtilepuzz_Other_10
 mp_puz_switch_used();
 
+;; Chapter 3's couch-world eye puzzle (room_dw_couch_overworld_02): Kris's switch opens the bridge;
+;; pressed by anyone, pressed in every game in the room (Susie and Ralsei walk to theirs in each game).
+@prepend gml_Object_obj_ch3_PGS01B_eyepuzzle_switch_Other_10
+mp_puz_switch_used();
+
 ;; Chapters 4 and 5: floor switches are held down by a friend standing on them too.
 #chapters 4,5
 @regex gml_Object_obj_floorswitch_Step_0
