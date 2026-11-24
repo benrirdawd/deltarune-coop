@@ -92,9 +92,6 @@ choice and real players to judge it; the platformer figure and the special-fight
 
 ## Not looked at yet
 
-* Ghost mismatches around doors at the top of town rooms (`room_library`, `room_diner`,
-  `room_town_church`, `room_town_noellehouse`, `room_board_dungeon_3`): the other player sees a stale
-  position for 2-4 s when someone is moved onto a door trigger (sweep of 2026-10-10).
 * Changing character mid-session through F9 (picking it before joining, at the file select or in game,
   is covered by `tools/flow.py`).
 * Joining while the host is in a battle (joining from the file select and mid-cutscene are covered).
