@@ -73,8 +73,8 @@ changing the room for everyone.
   with nothing to play in fights (same character as someone who picked it first) is told once that
   F9 > Watch follows that player (DONE.md). Simplest choice: a hint, not watching on its own, since
   walking around as your pick still works.
-* **Done: anyone's Continue at the Game Over continues for everyone**, see DONE.md. Not run: the
-  CONTINUE choice on the second screen (`PLACE_FAILURE`), only the quick retry.
+* **Done: anyone's Continue at the Game Over continues for everyone**, see DONE.md. The CONTINUE
+  choice on the second screen (`PLACE_FAILURE`) is run too now (DONE.md).
 
 ## Left from the code review (2026-11-23)
 

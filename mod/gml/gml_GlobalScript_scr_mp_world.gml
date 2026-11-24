@@ -649,7 +649,8 @@ function mp_opening_hold(on)
 function mp_opening_tick()
 {
     global.mp_open_wait = 0;
-    var inopen = string_pos("PLACE_", room_get_name(room)) == 1;
+    // (PLACE_FAILURE is a PLACE_ room too, but it is the Game Over's choice, not the opening.)
+    var inopen = string_pos("PLACE_", room_get_name(room)) == 1 && !mp_gameover_room();
     if (!inopen || global.mp_role != 2 || global.mp_linkstate != 3 || !global.mp_pconn[0])
     {
         if (global.mp_open_held)
@@ -2611,6 +2612,11 @@ function mp_gameover_tick()
     if (df >= 0 && instance_exists(df))
     {
         var ev = df.EVENT;
+        if (!variable_global_exists("mp_go_ev") || global.mp_go_ev != ev)
+        {
+            global.mp_go_ev = ev;
+            mp_log("game over: choice screen step " + string(ev) + " (choice " + string(global.choice) + ")");
+        }
         if (global.mp_go_remote && !global.mp_go_sent && ev == 5 && global.choice != 0)
         {
             var dc = asset_get_index("DEVICE_CHOICE");

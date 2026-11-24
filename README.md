@@ -67,9 +67,10 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   someone who joins later finds the blocks where they were left), switches and buttons are
   pressed for everyone (Chapter 1's eye switches and suits puzzles, Chapter 2's traffic lights,
   the glowing tiles' hourglass), and a friend standing on a glowing tile or a floor switch
-  counts in your game (so two players can hold two switches). A puzzle someone solves is solved
-  for everyone: Chapter 4's bookshelves (a shelf slid with a piano slides in every game) and the
-  piano cage, Chapter 5's terracotta statues and orange door. Hazards like the checker paths stay
+  counts in your game (so two players can hold two switches). Eye switches and suits buttons pressed
+  before you came into the room (or joined) are played back for you. A puzzle someone solves is
+  solved for everyone: Chapter 2's keyboard puzzles, Chapter 4's bookshelves (a shelf slid with a
+  piano slides in every game) and the piano cage, Chapter 5's terracotta statues and orange door. Hazards like the checker paths stay
   each player's own. The full list is in [`MINIGAMES.md`](MINIGAMES.md).
 * **Shared progress.** Story flags, items, gold, equipment and HP are kept in sync. The host's
   world is the shared one. Counters (enemies defeated, people talked to) add up when two
@@ -155,7 +156,8 @@ Handy things:
   seconds, in a bubble over you.
 * **"Watch"** in the F9 menu follows another player with the camera (left/right to switch to the next
   player, wherever they are: you go to their room). While you watch, your hidden character doesn't
-  touch anything: no enemy, scene trigger or floor switch reacts to it.
+  touch anything: no enemy, scene trigger or floor switch reacts to it. If someone who picked your
+  character first plays it in fights, you are told once that Watch can follow them.
 * The player list (top left) shows "(reading)" next to someone reading a text box: talking to someone
   on their own, or not done with the current page of a shared cutscene.
 * **F5** (ping) shows the others where you are: for 3 seconds an arrow in your colour bounces over you
@@ -169,7 +171,8 @@ Handy things:
   but your SOUL is dimmed and marked **WATCHING**: you don't have to dodge, nothing hits you.
 * When a chapter ends and you start the next one within a few minutes, the session continues
   by itself: the host hosts again and the others join again.
-* After a Game Over and Continue, everyone is taken back to the host.
+* After a Game Over and Continue, everyone is taken back to the host. Anyone's CONTINUE (the quick
+  retry or the choice screen) continues for everyone still on the Game Over screen.
 * If another player moves the story on while you are standing in a room, the room is
   rebuilt (same spot) a moment later so it matches theirs.
 * Players are in the same world (Light / Dark) as whoever they join or are pulled to.
@@ -203,7 +206,8 @@ While you play a minigame (the rhythm game, the chefs, a quiz, a race, climbing.
 players aren't drawn over it, and they see "Playing the rhythm game..." over where you stand.
 Climbing walls (Chapters 4-5), you see the other climbers on the wall, each as their own character.
 In Chapter 5's platforming sections the others are shown as their own character too (Susie,
-Ralsei; Kris and Noelle use Kris's figure).
+Ralsei; Kris and Noelle use Kris's figure), and the game's own Susie or Ralsei follower is hidden
+while a friend plays that character there, so there aren't two of them.
 Every minigame, puzzle and ACT with its own game, and what multiplayer does with each one so far,
 is listed in [`MINIGAMES.md`](MINIGAMES.md).
 A few fights have their own rules (Spamton NEO, Queen and Giga Queen, Berdly's plug, Chapter 3's

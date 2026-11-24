@@ -21,6 +21,9 @@
 //   lightworld      with `party`: start in the Light World (Kris and Susie)
 //   setplot:<n>     set the story progress to <n> after a while (shared with the others)
 //   gotohost:<n>    press the "go to the other player" action n frames after the party setup
+//   failchoice      Game Over: take CONTINUE on the choice screen (PLACE_FAILURE); with it (or
+//                   failwait: only wait there),
+//                   bot and mash no longer press Z on the Game Over screens
 //   nododge         bot: don't dodge in the bullet phase (heroes go down)
 //   battleat:<n>    with battle: start the encounter n frames after arriving (default 120)
 //   charto:<c>@<f> change my character to c (1-4) at session frame f, as F9 "Play as" does
@@ -853,10 +856,29 @@ function mp_test_input()
             global.mp_lastz = global.mp_frame; // (injected after the game's own Z check, as for mash)
         }
     }
+    // failchoice: wait for the choice after the breaking SOUL (PLACE_FAILURE) and take CONTINUE.
+    // (Both press Z through the screen's text; failwait stops at the choice.)
+    if ((mp_test_has("failchoice") || mp_test_has("failwait")) && room_get_name(room) == "PLACE_FAILURE" && (f mod 8) == 0)
+    {
+        var dch = asset_get_index("DEVICE_CHOICE");
+        var atc = dch >= 0 && instance_exists(dch);
+        if (!atc)
+            global.input_pressed[4] = 1;
+        else if (mp_test_has("failchoice"))
+        {
+            if ((f mod 16) == 0)
+            {
+                global.input_pressed[3] = 1;
+                global.input_held[3] = 1;
+            }
+            else
+                global.input_pressed[4] = 1;
+        }
+    }
     // failz: press Continue on the Game Over screen.
     if (mp_test_has("failz") && string_pos("room_gameover", room_get_name(room)) == 1 && (f mod 4) == 0)
         global.input_pressed[4] = 1;
-    if (mp_test_has("mash") && !global.mp_ui_open && string_pos("PLACE_", room_get_name(room)) != 1 && !instance_exists(obj_battlecontroller) && (f mod mash_every) == 0 && global.mp_room_frames > mash_from && (!instance_exists(obj_mainchara) || global.interact == 1))
+    if (mp_test_has("mash") && !global.mp_ui_open && string_pos("PLACE_", room_get_name(room)) != 1 && ((!mp_test_has("failchoice") && !mp_test_has("failwait")) || !mp_gameover_room()) && !instance_exists(obj_battlecontroller) && (f mod mash_every) == 0 && global.mp_room_frames > mash_from && (!instance_exists(obj_mainchara) || global.interact == 1))
     {
         // Dialogue choices need a direction first.
         if (instance_exists(obj_choicer_neo) && (f mod 20) == 0)
@@ -1003,7 +1025,7 @@ function mp_test_input()
         }
         return;
     }
-    if (global.interact != 0 && (f mod 8) == 0)
+    if (global.interact != 0 && (f mod 8) == 0 && ((!mp_test_has("failchoice") && !mp_test_has("failwait")) || !mp_gameover_room()))
         global.input_pressed[4] = 1;
     // walkto:<x>:<y> walks the player there once the other player is in the room.
     if (mp_test_has("walkto") && global.interact == 0 && instance_exists(obj_mainchara) && variable_global_exists("mp_test_posdone") && global.mp_test_timer > 300)

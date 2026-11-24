@@ -4,6 +4,24 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Game Over choice screen: a client was frozen there; CONTINUE now tested (2026-11-24)
+
+* Bug: `PLACE_FAILURE` (the Game Over's CONTINUE / GIVE UP screen) starts with `PLACE_`, so a
+  client there was taken for a client in Chapter 1's opening while the host wasn't "in the game"
+  (the host was on its own Game Over screen). The screen was paused on a "the host is creating the
+  vessel" wait and never reached the choice. With the host already back in the game it would instead
+  have skipped the choice and gone to the host. Fixed: the Game Over rooms are not the opening
+  (`mp_opening_tick`).
+* The screen's steps are logged now ("game over: choice screen step N").
+* New test tokens `failchoice` (go through the screen's text and take CONTINUE) and `failwait` (go
+  through the text and wait at the choice). With either, `bot` and `mash` no longer press Z on the
+  Game Over screens (they used to take the quick retry first).
+* Test, Chapter 2 `room_dw_cyber_maze_virokun`, encounter 53, `bot,tough,nododge`, both with
+  `chaos:10:120:60` (`work/fol/gochoice7`): both fell, both reached the choice. The host took CONTINUE
+  ("I continue, for everyone"); the client, waiting at the choice, got "Host chose CONTINUE.",
+  continued by itself ("continuing with the others") and both came back to the room's entrance.
+  Before the fix (`gochoice6`) the client stayed paused at the screen's first step.
+
 ## Chapter 5 platformer: no second Susie or Ralsei (2026-11-24)
 
 * A friend who plays Susie or Ralsei is drawn as them in the platforming rooms, and the game's own
