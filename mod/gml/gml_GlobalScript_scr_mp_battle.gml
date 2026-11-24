@@ -25,6 +25,8 @@ function mp_battle_init()
     global.mp_tgo_sent = -1;
     global.mp_tgo_stash = -1;
     global.mp_special_bid = -1;
+    global.mp_hp_seq = 0;
+    global.mp_hp_rseq = array_create(8, -1);
     mp_battle_reset();
 }
 
@@ -328,6 +330,25 @@ function mp_send_tdone(turn, gain)
     mp_wu16(global.mp_bid);
     mp_wu16(turn);
     mp_wf64(gain);
+    // The HP of the heroes I play, as they are now: a separate HP report (43) can arrive after
+    // this on a bad network, and the turn's state would then keep the HP from before the last hit.
+    var hs = [];
+    for (var s = 0; s < 3; s++)
+    {
+        var c = global.char[s];
+        if (c > 0 && global.mp_owner[s] == global.mp_myid)
+            array_push(hs, [s, c, global.hp[c]]);
+    }
+    mp_wu8(array_length(hs));
+    for (var i = 0; i < array_length(hs); i++)
+    {
+        mp_wu8(hs[i][0]);
+        mp_wu8(hs[i][1]);
+        mp_ws16(hs[i][2]);
+    }
+    // (Numbered like the HP reports: a report sent before this one and arriving after is ignored.)
+    global.mp_hp_seq = (global.mp_hp_seq + 1) mod 65536;
+    mp_wu16(global.mp_hp_seq);
     mp_send();
 }
 
@@ -462,7 +483,8 @@ function mp_battle_recv(type, from, b)
         var slot2 = buffer_read(b, buffer_u8);
         var chr = buffer_read(b, buffer_u8);
         var hp = mp_num(buffer_read(b, buffer_s16));
-        if (mp_battle_on() && slot2 < 3 && global.char[slot2] == chr && global.mp_owner[slot2] == from)
+        var hq = buffer_read(b, buffer_u16);
+        if (mp_battle_on() && slot2 < 3 && global.char[slot2] == chr && global.mp_owner[slot2] == from && mp_hp_newer(from, hq))
         {
             global.mp_rhp[slot2] = hp;
             global.mp_rhp_known[slot2] = 1;
@@ -474,6 +496,29 @@ function mp_battle_recv(type, from, b)
         var bid3 = buffer_read(b, buffer_u16);
         var turn3 = buffer_read(b, buffer_u16);
         var gain = buffer_read(b, buffer_f64);
+        var nh = buffer_read(b, buffer_u8);
+        var hl = [];
+        for (var h = 0; h < nh; h++)
+        {
+            var e0 = buffer_read(b, buffer_u8);
+            var e1 = buffer_read(b, buffer_u8);
+            var e2 = mp_num(buffer_read(b, buffer_s16));
+            array_push(hl, [e0, e1, e2]);
+        }
+        var hq2 = buffer_read(b, buffer_u16);
+        // (Same as an HP report, message 43, for this fight's heroes the sender plays.)
+        if (bid3 == global.mp_bid && mp_hp_newer(from, hq2))
+        {
+            for (var h2 = 0; h2 < nh; h2++)
+            {
+                var hslot = hl[h2][0];
+                if (hslot < 3 && global.char[hslot] == hl[h2][1] && global.mp_owner[hslot] == from)
+                {
+                    global.mp_rhp[hslot] = hl[h2][2];
+                    global.mp_rhp_known[hslot] = 1;
+                }
+            }
+        }
         // (Everyone keeps this: anyone may have to take over as the fight's leader.)
         global.mp_tdone_bid[from] = bid3;
         global.mp_tdone_turn[from] = turn3;
@@ -1033,6 +1078,17 @@ function mp_battle_tick()
     mp_battle_apply_hp();
 }
 
+// Is this HP report (numbered by its sender) newer than the last one taken from them?
+function mp_hp_newer(from, q)
+{
+    var last = global.mp_hp_rseq[from];
+    var d = (q - last + 65536) mod 65536;
+    if (last >= 0 && (d == 0 || d > 32768))
+        return false;
+    global.mp_hp_rseq[from] = q;
+    return true;
+}
+
 // Broadcast HP of the heroes I play whenever it changes.
 function mp_battle_send_hp()
 {
@@ -1045,10 +1101,12 @@ function mp_battle_send_hp()
         {
             global.mp_hp_sent[s] = global.hp[c];
             mp_log("hp send slot=" + string(s) + " hp=" + string(global.hp[c]) + " mnfight=" + string(global.mnfight));
+            global.mp_hp_seq = (global.mp_hp_seq + 1) mod 65536;
             mp_begin_b(43);
             mp_wu8(s);
             mp_wu8(c);
             mp_ws16(global.hp[c]);
+            mp_wu16(global.mp_hp_seq);
             mp_send();
         }
     }

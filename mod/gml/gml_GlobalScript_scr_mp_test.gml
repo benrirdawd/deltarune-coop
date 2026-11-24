@@ -25,6 +25,7 @@
 //   mashevery:<n>   mash presses Z every n frames (default 10); mashfrom:<n> only after n frames in the room
 //   stuck:<n>       fake a stuck sync state n frames after the party setup (F8 must free it)
 //   weak            enemies have 1 HP (battle ends quickly)
+//   sturdy          heroes have 10 times their HP in fights (long fights)
 //   save            save the game to slot 0 once in free roam (for later load tests)
 //   load:<slot>     load save slot <slot> from the title screen
 //   solo            with `party`: Kris alone
@@ -952,6 +953,18 @@ function mp_test_battle_created()
     // fragile: my hero starts the fight at 1 HP (to test a downed player's SOUL).
     if (global.mp_test != "" && mp_test_has("fragile"))
         global.hp[global.mp_pchar[global.mp_myid]] = 1;
+    // sturdy: the heroes have 10 times their HP (a long fight, e.g. one player alone for a while).
+    if (global.mp_test != "" && mp_test_has("sturdy"))
+    {
+        for (var hc = 1; hc <= 4; hc++)
+        {
+            if (hc < array_length(global.maxhp) && global.maxhp[hc] < 1000)
+            {
+                global.maxhp[hc] *= 10;
+                global.hp[hc] = global.maxhp[hc];
+            }
+        }
+    }
     if (global.mp_test != "" && mp_test_has("weak"))
     {
         // weak: enemies have 1 HP, so the fight ends after the first hits (tests what comes after a battle).

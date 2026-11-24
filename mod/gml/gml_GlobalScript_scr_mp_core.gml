@@ -5,7 +5,7 @@ function mp_init()
     if (variable_global_exists("mp_inited"))
         return;
     global.mp_inited = 1;
-    global.mp_version = 10;
+    global.mp_version = 11;
     global.mp_chapter = __CHAPTER__;
     global.mp_frame = 0;
     mp_filelog_init();
@@ -166,6 +166,8 @@ function mp_player_set(pid, conn, name, chr)
         global.mp_proom[pid] = -1;
         global.mp_pstate[pid] = 0;
         mp_ghost_remove(pid);
+        if (variable_global_exists("mp_hp_rseq"))
+            global.mp_hp_rseq[pid] = -1;
     }
 }
 

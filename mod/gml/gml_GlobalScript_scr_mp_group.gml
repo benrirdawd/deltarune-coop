@@ -689,7 +689,11 @@ function mp_join_request(target)
 function mp_join_answer(from)
 {
     if (!mp_battle_on() || from < 0 || from >= 8 || mp_battle_ending())
+    {
+        mp_log("join request from " + string(from) + " refused: on=" + string(mp_battle_on()) + " ending=" + string(mp_battle_ending()));
         return;
+    }
+    mp_log("join request from " + string(from) + ": inviting them");
     global.mp_b_mask |= (1 << from);
     global.mp_pull_mask = 1 << from;
     mp_send_pull(1);
