@@ -81,3 +81,38 @@ function mp_plat_ghost_depth()
         return instance_find(obj_plat_player, 0).depth - 1;
     return 0;
 }
+
+// A friend who plays Susie or Ralsei is drawn as them in my platforming room, and the game's own
+// Susie/Ralsei follower was drawn next to them: two of the same. Now, in my game, the follower of a
+// character a friend in my platforming room plays is hidden (only not drawn: it still follows,
+// carries and helps as the game wants). Simplest choice: hidden, not removed. Every 10 frames.
+function mp_plat_followers_tick()
+{
+    if (!mp_on() || !instance_exists(obj_plat_follower) || (global.mp_frame mod 10) != 0)
+        return;
+    var plat = mp_plat_on();
+    with (obj_plat_follower)
+    {
+        if (!variable_instance_exists(id, "character"))
+            continue;
+        var c = character + 1;
+        var taken = false;
+        for (var i = 0; i < 8 && plat; i++)
+        {
+            if (i != global.mp_myid && global.mp_pconn[i] && global.mp_pchar[i] == c && global.mp_proom[i] == room && global.mp_pvis[i] && (global.mp_pstate[i] & 32) != 0)
+                taken = true;
+        }
+        if (taken && visible)
+        {
+            visible = false;
+            mp_mp_hid = 1;
+            mp_log("platformer: the game's " + (c == 2 ? "Susie" : "Ralsei") + " follower hidden (a friend plays them here)");
+        }
+        else if (!taken && !visible && variable_instance_exists(id, "mp_mp_hid") && mp_mp_hid)
+        {
+            visible = true;
+            mp_mp_hid = 0;
+            mp_log("platformer: the game's follower shown again");
+        }
+    }
+}

@@ -15,3 +15,7 @@ function mp_plat_ghost_depth()
 {
     return 0;
 }
+
+function mp_plat_followers_tick()
+{
+}

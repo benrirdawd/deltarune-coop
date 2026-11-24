@@ -4,6 +4,18 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 5 platformer: no second Susie or Ralsei (2026-11-24)
+
+* A friend who plays Susie or Ralsei is drawn as them in the platforming rooms, and the game's own
+  Susie/Ralsei follower was drawn next to them. Now, in my game, the follower of a character that a
+  friend in my platforming room plays is hidden, and shown again when they leave, stop being drawn
+  or leave the platformer (`mp_plat_followers_tick`, `gml/ch5/scr_mp_plat`).
+* Simplest choice: only not drawn. The follower still follows, carries and helps as the game wants.
+* Test, Chapter 5 `room_dw_garden_aquaplatforming`, plot 291, client plays Susie (`wander`), both
+  with `chaos:10:120:60` (`work/fol/platfol`): the host's Susie follower was hidden 10 s in; the
+  host's screenshot shows Kris, the Ralsei follower and P2 as Susie, with no second Susie. The client
+  hid nothing (the host plays Kris). No crash.
+
 ## A switch pressed before you came: played back for you (2026-11-24)
 
 * Chapter 1's eye switches (`obj_darkeyepuzzle_switch`) and suits buttons (`obj_suitspuzz_button`)

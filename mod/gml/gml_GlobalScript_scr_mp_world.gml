@@ -895,6 +895,7 @@ function mp_world_tick()
         mp_puz_forget_tick();
     mp_puz_tiles_tick();
     mp_puz_sw_tick();
+    mp_plat_followers_tick();
 }
 
 // Moves the local player to (rm, xx, yy). action: 0 none, 1 start pulled battle.
