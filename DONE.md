@@ -4,6 +4,24 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## A switch pressed before you came: played back for you (2026-11-24)
+
+* Chapter 1's eye switches (`obj_darkeyepuzzle_switch`) and suits buttons (`obj_suitspuzz_button`)
+  leave a state in the room, but a press only reached those already there. Now every game keeps
+  the room's presses, in order, while someone is in that room (forgotten like the blocks when nobody
+  is). Whoever comes in later plays them back once on entering. The host sends them to someone who
+  joins (message 81, facing + 128: keep it). `mp_puz_sw_note`, `mp_puz_sw_tick`,
+  `mp_puz_sw_send_all` in `scr_mp_world`.
+* Simplest choice: the presses played again, not each puzzle's state. Safe for these two: a
+  solved eye puzzle removes its switches, and the suits buttons do nothing once won. The timed
+  switches (traffic lights, hourglass) are left out: their timer would start again.
+* Found on the way: `array_contains` doesn't exist in this game's runtime (both games hung on
+  start); replaced by a loop.
+* Test, Chapter 1 `room_field_secret1`, plot 30, both with `chaos:10:120:60` (`work/fol/swlate4`):
+  the host pressed spade and diamond alone (suits 1200). The client connected afterwards
+  (`connectat:600`), got the 2 presses and played them back: 1200 too. Then the client pressed spade:
+  1212 in both games. No crash.
+
 ## Same character as another player: a hint to watch them (2026-11-24)
 
 * Several players may pick the same character; in fights the first to pick it plays it and the others

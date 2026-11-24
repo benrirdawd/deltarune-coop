@@ -18,6 +18,9 @@ function mp_world_init()
     global.mp_open_held = 0;
     global.mp_puz = {};         // shared puzzle objects: "room:xstart:ystart" -> [x, y]
     global.mp_puz_remote = 0;   // running another player's switch press
+    global.mp_puz_sw = {};      // switch presses that leave a state, per room: "room" -> [[obj, xs, ys, facing], ...]
+    global.mp_puz_sw_room = -1; // the room whose presses were played back (on entering it)
+    global.mp_puz_sw_objs = [asset_get_index("obj_darkeyepuzzle_switch"), asset_get_index("obj_suitspuzz_button")];
     global.mp_puz_tile_objs = [asset_get_index("obj_glowtile"), asset_get_index("obj_blocktile")];
     global.mp_warp_delay = 0;
     global.mp_pos_fast_until = 0;
@@ -891,6 +894,7 @@ function mp_world_tick()
     if ((global.mp_frame mod 30) == 0)
         mp_puz_forget_tick();
     mp_puz_tiles_tick();
+    mp_puz_sw_tick();
 }
 
 // Moves the local player to (rm, xx, yy). action: 0 none, 1 start pulled battle.
@@ -1573,7 +1577,10 @@ function mp_vars_send_full(sock, repair = false)
     mp_wu8(255);
     mp_vars_send_chunk(sock);
     if (!repair)
+    {
         mp_puz_send_all(sock);
+        mp_puz_sw_send_all(sock);
+    }
 }
 
 function mp_vars_send_chunk(sock)
@@ -2346,6 +2353,19 @@ function mp_puz_forget_tick()
         if (!used)
             variable_struct_remove(global.mp_puz, ks[i]);
     }
+    var ss = variable_struct_get_names(global.mp_puz_sw);
+    for (var i2 = 0; i2 < array_length(ss); i2++)
+    {
+        var rm2 = real(ss[i2]);
+        var used2 = rm2 == room;
+        for (var j2 = 0; j2 < 8 && !used2; j2++)
+        {
+            if (j2 != global.mp_myid && global.mp_pconn[j2] && global.mp_proom[j2] == rm2)
+                used2 = true;
+        }
+        if (!used2)
+            variable_struct_remove(global.mp_puz_sw, ss[i2]);
+    }
 }
 
 // Floor tiles that react to the player standing on them (Chapter 1: the glowing tiles of the timed
@@ -2394,6 +2414,85 @@ function mp_puz_switch_used()
     mp_ws16(ystart);
     mp_wu8(global.facing);
     mp_send();
+    mp_puz_sw_note(room, object_index, round(xstart), round(ystart), global.facing);
+}
+
+// Switches whose presses leave a state in the room (Chapter 1's eye switches and suits buttons;
+// not the timed ones: traffic lights, the hourglass): every game keeps the room's presses, in order,
+// while someone is in that room. Whoever comes into the room later (entering it, or joining the
+// session: the host sends them) plays them back once on entering, so their room shows what the
+// others' rooms show. Simplest choice: the presses themselves, played again, not each puzzle's state.
+function mp_puz_sw_note(rm, oi, xs, ys, fc)
+{
+    var keep = false;
+    for (var q = 0; q < array_length(global.mp_puz_sw_objs); q++)
+    {
+        if (global.mp_puz_sw_objs[q] == oi)
+            keep = true;
+    }
+    if (!keep)
+        return;
+    var k = string(rm);
+    if (!variable_struct_exists(global.mp_puz_sw, k))
+        variable_struct_set(global.mp_puz_sw, k, []);
+    array_push(variable_struct_get(global.mp_puz_sw, k), [oi, xs, ys, fc]);
+}
+
+function mp_puz_sw_play(oi, xs, ys, fc)
+{
+    if (!object_exists(oi))
+        return;
+    global.mp_puz_remote = 1;
+    var f0 = global.facing;
+    global.facing = fc;
+    with (oi)
+    {
+        if (round(xstart) == xs && round(ystart) == ys)
+            event_user(0);
+    }
+    global.facing = f0;
+    global.mp_puz_remote = 0;
+}
+
+// Every frame: on entering a room (once it has been built), play back the presses kept for it.
+function mp_puz_sw_tick()
+{
+    if (global.mp_puz_sw_room == room || !instance_exists(obj_mainchara) || mp_in_battle_scene())
+        return;
+    global.mp_puz_sw_room = room;
+    var k = string(room);
+    if (!mp_on() || !variable_struct_exists(global.mp_puz_sw, k))
+        return;
+    var l = variable_struct_get(global.mp_puz_sw, k);
+    for (var i = 0; i < array_length(l); i++)
+        mp_puz_sw_play(l[i][0], l[i][1], l[i][2], l[i][3]);
+    if (array_length(l) > 0)
+        mp_log("puzzle: played back " + string(array_length(l)) + " switch presses kept for this room");
+}
+
+// The host, to someone who just joined: the kept presses (message 81, facing + 128: keep it, and play
+// it only if already in that room).
+function mp_puz_sw_send_all(sock)
+{
+    var ks = variable_struct_get_names(global.mp_puz_sw);
+    var n = 0;
+    for (var i = 0; i < array_length(ks); i++)
+    {
+        var l = variable_struct_get(global.mp_puz_sw, ks[i]);
+        for (var j = 0; j < array_length(l); j++)
+        {
+            mp_begin(81);
+            mp_wu16(real(ks[i]));
+            mp_wu16(l[j][0]);
+            mp_ws16(l[j][1]);
+            mp_ws16(l[j][2]);
+            mp_wu8(l[j][3] + 128);
+            mp_vars_send_chunk(sock);
+            n += 1;
+        }
+    }
+    if (n > 0)
+        mp_log("puzzle: sent " + string(n) + " kept switch presses to a newcomer");
 }
 
 function mp_puz_switch_recv(sender, b)
@@ -2403,6 +2502,16 @@ function mp_puz_switch_recv(sender, b)
     var xs = buffer_read(b, buffer_s16);
     var ys = buffer_read(b, buffer_s16);
     var fc = buffer_read(b, buffer_u8);
+    if (fc >= 128)
+    {
+        // (A kept press sent to me on joining: played now only if my room is already that room.)
+        fc -= 128;
+        mp_puz_sw_note(rm, oi, xs, ys, fc);
+        if (room == rm && global.mp_puz_sw_room == room && !mp_in_battle_scene())
+            mp_puz_sw_play(oi, xs, ys, fc);
+        return;
+    }
+    mp_puz_sw_note(rm, oi, xs, ys, fc);
     if (room != rm || !object_exists(oi) || mp_in_battle_scene() || global.mp_sstate == 5)
         return;
     global.mp_puz_remote = 1;
