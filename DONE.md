@@ -5,6 +5,13 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 "re-check" or "not done" here is also listed there.
 
 
+
+## Fights with their own rules: one player plays them (2026-11-24)
+
+| Problem | Fix | Test |
+|---|---|---|
+| Special fights (Spamton NEO, Queen, Giga Queen, Berdly's plug, Chapter 3's Knight, Shadow Mantle and Tenna's board fight, Chapter 4's Titan and Gerson's) have their own rules and only partly sync hero by hero. | `mp_battle_special()` checks the fight's enemies against that list; there the fight's leader plays every hero and everyone else watches (hidden SOUL, the way a player whose character isn't in the fight watches). Everyone is told who plays. Simplest choice: a list of enemy objects; single fights can be synced one by one later. | **Tested**, Chapter 2, Spamton NEO (encounter 61), 2 players with bots, 20x: the host played Kris and Susie, the client watched; both games went through the same turn and phase steps, then the same Game Over and Continue. The same with `chaos:10:120:60`. The other fights on the list: built, not run. |
+
 ## Host change: Steam and IP together (2026-11-24)
 
 | Problem | Fix | Test |

@@ -24,6 +24,7 @@ function mp_battle_init()
     global.mp_tdone_late = array_create(8, 0);
     global.mp_tgo_sent = -1;
     global.mp_tgo_stash = -1;
+    global.mp_special_bid = -1;
     mp_battle_reset();
 }
 
@@ -139,16 +140,45 @@ function mp_participating(i)
     return mp_in_mask(i) && global.mp_tdone_bid[i] == global.mp_bid;
 }
 
+// Fights with their own rules (puppet strings, a shooting SOUL, a fight that changes the battle's
+// flow) don't sync hero by hero: there the fight's leader plays every hero and everyone else
+// watches (their SOUL hidden, as for a player whose character isn't in the fight). Simplest
+// fallback; single fights can be synced one by one later.
+function mp_battle_special()
+{
+    var names = ["obj_spamton_neo_enemy", "obj_queen_enemy", "obj_gigaqueen_enemy", "obj_berdlyplug_enemy", "obj_knight_enemy", "obj_shadow_mantle_enemy", "obj_tenna_board4_enemy", "obj_titan_enemy", "obj_hammer_of_justice_enemy", "obj_sound_of_justice_enemy"];
+    for (var m = 0; m < 3; m++)
+    {
+        if (!variable_global_exists("monsterinstancetype") || !global.monster[m])
+            continue;
+        var t = global.monsterinstancetype[m];
+        for (var i = 0; i < array_length(names); i++)
+        {
+            var o = asset_get_index(names[i]);
+            if (o >= 0 && t == o)
+                return true;
+        }
+    }
+    return false;
+}
+
 function mp_compute_owners()
 {
     var lead = global.mp_b_leader;
+    var special = mp_battle_special();
+    if (special && global.mp_special_bid != global.mp_bid)
+    {
+        global.mp_special_bid = global.mp_bid;
+        mp_log("special fight " + string(global.mp_bid) + ": the leader plays every hero");
+        mp_notify("A fight with its own rules: " + (lead == global.mp_myid ? "you play" : global.mp_pname[lead] + " plays") + " every hero, everyone else watches.");
+    }
     for (var s = 0; s < 3; s++)
     {
         var c = global.char[s];
         var o = lead;
         if (c == 0)
             o = 255;
-        else
+        else if (!special)
         {
             // (Of the players with this character, the one who picked it first.)
             var best = -1;
