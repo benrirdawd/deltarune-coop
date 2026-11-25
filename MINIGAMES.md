@@ -108,7 +108,7 @@ each real one).
 | 4 | Piano puzzle (the cage) | `obj_dw_church_pianopuzzle`, `obj_church_piano_playable` | **Shared**: solved by one player, solved in every game (flag 892). Each player plays their own piano. |
 | 4 | Piano pieces rooms, sliding piano | `obj_dw_church_pianopiece_*`, `obj_dw_church_remotepianomove` | Looked at: talks with Susie and Ralsei (story flags, scenes shared); nothing to share. |
 | 4 | Organ room | `obj_dw_church_organpuzzle` | Local on purpose: songs for the party's reactions, nothing to solve. |
-| 4 | Ripple puzzles | `obj_church_ripple*`, `obj_dw_churchb_ripple1` | Local, not looked at. |
+| 4 | Ripple puzzles | `obj_church_ripple*`, `obj_dw_churchb_ripple1` | Looked at: no puzzle state, the ripples only show where Kris steps in the dark. A friend's figure now **makes ripples in my game too** (`ch4/scr_mp_ripple`). |
 | 4 | Train tracks | `obj_traintrack_*`, `obj_train_switch` | Local on purpose: pressed by the heart in the Light World section at home (a solo part). |
 | 4 | Dark maze, prophecy maze, falling tiles | `obj_dw_church_darkmaze`, `obj_dw_churchb_prophecymaze`, `obj_dw_churchc_fallingtiles` | Local, not looked at. |
 | 5 | Pushable blocks (garden) | `obj_pushable_block` | **Shared** |

@@ -51,7 +51,7 @@ other puzzles (a friend's solve shows in my room); else note why it stays local.
    tiles stay each player's own (held by the party in a chase). The rotating tiles are only in the
    mice switch room (done). Still to run: the "joined during my own scene" re-entry (built, the
    test's timing didn't hit it in the passing run).
-4. Chapter 4 ripple puzzles (`obj_church_ripple*`).
+4. **Done:** Chapter 4 ripple rooms: nothing to solve; a friend's steps make ripples in my game (DONE.md).
 5. Chapter 5 flower arena puzzle (`obj_flower_arena_puzzle_manager`).
 6. Chapter 5 new glowing tiles and blocks that remember (`obj_glowtile_puzzle_new`,
    `obj_pushable_block_memory`).

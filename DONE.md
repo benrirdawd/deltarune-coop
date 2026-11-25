@@ -4,6 +4,19 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 4 dark ripple rooms: a friend's steps make ripples too (2026-11-24)
+
+* The church's dark rooms (`obj_church_ripple_area_manager`: rippleworship, the waterfall room, the
+  Gerson chase, ...) light the floor with a ripple at each of Kris's steps. They hold no puzzle
+  state (nothing opens or is solved), so there was nothing to share, but a friend walking in the
+  dark left no ripples in my game. Now a friend's figure in my room makes the same ripples on its
+  steps (no sound) while the room is dark (`mp_ripple_tick`, `ch4/scr_mp_ripple`; a stub elsewhere).
+  Simplest choice: drawn from the figure each game already shows, nothing new is sent.
+* Test, Chapter 4 `room_dw_church_rippleworship`, plot 130, the host walking up-left (`bot`,
+  `walkto:1450:1150`), both with `chaos:10:120:60` (`work/fol/ripple6`): the client logged a ripple
+  for player 0 at each walk cycle (1656,1348 > 1640,1244 > 1640,1151). mpcheck: all PASS. (First
+  try in `room_dw_church_ripplepuzzle`: that room's manager stays off until its own trigger.)
+
 ## Chapter 2 post-baseball room follows a friend's solve; a room's controller survives a watched scene (2026-11-24)
 
 * `room_dw_city_postbaseball_1`: Kris's floor switch (flag 448) and the teacup ride (flag 449) open
