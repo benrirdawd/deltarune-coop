@@ -333,6 +333,17 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
   gone.
 
+## A chest a friend opened shows open in my room too (all chapters, 2026-11-25)
+
+* A chest's item flag is shared, so a chest a friend opened already said "(The chest is empty.)" in
+  my game, and the item never came twice. But it still looked closed until I left and came back.
+  Now it shows open as soon as the flag is there (`mp_chest_follow`, `scr_mp_world`, prepended to
+  `obj_treasure_room`'s Begin Step). That is the look the room gives it when built. A chest that
+  closes again on purpose (`noroom`: inventory full) doesn't set the flag, so it is left alone.
+* Test, Chapter 1 `room_forest_dancers1`, plot 150, both with `chaos:10:120:60` (`work/fol/chest1`): the
+  host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
+  checks pass except `moved` (nobody walks).
+
 ## Chapter 5: leaf piles and paper grass a friend broke are gone for me too; only a friend's bits count (2026-11-25)
 
 * Leaf piles (dashed through: coins, a chest or an NPC inside) and paper grass (cut: coins) are

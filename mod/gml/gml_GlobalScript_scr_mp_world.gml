@@ -984,6 +984,19 @@ function mp_warp_place()
         mp_sync_arrived();
 }
 
+// A chest a friend opened: its item flag is shared, so mine already says "(The chest is empty.)",
+// but it still looked closed until I came back to the room. Now it shows open as soon as the flag
+// is there (the look the room gives it when built). Prepended to obj_treasure_room's Begin Step.
+function mp_chest_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || image_index != 0 || myinteract != 0)
+        return;
+    if (!is_real(itemflag) || itemflag <= 0 || global.flag[itemflag] != 1)
+        return;
+    image_index = 1;
+    mp_log("chest flag" + string(itemflag) + " opened by a friend: shown open here too");
+}
+
 // Joining someone's battle: the room's own story scene (which may be what started their
 // battle) must not start here too - it would play its dialogue over the battle, and start a
 // second battle inside it. Their scene is the one that counts; we get its results via shared state.
