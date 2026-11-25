@@ -303,6 +303,13 @@ mp_mice3_follow();
 @append gml_Object_obj_controller_city_mice3_Step_0
 mp_mice3_after();
 
+;; Chapter 2 third dining room: a friend's solve (flag 381) rebuilds my room with the doorway open.
+@prepend gml_Object_obj_controller_dining3_Step_0
+mp_dining3_follow();
+
+@append gml_Object_obj_controller_dining3_Step_0
+mp_puz_reenter_after(381);
+
 ;; Chapter 3: the glowing tiles' hourglass (as in Chapter 1; the tiles themselves are pressed by the
 ;; others' figures in every chapter).
 #chapters 3

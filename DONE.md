@@ -4,6 +4,17 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 2 third dining room follows a friend's solve (2026-11-25)
+
+* `room_dw_mansion_dining3`: the dog's table flies into the wall and opens a doorway (flag 381, read
+  only when the room is built), so a friend's solve left my wall shut. Same as the mouse tower: once
+  the flag has arrived from someone else and I'm free, my room is entered again, built with the
+  doorway open. The mouse tower's code became a shared helper (`mp_puz_reenter_follow`).
+* Test, Chapter 2 `room_dw_mansion_dining3`, plot 150, the host setting flag 381, both with
+  `chaos:10:120:60` (`work/fol/dining3`): the client re-entered and its room came back finished
+  (con 28980, a third door: the doorway). The mouse tower test again after the change
+  (`work/fol/mice3b`): same result as before. mpcheck: all PASS but "moved" (nobody walks).
+
 ## Chapter 2 mouse tower follows a friend's solve (2026-11-25)
 
 * `room_dw_city_mice3`: the puzzle takes Noelle out of the party, closes the room (a block at the

@@ -71,8 +71,8 @@ the ones already done (mice room, post-baseball room, virus maze 2):
    only in Create: about 70 hits, mostly story scenes and NPCs (their flags come from scenes, which
    are shared and played or watched by everyone). Done: the mansion secret walls (flags 339/340,
    DONE.md). Puzzle-like ones still to look at, one per cycle:
-   * Chapter 2: **done:** the mouse tower (flag 379, DONE.md); `obj_controller_dining3`
-     (381, the dining room door).
+   * Chapter 2: **done:** the mouse tower (flag 379, DONE.md); **done:** `obj_controller_dining3`
+     (381, the dining room door, DONE.md).
    * Chapter 3: `obj_dw_b3bs_extrapuzzle` (1109/1110/1112), `obj_dw_b3bs_zapper_a` (1135/1184),
      `obj_dw_teevie_shuttahmaze` (1004/1005), `obj_dw_teevie_susiebridge` (1212).
    * Chapter 4: `obj_dw_church_sideclimb` (1524-1526), `obj_dw_church_arena` (851/852).

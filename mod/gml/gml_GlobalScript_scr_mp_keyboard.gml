@@ -288,32 +288,63 @@ function mp_mansion_secret_follow()
 // arrived from someone else and I'm not in a text box or scene, I enter the room again, which builds
 // it finished (as when you come back later).
 
-// Prepended to obj_controller_city_mice3's Step.
-function mp_mice3_follow()
+// Shared by rooms whose solve flag is read only when the room is built and whose ending is too
+// involved to copy: once flag fl (and the plot, if minplot >= 0) has arrived from someone else
+// (it changed between two of the controller's steps) and I'm free (no text box, scene, sync state
+// or room change), enter the room again: it is built finished, as when you come back later.
+// Self: the room's controller; mp_fre holds the flag as my own step left it.
+function mp_puz_reenter_follow(fl, minplot, what)
 {
     if (!variable_global_exists("mp_inited") || !mp_on())
         return;
-    if (!variable_instance_exists(id, "mp_f379"))
-        mp_f379 = global.flag[379];
-    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
-        show_debug_message("[MPMICE3] flag379=" + string(global.flag[379]) + " plot=" + string(global.plot) + " con=" + string(variable_instance_exists(id, "con") ? con : -99) + " forcefield=" + string(instance_number(obj_forcefield)) + " ia=" + string(global.interact));
-    if (mp_f379 == 1 || global.flag[379] != 1 || global.plot < 78)
+    if (!variable_instance_exists(id, "mp_fre"))
+        mp_fre = global.flag[fl];
+    if (mp_fre == 1 || global.flag[fl] != 1 || (minplot >= 0 && global.plot < minplot))
         return;
-    if (!variable_instance_exists(id, "con") || con >= 38 || (variable_instance_exists(id, "weird") && weird))
+    if (d_ex() || instance_exists(obj_cutscene_master) || global.mp_warp_pending || global.mp_warp_delay > 0 || global.mp_sstate != 0 || !instance_exists(obj_mainchara))
         return;
-    if (d_ex() || instance_exists(obj_cutscene_master) || global.mp_warp_pending || global.mp_sstate != 0 || !instance_exists(obj_mainchara))
-        return;
-    mp_f379 = 1;
-    mp_log("mouse tower: solved by a friend, entering the room again (built finished)");
+    mp_fre = 1;
+    mp_log(what + ": solved by a friend (flag " + string(fl) + "), entering the room again (built finished)");
     global.flag[7] = 0;
     global.interact = 0;
     global.mp_warp_reenter = 1;
     mp_warp(room, obj_mainchara.x, obj_mainchara.y, 0);
 }
 
-// Appended to its Step: the flag as my own step left it.
-function mp_mice3_after()
+// Appended to the controller's Step: the flag as my own step left it.
+function mp_puz_reenter_after(fl)
 {
     if (variable_global_exists("mp_inited") && instance_exists(id))
-        mp_f379 = global.flag[379];
+        mp_fre = global.flag[fl];
+}
+
+// Prepended to obj_controller_city_mice3's Step.
+function mp_mice3_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+        show_debug_message("[MPMICE3] flag379=" + string(global.flag[379]) + " plot=" + string(global.plot) + " con=" + string(variable_instance_exists(id, "con") ? con : -99) + " forcefield=" + string(instance_number(obj_forcefield)) + " ia=" + string(global.interact));
+    if (!variable_instance_exists(id, "con") || con >= 38 || (variable_instance_exists(id, "weird") && weird))
+        return;
+    mp_puz_reenter_follow(379, 78, "mouse tower");
+}
+
+function mp_mice3_after()
+{
+    mp_puz_reenter_after(379);
+}
+
+// Chapter 2's third dining room (room_dw_mansion_dining3): the dog's table flies into the wall and
+// opens a doorway (flag 381, read only when the room is built), so a friend's solve left my wall
+// shut. Same as the mouse tower: my room is entered again, built with the doorway open.
+function mp_dining3_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+        show_debug_message("[MPDINING3] flag381=" + string(global.flag[381]) + " con=" + string(con) + " dogcon=" + string(dogcon) + " doors=" + string(instance_number(obj_doorW)) + " ia=" + string(global.interact));
+    if (con >= 28980)
+        return;
+    mp_puz_reenter_follow(381, -1, "dining room 3");
 }
