@@ -69,10 +69,13 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   the glowing tiles' hourglass, Kris's switch at Chapter 3's eye puzzle), and a friend standing on a glowing tile or a floor switch
   counts in your game (so two players can hold two switches). Eye switches and suits buttons pressed
   before you came into the room (or joined) are played back for you. A puzzle someone solves is
-  solved for everyone: Chapter 2's keyboard puzzles and mice switch room, Chapter 3's TV quizzes,
-  Chapter 4's bookshelves (a shelf slid with a piano slides in every game) and the piano cage,
-  Chapter 5's terracotta statues and orange door. Hazards like the checker paths stay each
-  player's own. The full list is in [`MINIGAMES.md`](MINIGAMES.md).
+  solved for everyone: Chapter 2's keyboard puzzles, mice switch room and the switch and teacup
+  after the baseball game, Chapter 3's TV quizzes, Chapter 4's bookshelves (a shelf slid with a
+  piano slides in every game) and the piano cage, Chapter 5's terracotta statues, orange door and
+  timed glowing tiles (a run of yours going at that moment ends with its spikes down). In
+  Chapter 4's dark church rooms, a friend's steps light the floor with ripples in your game too.
+  Hazards like the checker paths stay each player's own. The full list is in
+  [`MINIGAMES.md`](MINIGAMES.md).
 * **Shared progress.** Story flags, items, gold, equipment and HP are kept in sync. The host's
   world is the shared one. Counters (enemies defeated, people talked to) add up when two
   players count at the same time. The party menu (C) names your character in Kris's place.
