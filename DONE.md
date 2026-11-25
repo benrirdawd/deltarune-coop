@@ -4,6 +4,17 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 3 backstage extra puzzle and Susie's bridge follow a friend's solve (2026-11-25)
+
+* `room_dw_b3bs_extrapuzzle` (the floor switch opens the door, flag 1112) and
+  `room_dw_teevie_susiebridge` (the board switch lowers the spikes, flag 1212 = 2): both flags were
+  read only when the room is built, so a friend's solve left my door or spikes up. Now, when the
+  flag is set, my room takes the game's own solve step (door step 1; the switch counted as pressed),
+  the same step my own solve takes (`scr_mp_teevie`).
+* Test, Chapter 3, plot 50, the host setting the flag, both with `chaos:10:120:60` (`work/fol/b3x`,
+  `work/fol/sbr`): the client's door went (doorcon 2, no door block) and its spikes went down (the
+  solid block became the lowered marker, con 2). mpcheck: all PASS but "moved" (nobody walks).
+
 ## Chapter 2 third dining room follows a friend's solve (2026-11-25)
 
 * `room_dw_mansion_dining3`: the dog's table flies into the wall and opens a doorway (flag 381, read

@@ -73,8 +73,10 @@ the ones already done (mice room, post-baseball room, virus maze 2):
    DONE.md). Puzzle-like ones still to look at, one per cycle:
    * Chapter 2: **done:** the mouse tower (flag 379, DONE.md); **done:** `obj_controller_dining3`
      (381, the dining room door, DONE.md).
-   * Chapter 3: `obj_dw_b3bs_extrapuzzle` (1109/1110/1112), `obj_dw_b3bs_zapper_a` (1135/1184),
-     `obj_dw_teevie_shuttahmaze` (1004/1005), `obj_dw_teevie_susiebridge` (1212).
+   * Chapter 3: **done:** the backstage extra puzzle's door (1112) and Susie's bridge (1212)
+     (DONE.md). Left as is: `obj_dw_b3bs_zapper_a` (1135/1184: a scene and a dialogue choice,
+     shared the usual way), `obj_dw_teevie_shuttahmaze` (1004/1005: a chest and a laugh scene),
+     the extra puzzle's block place (1109/1110: only where the block is drawn on coming back).
    * Chapter 4: `obj_dw_church_sideclimb` (1524-1526), `obj_dw_church_arena` (851/852).
 
 ## Stage-changing scenes: everyone agrees first (later)

@@ -20,3 +20,37 @@ function mp_tvquiz_follow()
     con = -1;
     hide_spikes = true;
 }
+
+// Chapter 3 rooms whose solve flag is read only when the room is built, so a friend's solve left
+// mine shut. Both now take the game's own solve step when the flag is set (the same step my own solve
+// takes, so nothing is done twice):
+// - backstage extra puzzle (room_dw_b3bs_extrapuzzle): the floor switch opens the door (flag 1112);
+// - Susie's bridge (room_dw_teevie_susiebridge): the board switch lowers the spikes (flag 1212 = 2).
+
+// Prepended to obj_dw_b3bs_extrapuzzle's Step.
+function mp_b3bs_extra_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+        show_debug_message("[MPB3BS] flag1112=" + string(global.flag[1112]) + " doorcon=" + string(doorcon) + " door=" + string(instance_exists(doorblock)));
+    if (doorcon == 0 && global.flag[1112] == 1)
+    {
+        mp_log("backstage extra puzzle: a friend opened the door, my door opens");
+        doorcon = 1;
+    }
+}
+
+// Prepended to obj_dw_teevie_susiebridge's Step.
+function mp_susiebridge_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+        show_debug_message("[MPBRIDGE] flag1212=" + string(global.flag[1212]) + " con=" + string(con) + " spikes=" + string(instance_exists(spikes) ? object_get_name(spikes.object_index) : "none"));
+    if (con == 1 && global.flag[1212] == 2 && instance_exists(boardswitch) && !boardswitch.pressed)
+    {
+        mp_log("Susie's bridge: a friend pressed the switch, my spikes go down");
+        boardswitch.pressed = true;
+    }
+}

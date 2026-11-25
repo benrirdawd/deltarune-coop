@@ -90,6 +90,7 @@ each real one).
 | 1 | Forest maze | `obj_forestmaze_controller` | Looked at: each player's own path; it moves the story by plot (90-120, shared). Nothing blocks a friend. |
 | 2 | Traffic lights (city, mansion) | `obj_traffic_switch` | **Shared** |
 | 2 | Mansion saucer puzzles (locked door, shortcut bookcase) | `obj_ch2_room_mansion_east_2f_a`, `obj_ch2_room_mansion_2f_shortcut`, `obj_saucer` | **Follows a friend's solve** (flags 344/346, `scr_mp_keyboard`). |
+| 3 | Backstage extra puzzle door, Susie's bridge spikes | `obj_dw_b3bs_extrapuzzle`, `obj_dw_teevie_susiebridge` | **Follow a friend's solve** (flags 1112, 1212; `scr_mp_teevie`). |
 | 2 | Mansion secret walls | `obj_ch2_room_mansion_east_1f_e`, `obj_ch2_room_mansion_east_1f_secret` | **Follows a friend's find** (flags 339/340). |
 | 2 | Alley floor switch | `obj_alleySwitch` | **Shared**: a friend standing on it holds it down. |
 | 2 | Mice rooms' switches | `obj_mouseSpawnSwitch`, `obj_mice2Switch`, `obj_mice3_platSwitch` | Local: they release mice that move on their own. |

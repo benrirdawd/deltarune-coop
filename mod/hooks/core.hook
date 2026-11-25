@@ -318,6 +318,14 @@ mp_puz_switch_used();
 
 ;; Chapter 3's couch-world eye puzzle (room_dw_couch_overworld_02): Kris's switch opens the bridge;
 ;; pressed by anyone, pressed in every game in the room (Susie and Ralsei walk to theirs in each game).
+;; Chapter 3 backstage extra puzzle and Susie's bridge: a friend's solve (flags 1112, 1212) opens mine
+;; too (scr_mp_teevie).
+@prepend gml_Object_obj_dw_b3bs_extrapuzzle_Step_0
+mp_b3bs_extra_follow();
+
+@prepend gml_Object_obj_dw_teevie_susiebridge_Step_0
+mp_susiebridge_follow();
+
 @prepend gml_Object_obj_ch3_PGS01B_eyepuzzle_switch_Other_10
 mp_puz_switch_used();
 
