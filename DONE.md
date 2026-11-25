@@ -335,7 +335,7 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
 
 ## Launcher: its own update list comes first, so an old install finds deltarune-coop (2026-11-25)
 
-* The installed package's `update.txt` (in `%LOCALAPPDATA%DeltaruneOnlinepp`, shared by every launcher)
+* The installed package's `update.txt` (in `%LOCALAPPDATA%\DeltaruneOnline\app`, shared by every launcher)
   used to win over the list built into the exe. An old install (build 9 listed `traeb0n/deltarune-online`
   and the Drive folder) kept even a new `DELTARUNE-Online.exe` looking only there, so it never found v19.
 * Now the exe's own list comes first (`deltarune-coop`, then `deltarune-online`, then the Drive folder),
