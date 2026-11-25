@@ -333,6 +333,16 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
   gone.
 
+## A Z chat that moves the story stays a chat (Chapter 1 throne room, 2026-11-25)
+
+* Chapter 1 `room_cc_throneroom`, plot 242: talking to Lancer (`obj_npc_facing`) is a long chat that
+  sets plot 243. It has no cutscene controller and no actors, so the Z check keeps it local. The other
+  player isn't pulled in and only gets the new plot (shared as usual, their room is built again for it).
+* Test, both with `chaos:10:120:60`, the host `touch:obj_npc_facing@500` with `mash` (`work/fol/zthrone1`).
+  The host's chat ran to its end. The Z check logged `master -1/-1 plot 243/242` and didn't call it a
+  scene. The client got `room refresh: plot 242 -> 243` and stayed free, and all mpcheck checks pass.
+  No code change.
+
 ## Test token for playing a Chapter 4 bookshelf piano for real (2026-11-25)
 
 * `pianoplay:<i>:<dir>@<f>` (`scr_mp_shelf`): at room frame f Kris stands on the upper floor's nearest

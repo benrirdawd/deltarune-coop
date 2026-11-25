@@ -191,7 +191,7 @@ choice and real players to judge it; the platformer figure and the special-fight
 * More `interact` cases: save point (Chapter 4), a Chapter 5 shop and a Chapter 4 readable checked
   (DONE.md). Other NPCs can be run with the `touch:<obj>@<f>` token when one misbehaves in play.
 * Tests don't cover yet: Chapter 1 new game (the vessel creation writes save files, so it isn't run here;
-  Chapter 1 is tested by loading a save), more cutscenes started with Z (one tested), a real play-through of
+  Chapter 1 is tested by loading a save), more cutscenes started with Z (the arcade scene and a Chapter 1 chat that moves the story tested), a real play-through of
   whole chapters. Platforming with running and jumping is tested (DONE.md).
 
 ## Low priority / known small differences
