@@ -4,6 +4,21 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Mazes: Chapter 2's second virus maze follows a friend's win (2026-11-24)
+
+* All the mazes were looked at for something that blocks a friend (MINIGAMES.md). Chapter 1's forest
+  maze and Chapter 4's dark maze move the story by plot (shared); the prophecy maze and falling
+  tiles keep no state; Chapter 2's cheese maze and queen screen maze read their flags every frame.
+* Fixed: `room_dw_cyber_viromaze2`: beating the virus sets flag 352, which turns the room's force
+  fields off (and the one that closes behind you), but the flag was read only when the room is
+  built: a friend's win left my fields up and could shut me in. Now, when flag 352 arrives from
+  someone else, my controller runs its own solve step ("Sounded like a forcefield deactivating",
+  fields gone) once I'm free to read it (`mp_viromaze2_follow`, `scr_mp_keyboard`).
+* Test, Chapter 2 `room_dw_cyber_viromaze2`, plot 50, the host setting flag 352, both with
+  `chaos:10:120:60` (`work/fol/viro2a`): the client logged "won by a friend", went from 2 force
+  fields to 0 with the message read and control back (con 3, interact 0). mpcheck: all PASS but
+  "moved" (nobody walks in this test).
+
 ## Chapter 5 new glowing tiles: a friend's solve during my run ends it properly (2026-11-24)
 
 * `room_dw_garden_hardpressureplates`: the two timed glowing tile puzzles (`obj_glowtile_puzzle_new`)

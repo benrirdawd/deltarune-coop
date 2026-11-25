@@ -55,8 +55,8 @@ other puzzles (a friend's solve shows in my room); else note why it stays local.
 5. **Looked at:** Chapter 5 flower arena puzzle: `obj_flower_arena_puzzle_manager` is in no room.
 6. **Done:** Chapter 5 new glowing tiles: a friend's solve during my run ends my copy properly
    (DONE.md). `obj_pushable_block_memory` is in no room.
-7. Mazes (Chapter 1 forest maze, Chapter 2 cyber/cheese/virus mazes, Chapter 4 dark/prophecy
-   mazes, falling tiles): probably each player's own path; check that nothing blocks a friend.
+7. **Done:** mazes looked at (MINIGAMES.md); the only block found, Chapter 2's second virus maze
+   keeping its force fields up after a friend's win, is fixed (DONE.md).
 
 ## Stage-changing scenes: everyone agrees first (later)
 

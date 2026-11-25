@@ -143,3 +143,33 @@ function mp_postbb_after()
         mp_f449 = global.flag[449];
     }
 }
+
+// Chapter 2's second virus maze (room_dw_cyber_viromaze2): beating its virus sets flag 352, which
+// turns the room's force fields off (and the one that closes behind you once you're in). The flag
+// is read only when the room is built, so a friend's win left my fields up and could shut me in.
+// Now, when flag 352 arrives from someone else (it changed between two of my controller's steps),
+// my controller runs its own solve step ("Sounded like a forcefield deactivating", fields gone),
+// once I'm free to read it. Simplest choice: the result is shared, not the fight.
+
+// Prepended to obj_controller_dw_cyber_viromaze2's Step.
+function mp_viromaze2_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (!variable_instance_exists(id, "mp_f352"))
+        mp_f352 = global.flag[352];
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+        show_debug_message("[MPVIRO2] flag352=" + string(global.flag[352]) + " con=" + string(con) + " forcefield=" + string(instance_number(obj_forcefield)) + " ia=" + string(global.interact));
+    if (mp_f352 == 1 || global.flag[352] != 1 || con != 0 || global.interact != 0 || d_ex())
+        return;
+    mp_log("virus maze 2: won by a friend, my force fields go");
+    mp_f352 = 1;
+    con = 1;
+}
+
+// Appended to its Step: the flag as my own step left it.
+function mp_viromaze2_after()
+{
+    if (variable_global_exists("mp_inited") && instance_exists(id))
+        mp_f352 = global.flag[352];
+}

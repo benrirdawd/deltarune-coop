@@ -267,6 +267,14 @@ mp_postbb_follow();
 @append gml_Object_obj_room_dw_city_postbaseball_Step_0
 mp_postbb_after();
 
+;; Chapter 2 second virus maze: a friend's win (flag 352) turns my force fields off too
+;; (scr_mp_keyboard).
+@prepend gml_Object_obj_controller_dw_cyber_viromaze2_Step_0
+mp_viromaze2_follow();
+
+@append gml_Object_obj_controller_dw_cyber_viromaze2_Step_0
+mp_viromaze2_after();
+
 ;; Chapter 3: the glowing tiles' hourglass (as in Chapter 1; the tiles themselves are pressed by the
 ;; others' figures in every chapter).
 #chapters 3

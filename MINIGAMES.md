@@ -87,7 +87,7 @@ each real one).
 | 1 | Suits puzzles (spade, diamond, swap) | `obj_suitspuzz`, `obj_suitspuzz_button` | **Shared** |
 | 1 | Checker paths | `obj_ob_checkertile` | Local on purpose: each player's own hazard to dodge. |
 | 1 | Forest area 5 lines | `obj_forest_area5_puzzle` | Local on purpose: how much the darkner sees *you*. |
-| 1 | Forest maze | `obj_forestmaze_controller` | Local, not looked at. |
+| 1 | Forest maze | `obj_forestmaze_controller` | Looked at: each player's own path; it moves the story by plot (90-120, shared). Nothing blocks a friend. |
 | 2 | Traffic lights (city, mansion) | `obj_traffic_switch` | **Shared** |
 | 2 | Alley floor switch | `obj_alleySwitch` | **Shared**: a friend standing on it holds it down. |
 | 2 | Mice rooms' switches | `obj_mouseSpawnSwitch`, `obj_mice2Switch`, `obj_mice3_platSwitch` | Local: they release mice that move on their own. |
@@ -95,7 +95,7 @@ each real one).
 | 2 | Keyboard puzzles | `obj_controller_keyboard_puzzle_1..3`, `obj_ch2_keyboardpuzzle_*` | Shared result: a friend's solve (flags 390, 333, 420) shows on my keyboard and opens puzzle 1's force field (`scr_mp_keyboard`). Keys stay local. |
 | 2 | Shape puzzle | `obj_shapepuzzle` | Local: one player steers a piece. Idea: send the moves. |
 | 2 | Noelle's puzzle (keys, force field) | `obj_ch2_noellepuzzle_*` | Looked at: it is the Noelle monologue scene (`room_dw_city_monologue`, Noelle steps on the keys as an actor; plot 94, shared). Nothing to share. |
-| 2 | Cyber mazes, the cheese maze, the virus maze | `obj_controller_dw_cyber_maze_*`, `obj_controller_city_cheesemaze`, `obj_controller_dw_cyber_viromaze2` | Local, not looked at. |
+| 2 | Cyber mazes, the cheese maze, the virus maze | `obj_controller_dw_cyber_maze_*`, `obj_controller_city_cheesemaze`, `obj_controller_dw_cyber_viromaze2` | Cheese maze and the queen screen maze read their flags every frame (a friend's progress shows). Virus maze 2: a friend's win (flag 352) now **turns my force fields off too** (`scr_mp_keyboard`). The virokun maze's flag only ends its chase. |
 | 2 | Rotating tiles, push tiles | `obj_rotationController_track`, `obj_rotationtile_tower`, `obj_pushtile_room` | Rotating tiles: only in the mice switch room (follows a friend's solve). Push tiles (post-baseball rooms): room 1's switch and teacup ride **follow a friend's solve** (flags 448/449, `scr_mp_keyboard`); room 2's tiles are held by the party during a chase and stay each player's own. |
 | 2 | Chapter 2 pushable blocks | `obj_pushable_block` | Looked at: the object is in no Chapter 2 room (a leftover); nothing to share. |
 | 3 | Glowing tiles' hourglass | `obj_glowtilepuzz` | **Shared** (as in Chapter 1; not run separately). |
@@ -110,7 +110,7 @@ each real one).
 | 4 | Organ room | `obj_dw_church_organpuzzle` | Local on purpose: songs for the party's reactions, nothing to solve. |
 | 4 | Ripple puzzles | `obj_church_ripple*`, `obj_dw_churchb_ripple1` | Looked at: no puzzle state, the ripples only show where Kris steps in the dark. A friend's figure now **makes ripples in my game too** (`ch4/scr_mp_ripple`). |
 | 4 | Train tracks | `obj_traintrack_*`, `obj_train_switch` | Local on purpose: pressed by the heart in the Light World section at home (a solo part). |
-| 4 | Dark maze, prophecy maze, falling tiles | `obj_dw_church_darkmaze`, `obj_dw_churchb_prophecymaze`, `obj_dw_churchc_fallingtiles` | Local, not looked at. |
+| 4 | Dark maze, prophecy maze, falling tiles | `obj_dw_church_darkmaze`, `obj_dw_churchb_prophecymaze`, `obj_dw_churchc_fallingtiles` | Looked at: the dark maze moves the story by plot (150-160, its scenes shared the usual way); the prophecy maze and falling tiles keep no state. Each player's own path; nothing blocks a friend. |
 | 5 | Pushable blocks (garden) | `obj_pushable_block` | **Shared** |
 | 5 | Floor switches | `obj_floorswitch` | **Shared** |
 | 5 | Castle puzzles: terracotta statues, the orange door | `obj_dw_fcastle_terracotta_puzzle`, `obj_dw_fcastle_right_puzzle` | **Shared**: a friend's solve opens my room too (`scr_mp_castle`). |
