@@ -27,13 +27,20 @@ on top of the game where the game itself can show it.
      Light World while Ralsei leads, so that one needs no fix of its own).
    - Starting a battle plays the hurt sound with nothing hitting me.
 
-## Later: solo heroes still get each minigame (user request, 2026-11-25)
+## Later: a stand-in when the hero a mechanic needs isn't there (user request, 2026-11-25)
 
-A hero alone (solo mode, or a boss entered without the party) can't do the minigames built for two
-(e.g. Susie throwing Kris). Give each hero its own way through that feels made for it, so the game
-looks like it always had selectable heroes: e.g. Susie alone uses Rude Buster for the same effect at
-a higher TP cost, Ralsei uses a spell, Kris the original. Go through MINIGAMES.md and pick one per
-minigame/boss mechanic, simplest that keeps the original's feel.
+Some fight mechanics need two specific heroes, e.g. Susie throwing Kris at the ropes holding the
+captured NPCs (cutting a rope frees one). When the needed hero is missing (solo mode, or a boss
+entered without the party), the hero who is there gets a stand-in action so the mechanic can still
+be done: e.g. Susie alone cuts the ropes with Rude Buster.
+Rules:
+* The stand-in only appears when the needed hero is missing. It covers a gap; it never replaces the
+  original when the full party is there.
+* A solo stand-in is worse than the team version: it costs more TP or does less (e.g. frees fewer,
+  takes more turns), so playing together stays the better way.
+* It looks and sounds like the game's own actions (an existing spell or ACT in the normal menu).
+Go through MINIGAMES.md for every mechanic that needs two specific heroes and pick one stand-in
+for each, the simplest that keeps the original's feel.
 
 ## Next features (user request, 2026-11-24), in this order
 
