@@ -1789,6 +1789,21 @@ function mp_var_array_write(nm, idx, val)
     switch (nm)
     {
         case "flag":
+            // Bits a friend's game turned on (remembered pickups: scr_mp_plat's follows act only on
+            // these, never on a bit my own game set).
+            var oldv = global.flag[idx];
+            if (is_real(val) && is_real(oldv) && val >= 0 && oldv >= 0 && val < 2147483648 && oldv < 2147483648 && val == floor(val) && oldv == floor(oldv))
+            {
+                var nb = val & ~oldv;
+                if (nb != 0)
+                {
+                    if (!variable_global_exists("mp_rflagbits"))
+                        global.mp_rflagbits = {};
+                    var k = string(idx);
+                    var had = variable_struct_exists(global.mp_rflagbits, k) ? variable_struct_get(global.mp_rflagbits, k) : 0;
+                    variable_struct_set(global.mp_rflagbits, k, had | nb);
+                }
+            }
             global.flag[idx] = val;
             break;
         case "item":

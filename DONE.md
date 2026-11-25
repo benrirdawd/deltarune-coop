@@ -333,6 +333,23 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
   gone.
 
+## Chapter 5: leaf piles and paper grass a friend broke are gone for me too; only a friend's bits count (2026-11-25)
+
+* Leaf piles (dashed through: coins, a chest or an NPC inside) and paper grass (cut: coins) are
+  remembered the same way as the coins and bells. When a friend's bit arrives while mine is still
+  whole, it goes the way the room removes it when you come back, with nothing inside and no coins
+  (`mp_remembered_follow`: prepended to the leaf pile's Step and the paper grass's End Step).
+* Found while testing: several things can share one bit. The three leaf piles of
+  `room_dw_garden_firstdash` all use flag 1384 bit 11, and dashing through one removes only that one.
+  So the follows (coins, bells, piles, grass) now act only on bits a friend's game turned on.
+  `mp_var_array_write` records the bits each received flag turns on (`global.mp_rflagbits`), and
+  `mp_friend_set_bit` checks them. My own take never removes more than the game would.
+* Tests, both with `chaos:10:120:60`. `room_dw_garden_firstdash` (`work/fol/leaf2`): the client set
+  1384 to 2048. In the host's game the 3 piles went, and the client kept its own, as in solo play.
+  `room_dw_cliff_eastcliff` (`work/fol/coin2`): the host set 1859 to every bit. Only the client
+  removed 16 coins, the pink bell and the paper grass; the host's game, which set them, removed
+  nothing. All mpcheck checks pass except `moved` (nobody walks).
+
 ## Chapter 5 platformer: a pinata bell a friend broke is broken for me too (2026-11-25)
 
 * Pinata bells are remembered the same way as the coins: breaking one sets a bit of a story flag.

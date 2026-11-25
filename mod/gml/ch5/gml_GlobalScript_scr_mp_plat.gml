@@ -137,7 +137,7 @@ function mp_plat_coin_follow()
         }
         show_debug_message("[MPCOIN] room=" + room_get_name(room) + " remembered coins=" + string(n) + " flag" + string(flag) + "=" + string(global.flag[flag]));
     }
-    if (((real(global.flag[flag]) >> flagbit) & 1) == 0)
+    if (!mp_friend_set_bit(flag, flagbit))
         return;
     if (ignore_flag_if_plot_greater > 0 && global.plot >= ignore_flag_if_plot_greater)
         return;
@@ -155,7 +155,7 @@ function mp_plat_bell_follow()
 {
     if (flag <= 0 || !variable_global_exists("mp_inited") || !mp_on())
         return;
-    if (((real(global.flag[flag]) >> flagbit) & 1) == 0)
+    if (!mp_friend_set_bit(flag, flagbit))
         return;
     if (object_index == obj_plat_pinatabell_pink)
     {
@@ -171,4 +171,31 @@ function mp_plat_bell_follow()
         mp_log("[MPCOIN] a friend broke bell flag" + string(flag) + " bit " + string(flagbit) + ": broken here too");
         broken = true;
     }
+}
+
+// Leaf piles (dashed through: coins, a chest or an NPC inside) and paper grass (cut: coins) the game
+// remembers the same way. When a friend's bit arrives while mine is still whole, it goes the way the
+// room removes it when you come back: with nothing inside, no coins (paper grass still has hp, so
+// its Destroy event makes nothing). Leaf piles: prepended to their Step; paper grass: its End Step.
+function mp_remembered_follow()
+{
+    if (flag <= 0 || !variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (!mp_friend_set_bit(flag, flagbit))
+        return;
+    if (object_index == obj_papergrass && hp <= 0)
+        return;
+    mp_log("[MPCOIN] a friend broke " + object_get_name(object_index) + " flag" + string(flag) + " bit " + string(flagbit) + ": gone here too");
+    instance_destroy();
+    exit;
+}
+
+// Did a friend's game turn this bit of story flag fl on (and is it still on)? Only those count:
+// several things can share one bit (a room's leaf piles), and my own take only removes what I took.
+function mp_friend_set_bit(fl, bit)
+{
+    if (!variable_global_exists("mp_rflagbits") || ((real(global.flag[fl]) >> bit) & 1) == 0)
+        return false;
+    var k = string(fl);
+    return variable_struct_exists(global.mp_rflagbits, k) && ((variable_struct_get(global.mp_rflagbits, k) >> bit) & 1) == 1;
 }

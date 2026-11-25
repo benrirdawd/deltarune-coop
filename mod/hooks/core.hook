@@ -410,6 +410,13 @@ mp_plat_bell_follow();
 
 @prepend gml_Object_obj_plat_pinatabell_pink_Step_0
 mp_plat_bell_follow();
+
+;; ... and a remembered leaf pile or paper grass.
+@prepend gml_Object_obj_leafpile_Step_0
+mp_remembered_follow();
+
+@prepend gml_Object_obj_papergrass_Step_2
+mp_remembered_follow();
 #chapters 1
 
 ;; The suits puzzles' buttons (spade, diamond, swap: room_field_secret1, the forest's clover and suits
