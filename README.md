@@ -66,12 +66,13 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
 * **Puzzles together.** A block pushed by anyone moves in everyone's game (Chapters 1 and 5;
   someone who joins later finds the blocks where they were left), switches and buttons are
   pressed for everyone (Chapter 1's eye switches and suits puzzles, Chapter 2's traffic lights,
-  the glowing tiles' hourglass), and a friend standing on a glowing tile or a floor switch
+  the glowing tiles' hourglass, Kris's switch at Chapter 3's eye puzzle), and a friend standing on a glowing tile or a floor switch
   counts in your game (so two players can hold two switches). Eye switches and suits buttons pressed
   before you came into the room (or joined) are played back for you. A puzzle someone solves is
-  solved for everyone: Chapter 2's keyboard puzzles, Chapter 4's bookshelves (a shelf slid with a
-  piano slides in every game) and the piano cage, Chapter 5's terracotta statues and orange door. Hazards like the checker paths stay
-  each player's own. The full list is in [`MINIGAMES.md`](MINIGAMES.md).
+  solved for everyone: Chapter 2's keyboard puzzles and mice switch room, Chapter 3's TV quizzes,
+  Chapter 4's bookshelves (a shelf slid with a piano slides in every game) and the piano cage,
+  Chapter 5's terracotta statues and orange door. Hazards like the checker paths stay each
+  player's own. The full list is in [`MINIGAMES.md`](MINIGAMES.md).
 * **Shared progress.** Story flags, items, gold, equipment and HP are kept in sync. The host's
   world is the shared one. Counters (enemies defeated, people talked to) add up when two
   players count at the same time. The party menu (C) names your character in Kris's place.
@@ -161,8 +162,9 @@ Handy things:
 * The player list (top left) shows "(reading)" next to someone reading a text box: talking to someone
   on their own, or not done with the current page of a shared cutscene.
 * **F5** (ping) shows the others where you are: for 3 seconds an arrow in your colour bounces over you
-  on their screens (at the edge of the screen, pointing your way, if you're off it). Players in
-  another room get a note saying which room you're in.
+  on their screens (at the edge of the screen, pointing your way, if you're off it; never under the
+  player list). Players in another room get a note saying which room you're in. F5 can't be the
+  talk key.
 * Several players can pick the same character (with more players than party members someone
   has to). Everyone walks around as their pick; in battle the first player (lowest number)
   controls that character and the others watch. The F9 picker shows "(also P2: you watch
