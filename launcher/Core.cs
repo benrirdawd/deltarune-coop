@@ -232,21 +232,28 @@ namespace DeltaruneOnline
         // ---------- updates ----------
 
         // Where updates come from, in order of preference: DRO_FEED (testing, several separated by |),
-        // then the installed package's update.txt, then the one built into the exe.
+        // else the list built into this exe first, then any other source in the installed package's
+        // update.txt. (The installed list used to win: an old install kept a new exe looking only at the
+        // old places, so it never found the newer releases.)
         // A source is a GitHub repository (its latest release), a public Google Drive folder, or a local folder.
         public List<string> Feeds()
         {
             var env = Environment.GetEnvironmentVariable("DRO_FEED");
             if (!string.IsNullOrEmpty(env)) return env.Split('|').Select(s => s.Trim()).Where(s => s != "").ToList();
+            var list = new List<string>();
+            using (var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("update.txt"))
+                if (s != null) using (var r = new StreamReader(s)) list.AddRange(Links(r.ReadToEnd()));
             var f = Path.Combine(App, "update.txt");
             if (File.Exists(f))
             {
-                var links = Links(File.ReadAllText(f));
-                if (links.Count > 0) return links;
+                try
+                {
+                    foreach (var l in Links(File.ReadAllText(f)))
+                        if (!list.Any(x => string.Equals(x.TrimEnd('/'), l.TrimEnd('/'), StringComparison.OrdinalIgnoreCase))) list.Add(l);
+                }
+                catch { }
             }
-            using (var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("update.txt"))
-                if (s != null) using (var r = new StreamReader(s)) return Links(r.ReadToEnd());
-            return new List<string>();
+            return list;
         }
 
         static List<string> Links(string text)

@@ -333,6 +333,18 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
   gone.
 
+## Launcher: its own update list comes first, so an old install finds deltarune-coop (2026-11-25)
+
+* The installed package's `update.txt` (in `%LOCALAPPDATA%\DeltaruneOnlinepp`, shared by every launcher)
+  used to win over the list built into the exe. An old install (build 9 listed `traeb0n/deltarune-online`
+  and the Drive folder) kept even a new `DELTARUNE-Online.exe` looking only there, so it never found v19.
+* Now the exe's own list comes first (`deltarune-coop`, then `deltarune-online`, then the Drive folder),
+  followed by any other source the installed list has (`Core.Feeds`).
+* Test: with `DRO_ROOT` set to a temp folder whose `app/update.txt` had only the build-9 sources,
+  `Feeds()` called through reflection on the built exe returned `deltarune-coop` first, then
+  `deltarune-online`, the Drive folder and `traeb0n/deltarune-online`. The v19 release's exe and zip
+  were replaced with this launcher (still build 19).
+
 ## Chapter 3 puzzle closets: a door a friend opened with its code opens for me too (2026-11-25)
 
 * `room_dw_puzzlecloset_1..3`: the right code sets a story flag (1094, 1095, 1231; shared) and the door
