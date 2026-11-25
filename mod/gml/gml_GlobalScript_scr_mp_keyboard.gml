@@ -262,3 +262,21 @@ function mp_mansion_key_after()
     if (variable_global_exists("mp_inited") && instance_exists(id))
         mp_fkey = global.flag[object_index == obj_ch2_room_mansion_east_2f_a ? 344 : 346];
 }
+
+// Chapter 2's mansion secret walls (room_dw_mansion_east_1f_e, flag 339; room_dw_mansion_east_1f_secret,
+// flag 340): finding the secret hides the wall tiles and removes a solid block at the exit. The flag
+// is read only when the room is built, so a friend's find left my wall and block. Now, while the
+// flag is set and my block is still there, my room takes its own "found" step (con 1). (It is the
+// same step my own find takes, so nothing is done twice.)
+
+// Prepended to obj_ch2_room_mansion_east_1f_e's and obj_ch2_room_mansion_east_1f_secret's Step.
+function mp_mansion_secret_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || con == 1)
+        return;
+    var fl = object_index == obj_ch2_room_mansion_east_1f_e ? 339 : 340;
+    if (global.flag[fl] != 1 || !variable_instance_exists(id, "exitcollider") || exitcollider == 0 || exitcollider == -4 || !instance_exists(exitcollider))
+        return;
+    mp_log("mansion secret wall: found by a friend (flag " + string(fl) + "), my wall opens");
+    con = 1;
+}

@@ -289,6 +289,13 @@ mp_mansion_key_follow();
 @append gml_Object_obj_ch2_room_mansion_2f_shortcut_Step_0
 mp_mansion_key_after();
 
+;; Chapter 2 mansion secret walls: a friend's find (flags 339/340) opens my wall too (scr_mp_keyboard).
+@prepend gml_Object_obj_ch2_room_mansion_east_1f_e_Step_0
+mp_mansion_secret_follow();
+
+@prepend gml_Object_obj_ch2_room_mansion_east_1f_secret_Step_0
+mp_mansion_secret_follow();
+
 ;; Chapter 3: the glowing tiles' hourglass (as in Chapter 1; the tiles themselves are pressed by the
 ;; others' figures in every chapter).
 #chapters 3

@@ -4,6 +4,19 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 2 mansion secret walls follow a friend's find (2026-11-25)
+
+* `room_dw_mansion_east_1f_e` (flag 339) and `room_dw_mansion_east_1f_secret` (flag 340): finding
+  the secret hides the wall tiles and removes a solid block at the exit, but the flag was read only
+  when the room is built, so a friend's find left my wall and block. Now, while the flag is set and
+  my block is still there, my room takes its own "found" step (`mp_mansion_secret_follow`,
+  `scr_mp_keyboard`): the same step my own find takes, so nothing is done twice.
+* Found by a wider sweep (solid blocks, not only force fields): the rest is listed in TODO.
+* Test, Chapter 2, plot 150, the host setting the flag, both with `chaos:10:120:60`
+  (`work/fol/mans_339`, `work/fol/mans_340`): each client logged "found by a friend ... my wall
+  opens" once (the block was gone the next frame, or it would log again). mpcheck: all PASS but
+  "moved" (nobody walks).
+
 ## Chapter 2 mansion saucer puzzles follow a friend's solve (2026-11-25)
 
 * Found by a sweep of the room controllers for flags set in their step but read only when the room
