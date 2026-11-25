@@ -333,6 +333,21 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
   gone.
 
+## A force field a friend's switch turned off goes from my room too (2026-11-25)
+
+* `obj_forcefield` with a `disableflag` checks it only when built. The one place it is used is Chapter 2's
+  `room_dw_cyber_musical_door`: its field goes when flag 332 is 1, set by a switch in
+  `room_dw_cyber_battle_maze_2` ("Sounds like a forcefield powering down"). A friend standing at the
+  musical door when the switch was pressed kept the field until they came back.
+* Now, when a friend's game turned the flag on, my field goes (`mp_forcefield_follow`, `scr_mp_world`,
+  prepended to its Step, Chapters 2-5). Only a friend's flag counts: my own solve is left to the room's
+  code. `mp_friend_set_bit` moved to `scr_mp_world` for this.
+* Looked at: Chapter 5's `disableflag` objects are floor spikes (`obj_floorspike`). They check their
+  flag every frame already, so a friend's solve lowers them without help.
+* Test, Chapter 2 `room_dw_cyber_musical_door`, plot 32, both with `chaos:10:120:60` (`work/fol/ff2`): the
+  client set flag 332, and the host logged its field gone. All mpcheck checks pass except `moved`
+  (nobody walks).
+
 ## A chest a friend opened shows open in my room too (all chapters, 2026-11-25)
 
 * A chest's item flag is shared, so a chest a friend opened already said "(The chest is empty.)" in

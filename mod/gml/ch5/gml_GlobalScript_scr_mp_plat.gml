@@ -189,13 +189,3 @@ function mp_remembered_follow()
     instance_destroy();
     exit;
 }
-
-// Did a friend's game turn this bit of story flag fl on (and is it still on)? Only those count:
-// several things can share one bit (a room's leaf piles), and my own take only removes what I took.
-function mp_friend_set_bit(fl, bit)
-{
-    if (!variable_global_exists("mp_rflagbits") || ((real(global.flag[fl]) >> bit) & 1) == 0)
-        return false;
-    var k = string(fl);
-    return variable_struct_exists(global.mp_rflagbits, k) && ((variable_struct_get(global.mp_rflagbits, k) >> bit) & 1) == 1;
-}

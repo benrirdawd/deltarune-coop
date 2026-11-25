@@ -41,6 +41,12 @@ mp_draw_mainchara_plain(floor(_weird_mode_xx), _weird_mode_yy);
 @prepend gml_Object_obj_treasure_room_Step_1
 mp_chest_follow();
 
+#chapters 2,3,4,5
+;; A force field whose disable flag a friend turned on goes from my room too (scr_mp_world).
+@prepend gml_Object_obj_forcefield_Step_0
+mp_forcefield_follow();
+#chapters all
+
 ;; The other players' SOULs are drawn over the battle box.
 @append gml_Object_obj_heart_Draw_0
 mp_heart_draw_others();

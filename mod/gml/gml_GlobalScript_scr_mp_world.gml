@@ -984,6 +984,32 @@ function mp_warp_place()
         mp_sync_arrived();
 }
 
+// Did a friend's game turn this bit of story flag fl on (and is it still on)? Only those count:
+// several things can share one bit (a room's leaf piles), and my own take only removes what I took.
+function mp_friend_set_bit(fl, bit)
+{
+    if (!variable_global_exists("mp_rflagbits") || ((real(global.flag[fl]) >> bit) & 1) == 0)
+        return false;
+    var k = string(fl);
+    return variable_struct_exists(global.mp_rflagbits, k) && ((variable_struct_get(global.mp_rflagbits, k) >> bit) & 1) == 1;
+}
+
+// A force field that goes when a story flag is 1 (`disableflag`, Chapters 2 and 5: mushroom rooms,
+// pressure plates, the musical door) only checks it when built, so a friend's solve left mine up.
+// Now, when a friend's game turned that flag on, mine goes (as the room has it when built). Only a
+// friend's flag: my own solve is left to the room's own code (it may fade the field in a scene).
+// Prepended to obj_forcefield's Step.
+function mp_forcefield_follow()
+{
+    if (disableflag <= 0 || !variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (global.flag[disableflag] != 1 || !mp_friend_set_bit(disableflag, 0))
+        return;
+    mp_log("force field flag" + string(disableflag) + " turned on by a friend: gone here too");
+    instance_destroy();
+    exit;
+}
+
 // A chest a friend opened: its item flag is shared, so mine already says "(The chest is empty.)",
 // but it still looked closed until I came back to the room. Now it shows open as soon as the flag
 // is there (the look the room gives it when built). Prepended to obj_treasure_room's Begin Step.
