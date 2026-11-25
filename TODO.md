@@ -13,6 +13,11 @@ on top of the game where the game itself can show it.
    hero's action in the normal battle menu at once (no "Your turn" / "X is choosing for..." notes, no
    pre-select line). The turn starts when all have chosen; until then the hero who is ready shows its
    chosen-action icon, as the game does. Test with chaos:10:120:60.
+   Look (user's screenshot, Berdly fight): every hero that has a player gets its panel raised with
+   its own FIGHT/ACT/ITEM/SPARE/DEFEND row open at the same time (Kris and Noelle both up, not only
+   Kris). Each player moves the cursor in their own hero's row and sees the others' cursors and
+   sub-menus (enemy, ACT, item lists) move live in their panels. A hero with no player (or the
+   solo party) works as now.
 2. **Fewer yellow notes (M).** Go through the 72 mp_notify texts and remove the ones the game can show
    by itself (battle turn notes, waiting lines); keep only real errors and connection news.
 3. **Bugs reported in play (2026-11-25):**
