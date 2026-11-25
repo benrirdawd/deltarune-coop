@@ -286,6 +286,10 @@ static class Program
         foreach (var o in data.Fonts) known.Add(o.Name.Content);
         foreach (var o in data.Scripts) known.Add(o.Name.Content);
         foreach (var o in data.Functions) known.Add(o.Name.Content);
+        // Functions declared inside other scripts (GameMaker 2.3+ gives each its own gml_Script_<name> code entry).
+        foreach (var c in data.Code) if (c?.Name?.Content != null && c.Name.Content.StartsWith("gml_Script_")) known.Add(c.Name.Content.Substring(11));
+        // Built-in room variables (not rooms): room_width etc.
+        foreach (var b in new[] { "room_width", "room_height", "room_speed", "room_first", "room_last", "room_persistent", "room_caption" }) known.Add(b);
         var modFiles = Directory.GetFiles(Path.Combine(modDir, "gml"), "*.gml", SearchOption.AllDirectories)
             .Where(f => Path.GetDirectoryName(f) == Path.Combine(modDir, "gml") || Path.GetFileName(Path.GetDirectoryName(f)) == "ch" + chapter)
             .Concat(Directory.GetFiles(Path.Combine(modDir, "hooks"), "*.hook"));
