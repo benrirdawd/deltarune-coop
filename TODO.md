@@ -26,6 +26,10 @@ on top of the game where the game itself can show it.
    - Solo: the party still follows me. Solo should be really solo (this also fixes Kris looking
      Light World while Ralsei leads, so that one needs no fix of its own).
    - Starting a battle plays the hurt sound with nothing hitting me.
+   - The map SOUL look (a player whose fight shows on the map) is a white blurred-looking outline over
+     a normal sprite. The game's own (Kris) is a pixel-drawn outline and the hero goes dark. Do the
+     same for every hero: darken the sprite, 1-pixel outline in the hero's colour instead of red
+     (Susie purple, Ralsei green, Noelle yellow; Kris keeps the game's red). (mp_draw_ow_heart)
 
 ## Later: a stand-in when the hero a mechanic needs isn't there (user request, 2026-11-25)
 
@@ -126,7 +130,7 @@ the ones already done (mice room, post-baseball room, virus maze 2):
 ## Stage-changing scenes: everyone agrees first (later)
 
 Watching a cutscene and going back to where you were is done (DONE.md, 2026-11-24): a scene that ends
-in another room or world takes everyone along. Later: a list of those stage-changing scenes (from the
+in another room or world takes everyone along. Only scenes that change the setting for good count (user, 2026-11-25): e.g. leaving the Dark World, where you can't go straight back. A scene that just moves to the next room does not. Later: a list of those stage-changing scenes (from the
 story sweeps: scenes that end in another room); for them the scene stops at its first text box with
 "P1 wants to move the story on: Z to agree (2/3)" and goes on when everyone agreed or the host forces it.
 Not started (2026-11-24): a scene is known to change the stage only when it ends, so this needs the
@@ -219,9 +223,10 @@ choice and real players to judge it; the platformer figure and the special-fight
 |---|---|---|
 | Special battle styles: the fallback is done (DONE.md, 2026-11-24). Still to do: hand-sync single fights people care about, so everyone plays their hero there too; Chapter 5 bosses aren't on the list yet (not looked at). | Per fight, from the list in `mp_battle_special`. | L per fight |
 | Minigames played together (each player now plays their own copy; the others are hidden and see "Playing ..."). | Per minigame. **Rhythm game:** each player plays their character's chart (the game has three: Kris guitar, Susie drums, Ralsei vocals; the last two are on autoplay), hits sent and the score added up. **Quiz / game show:** each player buzzes for their character. **Throw minigame:** Susie throws, Kris's player presses a button mid-air for a sword swing. Inputs sent like the battle menu so every game plays the same thing. | L per minigame |
+|  | User's design (2026-11-25), rhythm game: each player plays their own hero's part of the song; Susie's part gets a real pattern of its own that plays the original sound (instead of her failing every note as in the solo game). Large. | |
 | Chapter 5 platformer: hits, enemies and most pickups aren't shared (remembered coins, pinata bells, leaf piles and paper grass are, DONE.md 2026-11-25) (the per-character figure is done, DONE.md 2026-11-24; the game's own follower of a character a friend plays is hidden, DONE.md). | Shared pickups. | M |
 | Separate fights: players left out of a fight (hero not in the story party, taken, or a 4th+ player) only watch. | Support for up to 5 players and a proper spectator role. | L |
-| A player in a fight, seen from the map, only shows a battle stance. | Show them choosing and dodging. | L |
+| A player in a fight, seen from the map, only shows a battle stance. | User (2026-11-25): no need to show choosing and dodging. Keep the hero in their battle idle pose and draw the enemy (or enemies) of that fight standing in front of them. | M |
 | The host as referee, next steps: NPC talk and battle start through the host (cutscene start already is: the scene lock). | See "The server layer idea" in DONE.md (report 7). | M |
 
 ## Not looked at yet
