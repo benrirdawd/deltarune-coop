@@ -71,7 +71,8 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   before you came into the room (or joined) are played back for you. A puzzle someone solves is
   solved for everyone: Chapter 2's keyboard puzzles, mice rooms and mouse tower, the switch and
   teacup after the baseball game, the second virus maze, and the mansion's saucer doors, secret
-  walls and dining room doorway, Chapter 3's TV quizzes, Chapter 4's bookshelves (a shelf slid with a
+  walls and dining room doorway, Chapter 3's TV quizzes, backstage extra puzzle and Susie's bridge, Chapter 4's side climb
+  shortcut, bookshelves (a shelf slid with a
   piano slides in every game) and the piano cage, Chapter 5's terracotta statues, orange door and
   timed glowing tiles (a run of yours going at that moment ends with its spikes down). In
   Chapter 4's dark church rooms, a friend's steps light the floor with ripples in your game too.
