@@ -4,6 +4,17 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Joining during my own scene, next to the host: the room is entered again (run, 2026-11-25)
+
+* The re-entry built with the post-baseball fix (a client that joins during its own scene, already
+  next to the host, enters the room again so it's built from the shared story) has now run.
+* Test, Chapter 2 `room_dw_city_postbaseball_1`, plot 120, both at the switch (`pos:250:500`), the
+  client starting Noelle's scene on its own and joining at frame 400 (`connectat:400`, no Z presses,
+  so its scene stays open), both with `chaos:10:120:60` (`work/fol/joinscene3`): the client logged
+  "dropping what I was doing", then "warp to ... 250,500" (not "already next to the host"), its room
+  controller was there afterwards and the room's scene started again, now through the scene lock.
+  mpcheck: all PASS. (`joinscene2`, the host far away: the usual warp.)
+
 ## Chapter 4 side climb: a friend's climb adds my shortcut spots (2026-11-25)
 
 * `room_dw_church_sideclimb`: finishing the climbs (flag 1524 set) adds shortcut climbing spots out

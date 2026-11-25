@@ -49,8 +49,8 @@ other puzzles (a friend's solve shows in my room); else note why it stays local.
 3. **Done:** Chapter 2 post-baseball room's switch and teacup follow a friend's solve; found on the
    way, the room's controller no longer goes when a watched scene is stopped (DONE.md). Room 2's
    tiles stay each player's own (held by the party in a chase). The rotating tiles are only in the
-   mice switch room (done). Still to run: the "joined during my own scene" re-entry (built, the
-   test's timing didn't hit it in the passing run).
+   mice switch room (done). The "joined during my own scene" re-entry has run
+   since (DONE.md).
 4. **Done:** Chapter 4 ripple rooms: nothing to solve; a friend's steps make ripples in my game (DONE.md).
 5. **Looked at:** Chapter 5 flower arena puzzle: `obj_flower_arena_puzzle_manager` is in no room.
 6. **Done:** Chapter 5 new glowing tiles: a friend's solve during my run ends my copy properly
