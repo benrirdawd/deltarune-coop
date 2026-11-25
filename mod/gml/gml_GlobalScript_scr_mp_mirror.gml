@@ -561,7 +561,7 @@ function mp_mirror_after_check(ia)
         return false;
     mp_log("mirror: the scene started again here after it ended: stopped");
     global.mp_mir_after_until = 0;
-    mp_kill_scenes();
+    mp_kill_scenes(true);
     mp_close_local_dialogue();
     // ...with the characters and props it had already put out, and the party it had hidden.
     var ac = asset_get_index("obj_actor");

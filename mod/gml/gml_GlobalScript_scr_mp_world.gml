@@ -719,24 +719,32 @@ function mp_join_warp_tick()
     }
     if ((global.mp_pstate[0] & 2) != 0)
         return; // the host is in a cutscene: its pull brings me in
+    var dropped = false;
     if (global.mp_warp_pending || global.mp_warp_delay > 0 || mp_credits_running() || mp_in_battle_scene() || instance_exists(obj_battlecontroller))
         return;
     if (global.mp_sstate != 0 || is_array(global.mp_pull) || global.interact != 0)
     {
         mp_log("join: dropping what I was doing to go to the host (sstate " + string(global.mp_sstate) + ", interact " + string(global.interact) + ")");
+        // (A scene of mine that was cut short may have been the room's own controller, which also
+        // runs its switches and force fields: the room is entered again, built from the shared
+        // story, even when I'm already next to the host.)
+        var was_killed = global.mp_scenes_killed;
+        global.mp_scenes_killed = 0;
         mp_unstick();
+        dropped = global.mp_scenes_killed;
+        global.mp_scenes_killed = was_killed || dropped;
     }
     if (!instance_exists(obj_mainchara))
         return;
     global.mp_need_warp = 0;
     var rm = global.mp_proom[0];
-    if (room == rm && point_distance(obj_mainchara.x, obj_mainchara.y, global.mp_pix[0], global.mp_piy[0]) < 60)
+    if (room == rm && !dropped && point_distance(obj_mainchara.x, obj_mainchara.y, global.mp_pix[0], global.mp_piy[0]) < 60)
     {
         mp_log("join: already next to the host");
         return;
     }
     mp_log("join: going to the host in " + room_get_name(rm));
-    global.mp_warp_reenter = mp_dz_take((global.mp_pstate[0] & 64) != 0 ? 1 : 0);
+    global.mp_warp_reenter = mp_dz_take((global.mp_pstate[0] & 64) != 0 ? 1 : 0) || (dropped && room == rm);
     global.mp_warp_mus = 0;
     // (On the Chapter 3 board the host's position is its board piece's: just go to the room
     // and sit down where the game puts us.)
@@ -983,7 +991,10 @@ function mp_warp_place()
 // object with a cutscene master, and the masters themselves, go. Objects that haven't started yet
 // are caught on the frame they start (this runs every frame until the battle exists); chapter 2
 // style `obj_*scene*` / chapter 1 style `obj_*event` controllers are removed up front.
-function mp_kill_scenes()
+// With keep_rooms (a scene stopped after it was watched, no room rebuild follows): a room's own
+// controller (`obj_room_*`, which also runs the room's switches and force fields) loses only its
+// cutscene master and carries on (it waits for the master to be gone, then gives control back).
+function mp_kill_scenes(keep_rooms = false)
 {
     if (mp_test_has("nokill"))
         return;
@@ -998,7 +1009,7 @@ function mp_kill_scenes()
                 with (m)
                     instance_destroy();
             }
-            if (string_pos("obj_mp_", nm) != 1)
+            if (string_pos("obj_mp_", nm) != 1 && !(keep_rooms && string_pos("obj_room_", nm) == 1))
             {
                 global.mp_scenes_killed = 1;
                 instance_destroy();

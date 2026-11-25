@@ -4,6 +4,30 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 2 post-baseball room follows a friend's solve; a room's controller survives a watched scene (2026-11-24)
+
+* `room_dw_city_postbaseball_1`: Kris's floor switch (flag 448) and the teacup ride (flag 449) open
+  the room's force fields, but the flags were read only when the room is built, so a friend's solve
+  left mine up. Now, when a flag arrives from someone else, my room goes the game's own way: the
+  switch tile is held down (sound, field gone, "Noelle comes back" step), the teacup step jumps to
+  "field gone" (`mp_postbb_follow` in `scr_mp_keyboard`). Not before Noelle's opening scene is over.
+  Simplest choice: the result is shared, not who stands where.
+* Found by the test: after watching a friend's copy of a room's opening scene, the "scene started
+  again here" stop removed every object with a cutscene master, including the room's controller
+  (`obj_room_*`), which here also runs the switches and force fields: the client's room stopped
+  working. Now that stop keeps `obj_room_*` controllers and only ends their scene
+  (`mp_kill_scenes(true)`); the opening scene's own change (the top-right field off) is done by the
+  follow. And a client that joins during its own scene and is already next to the host now enters
+  the room again, built from the shared story, when that scene was cut short.
+* Test, Chapter 2 `room_dw_city_postbaseball_1`, plot 120, both at the switch (`pos:250:500`), the
+  host setting flags 448 then 449, both with `chaos:10:120:60` (`work/fol/postbb5`): the client
+  logged "a friend pressed the switch" and "rode the teacup"; both games ended with the same room
+  (con 10, switch 2, teacup 2, one force field left). mpcheck: all PASS. Runs 2-4 showed the
+  controller loss (client stuck at 3 or 2 force fields). The join re-entry is built but the passing
+  run's timing didn't hit it.
+* Looked at, nothing to share: Chapter 2's `obj_pushable_block` (in no room), Noelle's puzzle (the
+  monologue scene, plot 94).
+
 ## Talk key: F5 no longer allowed (it is the map ping) (2026-11-24)
 
 * F5 joins the keys that can't be the push-to-talk key (F6-F9, Z/X/C, arrows...): picking it says

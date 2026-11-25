@@ -81,3 +81,65 @@ function mp_mice2_after()
     if (variable_global_exists("mp_inited") && instance_exists(id))
         mp_f368 = global.flag[368];
 }
+
+// Chapter 2's first room after the baseball game (room_dw_city_postbaseball_1): Kris's floor switch
+// (switch2con, flag 448) opens the right force field, the teacup ride (flag 449) the top-left one.
+// Both flags are read only when the room is built, so a friend's solve left my force fields up. Now,
+// when a flag arrives from someone else (it changed between two of my controller's steps), my room
+// goes the game's own way: the switch tile is held down (it then plays the sound, drops the field and
+// starts the "Noelle comes back" step), and the teacup step jumps to "field gone". Not before
+// Noelle's scene at the room's start is over (con 3), so it is not skipped. Simplest choice: the
+// result is shared, not who stands where.
+
+// Prepended to obj_room_dw_city_postbaseball's Step.
+function mp_postbb_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || room != room_dw_city_postbaseball_1)
+        return;
+    if (!variable_instance_exists(id, "mp_f448"))
+    {
+        mp_f448 = global.flag[448];
+        mp_f449 = global.flag[449];
+    }
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+        show_debug_message("[MPPOSTBB] flag448=" + string(global.flag[448]) + " flag449=" + string(global.flag[449]) + " con=" + string(con) + " switch2con=" + string(switch2con) + " rodeteacup=" + string(rodeteacup) + " forcefield=" + string(instance_number(obj_forcefield)));
+    if (con < 3)
+        return;
+    // (Noelle's scene at the room's start always turns off the top-right force field; a player who
+    // watched a friend's copy of the scene didn't run it, so it is done here.)
+    if (!variable_instance_exists(id, "mp_tr_done"))
+    {
+        mp_tr_done = 1;
+        if (instance_exists(forcefieldtopright) && switchcon == 0)
+        {
+            mp_log("post-baseball room: the top-right force field goes, as after Noelle's scene");
+            switchcon = 1;
+        }
+    }
+    if (mp_f448 != 1 && global.flag[448] == 1 && switch2con < 1)
+    {
+        mp_log("post-baseball room: a friend pressed the switch, my room follows");
+        mp_f448 = 1;
+        with (obj_pushtile_room)
+        {
+            if (pushVariableName == "switch2con")
+                pushedoverride = 1;
+        }
+    }
+    if (mp_f449 != 1 && global.flag[449] == 1 && rodeteacup < -2)
+    {
+        mp_log("post-baseball room: a friend rode the teacup, my room follows");
+        mp_f449 = 1;
+        rodeteacup = 1;
+    }
+}
+
+// Appended to its Step: the flags as my own step left them.
+function mp_postbb_after()
+{
+    if (variable_global_exists("mp_inited") && instance_exists(id) && room == room_dw_city_postbaseball_1)
+    {
+        mp_f448 = global.flag[448];
+        mp_f449 = global.flag[449];
+    }
+}

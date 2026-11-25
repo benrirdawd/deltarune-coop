@@ -259,6 +259,14 @@ mp_mice2_follow();
 @append gml_Object_obj_controller_city_mice2_Step_0
 mp_mice2_after();
 
+;; Chapter 2 post-baseball room: a friend's switch or teacup ride (flags 448/449) opens my force fields
+;; too (scr_mp_keyboard).
+@prepend gml_Object_obj_room_dw_city_postbaseball_Step_0
+mp_postbb_follow();
+
+@append gml_Object_obj_room_dw_city_postbaseball_Step_0
+mp_postbb_after();
+
 ;; Chapter 3: the glowing tiles' hourglass (as in Chapter 1; the tiles themselves are pressed by the
 ;; others' figures in every chapter).
 #chapters 3

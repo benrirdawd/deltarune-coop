@@ -44,10 +44,13 @@ pull request, or ask on Discord (**b.001**).
 
 For each: if the solve is a story flag read only when the room is built, the same "follow" as the
 other puzzles (a friend's solve shows in my room); else note why it stays local.
-1. Chapter 2 pushable blocks (`obj_pushable_block` in Chapter 2): the Chapter 1/5 block sharing,
-   if the object is the same.
-2. Chapter 2 Noelle's puzzle (keys, force field, `obj_ch2_noellepuzzle_*`).
-3. Chapter 2 rotating tiles and push tiles (`obj_rotationController_track`, `obj_pushtile_room`).
+1. **Looked at:** Chapter 2 pushable blocks: `obj_pushable_block` is in no Chapter 2 room (a leftover).
+2. **Looked at:** Noelle's puzzle is the Noelle monologue scene (plot 94, shared): nothing to share.
+3. **Done:** Chapter 2 post-baseball room's switch and teacup follow a friend's solve; found on the
+   way, the room's controller no longer goes when a watched scene is stopped (DONE.md). Room 2's
+   tiles stay each player's own (held by the party in a chase). The rotating tiles are only in the
+   mice switch room (done). Still to run: the "joined during my own scene" re-entry (built, the
+   test's timing didn't hit it in the passing run).
 4. Chapter 4 ripple puzzles (`obj_church_ripple*`).
 5. Chapter 5 flower arena puzzle (`obj_flower_arena_puzzle_manager`).
 6. Chapter 5 new glowing tiles and blocks that remember (`obj_glowtile_puzzle_new`,

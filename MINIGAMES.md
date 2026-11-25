@@ -94,10 +94,10 @@ each real one).
 | 2 | Mice switch room | `room_dw_city_mice2`, `obj_controller_city_mice2`, `obj_mice2Switch` | Shared result: a friend's solve (flags 368, 915) opens my force field (`mp_mice2_follow`). The mice stay local. |
 | 2 | Keyboard puzzles | `obj_controller_keyboard_puzzle_1..3`, `obj_ch2_keyboardpuzzle_*` | Shared result: a friend's solve (flags 390, 333, 420) shows on my keyboard and opens puzzle 1's force field (`scr_mp_keyboard`). Keys stay local. |
 | 2 | Shape puzzle | `obj_shapepuzzle` | Local: one player steers a piece. Idea: send the moves. |
-| 2 | Noelle's puzzle (keys, force field) | `obj_ch2_noellepuzzle_*` | Local, not looked at. |
+| 2 | Noelle's puzzle (keys, force field) | `obj_ch2_noellepuzzle_*` | Looked at: it is the Noelle monologue scene (`room_dw_city_monologue`, Noelle steps on the keys as an actor; plot 94, shared). Nothing to share. |
 | 2 | Cyber mazes, the cheese maze, the virus maze | `obj_controller_dw_cyber_maze_*`, `obj_controller_city_cheesemaze`, `obj_controller_dw_cyber_viromaze2` | Local, not looked at. |
-| 2 | Rotating tiles, push tiles | `obj_rotationController_track`, `obj_rotationtile_tower`, `obj_pushtile_room` | Local, not looked at. |
-| 2 | Chapter 2 pushable blocks | `obj_pushable_block` | Not looked at for Chapter 2: shared only in Chapter 5. |
+| 2 | Rotating tiles, push tiles | `obj_rotationController_track`, `obj_rotationtile_tower`, `obj_pushtile_room` | Rotating tiles: only in the mice switch room (follows a friend's solve). Push tiles (post-baseball rooms): room 1's switch and teacup ride **follow a friend's solve** (flags 448/449, `scr_mp_keyboard`); room 2's tiles are held by the party during a chase and stay each player's own. |
+| 2 | Chapter 2 pushable blocks | `obj_pushable_block` | Looked at: the object is in no Chapter 2 room (a leftover); nothing to share. |
 | 3 | Glowing tiles' hourglass | `obj_glowtilepuzz` | **Shared** (as in Chapter 1; not run separately). |
 | 3 | Board puzzles (ice, bridges, switches, blocks, the maze escape) | `obj_board_icepuzzle_*`, `obj_b2bridgepuzzle*`, `obj_board_*switch*`, `obj_b2d_mazeescape` | Own copy (each player plays their own board). |
 | 3 | Eye puzzle | `obj_ch3_PGS01B_eyepuzzle_switch` | Shared: Kris's switch pressed by anyone opens the bridge in every game (message 81). |
