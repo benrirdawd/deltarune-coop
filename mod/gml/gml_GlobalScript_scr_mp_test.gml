@@ -65,7 +65,7 @@
 //   fakever:<n>:<b> pretend to have network version n and build b (version check)
 //   fakeactg        battle: as if an ACT's own game ran at the first hero action of each fight (90
 //                   frames); its player gains 10 mercy on the first enemy in their game only
-//   shelfflag:<i>:<dx>@<f>, moveshelf:<i>:<dir>@<f>, pianosolve:<f>: Chapter 4 puzzles (scr_mp_shelf)
+//   shelfflag:<i>:<dx>@<f>, moveshelf:<i>:<dir>@<f>, pianoplay:<i>:<dir>@<f>, pianosolve:<f>: Chapter 4 puzzles (scr_mp_shelf)
 //   castlesolve:<f> Chapter 5 castle puzzle rooms: set the room's solved bit (scr_mp_castle)
 //   setflag:<n>=<v>@<f>[/<n>=<v>@<f>...] set story flag n to v at room frame f
 //   reportzip       at frame 400, do F9 "Save logs for a bug report" into the save folder (not the desktop)
@@ -941,6 +941,17 @@ function mp_test_input()
             global.mp_test_awaydone = 1;
             mp_warp(asset_get_index(string_copy(aw, 1, ap - 1)), ax, ay, 0);
         }
+    }
+    // Keys a test left for this frame (global.mp_test_keys = [held key, pressed key or -1]).
+    if (variable_global_exists("mp_test_keys") && is_array(global.mp_test_keys))
+    {
+        global.input_held[global.mp_test_keys[0]] = 1;
+        if (global.mp_test_keys[1] >= 0)
+        {
+            global.input_pressed[global.mp_test_keys[1]] = 1;
+            global.input_held[global.mp_test_keys[1]] = 1;
+        }
+        global.mp_test_keys = -1;
     }
     if (mp_test_has("walk") && instance_exists(obj_mainchara) && variable_global_exists("mp_test_timer"))
     {

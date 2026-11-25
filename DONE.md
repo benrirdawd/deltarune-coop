@@ -333,6 +333,19 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
   gone.
 
+## Test token for playing a Chapter 4 bookshelf piano for real (2026-11-25)
+
+* `pianoplay:<i>:<dir>@<f>` (`scr_mp_shelf`): at room frame f Kris stands on the upper floor's nearest
+  step (the pianos only work from there). Then he goes under the i-th piano and uses it, facing up.
+  He holds direction dir with Z and at the end holds X to leave. Keys a test wants pressed are left
+  in `global.mp_test_keys` and pressed by the next frame's `mp_test_tick`. Keys set from the room
+  object's own Step came too late, because the pianos read input first.
+* Test, Chapter 4 `room_dw_church_bookshelfpuzzle`, plot 242, both with `chaos:10:120:60`
+  (`work/fol/pianoshelf5`, `pianoshelf6_*`): the piano engages (con 2), the move is tried (the
+  piano's key buffers fill), but the blue shelf doesn't slide in any of the 4 directions. Two plain
+  wall blocks (at 1160,1200 and 800,1240) already touch its base, in a room entered with `party`.
+  So the shared shelf move is still only covered by the flag test (`shelf2`); re-check in play (TODO).
+
 ## Chapter 4 piano puzzle: solved by one, solved for everyone (2026-11-24)
 
 * `room_dw_church_pianopuzzle`: playing the right tune on the piano opens the cage, sets story flag 892

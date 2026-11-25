@@ -85,6 +85,70 @@ function mp_shelf_test()
             }
         }
     }
+    // pianoplay:<i>:<dir>@<frame>: play the room's i-th piano for real: at that room frame stand
+    // below it, 10 frames later use it (as with Z, facing up), then hold direction dir (0 down,
+    // 1 right, 2 up, 3 left) with Z, and at the end hold X to leave the piano.
+    if (mp_test_has("pianoplay"))
+    {
+        var a3 = mp_test_arg("pianoplay");
+        var at3 = string_pos("@", a3);
+        var c3 = string_pos(":", a3);
+        if (at3 > 0 && c3 > 0)
+        {
+            var i3 = real(string_copy(a3, 1, c3 - 1));
+            var d3 = real(string_copy(a3, c3 + 1, at3 - c3 - 1));
+            var t3 = global.mp_test_timer - real(string_delete(a3, 1, at3));
+            if (i3 < instance_number(obj_dw_church_remote_piano) && instance_exists(obj_mainchara))
+            {
+                var pi3 = instance_find(obj_dw_church_remote_piano, i3);
+                // (first stand on the upper floor's nearest step, so the room counts the upper floor:
+                // the pianos only work from there)
+                if (t3 == 0)
+                {
+                    var ft = -4;
+                    var fd = 100000;
+                    with (obj_floorTrigger)
+                    {
+                        if (extflag == "FLOOR2" && point_distance(x, y, pi3.x, pi3.y) < fd)
+                        {
+                            fd = point_distance(x, y, pi3.x, pi3.y);
+                            ft = id;
+                        }
+                    }
+                    if (ft != -4)
+                    {
+                        with (obj_mainchara)
+                        {
+                            x += (ft.bbox_left + ft.bbox_right) / 2 - (bbox_left + bbox_right) / 2;
+                            y += (ft.bbox_top + ft.bbox_bottom) / 2 - (bbox_top + bbox_bottom) / 2;
+                        }
+                    }
+                }
+                if (t3 == 5)
+                {
+                    obj_mainchara.x = pi3.x + 16;
+                    obj_mainchara.y = pi3.y + 56;
+                    global.facing = 2;
+                    mp_log("[test] pianoplay: at piano " + string(i3) + " " + string(pi3.x) + "," + string(pi3.y) + ", floor " + string(flooractive));
+                }
+                if (t3 == 10)
+                {
+                    global.facing = 2;
+                    mp_log("[test] pianoplay: use, floor " + string(flooractive));
+                    with (pi3)
+                        event_user(0);
+                }
+                // (keys are left for the next frame's mp_test_tick: the pianos read input before
+                // this room object's Step)
+                if (t3 >= 70 && t3 < 90)
+                    global.mp_test_keys = [d3, ((t3 mod 5) == 0) ? 4 : -1];
+                if (t3 == 60 || t3 == 92 || t3 == 140)
+                    mp_log("[test] pianoplay: piano con " + string(pi3.con) + " engaged " + string(pi3.engaged) + " shelf " + string(pi3.myshelf[0].x) + "," + string(pi3.myshelf[0].y) + " con " + string(pi3.myshelf[0].con));
+                if (t3 >= 150 && t3 < 180)
+                    global.mp_test_keys = [5, -1];
+            }
+        }
+    }
     if (mp_test_has("logpuz") && (global.mp_frame mod 150) == 0 && instance_exists(obj_bookshelf_moveable2x2))
     {
         var s = "";

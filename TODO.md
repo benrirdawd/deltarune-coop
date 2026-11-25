@@ -20,7 +20,10 @@ pull request, or ask on Discord (**b.001**).
 1. **Done:** ACTs that open their own little game are played by the hero's owner (DONE.md). Still to
    run with the real ACTs: the test simulates one (`fakeactg`).
 2. **Done:** Chapter 4 bookshelf puzzle shared; the train tracks stay local on purpose (DONE.md).
-   Still to run: a real piano move (the test sets the shelf's flag instead).
+   A real piano move was tried (2026-11-25, token `pianoplay`, DONE.md): Kris goes up, plays the piano
+   and the keys reach it, but the shelf doesn't slide in any direction, in a room entered with the
+   `party` token (two plain wall blocks, at 1160,1200 and 800,1240, already touch the blue shelf). Most likely
+   the room needs to be entered the normal way. Re-check in play.
 3. **Done:** the piano puzzle solved by one player is solved for everyone; the organ stays local on purpose
    (DONE.md). Not looked at yet: the piano pieces rooms (`obj_dw_church_pianopiece_left/right`).
 4. **Done:** Chapter 5 castle puzzles (terracotta, orange door) follow a friend's solve (DONE.md).
