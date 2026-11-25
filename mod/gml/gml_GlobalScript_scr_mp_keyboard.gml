@@ -348,3 +348,17 @@ function mp_dining3_follow()
         return;
     mp_puz_reenter_follow(381, -1, "dining room 3");
 }
+
+// room_dw_mansion_east_1f_secret: the KEYGEN lock. Using the KEYGEN sets story flag 309 to 4 (shared)
+// and the lock fades away; the room has no lock when built after that. A friend's use left my lock
+// there, saying it can't be opened (the KEYGEN was used up). Now, when 309 reaches 4 while my lock
+// waits (con 0: my own use sets con 1 in the same step as the flag), it goes. Simplest choice: gone
+// at once, no fade (the fade's last step would also set global.interact = 0 under me).
+function mp_keygen_lock_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || con != 0 || global.flag[309] < 4)
+        return;
+    mp_log("keygen lock: a friend used the KEYGEN, gone here too");
+    instance_destroy();
+    exit;
+}

@@ -321,6 +321,10 @@ mp_mice3_after();
 @prepend gml_Object_obj_controller_dining3_Step_0
 mp_dining3_follow();
 
+;; The KEYGEN lock: a friend who used the KEYGEN (flag 309 = 4) unlocked mine too (scr_mp_keyboard).
+@prepend gml_Object_obj_mansion_keygen_lock_Step_0
+mp_keygen_lock_follow();
+
 @append gml_Object_obj_controller_dining3_Step_0
 mp_puz_reenter_after(381);
 

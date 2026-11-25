@@ -333,6 +333,20 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
   gone.
 
+## Chapter 2 KEYGEN lock: a friend's KEYGEN unlocks mine too (2026-11-25)
+
+* `room_dw_mansion_east_1f_secret`: using the KEYGEN sets story flag 309 to 4 (shared), and the lock fades
+  away. A friend's use left my lock there, saying it can't be opened, with the KEYGEN used up. Now when
+  309 reaches 4 while my lock waits (`con` 0), it goes (`mp_keygen_lock_follow`, `scr_mp_keyboard`,
+  prepended to its Step). My own use sets `con` 1 in the same step as the flag, so it is never taken
+  for a friend's. Simplest choice: gone at once, no fade. The fade's last step would set
+  `global.interact` to 0 under me.
+* Looked at: the basement door (`obj_mansion_basement_door`, flag 373) is closed by the story, not by a
+  player. Left as is.
+* Test, Chapter 2, plot 150, both with `chaos:10:120:60` (`work/fol/keygen1`): the client set 309 to 4 and
+  the host logged its lock gone. The client's own lock also went, since the token sets the flag without
+  a real use. All mpcheck checks pass except `moved` (nobody walks).
+
 ## A force field a friend's switch turned off goes from my room too (2026-11-25)
 
 * `obj_forcefield` with a `disableflag` checks it only when built. The one place it is used is Chapter 2's
