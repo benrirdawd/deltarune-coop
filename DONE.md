@@ -333,6 +333,21 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
   gone.
 
+## Chapter 5 platformer: a remembered coin a friend took is gone for me too (2026-11-25)
+
+* Pink coins and the cliffs' counted coins are remembered: taking one sets a bit of a story flag
+  (`obj_plat_coin`'s `flag`/`flagbit`), so it isn't made again. The flag is shared, but the coin already
+  in my room stayed, so I could take a coin a friend had taken, and it counted twice.
+* Now a remembered coin whose bit is set while it is still in my room goes, without counting
+  (`mp_plat_coin_follow`, `gml/ch5/scr_mp_plat`, prepended to the coin's Step). Only a friend's take
+  can do that, because my own take removes the coin at once. The game's
+  `ignore_flag_if_plot_greater` is respected. Simplest choice: ordinary coins (not remembered, made
+  again on every visit) stay each player's own. Two takes at the same moment, before the flag
+  arrives, still both count. `logpuz` logs the room's remembered coins (`[MPCOIN]`).
+* Test, Chapter 5 `room_dw_cliff_eastcliff`, plot 100, both with `chaos:10:120:60` (`work/fol/coin1`):
+  the host set flag 1859 to 2 (bit 1, as a take does). Both games went from 16 remembered coins to
+  15 ("a friend took coin flag1859 bit 1"). All mpcheck checks pass except `moved` (nobody walks).
+
 ## A Z chat that moves the story stays a chat (Chapter 1 throne room, 2026-11-25)
 
 * Chapter 1 `room_cc_throneroom`, plot 242: talking to Lancer (`obj_npc_facing`) is a long chat that

@@ -399,6 +399,10 @@ mp_glownew_before();
 
 @append gml_Object_obj_glowtile_puzzle_new_Step_0
 mp_glownew_after();
+
+;; Chapter 5 platformer: a remembered coin a friend took goes from my room too (scr_mp_plat).
+@prepend gml_Object_obj_plat_coin_Step_0
+mp_plat_coin_follow();
 #chapters 1
 
 ;; The suits puzzles' buttons (spade, diamond, swap: room_field_secret1, the forest's clover and suits

@@ -116,3 +116,32 @@ function mp_plat_followers_tick()
         }
     }
 }
+
+// Coins the game remembers (pink coins and the cliffs' counted coins: a bit of a story flag, set when
+// taken, so the coin isn't made again). The flag is shared, but a coin already in my room stayed: I
+// could take a coin a friend took, counted twice. Now a remembered coin whose bit is set while it is
+// still in my room (only a friend's take can do that: my own take removes it at once) goes, without
+// counting. Prepended to obj_plat_coin's Step. Simplest choice: two takes in the same moment, before
+// the flag arrives, still both count.
+function mp_plat_coin_follow()
+{
+    if (flag <= 0 || !variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0 && id == instance_find(obj_plat_coin, 0))
+    {
+        var n = 0;
+        with (obj_plat_coin)
+        {
+            if (flag > 0)
+                n++;
+        }
+        show_debug_message("[MPCOIN] room=" + room_get_name(room) + " remembered coins=" + string(n) + " flag" + string(flag) + "=" + string(global.flag[flag]));
+    }
+    if (((real(global.flag[flag]) >> flagbit) & 1) == 0)
+        return;
+    if (ignore_flag_if_plot_greater > 0 && global.plot >= ignore_flag_if_plot_greater)
+        return;
+    mp_log("[MPCOIN] a friend took coin flag" + string(flag) + " bit " + string(flagbit) + ": gone here too");
+    instance_destroy();
+    exit;
+}
