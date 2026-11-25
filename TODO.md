@@ -58,6 +58,18 @@ other puzzles (a friend's solve shows in my room); else note why it stays local.
 7. **Done:** mazes looked at (MINIGAMES.md); the only block found, Chapter 2's second virus maze
    keeping its force fields up after a friend's win, is fixed (DONE.md).
 
+## Rooms that read a solve flag only when built (found 2026-11-25, by a code sweep)
+
+A sweep of every chapter's room controllers for a flag that the controller sets in its step but reads
+only in its Create (so a friend's solve isn't seen until the room is entered again). Found, besides
+the ones already done (mice room, post-baseball room, virus maze 2):
+1. **Done:** Chapter 2 mansion saucer puzzles: the locked door (flag 344) and the shortcut
+   bookcase (flag 346) follow a friend's solve (DONE.md).
+2. Left as is: Chapter 2 `obj_cybercity_balloon_cheese` (flag 447): the flag only adds a force field
+   on coming back, after the chase scene, which is shared the usual way.
+3. Next sweep, wider: controllers that remove `obj_solidblock`/markers (not force fields) on a flag
+   read only in Create.
+
 ## Stage-changing scenes: everyone agrees first (later)
 
 Watching a cutscene and going back to where you were is done (DONE.md, 2026-11-24): a scene that ends

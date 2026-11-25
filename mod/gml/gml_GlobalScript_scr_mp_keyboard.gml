@@ -173,3 +173,92 @@ function mp_viromaze2_after()
     if (variable_global_exists("mp_inited") && instance_exists(id))
         mp_f352 = global.flag[352];
 }
+
+// Chapter 2's mansion saucer puzzles (room_dw_mansion_east_2f_a: the locked door, flag 344;
+// room_dw_mansion_2f shortcut: the bookcase, flag 346): when the saucers are filled a key flies to
+// the door or bookcase, which explodes. The room's whole step runs only while the flag is 0, and the
+// flag is read when the room is built, so a friend's solve froze my copy with the door locked (a
+// solid block) or the bookcase in the way. Now, when the flag arrives from someone else, my room does
+// what the game's own last step does (explosion, door open or bookcase gone, saucers, Monty and the
+// force field gone), written safely: the game's step expects the key's sparkles to exist.
+
+// Prepended to obj_ch2_room_mansion_east_2f_a's and obj_ch2_room_mansion_2f_shortcut's Step.
+function mp_mansion_key_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    var east = object_index == obj_ch2_room_mansion_east_2f_a;
+    var fl = east ? 344 : 346;
+    if (!variable_instance_exists(id, "mp_fkey"))
+        mp_fkey = global.flag[fl];
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+        show_debug_message("[MPMANSION] flag" + string(fl) + "=" + string(global.flag[fl]) + " con=" + string(con) + " solid=" + string(instance_number(obj_solidblock)) + " forcefield=" + string(instance_number(obj_forcefield)) + " ia=" + string(global.interact));
+    if (mp_fkey == 1 || global.flag[fl] != 1)
+        return;
+    mp_fkey = 1;
+    mp_log("mansion saucer puzzle: solved by a friend (flag " + string(fl) + "), my " + (east ? "door opens" : "bookcase goes"));
+    var target = east ? doorlocked : bookcase;
+    if (instance_exists(target))
+    {
+        explosion = instance_create(target.x + 50, target.y + 30, obj_animation);
+        explosion.sprite_index = spr_realisticexplosion;
+        explosion.image_xscale = 2;
+        explosion.image_yscale = 2;
+        snd_play(snd_badexplosion);
+        with (target)
+            instance_destroy();
+    }
+    if (east)
+    {
+        if (instance_exists(exitcollider))
+        {
+            with (exitcollider)
+                instance_destroy();
+        }
+        dooropen = scr_dark_marker(180, 40, spr_dw_mansion_door_open);
+        dooropen.depth = 899999;
+    }
+    if (key != -1 && key != 0 && instance_exists(key))   // (key is 0 or -1 before it is made)
+    {
+        with (key)
+            instance_destroy();
+    }
+    if (variable_instance_exists(id, "sparkle") && is_array(sparkle))
+    {
+        for (var i = 0; i < array_length(sparkle); i++)
+        {
+            with (sparkle[i])
+                instance_destroy();
+        }
+    }
+    with (obj_saucer_monty)
+        instance_destroy();
+    with (obj_saucer)
+    {
+        if (x < 520)
+        {
+            if (variable_instance_exists(id, "collider") && instance_exists(collider))
+            {
+                with (collider)
+                    instance_destroy();
+            }
+            instance_destroy();
+        }
+    }
+    var ff = east ? forcefield : (variable_instance_exists(id, "forcefield_right") ? forcefield_right : -4);
+    if (ff != -4 && instance_exists(ff))
+    {
+        with (ff)
+            instance_destroy();
+    }
+    if (con >= 1 && !d_ex() && !instance_exists(obj_cutscene_master))
+        global.interact = 0;
+    instance_destroy();
+}
+
+// Appended to their Step: the flag as my own step left it.
+function mp_mansion_key_after()
+{
+    if (variable_global_exists("mp_inited") && instance_exists(id))
+        mp_fkey = global.flag[object_index == obj_ch2_room_mansion_east_2f_a ? 344 : 346];
+}

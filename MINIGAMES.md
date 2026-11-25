@@ -89,6 +89,7 @@ each real one).
 | 1 | Forest area 5 lines | `obj_forest_area5_puzzle` | Local on purpose: how much the darkner sees *you*. |
 | 1 | Forest maze | `obj_forestmaze_controller` | Looked at: each player's own path; it moves the story by plot (90-120, shared). Nothing blocks a friend. |
 | 2 | Traffic lights (city, mansion) | `obj_traffic_switch` | **Shared** |
+| 2 | Mansion saucer puzzles (locked door, shortcut bookcase) | `obj_ch2_room_mansion_east_2f_a`, `obj_ch2_room_mansion_2f_shortcut`, `obj_saucer` | **Follows a friend's solve** (flags 344/346, `scr_mp_keyboard`). |
 | 2 | Alley floor switch | `obj_alleySwitch` | **Shared**: a friend standing on it holds it down. |
 | 2 | Mice rooms' switches | `obj_mouseSpawnSwitch`, `obj_mice2Switch`, `obj_mice3_platSwitch` | Local: they release mice that move on their own. |
 | 2 | Mice switch room | `room_dw_city_mice2`, `obj_controller_city_mice2`, `obj_mice2Switch` | Shared result: a friend's solve (flags 368, 915) opens my force field (`mp_mice2_follow`). The mice stay local. |

@@ -275,6 +275,20 @@ mp_viromaze2_follow();
 @append gml_Object_obj_controller_dw_cyber_viromaze2_Step_0
 mp_viromaze2_after();
 
+;; Chapter 2 mansion saucer puzzles: a friend's solve (flags 344/346) opens my door or removes my
+;; bookcase too (scr_mp_keyboard).
+@prepend gml_Object_obj_ch2_room_mansion_east_2f_a_Step_0
+mp_mansion_key_follow();
+
+@append gml_Object_obj_ch2_room_mansion_east_2f_a_Step_0
+mp_mansion_key_after();
+
+@prepend gml_Object_obj_ch2_room_mansion_2f_shortcut_Step_0
+mp_mansion_key_follow();
+
+@append gml_Object_obj_ch2_room_mansion_2f_shortcut_Step_0
+mp_mansion_key_after();
+
 ;; Chapter 3: the glowing tiles' hourglass (as in Chapter 1; the tiles themselves are pressed by the
 ;; others' figures in every chapter).
 #chapters 3

@@ -4,6 +4,21 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 2 mansion saucer puzzles follow a friend's solve (2026-11-25)
+
+* Found by a sweep of the room controllers for flags set in their step but read only when the room
+  is built. `room_dw_mansion_east_2f_a` (the locked door, flag 344) and
+  `room_dw_mansion_east_2f_shortcut` (the bookcase, flag 346): the room's whole step runs only while
+  the flag is 0, so a friend's solve froze my copy with the door locked (a solid block) or the
+  bookcase in the way. Now, when the flag arrives from someone else, my room does what the game's
+  last step does: explosion, door open or bookcase gone, saucers, Monty and the force field gone
+  (`mp_mansion_key_follow`, `scr_mp_keyboard`). Written separately because the game's step expects
+  the key's sparkles to exist (it would fail when the key never flew).
+* Test, Chapter 2, plot 150, the host setting the flag, both with `chaos:10:120:60`
+  (`work/fol/mans_344`, `work/fol/mans_346`): each client logged "solved by a friend ... my door
+  opens" / "my bookcase goes" and went on running (about 1200 frames more, no error). mpcheck: all
+  PASS but "moved" (nobody walks).
+
 ## Mazes: Chapter 2's second virus maze follows a friend's win (2026-11-24)
 
 * All the mazes were looked at for something that blocks a friend (MINIGAMES.md). Chapter 1's forest
