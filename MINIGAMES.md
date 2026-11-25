@@ -67,7 +67,7 @@ each real one).
 | 4 | Treat catcher (Light World, at home) | `obj_homealone_treat_catcher` | Local | Low priority: a solo part of the story. |
 | 4 | Dog car (Chapter 4) | `obj_dogcar_ch4` | Local | As in Chapter 2. |
 | 4-5 | Climbing | `obj_climb*` | Shared: each player climbs as their own character and sees the others on the wall | — |
-| 5 | Platforming sections | `obj_plat_game`, `gml/ch5/scr_mp_plat` | Each player plays as their own character and sees the others; a remembered coin (pink, counted) a friend took is gone for everyone | Hits, enemies and the other pickups are not shared yet (TODO). M. |
+| 5 | Platforming sections | `obj_plat_game`, `gml/ch5/scr_mp_plat` | Each player plays as their own character and sees the others; a remembered coin (pink, counted) or pinata bell a friend took is gone for everyone | Hits, enemies and the other pickups are not shared yet (TODO). M. |
 | 5 | Rhythm game (Jackenstein's song) | `obj_rhythmgame_jackenstein_events` | Own copy | Same idea as the Chapter 3 rhythm game. |
 | 5 | Mike's TV rooms | `obj_room_castle_tv_mike*` | Own copy (Mike's game) | — |
 | 5 | Castle front race | `obj_room_castle_front_race` | Own copy | Same idea as the Chapter 3 race. |

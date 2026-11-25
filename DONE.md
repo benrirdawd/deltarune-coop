@@ -333,6 +333,21 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
   gone.
 
+## Chapter 5 platformer: a pinata bell a friend broke is broken for me too (2026-11-25)
+
+* Pinata bells are remembered the same way as the coins: breaking one sets a bit of a story flag.
+  The gold bell drops its coins and the pink one its pink coin. A friend's bell still whole in my
+  room could be broken again for the coins.
+* Now, when its bit arrives, my bell does what the room does when you come back: the gold one is
+  broken (no coins) and the pink one goes (`mp_plat_bell_follow`, `gml/ch5/scr_mp_plat`, prepended
+  to both bells' Step). My own break sets `broken` / `was_hit` at once, so it is never taken for a
+  friend's.
+* Tests, both with `chaos:10:120:60`: Chapter 5 `room_dw_cliff_eastcliff` (`work/fol/bell1`), with the
+  host setting flag 1859 to 1536: the pink bell (bit 10) was gone in both games. In
+  `room_dw_garden_aquaplatforming` (`work/fol/bell2`), with the client setting flag 1442 to 3584: in both
+  games the pink bell (bit 9) went and the two gold bells (bits 10, 11) broke. No crash, and all
+  mpcheck checks pass except `moved` (nobody walks).
+
 ## Chapter 5 platformer: a remembered coin a friend took is gone for me too (2026-11-25)
 
 * Pink coins and the cliffs' counted coins are remembered: taking one sets a bit of a story flag

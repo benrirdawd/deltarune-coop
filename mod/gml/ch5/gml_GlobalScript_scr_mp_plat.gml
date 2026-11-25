@@ -145,3 +145,30 @@ function mp_plat_coin_follow()
     instance_destroy();
     exit;
 }
+
+// Pinata bells the game remembers (a bit of a story flag, set when broken: the gold bell drops its
+// coins, the pink one its pink coin). Same as the coins: a friend's bell still whole in my room could
+// be broken again for the coins. Now when its bit arrives, my bell does what the room does when you
+// come back: the gold one is broken (no coins), the pink one goes. Prepended to both bells' Step.
+// My own break sets broken / was_hit at once, so it is never taken for a friend's.
+function mp_plat_bell_follow()
+{
+    if (flag <= 0 || !variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (((real(global.flag[flag]) >> flagbit) & 1) == 0)
+        return;
+    if (object_index == obj_plat_pinatabell_pink)
+    {
+        if (was_hit == 0)
+        {
+            mp_log("[MPCOIN] a friend broke pink bell flag" + string(flag) + " bit " + string(flagbit) + ": gone here too");
+            instance_destroy();
+            exit;
+        }
+    }
+    else if (!broken)
+    {
+        mp_log("[MPCOIN] a friend broke bell flag" + string(flag) + " bit " + string(flagbit) + ": broken here too");
+        broken = true;
+    }
+}
