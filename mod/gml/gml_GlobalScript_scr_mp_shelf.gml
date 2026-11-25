@@ -136,3 +136,22 @@ function mp_piano_puzzle_follow()
     rhint = 999;
     con = 99;
 }
+
+// Chapter 4's side climb (room_dw_church_sideclimb): finishing the climbs (flag 1524 set) adds the
+// shortcut climbing spots out of the room (the room's User Event 1). The flag is read only when the
+// room is built, so a friend's climb didn't add them in my game. Now, once the flag is set, my room
+// adds them too (the event only adds what isn't there yet).
+
+// Prepended to obj_dw_church_sideclimb's Step.
+function mp_sideclimb_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+        show_debug_message("[MPCLIMB] flag1524=" + string(global.flag[1524]) + " shortcut=" + string(r1leavetopentrance != 0 && instance_exists(r1leavetopentrance)));
+    if (global.flag[1524] != 0 && (r1leavetopentrance == 0 || !instance_exists(r1leavetopentrance)))
+    {
+        mp_log("side climb: climbed by a friend, my shortcuts appear");
+        event_user(1);
+    }
+}

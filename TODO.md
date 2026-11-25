@@ -77,7 +77,10 @@ the ones already done (mice room, post-baseball room, virus maze 2):
      (DONE.md). Left as is: `obj_dw_b3bs_zapper_a` (1135/1184: a scene and a dialogue choice,
      shared the usual way), `obj_dw_teevie_shuttahmaze` (1004/1005: a chest and a laugh scene),
      the extra puzzle's block place (1109/1110: only where the block is drawn on coming back).
-   * Chapter 4: `obj_dw_church_sideclimb` (1524-1526), `obj_dw_church_arena` (851/852).
+   * Chapter 4: **done:** the side climb's shortcut spots (1524, DONE.md). Left as is:
+     `obj_dw_church_arena` (851/852: a story fight and its scenes, shared the usual way), the side
+     climb's Mizzle (1526: a scene).
+   The sweep's list is finished.
 
 ## Stage-changing scenes: everyone agrees first (later)
 

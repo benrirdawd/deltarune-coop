@@ -4,6 +4,17 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 4 side climb: a friend's climb adds my shortcut spots (2026-11-25)
+
+* `room_dw_church_sideclimb`: finishing the climbs (flag 1524 set) adds shortcut climbing spots out
+  of the room (the room's User Event 1), but the flag was read only when the room is built, so a
+  friend's climb didn't add them in my game. Now, once the flag is set, my room adds them too (the
+  event only adds what isn't there yet; `mp_sideclimb_follow`, `scr_mp_shelf`).
+* Test, Chapter 4, plot 150, the host setting flag 1524, both with `chaos:10:120:60`
+  (`work/fol/climb4`): the client logged "climbed by a friend" and its shortcut spot existed
+  afterwards. mpcheck: all PASS but "moved" (nobody walks).
+* The sweep of rooms that read a solve flag only when built is finished (TODO).
+
 ## Chapter 3 backstage extra puzzle and Susie's bridge follow a friend's solve (2026-11-25)
 
 * `room_dw_b3bs_extrapuzzle` (the floor switch opens the door, flag 1112) and

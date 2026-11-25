@@ -202,6 +202,10 @@ mp_board_draw_piece(x, y);
 @prepend gml_Object_obj_floorshadow_Draw_0
 if (instance_exists(target) && !sprite_exists(target.sprite_index))
     exit;
+
+;; Chapter 4 side climb: a friend's finished climb (flag 1524) adds my shortcut spots too (scr_mp_shelf).
+@prepend gml_Object_obj_dw_church_sideclimb_Step_0
+mp_sideclimb_follow();
 #chapters all
 
 ;; C menu (status and equipment pages): the hero I play in Kris's place is named after my character
