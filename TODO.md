@@ -52,9 +52,9 @@ other puzzles (a friend's solve shows in my room); else note why it stays local.
    mice switch room (done). Still to run: the "joined during my own scene" re-entry (built, the
    test's timing didn't hit it in the passing run).
 4. **Done:** Chapter 4 ripple rooms: nothing to solve; a friend's steps make ripples in my game (DONE.md).
-5. Chapter 5 flower arena puzzle (`obj_flower_arena_puzzle_manager`).
-6. Chapter 5 new glowing tiles and blocks that remember (`obj_glowtile_puzzle_new`,
-   `obj_pushable_block_memory`).
+5. **Looked at:** Chapter 5 flower arena puzzle: `obj_flower_arena_puzzle_manager` is in no room.
+6. **Done:** Chapter 5 new glowing tiles: a friend's solve during my run ends my copy properly
+   (DONE.md). `obj_pushable_block_memory` is in no room.
 7. Mazes (Chapter 1 forest maze, Chapter 2 cyber/cheese/virus mazes, Chapter 4 dark/prophecy
    mazes, falling tiles): probably each player's own path; check that nothing blocks a friend.
 

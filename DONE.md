@@ -4,6 +4,22 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 5 new glowing tiles: a friend's solve during my run ends it properly (2026-11-24)
+
+* `room_dw_garden_hardpressureplates`: the two timed glowing tile puzzles (`obj_glowtile_puzzle_new`)
+  check their solve flag (1431/1432) every frame, so a friend's solve (shared flag) already ended my
+  copy. But if my own run was going, the game jumped to "done" without its end step: the spikes it
+  raised (9 solid blocks) stayed up and could shut me in, and the camera stayed held. Now my copy
+  then runs its own end step and gives control back (its alarm), and for flag 1431 the held camera
+  goes as when you come back later (`scr_mp_garden`). Simplest choice: the result is shared, not
+  the tiles.
+* Test, Chapter 5, plot 264, the client starting the puzzle (`useobj`), the host setting flag 1432
+  during the client's run, both with `chaos:10:120:60` (`work/fol/glownew3`): the client went from
+  state 1 with 9 solid blocks to state 2 with 0, interact 0, logged "solved by a friend ... (was
+  state 1)". mpcheck: all PASS. (`glownew1`: neither had started, both followed from state 0.)
+* Looked at, nothing to share: `obj_flower_arena_puzzle_manager` and `obj_pushable_block_memory`
+  are in no Chapter 5 room.
+
 ## Chapter 4 dark ripple rooms: a friend's steps make ripples too (2026-11-24)
 
 * The church's dark rooms (`obj_church_ripple_area_manager`: rippleworship, the waterfall room, the

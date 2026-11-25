@@ -116,7 +116,7 @@ each real one).
 | 5 | Castle puzzles: terracotta statues, the orange door | `obj_dw_fcastle_terracotta_puzzle`, `obj_dw_fcastle_right_puzzle` | **Shared**: a friend's solve opens my room too (`scr_mp_castle`). |
 | 5 | Castle side room | `obj_dw_fcastle_sidepuzzle` | Local: platforming and a sign, nothing to solve together. |
 | 5 | Flower arena puzzle | `obj_flower_arena_puzzle_manager` | Local, not looked at. |
-| 5 | New glowing tiles, blocks that remember | `obj_glowtile_puzzle_new`, `obj_pushable_block_memory` | Local, not looked at. |
+| 5 | New glowing tiles, blocks that remember | `obj_glowtile_puzzle_new`, `obj_pushable_block_memory` | Glowing tiles (hard pressure plates room): the solve flag (1431/1432) is checked every frame, so a friend's solve **ends my copy too**; a run of mine going at that moment now ends properly (spikes down, control back; `scr_mp_garden`). `obj_pushable_block_memory` is in no room (a leftover). |
 | 5 | Shape puzzle | `obj_shapepuzzle` | Local (as in Chapter 2). |
 
 Known limits of the shared puzzles:

@@ -120,6 +120,7 @@ mod/gml/                     the mod's code (one GML file per part; read each fi
   ch3/scr_mp_board           Chapter 3 board game (the top-level file is a stub for other chapters)
   ch5/scr_mp_plat            Chapter 5 platforming (same: stub elsewhere)
   ch4/scr_mp_ripple          Chapter 4 dark ripple rooms: a friend's steps make ripples (stub elsewhere)
+  scr_mp_garden              Chapter 5 new glowing tiles (hard pressure plates room)
   obj_mp_controller_*        the persistent object that calls everything each frame
   obj_mp_ghost_*, obj_mp_mirror_*   other players' figures, the cutscene mirror's drawing
 mod/hooks/core.hook          edits to the game's own code (see below)

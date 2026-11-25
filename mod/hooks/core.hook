@@ -336,6 +336,14 @@ mp_puz_block_step();
 
 @append gml_Object_obj_pushable_block_Create_0
 mp_puz_block_create();
+
+;; Chapter 5 new glowing tiles: a friend's solve while my run is going ends my copy properly
+;; (spikes down, control back; scr_mp_garden).
+@prepend gml_Object_obj_glowtile_puzzle_new_Step_0
+mp_glownew_before();
+
+@append gml_Object_obj_glowtile_puzzle_new_Step_0
+mp_glownew_after();
 #chapters 1
 
 ;; The suits puzzles' buttons (spade, diamond, swap: room_field_secret1, the forest's clover and suits
