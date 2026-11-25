@@ -280,3 +280,40 @@ function mp_mansion_secret_follow()
     mp_log("mansion secret wall: found by a friend (flag " + string(fl) + "), my wall opens");
     con = 1;
 }
+
+// Chapter 2's mouse tower (room_dw_city_mice3): the puzzle takes Noelle out of the party, closes the
+// room (a block at the entrance, a force field) and ends with flag 379 and plot 78. The flag is read
+// only when the room is built, so a friend's solve left me shut in with the puzzle still going.
+// Copying the ending by hand would have to put Noelle back; simpler: once flag 379 and plot 78 have
+// arrived from someone else and I'm not in a text box or scene, I enter the room again, which builds
+// it finished (as when you come back later).
+
+// Prepended to obj_controller_city_mice3's Step.
+function mp_mice3_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (!variable_instance_exists(id, "mp_f379"))
+        mp_f379 = global.flag[379];
+    if (global.mp_test != "" && mp_test_has("logpuz") && (global.mp_frame mod 150) == 0)
+        show_debug_message("[MPMICE3] flag379=" + string(global.flag[379]) + " plot=" + string(global.plot) + " con=" + string(variable_instance_exists(id, "con") ? con : -99) + " forcefield=" + string(instance_number(obj_forcefield)) + " ia=" + string(global.interact));
+    if (mp_f379 == 1 || global.flag[379] != 1 || global.plot < 78)
+        return;
+    if (!variable_instance_exists(id, "con") || con >= 38 || (variable_instance_exists(id, "weird") && weird))
+        return;
+    if (d_ex() || instance_exists(obj_cutscene_master) || global.mp_warp_pending || global.mp_sstate != 0 || !instance_exists(obj_mainchara))
+        return;
+    mp_f379 = 1;
+    mp_log("mouse tower: solved by a friend, entering the room again (built finished)");
+    global.flag[7] = 0;
+    global.interact = 0;
+    global.mp_warp_reenter = 1;
+    mp_warp(room, obj_mainchara.x, obj_mainchara.y, 0);
+}
+
+// Appended to its Step: the flag as my own step left it.
+function mp_mice3_after()
+{
+    if (variable_global_exists("mp_inited") && instance_exists(id))
+        mp_f379 = global.flag[379];
+}

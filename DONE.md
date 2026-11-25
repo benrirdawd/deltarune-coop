@@ -4,6 +4,20 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Chapter 2 mouse tower follows a friend's solve (2026-11-25)
+
+* `room_dw_city_mice3`: the puzzle takes Noelle out of the party, closes the room (a block at the
+  entrance, a force field) and ends with flag 379 and plot 78. The flag is read only when the room
+  is built, and the usual "the story moved on: enter the room again" refresh waits while a room
+  event is going, which this room's controller always is: a friend's solve left me shut in with the
+  puzzle going. Copying the ending by hand would have to put Noelle back; simpler: once flag 379 and
+  plot 78 have arrived from someone else and I'm not in a text box or scene, I enter the room again,
+  built finished as when you come back later (`mp_mice3_follow`, `scr_mp_keyboard`).
+* Test, Chapter 2 `room_dw_city_mice3`, plot 77, the host setting plot 78 then flag 379, both with
+  `chaos:10:120:60` (`work/fol/mice3a`): the client logged "solved by a friend, entering the room
+  again" and re-entered; its controller was gone afterwards (the finished room has none). mpcheck:
+  all PASS but "moved" (nobody walks), no crash.
+
 ## Chapter 2 mansion secret walls follow a friend's find (2026-11-25)
 
 * `room_dw_mansion_east_1f_e` (flag 339) and `room_dw_mansion_east_1f_secret` (flag 340): finding
