@@ -57,6 +57,7 @@
 //   logpuz          log the tile puzzle's / suits puzzle's state every 5 s ([MPPUZ] lines)
 //   logblocks       log the room's pushable blocks every 5 s ([MPBLOCKS] lines)
 //   chat:<i>@<f>    send quick message i (F9 "Say") at frame f
+//   menuat:<f>      press C (game menu) at frame f and log whether it opened ([MPMENU])
 //   pingat:<f>      press F5 (map ping) at frame f
 //   pinglong        ping arrows stay on screen 30 s (for screenshots)
 //   watchnext:<f>   while watching, switch to the next player at room frame f
@@ -242,6 +243,18 @@ function mp_test_tick()
     // pingat:<frame>: the map ping (F5).
     if (mp_test_arg("pingat") != "" && mp_on() && global.mp_frame == real(mp_test_arg("pingat")))
         mp_ping_send();
+    // menuat:<frame>: press C (the game's menu) and log whether the menu opened.
+    if (mp_test_arg("menuat") != "")
+    {
+        var mf = real(mp_test_arg("menuat"));
+        if (global.mp_frame == mf)
+            global.mp_test_keys = [6, 6];
+        if (global.mp_frame == mf - 1 || global.mp_frame == mf + 3)
+        {
+            var mc = instance_exists(obj_mainchara) ? ("battlemode=" + string(obj_mainchara.battlemode) + " threebuffer=" + string(obj_mainchara.threebuffer) + " visible=" + string(obj_mainchara.visible)) : "no mainchara";
+            mp_log("[MPMENU] " + ((global.mp_frame < mf) ? "before" : "after") + " interact=" + string(global.interact) + " menuno=" + string(global.menuno) + " flag7=" + string(global.flag[7]) + " " + mc + " room=" + room_get_name(room) + " char=" + string(global.mp_cfg_char));
+        }
+    }
     // chat:<i>@<frame>: a quick message.
     var chv = mp_test_arg("chat");
     if (chv != "" && mp_on() && string_pos("@", chv) > 0 && global.mp_frame == real(string_copy(chv, string_pos("@", chv) + 1, 10)))

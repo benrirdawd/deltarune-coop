@@ -39,7 +39,7 @@ shot() {
 }
 
 start_host() {
-  MP_PIDFILE=$OUT/host.pid "$ROOT/tools/run_game.sh" 91 "$ROOT/build/game" "$CH" -mphost -mpname Host -mpchar 1 -mptest "$HT" > "$OUT/host.log" 2>&1 &
+  MP_PIDFILE=$OUT/host.pid "$ROOT/tools/run_game.sh" 91 "$ROOT/build/game" "$CH" -mphost -mpname Host -mpchar ${MP_HOSTCHAR:-1} ${MP_PORTARG:-} -mptest "$HT" > "$OUT/host.log" 2>&1 &
 }
 start_client() {
   MP_PIDFILE=$OUT/client$1.pid "$ROOT/tools/run_game.sh" $((91+$1)) "$ROOT/build/game" "$CH" -mpjoin 127.0.0.1 -mpname P$(($1+1)) -mpchar $(echo ${MPCHARS:-2 3 4 1 2 3 4} | cut -d" " -f$1) -mptest "$CT" > "$OUT/client$1.log" 2>&1 &

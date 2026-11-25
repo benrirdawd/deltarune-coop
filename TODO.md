@@ -4,6 +4,32 @@ Only open work is here; everything finished (and how it was tested) is in [`DONE
 Effort: S = small, M = medium, L = large. Help is welcome: pick anything below, open an issue or a
 pull request, or ask on Discord (**b.001**).
 
+## Feel native: co-op as if DELTARUNE were made for it (user request, 2026-11-25), first
+
+Rule for everything below: use the game's own menus, sounds and art. No extra overlays or yellow notes
+on top of the game where the game itself can show it.
+
+1. **Battle: everyone chooses at the same time, in DELTARUNE's own menu (L).** Each player picks their
+   hero's action in the normal battle menu at once (no "Your turn" / "X is choosing for..." notes, no
+   pre-select line). The turn starts when all have chosen; until then the hero who is ready shows its
+   chosen-action icon, as the game does. Test with chaos:10:120:60.
+2. **Fewer yellow notes (M).** Go through the 72 mp_notify texts and remove the ones the game can show
+   by itself (battle turn notes, waiting lines); keep only real errors and connection news.
+3. **Bugs reported in play (2026-11-25):**
+   - C menu does not open while playing another character (as Kris it opens: menuat test token).
+   - The heart in the leaving animation keeps its original color instead of my character's.
+   - Solo: the party still follows me. Solo should be really solo (this also fixes Kris looking
+     Light World while Ralsei leads, so that one needs no fix of its own).
+   - Starting a battle plays the hurt sound with nothing hitting me.
+
+## Later: solo heroes still get each minigame (user request, 2026-11-25)
+
+A hero alone (solo mode, or a boss entered without the party) can't do the minigames built for two
+(e.g. Susie throwing Kris). Give each hero its own way through that feels made for it, so the game
+looks like it always had selectable heroes: e.g. Susie alone uses Rude Buster for the same effect at
+a higher TP cost, Ralsei uses a spell, Kris the original. Go through MINIGAMES.md and pick one per
+minigame/boss mechanic, simplest that keeps the original's feel.
+
 ## Next features (user request, 2026-11-24), in this order
 
 1. **Done:** tests per chapter of joining mid-cutscene and coming back after a crash, see DONE.md.
