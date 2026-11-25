@@ -54,3 +54,24 @@ function mp_susiebridge_follow()
         boardswitch.pressed = true;
     }
 }
+
+// The puzzle closets' code doors (room_dw_puzzlecloset_1..3): the right code sets a story flag (1094,
+// 1095, 1231; shared) and the door opens; the room is built with the door gone after that. A friend's
+// code left my door shut. Now, when that flag is 1 while my door waits (nothing going on, not open),
+// it opens the game's own way (myinteract 50: the door opens and Ribbick leaves, as in the solver's game).
+function mp_closetdoor_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || myinteract != 0 || open != 0 || d_ex())
+        return;
+    var fl = -1;
+    if (room == room_dw_puzzlecloset_1)
+        fl = 1094;
+    else if (room == room_dw_puzzlecloset_2)
+        fl = 1095;
+    else if (room == room_dw_puzzlecloset_3)
+        fl = 1231;
+    if (fl < 0 || global.flag[fl] != 1)
+        return;
+    mp_log("closet door: flag" + string(fl) + " (a friend's code), opened here too");
+    myinteract = 50;
+}

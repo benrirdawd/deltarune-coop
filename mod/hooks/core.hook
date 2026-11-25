@@ -341,6 +341,10 @@ mp_puz_switch_used();
 @prepend gml_Object_obj_dw_b3bs_extrapuzzle_Step_0
 mp_b3bs_extra_follow();
 
+;; Chapter 3 puzzle closets: a door a friend opened with its code opens in my room too (scr_mp_teevie).
+@prepend gml_Object_obj_dw_puzzlecloset_dooriel_Step_0
+mp_closetdoor_follow();
+
 @prepend gml_Object_obj_dw_teevie_susiebridge_Step_0
 mp_susiebridge_follow();
 

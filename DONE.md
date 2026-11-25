@@ -333,6 +333,17 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   1.7 s later: flag 1744 = 1024 and the shortcut's 2 walls gone; flag 1317 = 1 and the door's wall
   gone.
 
+## Chapter 3 puzzle closets: a door a friend opened with its code opens for me too (2026-11-25)
+
+* `room_dw_puzzlecloset_1..3`: the right code sets a story flag (1094, 1095, 1231; shared) and the door
+  opens, and the room is built without the door after that. A friend's code left my door shut. Now,
+  when that flag is 1 while my door waits (nothing going on, not open), it opens the game's own way
+  (`myinteract` 50: the door opens and Ribbick leaves, as in the solver's game). The function is
+  `mp_closetdoor_follow` (`scr_mp_teevie`), prepended to the door's Step.
+* Test, Chapter 3 `room_dw_puzzlecloset_1`, plot 100, both with `chaos:10:120:60` (`work/fol/closet1`): the
+  client set 1094 and the host's door opened. Nobody was held in an interaction, and all mpcheck checks
+  pass except `moved` (nobody walks).
+
 ## Chapter 2 KEYGEN lock: a friend's KEYGEN unlocks mine too (2026-11-25)
 
 * `room_dw_mansion_east_1f_secret`: using the KEYGEN sets story flag 309 to 4 (shared), and the lock fades
