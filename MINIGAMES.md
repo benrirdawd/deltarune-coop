@@ -106,7 +106,7 @@ each real one).
 | 4 | Floor switches | `obj_floorswitch` | **Shared**: friends hold them down (a watcher doesn't). |
 | 4 | Bookshelf puzzle (remote pianos slide the shelves) | `obj_dw_church_bookshelfpuzzle`, `obj_bookshelf_moveable2x2`, `obj_dw_church_remote_piano` | **Shared**: each shelf follows its place flags (`scr_mp_shelf`). (`obj_dw_church_pushableshelf*` are only in test rooms.) |
 | 4 | Piano puzzle (the cage) | `obj_dw_church_pianopuzzle`, `obj_church_piano_playable` | **Shared**: solved by one player, solved in every game (flag 892). Each player plays their own piano. |
-| 4 | Piano pieces rooms, sliding piano | `obj_dw_church_pianopiece_*`, `obj_dw_church_remotepianomove` | Local, not looked at. |
+| 4 | Piano pieces rooms, sliding piano | `obj_dw_church_pianopiece_*`, `obj_dw_church_remotepianomove` | Looked at: talks with Susie and Ralsei (story flags, scenes shared); nothing to share. |
 | 4 | Organ room | `obj_dw_church_organpuzzle` | Local on purpose: songs for the party's reactions, nothing to solve. |
 | 4 | Ripple puzzles | `obj_church_ripple*`, `obj_dw_churchb_ripple1` | Local, not looked at. |
 | 4 | Train tracks | `obj_traintrack_*`, `obj_train_switch` | Local on purpose: pressed by the heart in the Light World section at home (a solo part). |

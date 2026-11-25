@@ -40,6 +40,21 @@ pull request, or ask on Discord (**b.001**).
 5. **Done:** Chapter 2 keyboard puzzles follow a friend's solve (DONE.md). Simplest choice: the solve
    is shared, not each key. Puzzles 2 and 3 only checked by reading the code (same path as puzzle 1).
 
+## Next puzzles to look at (found 2026-11-24, from MINIGAMES.md), one per cycle
+
+For each: if the solve is a story flag read only when the room is built, the same "follow" as the
+other puzzles (a friend's solve shows in my room); else note why it stays local.
+1. Chapter 2 pushable blocks (`obj_pushable_block` in Chapter 2): the Chapter 1/5 block sharing,
+   if the object is the same.
+2. Chapter 2 Noelle's puzzle (keys, force field, `obj_ch2_noellepuzzle_*`).
+3. Chapter 2 rotating tiles and push tiles (`obj_rotationController_track`, `obj_pushtile_room`).
+4. Chapter 4 ripple puzzles (`obj_church_ripple*`).
+5. Chapter 5 flower arena puzzle (`obj_flower_arena_puzzle_manager`).
+6. Chapter 5 new glowing tiles and blocks that remember (`obj_glowtile_puzzle_new`,
+   `obj_pushable_block_memory`).
+7. Mazes (Chapter 1 forest maze, Chapter 2 cyber/cheese/virus mazes, Chapter 4 dark/prophecy
+   mazes, falling tiles): probably each player's own path; check that nothing blocks a friend.
+
 ## Stage-changing scenes: everyone agrees first (later)
 
 Watching a cutscene and going back to where you were is done (DONE.md, 2026-11-24): a scene that ends
