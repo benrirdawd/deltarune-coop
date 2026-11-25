@@ -71,7 +71,9 @@ function mp_ui_input()
 {
     if (keyboard_check_pressed(vk_f7) && !global.mp_ui_open)
         mp_stop_all_sound();
-    if (keyboard_check_pressed(vk_f5) && !global.mp_ui_open && mp_on())
+    // (F5 can't be picked as the talk key any more; a talk key set to F5 before that still talks
+    // only, it doesn't ping.)
+    if (keyboard_check_pressed(vk_f5) && !global.mp_ui_open && mp_on() && global.mp_cfg_vkey != vk_f5)
         mp_ping_send();
     if (keyboard_check_pressed(vk_f6) && !global.mp_ui_open)
         mp_noclip_toggle();

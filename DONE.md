@@ -4,6 +4,17 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Talk key: F5 no longer allowed (it is the map ping) (2026-11-24)
+
+* F5 joins the keys that can't be the push-to-talk key (F6-F9, Z/X/C, arrows...): picking it says
+  "That key is already used". A talk key already set to F5 in an older config keeps talking and no
+  longer pings at the same time.
+* Built (5 chapters, 0 FAILED) and not run: the key binding needs a real key press, which the test
+  bots don't make (they set the game's input, not the keyboard).
+* The ping itself still works (Chapter 2, `pingat`, `chaos:10:120:60`, `work/fol/pingf5`): "Ping!"
+  for the host, "Host pings: here!" for the client; every check passes but "moved" (nobody walks in
+  this test).
+
 ## Map ping: the edge arrow seen, moved out from under the player list (2026-11-24)
 
 * First look at the arrow for a pinger who is off screen (Chapter 2 `room_dw_city_big_2`, the host

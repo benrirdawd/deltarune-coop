@@ -364,7 +364,7 @@ function mp_key_allowed(k)
         case vk_left: case vk_right: case vk_up: case vk_down:
         case vk_enter: case vk_shift: case vk_lshift: case vk_rshift:
         case vk_control: case vk_lcontrol: case vk_rcontrol: case vk_escape:
-        case vk_f6: case vk_f7: case vk_f8: case vk_f9:
+        case vk_f5: case vk_f6: case vk_f7: case vk_f8: case vk_f9:
             return false;
     }
     return true;
