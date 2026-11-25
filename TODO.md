@@ -31,6 +31,30 @@ on top of the game where the game itself can show it.
      same for every hero: darken the sprite, 1-pixel outline in the hero's colour instead of red
      (Susie purple, Ralsei green, Noelle yellow; Kris keeps the game's red). (mp_draw_ow_heart)
 
+## Special fights: everyone plays their own hero (user request, 2026-11-25)
+
+Today the fights below are "special" (`mp_battle_special`): the leader plays every hero, the others
+watch. Each needs its own design. Rules from the user:
+* **Shooting SOUL (yellow shots):** every player shoots. Things that must be destroyed by the yellow
+  shots get more HP per active player (multiplied), not the boss's HP in general.
+* **Green shield SOUL (defend in four directions):** each player defends on their own screen (the
+  simplest; something more interactive would be nicer, no idea yet).
+* The rest: one design per fight, simplest that keeps the original's feel.
+
+| Ch | Fight (enemy object) | Kind | Plan |
+|---|---|---|---|
+| 2 | Spamton NEO (`obj_spamton_neo_enemy`) | Yellow shooting SOUL, Susie's ACT, BIG SHOT | Everyone shoots; shot targets' HP x players |
+| 2 | Queen (`obj_queen_enemy`) | to look at | |
+| 2 | GigaQueen (`obj_gigaqueen_enemy`) | Robot fight (punches, shield) | to design |
+| 2 | Berdly plug (`obj_berdlyplug_enemy`) | to look at | |
+| 3 | Knight (`obj_knight_enemy`) | Sword tunnel | to design |
+| 3 | Shadow Mantle (`obj_shadow_mantle_enemy`) | Board fight | to design |
+| 3 | Tenna board 4 (`obj_tenna_board4_enemy`) | Board fight | to design |
+| 4 | Hammer of Justice (`obj_hammer_of_justice_enemy`) | Green shield SOUL | Each defends on their own screen |
+| 4 | Sound of Justice (`obj_sound_of_justice_enemy`) | to look at | |
+| 4 | Titan (`obj_titan_enemy`) | to look at | |
+| 5 | not listed yet | Chapter 5 has yellow/green attack objects (`obj_attack_yellow_reticle`, `obj_attack_green_cookingtime`): find its special fights and add them | |
+
 ## Later: a stand-in when the hero a mechanic needs isn't there (user request, 2026-11-25)
 
 Some fight mechanics need two specific heroes, e.g. Susie throwing Kris at the ropes holding the
@@ -225,9 +249,11 @@ choice and real players to judge it; the platformer figure and the special-fight
 | Minigames played together (each player now plays their own copy; the others are hidden and see "Playing ..."). | Per minigame. **Rhythm game:** each player plays their character's chart (the game has three: Kris guitar, Susie drums, Ralsei vocals; the last two are on autoplay), hits sent and the score added up. **Quiz / game show:** each player buzzes for their character. **Throw minigame:** Susie throws, Kris's player presses a button mid-air for a sword swing. Inputs sent like the battle menu so every game plays the same thing. | L per minigame |
 |  | User's design (2026-11-25), rhythm game: each player plays their own hero's part of the song; Susie's part gets a real pattern of its own that plays the original sound (instead of her failing every note as in the solo game). Large. | |
 | Chapter 5 platformer: hits, enemies and most pickups aren't shared (remembered coins, pinata bells, leaf piles and paper grass are, DONE.md 2026-11-25) (the per-character figure is done, DONE.md 2026-11-24; the game's own follower of a character a friend plays is hidden, DONE.md). | Shared pickups. | M |
+|  | User (2026-11-25): **must be 100% before calling the mod finished.** Every player controls their own figure in the platformer (needs new platformer sprites for Susie, Ralsei, Noelle). | L |
 | Separate fights: players left out of a fight (hero not in the story party, taken, or a 4th+ player) only watch. | Support for up to 5 players and a proper spectator role. | L |
 | A player in a fight, seen from the map, only shows a battle stance. | User (2026-11-25): no need to show choosing and dodging. Keep the hero in their battle idle pose and draw the enemy (or enemies) of that fight standing in front of them. | M |
 | The host as referee, next steps: NPC talk and battle start through the host (cutscene start already is: the scene lock). | See "The server layer idea" in DONE.md (report 7). | M |
+|  | User (2026-11-25): when a player talks to an NPC with other players in the room, everyone in the room hears the NPC (the text box shows for all, not only a bubble). | M |
 
 ## Not looked at yet
 
