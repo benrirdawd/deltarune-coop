@@ -1756,3 +1756,25 @@ is a story fight. A normal open-world fight still lets newcomers walk up and joi
 1-1.6 s after the fight started, clients with `chaos:10:120:60`): the host logs "join during my
 fight 1: pulling them in", P3 plays Ralsei (`own2`), all three games identical up to turn 2,
 `mpcheck` all PASS. Before: `players reached different turns: host 5, client1 5, client2 -1`.
+
+## Team ACTs without the heroes nobody plays, in every chapter (2026-11-26)
+
+Following the Tenna fix: a sweep of every team ACT (Kris's ACTs that need Susie, Ralsei or Noelle,
+`actactor` 2-5; about 270 over the five chapters). `tools/actsolo.py` reads each enemy's ACT code
+(its `acting == n` branches, with Chapter 1's texts from `lang_en.json`) and keeps the ACTs whose code
+never names the helper: no object, sprite, variable or text of them. Those only take the helper's
+turn: 6 in Chapter 1 (Clubs' three talks, Rabbick's BreathAll, ...), 4 in Chapter 2 (Berdly's
+BumpX, ...), 8 in Chapter 3, 1 in Chapter 4, 3 in Chapter 5, written to
+`scr_mp_actsolo_chN.gml`. When the helper is not in the fight they stay usable (`mp_act_turn_only`);
+every other team ACT keeps the game's rule. Using one crashed the game (it marks the helper's turn at
+`charpos` -1) and, for Susie + Ralsei ACTs, always took the turns of slots 1 and 2 whoever is there:
+now only the turns of the helpers in the fight are taken (hooks in Chapter 1's battle Step and
+`scr_actselect`). New test token `actlist` logs which of Kris's ACTs can be picked.
+
+**Tested** (2 players Kris + Susie, no Ralsei; client with `chaos:10:120:60`):
+* `actlist`: Chapter 1 Clubs (encounter 8): TalkBday / TalkBoys / TalkSports allowed; Rabbick
+  (16): BreathAll allowed, Warning (its code moves Ralsei) blocked; Chapter 2 Berdly (58): BumpX
+  allowed.
+* Bots picking random ACTs: Clubs crashed before the turn fix (`Variable Index [-1] out of range`),
+  none after; Clubs 3 turns, Rabbick 6, Berdly 4, all in sync (the only difference, turn 0's enemy
+  HP, comes from the test's `tough` token on the host alone).

@@ -62,6 +62,7 @@
 //   pingat:<f>      press F5 (map ping) at frame f
 //   pinglong        ping arrows stay on screen 30 s (for screenshots)
 //   owsoul          the map SOUL look (as in a map hazard) stays on my character
+//   actlist         in a fight, once: log which of Kris's ACTs on enemy 0 can be picked ([MPACT])
 //   watchnext:<f>   while watching, switch to the next player at room frame f
 //   <name>/<token>  only for the player with that name (-mpname), e.g. P3/away:room_x:100
 //   logreading      log who the player list shows as "(reading)" every 30 frames
@@ -241,6 +242,28 @@ function mp_test_tick()
         }
         if ((global.mp_frame mod 60) == 0)
             mp_log("[test] bumpflag " + string(bn) + " = " + string(global.flag[bn]) + " (bumped " + string(global.mp_test_bumped) + ") flags 1600-1601 = " + string(global.flag[1600]) + "," + string(global.flag[1601]));
+    }
+    if (mp_test_has("actlist") && instance_exists(obj_battlecontroller) && !variable_global_exists("mp_test_actlisted") && global.myfight == 0 && global.char[global.charturn] == 1)
+    {
+        global.mp_test_actlisted = 1;
+        with (obj_battlecontroller)
+        {
+            var e = global.bmenucoord[11][global.charturn];
+            for (var ai = 0; ai < 6; ai++)
+            {
+                var who = global.actactor[e][ai];
+                if (global.canact[e][ai] != 1 || who < 2)
+                    continue;
+                var blk = false;
+                if (who == 2 || who == 4)
+                    blk = blk || mp_act_blocked(1, ai);
+                if (who == 3 || who == 4)
+                    blk = blk || mp_act_blocked(2, ai);
+                if (who == 5)
+                    blk = blk || mp_act_blocked(3, ai);
+                mp_log("[MPACT] " + object_get_name(global.monsterinstancetype[e]) + ":" + string(ai) + " " + string(global.actname[e][ai]) + " needs " + string(who) + " -> " + (blk ? "blocked" : "allowed"));
+            }
+        }
     }
     if (mp_test_has("owsoul") && instance_exists(obj_mainchara))
     {

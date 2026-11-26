@@ -50,7 +50,8 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   dark with an outline and heart in that colour, like the game does for Kris.
 * **Team ACTs without the whole team.** Some of Kris's ACTs need the others to give up their
   turn. When that hero isn't in the fight at all (nobody plays them), the ACTs that are only
-  Kris's or only text (e.g. the last game board's Tenna fight) still work; ACTs that really use the
+  Kris's or only text (32 of them, e.g. Clubs' talks, Berdly's BumpX, the last game board's Tenna
+  fight) still work and take the turn only of the helpers who are there; ACTs that really use the
   other heroes still need them.
 * **Explore independently.** Walk and talk to NPCs on your own, even in different rooms.
   Other players appear as name-tagged characters when you're in the same room. Everyone walks

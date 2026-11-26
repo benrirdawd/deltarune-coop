@@ -75,8 +75,9 @@ Rules:
 * A solo stand-in is worse than the team version: it costs more TP or does less (e.g. frees fewer,
   takes more turns), so playing together stays the better way.
 * It looks and sounds like the game's own actions (an existing spell or ACT in the normal menu).
-Done for one fight (2026-11-26, DONE.md): team ACTs that only need the others' turns work without them
-(`mp_act_turn_only`, Chapter 3 last board). Still open there: Sharpshoot without Susie/Ralsei.
+Done (2026-11-26, DONE.md): team ACTs that only need the others' turns work without them, in every
+chapter (`tools/actsolo.py`: 22 found, plus the last board's). Open: the ~190 team ACTs whose code
+uses the helper (e.g. Sharpshoot, Rabbick's Warning): each needs its own stand-in, per the rules above.
 Go through MINIGAMES.md for every mechanic that needs two specific heroes and pick one stand-in
 for each, the simplest that keeps the original's feel.
 

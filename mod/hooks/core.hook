@@ -681,3 +681,29 @@ $1
 (mp_act_blocked(3, global.bmenucoord[9][global.charturn]))
 @end
 #chapters all
+
+;; A team ACT used without a helper who is not in the fight (mp_act_blocked) takes only the turns
+;; of the helpers who are there (the game marks fixed slots 1-2, or charpos -1: a crash).
+#chapters 1
+@regex gml_Object_obj_battlecontroller_Step_0
+global\.acting\[charpos\[(\d)\]\] = 1;
+@with
+if (charpos[$1] >= 0) global.acting[charpos[$1]] = 1;
+@end
+@regex gml_Object_obj_battlecontroller_Step_0
+global\.acting\[2\] = 1;\s*global\.acting\[1\] = 1;
+@with
+if (charpos[1] >= 0) global.acting[charpos[1]] = 1; if (charpos[2] >= 0) global.acting[charpos[2]] = 1;
+@end
+#chapters 2,3,4,5
+@regex gml_GlobalScript_scr_actselect
+global\.acting\[charpos\[(\d)\]\] = 1;
+@with
+if (charpos[$1] >= 0) global.acting[charpos[$1]] = 1;
+@end
+@regex gml_GlobalScript_scr_actselect
+global\.acting\[2\] = 1;\s*global\.acting\[1\] = 1;
+@with
+if (charpos[1] >= 0) global.acting[charpos[1]] = 1; if (charpos[2] >= 0) global.acting[charpos[2]] = 1;
+@end
+#chapters all

@@ -2577,10 +2577,18 @@ function mp_act_blocked(h, a)
 
 function mp_act_turn_only(e, a)
 {
+    var t = global.monsterinstancetype[e];
+    // Found by tools/actsolo.py: the ACT's code never names the helper (object, sprite or text).
+    var key = object_get_name(t) + ":" + string(a);
+    var lst = mp_act_solo_list();
+    for (var i = 0; i < array_length(lst); i++)
+    {
+        if (lst[i] == key)
+            return true;
+    }
     var b4 = asset_get_index("obj_tenna_board4_enemy");
     if (b4 < 0 || !instance_exists(b4))
         return false;
-    var t = global.monsterinstancetype[e];
     // Chapter 3, last board: Tenna's ACTs are text only; Shadowguy's Check and Boogie are Kris's.
     if (t == b4)
         return true;
