@@ -587,7 +587,7 @@ function mp_handle(type, sender, b, sock, endpos)
     }
     if (type == 86) // Chapter 3's Shadow Mantle: a player's hits so far (scr_mp_board: mp_sm_recv)
     {
-        mp_sm_recv(sender, b);
+        mp_sm_recv(sender, b, endpos);
         return;
     }
     if (type == 85) // a map ping (F5, scr_mp_ui: mp_ping_recv)

@@ -162,6 +162,8 @@ function mp_sm_init()
         global.mp_sm_rtot = array_create(8, 0);
         global.mp_sm_seen = array_create(8, 0);
         global.mp_sm_rf = array_create(8, -99999);
+        global.mp_sm_rhp = array_create(8, -1);
+        global.mp_sm_hif = -1;
     }
 }
 
@@ -229,11 +231,45 @@ function mp_sm_tick()
         global.mp_sm_on = 0;
         return;
     }
+    // Copies drift apart when the players' fights start at different moments (a hit before the
+    // other's fight began counts whole on one side, halved on the other): everyone follows the copy
+    // of the first player in the fight (lowest number). Lower there: they counted something I didn't,
+    // take it at once. Higher for 2 s: I counted something they didn't (my hits reach them in less).
+    var lead = global.mp_myid;
+    for (var k = 0; k < 8; k++)
+    {
+        if (k < lead && global.mp_pconn[k] && global.mp_proom[k] == room && (current_time - global.mp_sm_rf[k]) < 3000)
+            lead = k;
+    }
+    if (lead != global.mp_myid && global.mp_sm_rhp[lead] >= 0)
+    {
+        var lh = global.mp_sm_rhp[lead];
+        if (lh < e.hp - 0.01)
+        {
+            mp_log("Shadow Mantle: following " + global.mp_pname[lead] + "'s copy, hp " + string(e.hp) + " -> " + string(lh));
+            e.hp = lh;
+            global.mp_sm_hif = -1;
+        }
+        else if (lh > e.hp + 0.01)
+        {
+            if (global.mp_sm_hif < 0)
+                global.mp_sm_hif = current_time;
+            else if ((current_time - global.mp_sm_hif) > 2000)
+            {
+                mp_log("Shadow Mantle: following " + global.mp_pname[lead] + "'s copy, hp " + string(e.hp) + " -> " + string(lh));
+                e.hp = lh;
+                global.mp_sm_hif = -1;
+            }
+        }
+        else
+            global.mp_sm_hif = -1;
+    }
     global.mp_sm_last = e.hp;
     if ((global.mp_sm_sent != global.mp_sm_mine || (global.mp_frame - global.mp_sm_sentf) > 30) && (global.mp_frame - global.mp_sm_sentf) >= 3)
     {
         mp_begin(86);
         mp_wf64(global.mp_sm_mine);
+        mp_wf64(e.hp);   // (since build 21: my copy's HP, for the others to follow the first player's)
         mp_send();
         global.mp_sm_sent = global.mp_sm_mine;
         global.mp_sm_sentf = global.mp_frame;
@@ -273,7 +309,7 @@ function mp_sm_defeat(e)
         instance_destroy();
 }
 
-function mp_sm_recv(from, b)
+function mp_sm_recv(from, b, endpos = -1)
 {
     mp_sm_init();
     var t = buffer_read(b, buffer_f64);
@@ -281,6 +317,8 @@ function mp_sm_recv(from, b)
         return;
     global.mp_sm_rtot[from] = t;
     global.mp_sm_rf[from] = current_time;
+    if (endpos >= 0 && buffer_tell(b) + 8 <= endpos)
+        global.mp_sm_rhp[from] = buffer_read(b, buffer_f64);
 }
 
 // ---------------------------------------------------------------- the TV row (sword route)

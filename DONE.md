@@ -4,6 +4,18 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Shadow Mantle: every copy follows the first player's HP (2026-11-26)
+
+When the players' fights start at different moments, a hit made before the other's fight began
+counted whole on one side and halved on the other, and the copies' HP drifted 1-2 apart. Now each
+player's count (message 86) also carries their copy's HP (a trailing field, read only when there:
+v20 games still read the message), and everyone follows the copy of the first player in the fight
+(lowest number): lower there, taken at once (they counted something I didn't); higher for 2 s,
+taken too (my own hits reach them in less).
+**Tested** (Chapter 3, 2 players, the client's fight starting 3 s after the host's, client with
+`chaos:10:120:60`, 20x, `smhit`): the client followed the host's copy twice ("hp 1 -> 2",
+"1.50 -> 1"); both defeated him on the same frame with the same HP (0.50), each with their own outro.
+
 ## Shadow Mantle's outro: each player's own (2026-11-26)
 
 Everyone fights their own copy of Shadow Mantle, so each now plays their own outro: it no longer

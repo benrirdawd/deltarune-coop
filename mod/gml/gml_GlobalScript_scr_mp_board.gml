@@ -30,7 +30,7 @@ function mp_sm_tick()
 {
 }
 
-function mp_sm_recv(from, b)
+function mp_sm_recv(from, b, endpos = -1)
 {
     buffer_read(b, buffer_f64);
 }
