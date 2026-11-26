@@ -626,3 +626,12 @@ mp_plan_box_draw(xx, yy);
 mp_soul_fly_created(false);
 @append gml_Object_obj_returnheart_Create_0
 mp_soul_fly_created(true);
+
+;; Hurt sounds go into the session log with who played them (to find stray ones players hear).
+@regex gml_GlobalScript_snd_play
+(function snd_play\([^)]*\)\s*\{)
+@with
+$1
+    if ((arg0 == snd_hurt1 || arg0 == snd_damage) && variable_global_exists("mp_inited") && mp_on())
+        mp_log("sound " + audio_get_name(arg0) + " by " + object_get_name(object_index) + " room=" + room_get_name(room));
+@end

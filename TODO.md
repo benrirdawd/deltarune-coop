@@ -29,7 +29,6 @@ on top of the game where the game itself can show it.
    waiting lines (who a fight waits for), the spectator line in a fight you only watch, scene
    choices, quick messages from others, the one-time "Story cutscenes show the party" hint.
 3. **Bugs reported in play (2026-11-25):**
-   - Starting a battle plays the hurt sound with nothing hitting me.
    - The map SOUL look (a player whose fight shows on the map) is a white blurred-looking outline over
      a normal sprite. The game's own (Kris) is a pixel-drawn outline and the hero goes dark. Do the
      same for every hero: darken the sprite, 1-pixel outline in the hero's colour instead of red
@@ -231,6 +230,7 @@ to check in play:
 | Issue | What is needed |
 |---|---|
 | C menu didn't open while playing Ralsei (Chapter 1, `room_field_checkers6`, hosting on Steam alone, 2026-11-25). Not reproduced: the same room, plot and character with the `menuat` token opens the menu (interact 5, screenshot of the ITEM page), and the key config has C. | F9 "Save logs for a bug report" right after it happens again, and whether a gamepad was used. |
+| Hurt sound at the start of a battle with nothing hitting (2026-11-25). Not reproduced: 2-player fights in Chapters 1 and 2 (`battle:13`, `battle:53`, client with `chaos:10:120:60`) play no hurt or damage sound before the attacks and bullets. Every `snd_hurt1`/`snd_damage` now goes into `multiplayer_log.txt` as "sound <name> by <object>". | `multiplayer_log.txt` (F9 "Save logs for a bug report") from a session where it happens, and which chapter/enemy. |
 | A player had no sound for a while; it came back by itself (report 7). | `multiplayer_log.txt` from that session. Possibly the game muted while unfocused, or a song started late. |
 
 ## Re-check in play
