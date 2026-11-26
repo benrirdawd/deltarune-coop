@@ -2077,6 +2077,10 @@ function mp_draw_ow_heart(spr, img, xx, yy, xs, ys, rot, blend, alpha)
     var s2 = mp_swap_sprite(sprite_index, 1, global.mp_cfg_char);
     if (s2 < 0 || s2 == sprite_index)
         return;
+    // Placed like my character's body (mp_draw_swapped: bottom centre on Kris's).
+    var o = sprite_index;
+    xx = (xx + (xs * ((sprite_get_width(o) / 2) - sprite_get_xoffset(o)))) - (xs * ((sprite_get_width(s2) / 2) - sprite_get_xoffset(s2)));
+    yy = (yy + (ys * (sprite_get_height(o) - sprite_get_yoffset(o)))) - (ys * (sprite_get_height(s2) - sprite_get_yoffset(s2)));
     // As the game's own Kris version: the hero goes dark with a 1-pixel outline in the colour of
     // their SOUL (one sprite pixel is xs screen pixels wide).
     var col = mp_soul_color(global.mp_cfg_char);
@@ -2089,6 +2093,48 @@ function mp_draw_ow_heart(spr, img, xx, yy, xs, ys, rot, blend, alpha)
     draw_sprite_ext(s2, image_index, xx, yy + oy, xs, ys, rot, c_white, alpha);
     gpu_set_fog(false, c_white, 0, 0);
     draw_sprite_ext(s2, image_index, xx, yy, xs, ys, rot, merge_color(blend, c_black, 0.85), alpha);
+}
+
+// The map SOUL (obj_mainchara's battleheart and its outline, at Kris's chest: x + 12, y + 40) on my
+// character: in my SOUL's colour, at the same height on my character's body (taller heroes have
+// their chest higher). The hit spot (global.heartx/hearty) moves with it.
+function mp_ow_heart_dy()
+{
+    if (!mp_on() || !mp_swaps_enabled() || global.mp_cfg_char == 1)
+        return 0;
+    var o = sprite_index;
+    var s2 = mp_swap_sprite(o, 1, global.mp_cfg_char);
+    if (s2 < 0 || s2 == o || sprite_get_height(o) <= 0)
+        return 0;
+    var feet = image_yscale * (sprite_get_height(o) - sprite_get_yoffset(o));
+    var up = feet - 40;
+    return round(up - (up * sprite_get_height(s2) / sprite_get_height(o)));
+}
+
+function mp_ow_outline2(spr, img, xx, yy, xs, ys, rot, col, alpha)
+{
+    draw_sprite_ext(spr, img, xx, yy + mp_ow_heart_dy(), xs, ys, rot, col, alpha);
+}
+
+function mp_ow_heart_place()
+{
+    if (!variable_global_exists("mp_inited") || !instance_exists(battleheart))
+        return;
+    var dy = mp_ow_heart_dy();
+    battleheart.y += dy;
+    if (battlemode == 1)
+        global.hearty = battleheart.y - camera_get_view_y(view_camera[0]);
+    with (battleheart)
+    {
+        if (!variable_instance_exists(id, "mp_spr0"))
+            mp_spr0 = sprite_index;
+        var want = (mp_on() && mp_swaps_enabled()) ? mp_soul_sprite(mp_spr0, global.mp_cfg_char) : mp_spr0;
+        if (sprite_index != want)
+        {
+            sprite_index = want;
+            mp_log("map SOUL sprite for character " + string(global.mp_cfg_char) + " dy=" + string(dy));
+        }
+    }
 }
 
 // Out-of-battle hits (map hazards): in a session, they hit the character I play, in my game. (The

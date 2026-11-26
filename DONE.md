@@ -1682,3 +1682,15 @@ player plays their own hero, choosing at the same time, as in any fight. New tes
 PASS): Chapter 2 Queen (encounter 59), 5 turns with identical turn states in both games; Chapter 3
 Knight (encounter 115), 7 turns identical, both heroes' panels up together (screenshot). Berdly's
 plug only shows up through the Queen fight's own scene 25, not reached here: re-check in play.
+
+## Map SOUL: my SOUL's colour, on my character's chest (2026-11-26, user report)
+
+The map SOUL (map hazards) was always red and sat at Kris's chest, and the dark outlined body was
+drawn from the top-left instead of where my character's body is drawn. Now the heart uses my SOUL's
+colour (`mp_soul_sprite`), sits at the same height on my character's body (taller heroes have it
+higher), with the game's white heart outline and the hit spot moved with it; the dark outlined body
+is placed like the normal one (bottom centre). Kris is unchanged. (`mp_ow_heart_place`,
+`mp_ow_outline2`, `mp_draw_ow_heart`; Chapter 4's tower shake kept.)
+
+**Tested** (Chapter 2, 3 players, `owsoul`, clients with `chaos:10:120:60`): screenshots show
+Susie with a purple heart and Ralsei with a green one, each on the chest, outline matching the body.

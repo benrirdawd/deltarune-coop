@@ -559,6 +559,16 @@ mp_no_target_look();
 ;; player who is someone else gets their own character's outline instead. ("s[p]r": the patcher's
 ;; asset check would read "spr_kris" as a sprite name.)
 @regex gml_Object_obj_mainchara_Draw_0
+draw_sprite_ext\((s[p]r_heart_outline2), 0, x \+ 12( \+ tower_shake_xoffset)?, y \+ 40,
+@with
+mp_ow_outline2($1, 0, x + 12$2, y + 40,
+@end
+@regex gml_Object_obj_mainchara_Draw_0
+battleheart\.y = y \+ 40;
+@with
+battleheart.y = y + 40; mp_ow_heart_place();
+@end
+@regex gml_Object_obj_mainchara_Draw_0
 draw_sprite_ext\((s[p]r_kris[durl]_heart|s[p]r_krisd_slide_heart),
 @with
 mp_draw_ow_heart($1,

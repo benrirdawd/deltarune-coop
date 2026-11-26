@@ -42,6 +42,9 @@ watch. Each needs its own design. Rules from the user:
   others play too (only watching is boring), with a note that it isn't canon: their text box is drawn
   in their hero's colour instead of white, and they get an entry line, e.g. Susie showing up in the
   weird-route Spamton fight: "Look who I found needing help".
+  How it plays (user, 2026-11-26): the turns stay together (same-time menu, shared enemy); only
+  the dodging is each on their own screen. So an ally who does well helps beat the enemy, and one
+  who does badly holds the team back (the enemy has more HP with more players).
 * **SOUL colours:** yellow = like Spamton NEO (everyone shoots). Green = like Hammer of Justice (each
   defends on their own screen). Orange (Flowery) = for now each player has their own clash on their
   own screen, like green; improve later. Aqua and blue = not used in the game yet (objects exist,
@@ -58,7 +61,7 @@ watch. Each needs its own design. Rules from the user:
 | 2 | GigaQueen (`obj_gigaqueen_enemy`) | Robot fight (punches, shield) | to design |
 | 3 | Shadow Mantle (`obj_shadow_mantle_enemy`) | Real-time action boss on the game board (no menu): the board party walks, Kris swings the sword, bombs, fire, clones | Each player moves their own board piece and attacks; boss HP x players (as the shooting rule) |
 | 3 | Tenna board 4 (`obj_tenna_board4_enemy`) | Menu fight on the last board, with a gacha (`obj_tenna_board4_gacha`) and Shadowman / Zapper enemies | Likely normal same-time menu; gacha played by the one who uses it, result shared |
-| 4 | Hammer of Justice (`obj_hammer_of_justice_enemy`) | Green shield SOUL | Each defends on their own screen |
+| 4 | Hammer of Justice (`obj_hammer_of_justice_enemy`) | Green shield SOUL; a one-hero fight (only slot 0 is made, Kris) | Each defends on their own screen. Tried 2026-11-26 as a normal fight (encounter 160, 2 players): the hero's player plays it, the other only watches, and the first bullet phase did not end within 60 s. Needs the "fights meant for one hero" design first (the others' heroes join), then a look at why the phase hangs |
 | 4 | Sound of Justice (`obj_sound_of_justice_enemy`) | Gerson's hidden fight: darkness overlay, Susie's heal shots (`obj_susie_heal_projectile`), spear shots | Darkness per screen; Susie's heal shots by Susie's player |
 | 4 | Titan (`obj_titan_enemy`) | Final boss of Chapter 4: darkness, Titan heals (`obj_titan_heal`) | Look at which hero's actions are special |
 | 5 | Coloured enemies (`obj_yellow/green/orange/aqua/blue/pink/purple_enemy`, `obj_orangeheart_enemy`, `obj_flowery_enemy`) | Fights with their own SOUL rules (yellow reticle, green cooking time, orange heart, a yellow trial manager); not in the special list today, so they run as normal shared fights | Play each with 2 players and check; add to the list the ones that break |
