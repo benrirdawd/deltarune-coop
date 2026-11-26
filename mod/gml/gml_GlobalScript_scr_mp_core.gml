@@ -585,6 +585,11 @@ function mp_handle(type, sender, b, sock, endpos)
             mp_vote_recv(sender, vv, vfinal);
         return;
     }
+    if (type == 86) // Chapter 3's Shadow Mantle: a player's hits so far (scr_mp_board: mp_sm_recv)
+    {
+        mp_sm_recv(sender, b);
+        return;
+    }
     if (type == 85) // a map ping (F5, scr_mp_ui: mp_ping_recv)
     {
         mp_ping_recv(sender, b);
@@ -680,6 +685,7 @@ function mp_after_input()
         global.mp_real_held[k] = global.input_held[k];
     global.mp_frame += 1;
     global.mp_room_frames += 1;
+    mp_sm_tick();
     global.mp_fol_last = global.mp_fol_mask;
     global.mp_fol_mask = 0;
     mp_ui_input();

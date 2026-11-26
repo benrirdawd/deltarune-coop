@@ -1822,3 +1822,18 @@ Test tokens: `botshoot` (the bot shoots and charges BIG SHOTs), `dodgemercy` (my
 all PASS): 7 turns with identical states in both games, both SOULs shooting (screenshots, the
 client charging a BIG SHOT). With `dodgemercy` on the client only: each turn the host logs "the
 others' dodging gave enemy 0 1 mercy" and both games go 1, 2, 3, 4 mercy.
+
+## Shadow Mantle: everyone fights, the boss has HP x players (2026-11-26, part 1)
+
+Chapter 3's Shadow Mantle (real-time, on the board) was on the "special" list. Like the rest of
+the board, everyone fights their own copy; now the boss's HP counts for all: each sword hit anyone
+lands takes 1/N of its damage from every copy (mine at once, the others' when their running count
+arrives, message 86). N = players in the room whose count came in within 3 s (players fighting him,
+not just standing there). The game's own HP rules stay (held at 4 until the last phase, phases at
+22/13/4, defeat below 1). Test tokens `smfight` (start the fight from its room), `smhit` (a 1-HP hit
+every 4 s).
+**Tested** (Chapter 3, `room_board_preshadowmantle`, 2 players, client with `chaos:10:120:60`, 20x):
+both fights start at 30 HP; each player's hits count half in both games ("my hit 1 / 2", "Host's hit
+1 / 2"); both reach the same HP (25). Only the very first hit, before the other's count arrived,
+counted whole. `mpcheck`: all PASS except "moved" (both pieces put on the same trigger by the test).
+Not seen yet: the end of the fight with 2 players.

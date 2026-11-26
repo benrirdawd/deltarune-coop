@@ -25,3 +25,12 @@ function mp_board_draw_piece(xx, yy)
 {
     draw_sprite_ext(sprite_index, image_index, xx, yy, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
 }
+
+function mp_sm_tick()
+{
+}
+
+function mp_sm_recv(from, b)
+{
+    buffer_read(b, buffer_f64);
+}

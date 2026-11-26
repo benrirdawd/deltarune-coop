@@ -148,3 +148,93 @@ function mp_board_ghost_depth()
         return k.depth + 1;
     return 0;
 }
+
+// ---------------------------------------------------------------- Shadow Mantle
+// Everyone fights their own copy (as everyone plays their own board), and the boss has HP x the
+// players fighting him: each hit anyone lands takes 1/N of its damage from every copy (mine at
+// once, the others' when their count arrives). The game's own rules on top stay as they are (the
+// HP held at 4 until the last phase, the phases at 22/13/4, his defeat below 1).
+function mp_sm_init()
+{
+    if (!variable_global_exists("mp_sm_rtot"))
+    {
+        global.mp_sm_on = 0;
+        global.mp_sm_rtot = array_create(8, 0);
+        global.mp_sm_seen = array_create(8, 0);
+        global.mp_sm_rf = array_create(8, -99999);
+    }
+}
+
+function mp_sm_tick()
+{
+    mp_sm_init();
+    var e = noone;
+    with (obj_shadow_mantle_enemy)
+        e = id;
+    if (e == noone || !mp_on())
+    {
+        global.mp_sm_on = 0;
+        return;
+    }
+    if (!global.mp_sm_on)
+    {
+        global.mp_sm_on = 1;
+        global.mp_sm_last = e.hp;
+        global.mp_sm_mine = 0;
+        global.mp_sm_sent = -1;
+        global.mp_sm_sentf = -9999;
+        for (var i0 = 0; i0 < 8; i0++)
+            global.mp_sm_seen[i0] = global.mp_sm_rtot[i0];
+        mp_log("Shadow Mantle: fight starts, hp " + string(e.hp));
+    }
+    // Who fights him with me: in my room, and their count came in within 3 s (sent while they fight).
+    var n = 1;
+    for (var i = 0; i < 8; i++)
+    {
+        if (i != global.mp_myid && global.mp_pconn[i] && global.mp_proom[i] == room && (current_time - global.mp_sm_rf[i]) < 3000)
+            n += 1;
+    }
+    var d = global.mp_sm_last - e.hp;
+    if (d > 0.0001)
+    {
+        global.mp_sm_mine += d;
+        e.hp = global.mp_sm_last - (d / n);
+        mp_log("Shadow Mantle: my hit " + string(d) + " / " + string(n) + " -> hp " + string(e.hp));
+    }
+    for (var j = 0; j < 8; j++)
+    {
+        if (j == global.mp_myid)
+            continue;
+        if (global.mp_sm_rtot[j] < global.mp_sm_seen[j])
+            global.mp_sm_seen[j] = 0;     // they started over (a new try)
+        var r = global.mp_sm_rtot[j] - global.mp_sm_seen[j];
+        if (r > 0.0001)
+        {
+            global.mp_sm_seen[j] = global.mp_sm_rtot[j];
+            if (global.mp_pconn[j] && global.mp_proom[j] == room)
+            {
+                e.hp -= r / n;
+                mp_log("Shadow Mantle: " + global.mp_pname[j] + "'s hit " + string(r) + " / " + string(n) + " -> hp " + string(e.hp));
+            }
+        }
+    }
+    global.mp_sm_last = e.hp;
+    if ((global.mp_sm_sent != global.mp_sm_mine || (global.mp_frame - global.mp_sm_sentf) > 30) && (global.mp_frame - global.mp_sm_sentf) >= 3)
+    {
+        mp_begin(86);
+        mp_wf64(global.mp_sm_mine);
+        mp_send();
+        global.mp_sm_sent = global.mp_sm_mine;
+        global.mp_sm_sentf = global.mp_frame;
+    }
+}
+
+function mp_sm_recv(from, b)
+{
+    mp_sm_init();
+    var t = buffer_read(b, buffer_f64);
+    if (from < 0 || from > 7)
+        return;
+    global.mp_sm_rtot[from] = t;
+    global.mp_sm_rf[from] = current_time;
+}

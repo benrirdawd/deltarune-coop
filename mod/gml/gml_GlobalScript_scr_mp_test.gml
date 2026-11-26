@@ -644,6 +644,36 @@ function mp_test_input()
                 _weird_mode = true;
         }
     }
+    // smfight: (Chapter 3, room_board_preshadowmantle) start the Shadow Mantle fight: Kris's piece
+    // steps on the trigger, as after a first loss (no intro talk). smhit: every 4 s of the fight my
+    // copy of him takes a 1-HP sword hit.
+    if (mp_test_has("smfight"))
+    {
+        var psm = asset_get_index("obj_board_preshadowmantle");
+        if (psm >= 0 && instance_exists(psm))
+        {
+            global.flag[1002] = 1;
+            with (psm)
+            {
+                active = true;
+                if (con == 1 && kris != 0 && instance_exists(kris))
+                {
+                    kris.x = x;
+                    kris.y = y;
+                }
+            }
+        }
+    }
+    if (mp_test_has("smhit") && (global.mp_frame mod 240) == 0)
+    {
+        var sme = asset_get_index("obj_shadow_mantle_enemy");
+        if (sme >= 0 && instance_exists(sme))
+        {
+            with (sme)
+                hp -= 1;
+            mp_log("test: sword hit on Shadow Mantle");
+        }
+    }
     // openmenu: open the C menu once, a few seconds into the room (to see what it shows).
     if (mp_test_has("openmenu") && variable_global_exists("mp_test_timer") && global.mp_test_timer == 150 && global.interact == 0)
     {
