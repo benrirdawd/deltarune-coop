@@ -32,6 +32,7 @@ on top of the game where the game itself can show it.
 
 ## Special fights: everyone plays their own hero (user request, 2026-11-25)
 
+Spamton NEO: done 2026-11-26 (DONE.md), a normal fight where everyone shoots on their own screen.
 Today the fights below are "special" (`mp_battle_special`): the leader plays every hero, the others
 watch. Each needs its own design. Rules from the user:
 * **Shooting SOUL (yellow shots):** every player shoots. Things that must be destroyed by the yellow
@@ -57,7 +58,6 @@ watch. Each needs its own design. Rules from the user:
 
 | Ch | Fight (enemy object) | Kind | Plan |
 |---|---|---|---|
-| 2 | Spamton NEO (`obj_spamton_neo_enemy`) | Yellow shooting SOUL, Susie's ACT, BIG SHOT | Everyone shoots; shot targets' HP x players |
 | 2 | GigaQueen (`obj_gigaqueen_enemy`) | Robot fight (punches, shield) | to design |
 | 3 | Shadow Mantle (`obj_shadow_mantle_enemy`) | Real-time action boss on the game board (no menu): the board party walks, Kris swings the sword, bombs, fire, clones | Each player moves their own board piece and attacks; boss HP x players (as the shooting rule) |
 | 4 | Hammer of Justice (`obj_hammer_of_justice_enemy`) | Green shield SOUL; a one-hero fight (only slot 0 is made, Kris) | Each defends on their own screen. Tried 2026-11-26 as a normal fight (encounter 160, 2 players): the hero's player plays it, the other only watches, and the first bullet phase did not end within 60 s. Needs the "fights meant for one hero" design first (the others' heroes join), then a look at why the phase hangs |

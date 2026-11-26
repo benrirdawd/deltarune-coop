@@ -21,6 +21,10 @@ function mp_battle_init()
     global.mp_tdone_bid = array_create(8, -1);
     global.mp_tdone_turn = array_create(8, -1);
     global.mp_tdone_gain = array_create(8, 0);
+    global.mp_tdone_mercy = array_create(8, 0);
+    for (var mi = 0; mi < 8; mi++)
+        global.mp_tdone_mercy[mi] = [0, 0, 0];
+    global.mp_ph_mercy = [0, 0, 0];
     global.mp_tdone_late = array_create(8, 0);
     global.mp_tgo_sent = -1;
     global.mp_tgo_stash = -1;
@@ -150,7 +154,7 @@ function mp_participating(i)
 // fallback; single fights can be synced one by one later.
 function mp_battle_special()
 {
-    var names = ["obj_spamton_neo_enemy", "obj_gigaqueen_enemy", "obj_shadow_mantle_enemy", "obj_hammer_of_justice_enemy", "obj_sound_of_justice_enemy"];
+    var names = ["obj_gigaqueen_enemy", "obj_shadow_mantle_enemy", "obj_hammer_of_justice_enemy", "obj_sound_of_justice_enemy"];
     for (var m = 0; m < 3; m++)
     {
         if (!variable_global_exists("monsterinstancetype") || !global.monster[m])
@@ -353,6 +357,10 @@ function mp_send_tdone(turn, gain)
     // (Numbered like the HP reports: a report sent before this one and arriving after is ignored.)
     global.mp_hp_seq = (global.mp_hp_seq + 1) mod 65536;
     mp_wu16(global.mp_hp_seq);
+    // The mercy my own dodging earned this phase (mp_ph_mercy_add): the leader adds everyone's.
+    for (var m = 0; m < 3; m++)
+        mp_wf64(global.mp_ph_mercy[m]);
+    global.mp_ph_mercy = [0, 0, 0];
     mp_send();
 }
 
@@ -515,6 +523,9 @@ function mp_battle_recv(type, from, b)
             array_push(hl, [e0, e1, e2]);
         }
         var hq2 = buffer_read(b, buffer_u16);
+        var pm = [0, 0, 0];
+        for (var pmi = 0; pmi < 3; pmi++)
+            pm[pmi] = buffer_read(b, buffer_f64);
         // (Same as an HP report, message 43, for this fight's heroes the sender plays.)
         if (bid3 == global.mp_bid && mp_hp_newer(from, hq2))
         {
@@ -532,6 +543,7 @@ function mp_battle_recv(type, from, b)
         global.mp_tdone_bid[from] = bid3;
         global.mp_tdone_turn[from] = turn3;
         global.mp_tdone_gain[from] = gain;
+        global.mp_tdone_mercy[from] = pm;
         global.mp_b_mask |= (1 << from);
         // Ready for a turn that was already released: a late joiner. They'll enter at
         // the next TURN_GO, so nobody waits for them until then.
@@ -711,6 +723,24 @@ function mp_host_turn_check()
                 tension += global.mp_tdone_gain[j];
         }
         tension = clamp(tension, 0, global.maxtension);
+        // Mercy each player's own dodging earned (Spamton NEO's BIG SHOTs and string cuts): mine
+        // is in my game already; the others' is added, so an ally who does well helps everyone.
+        for (var ms = 0; ms < 3; ms++)
+        {
+            if (!global.monster[ms])
+                continue;
+            var add = 0;
+            for (var mj = 0; mj < 8; mj++)
+            {
+                if (mj != global.mp_myid && global.mp_pconn[mj] && global.mp_tdone_bid[mj] == global.mp_bid && global.mp_tdone_turn[mj] == t)
+                    add += global.mp_tdone_mercy[mj][ms];
+            }
+            if (add != 0)
+            {
+                global.mercymod[ms] = clamp(global.mercymod[ms] + add, 0, 100);
+                mp_log("turn " + string(t) + ": the others' dodging gave enemy " + string(ms) + " " + string(add) + " mercy (now " + string(global.mercymod[ms]) + ")");
+            }
+        }
     }
     var st = [];
     st[0] = global.mp_bid;
@@ -1566,6 +1596,7 @@ function mp_tp_bar_fx()
 
 function mp_tp_phase_start()
 {
+    global.mp_ph_mercy = [0, 0, 0];
     global.mp_t_mine = 0;
     global.mp_t_shown = global.tension;
     global.mp_t_sent = -99999;
@@ -2702,4 +2733,14 @@ function mp_throw_owner()
         }
     }
     return global.mp_b_leader;
+}
+
+// Mercy that my own dodging earned for enemy slot s this phase, as the game adds it (Spamton NEO:
+// the attack's BIG SHOT hits and string cuts, added when the attack ends). Sent with "turn done".
+function mp_ph_mercy_add(s, amount)
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || !mp_battle_on() || s < 0 || s > 2)
+        return;
+    global.mp_ph_mercy[s] += amount;
+    mp_log("my dodging gave enemy " + string(s) + " " + string(amount) + " mercy");
 }

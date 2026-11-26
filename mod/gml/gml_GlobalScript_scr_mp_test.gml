@@ -1037,6 +1037,26 @@ function mp_test_input()
             {
                 var d = floor(f / 20) mod 4;
                 global.input_held[d] = 1;
+                // dodgemercy: (Spamton NEO) my attack phase earns 1 mercy, once per turn, as a BIG SHOT would.
+                var sbc = asset_get_index("obj_sneo_bulletcontroller");
+                if (mp_test_has("dodgemercy") && sbc >= 0 && instance_exists(sbc) && (!variable_global_exists("mp_test_dm_turn") || global.mp_test_dm_turn != global.mp_bturn))
+                {
+                    global.mp_test_dm_turn = global.mp_bturn;
+                    with (sbc)
+                        mercyaccumulated += 1;
+                    mp_log("test: +1 mercy from my attack phase");
+                }
+                // botshoot: the yellow SOUL shoots (Z) now and then, sometimes holding it for a BIG SHOT.
+                if (mp_test_has("botshoot"))
+                {
+                    if ((f mod 90) < 40)
+                        global.input_held[4] = 1;
+                    else if ((f mod 8) == 0)
+                    {
+                        global.input_pressed[4] = 1;
+                        global.input_held[4] = 1;
+                    }
+                }
             }
             return;
         }

@@ -761,3 +761,12 @@ global.currentactingchar = 0;
         if (global.acting[0] == 0 && !mp_first_act_place0())$1
 @end
 #chapters all
+
+// ---- Spamton NEO: the mercy each player's own attack phase earns (BIG SHOTs, strings) adds up
+#chapters 2
+@regex gml_Object_obj_sneo_bulletcontroller_Destroy_0
+(global\.mercymod\[myself\] \+= (o[b]j_sneo_bulletcontroller)\.mercyaccumulated;)
+@with
+$1 mp_ph_mercy_add(myself, $2.mercyaccumulated);
+@end
+#chapters all

@@ -1803,3 +1803,22 @@ can ACT").
 20x, `mpcheck` all PASS): Improvise picked, "ACT of place 0 started", the same throw in both games
 (e.g. angle 24 power 30), both end with 1 wire cut and Berdly at 13 mercy, turns 0-4 identical;
 with the shield up Improvise leaves the list. 5 runs of 6 clean; the sixth: see TODO (menu replay).
+
+## Spamton NEO: everyone plays their own hero and shoots (2026-11-26)
+
+Spamton NEO (Chapter 2) is no longer a "special" fight where the leader played every hero: it is a
+normal fight. Everyone picks their own hero's action in the same-time menu, and in his attacks
+every player has the yellow SOUL and shoots on their own screen (as everyone dodges on their own
+screen in every fight).
+"An ally who does well helps": the mercy a player's own attack phase earns (BIG SHOT hits, cut
+strings: the game's `mercyaccumulated`, added when the attack ends) is sent with their "turn done";
+the leader adds everyone's to the fight's mercy (TP was already added up the same way).
+Choice (simplest): the user's rule "shot targets get HP x players" was for one shared screen; here
+every player shoots their own copies of the targets, so each already has to destroy their own and
+the targets keep their HP. Spamton's own HP is unchanged.
+Test tokens: `botshoot` (the bot shoots and charges BIG SHOTs), `dodgemercy` (my attack phase earns
+1 mercy once per turn).
+**Tested** (Chapter 2, encounter 61, host Kris + client Susie with `chaos:10:120:60`, 20x, `mpcheck`
+all PASS): 7 turns with identical states in both games, both SOULs shooting (screenshots, the
+client charging a BIG SHOT). With `dodgemercy` on the client only: each turn the host logs "the
+others' dodging gave enemy 0 1 mercy" and both games go 1, 2, 3, 4 mercy.
