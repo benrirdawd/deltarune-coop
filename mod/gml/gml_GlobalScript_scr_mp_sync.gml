@@ -1224,6 +1224,14 @@ function mp_story_rise(ia, battle)
     // run in each player's own game (their rooms need the credits' own objects).
     if (mp_board_on() || mp_credits_running())
         return false;
+    // Shadow Mantle's outro: everyone fought their own copy of him, so each plays their own outro
+    // (a watcher's mirror of it drew no board TV and the heroes on top of each other).
+    var smo = asset_get_index("obj_shadow_mantle_enemy_outro");
+    if (smo >= 0 && instance_exists(smo))
+    {
+        mp_log("Shadow Mantle's outro: my own, not a scene for the others");
+        return false;
+    }
     // Where the leader stood when the cutscene triggered: standing there re-triggers
     // position-based cutscenes in the pulled players' games.
     // (A couple of frames back: a cutscene may move the player away on its first frame.)

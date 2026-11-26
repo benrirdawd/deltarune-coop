@@ -4,6 +4,16 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Shadow Mantle's outro: each player's own (2026-11-26)
+
+Everyone fights their own copy of Shadow Mantle, so each now plays their own outro: it no longer
+pulls the others into the first player's scene (`mp_story_rise`, while `obj_shadow_mantle_enemy_outro`
+exists). Before, the one watching the other's outro saw a gray TV and Kris, Susie and Ralsei drawn on
+top of each other at the console.
+**Tested** (same run as part 2, `smhit:3`, client with `chaos:10:120:60`, 20x): both log "defeated"
+and "my own, not a scene for the others", nobody is pulled; the host's screenshot shows the board TV
+with the outro's text and Susie standing beside Kris.
+
 ## Shadow Mantle, part 2: a friend's hit can win the fight (2026-11-26)
 
 The game checks Shadow Mantle's rules only when my own sword hits him (`obj_shadow_mantle_enemy`
