@@ -201,11 +201,11 @@ good), the F9 menu has softlock tools:
   story carries on.
 
 The player list (top-left) shows each player's character, ping and whether they're in a
-battle or cutscene. The yellow line at the top tells you whose turn it is in battle
-("Your turn: choose Susie's action!" / "P2 is choosing for Susie...").
-While someone else chooses, you can prepare your next hero's whole action: left/right for the
-action, Z to pick the enemy, act, spell, item or target (X goes back). When your turn comes, one Z
-plays it (anything no longer possible becomes the first possible choice). Battle text is turned
+battle or cutscene.
+In battle everyone chooses at the same time, in the game's own battle menu: every player's hero
+has its panel up, and you see the others' choices light up in their panels. Pick your action as
+usual (the enemy, act, spell or item list opens in the bottom box); it plays by itself when the
+fight reaches your hero (anything no longer possible becomes the first possible choice). Battle text is turned
 by anyone's Z, for everyone. The F9 menu's "Story fights" setting (host) can keep story fights to
 the heroes that players play.
 Choices in a shared cutscene are the host's by default; with "Scene choices: Everyone votes" (F9,
