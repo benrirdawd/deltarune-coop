@@ -786,10 +786,16 @@ function mp_handle_link(type, sender, b, p, endpos = -1)
         mp_vars_send_full(p);
         mp_send_addresses();
         mp_send_pos(1, p);
-        // Joining while I'm in a battle: come and join it (from the next turn).
-        // (In open-world battles they walk up and join like anyone else.)
-        if (!global.mp_open && global.mp_battle_seen && mp_in_battle_scene())
+        // Joining while I'm in a battle: come and join it (from the next turn). That includes the
+        // moment between the encounter's "!" (the others were already pulled) and the battle itself.
+        // In open-world battles they walk up and join like anyone else, except in a story fight,
+        // which calls everyone.
+        var bstory = global.mp_gid != 0 && global.mp_b_story;
+        if ((!global.mp_open || bstory) && global.mp_battle_seen && (mp_in_battle_scene() || instance_exists(obj_testoverworldenemy)))
+        {
+            mp_log("join during my fight " + string(global.mp_gid) + ": pulling them in");
             mp_send_pull_to(1, p);
+        }
         mp_begin(39);
         mp_wu8(global.mp_open);
         mp_wu8(global.mp_noai);

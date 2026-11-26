@@ -1742,3 +1742,17 @@ hero's player, so it runs as a normal same-time fight. Taken off the list.
 **Tested** (Chapter 4, encounter 175, 3 players Kris/Susie/Ralsei, bots with random choices,
 clients with `chaos:10:120:60`, `mpcheck` all PASS): 6 turns with identical turn states in all
 three games, each hero owned by their own player.
+
+## A player joining during a story fight's start is pulled in (2026-11-26, found testing Titan)
+
+A player who finished joining right after a fight began (during the encounter's "!", after the
+host's pull) stayed on the map for the whole fight. Two causes: the host only pulled a new player
+once the battle itself existed, and in open-world mode (the default) it never pulled a new player
+at all, also not into a story fight, which calls everyone. Now, on a join, the host pulls the new
+player when it is in a fight (from the "!" on) and either open-world battles are off or the fight
+is a story fight. A normal open-world fight still lets newcomers walk up and join.
+
+**Tested** (Chapter 4, Titan, 3 players, P3 with `connectat:130` / `connectat:150` so it joins
+1-1.6 s after the fight started, clients with `chaos:10:120:60`): the host logs "join during my
+fight 1: pulling them in", P3 plays Ralsei (`own2`), all three games identical up to turn 2,
+`mpcheck` all PASS. Before: `players reached different turns: host 5, client1 5, client2 -1`.

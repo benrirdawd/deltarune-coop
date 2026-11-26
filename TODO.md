@@ -63,14 +63,6 @@ watch. Each needs its own design. Rules from the user:
 | 4 | Hammer of Justice (`obj_hammer_of_justice_enemy`) | Green shield SOUL; a one-hero fight (only slot 0 is made, Kris) | Each defends on their own screen. Tried 2026-11-26 as a normal fight (encounter 160, 2 players): the hero's player plays it, the other only watches, and the first bullet phase did not end within 60 s. Needs the "fights meant for one hero" design first (the others' heroes join), then a look at why the phase hangs |
 | 4 | Sound of Justice (`obj_sound_of_justice_enemy`) | Gerson's hidden fight: darkness overlay, Susie's heal shots (`obj_susie_heal_projectile`), spear shots | Darkness per screen; Susie's heal shots by Susie's player |
 
-## Found while testing (2026-11-26)
-
-* A player who finishes joining right as a fight starts (here 0.8 s after the host's pull, during
-  the "!" horn) is never brought into it: they stay on the map for the whole fight (Chapter 4,
-  Titan test, 3 players). Joining a fight already running works (`battlesolo` test), so the gap is
-  a join that lands between the pull and the battle room's start. Fix: on join, if the host is in
-  a fight, pull the new player in the same way as a mid-fight join.
-
 ## Later: a stand-in when the hero a mechanic needs isn't there (user request, 2026-11-25)
 
 Some fight mechanics need two specific heroes, e.g. Susie throwing Kris at the ropes holding the
