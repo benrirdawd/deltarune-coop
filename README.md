@@ -53,6 +53,13 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   Kris's or only text (22 of them, e.g. Clubs' talks, Berdly's BumpX, the last game board's Tenna
   fight) still work and take the turn only of the helpers who are there; ACTs that really use the
   other heroes still need them.
+* **Improvise.** When a fight's mechanic needs a hero nobody plays, the hero who is there may get
+  "Improvise" in their own ACT list: e.g. in the Queen fight without Kris, Susie throws Ralsei at
+  Berdly's wires (the game's own throw, for some TP). Playing with the full team stays cheaper.
+* **Spamton NEO and Shadow Mantle together.** In Spamton NEO everyone plays their own hero and
+  shoots with the yellow SOUL; the mercy each player's shooting earns adds up. Shadow Mantle on the
+  game board: everyone fights their own copy, and his HP grows with the players, every hit counting
+  for all.
 * **Explore independently.** Walk and talk to NPCs on your own, even in different rooms.
   Other players appear as name-tagged characters when you're in the same room. Everyone walks
   alone, as their own character: the game's party followers only show in story cutscenes.
@@ -227,9 +234,9 @@ Ralsei; Kris and Noelle use Kris's figure), and the game's own Susie or Ralsei f
 while a friend plays that character there, so there aren't two of them.
 Every minigame, puzzle and ACT with its own game, and what multiplayer does with each one so far,
 is listed in [`MINIGAMES.md`](MINIGAMES.md).
-A few fights have their own rules (Spamton NEO, Queen and Giga Queen, Berdly's plug, Chapter 3's
-Knight, Shadow Mantle and Tenna's board fight, Chapter 4's Titan and Gerson's): there the fight's
-leader plays every hero and the others watch; everyone is told who plays.
+A few fights still have their own rules (Giga Queen, Chapter 4's Hammer of Justice and Gerson's
+hidden fight): there the fight's leader plays every hero and the others watch; everyone is told who
+plays.
 If the host leaves, the next player can take over from F9 ("Become the host"); a session with
 Steam and IP players carries on for both.
 Every 5 s the host's story state is compared with yours; a difference that stays is fixed from

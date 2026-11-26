@@ -21,10 +21,12 @@ on top of the game where the game itself can show it.
    **Part 1 done (2026-11-26, DONE.md):** panels up together, each lights its own choice, no turn
    notes, a ready choice plays by itself. **Parts 2 and 3 done (2026-11-26, DONE.md):** the lists of a hero chosen ahead are in the battle's
    own bottom box, spells with their description and TP cost like the game's.
-   **Question for the user:** a player choosing ahead shows the others only their main-row choice
-   (their panel). Their list (which enemy, which spell) has no place in the game's layout: the
-   bottom box is mine while I choose. The hero choosing *now* is seen live (the game shows its lists
-   in my box when I'm not choosing ahead). Is that enough, or where should the others' lists show?
+   **Next (user's answer, 2026-11-26):** what a player chose ahead, shown to the others:
+   * an enemy: the arrow over the head of the enemy they picked (as when choosing a target);
+   * a spell (or ACT, item): its name shows for a moment in that player's own panel box, rising
+     and fading out.
+   **Next (user, 2026-11-26):** heroes stand side by side on the battle screen, Kris in the middle
+   (to confirm while doing it: which order for the others, and whether "side by side" means a row).
 2. **Done (2026-11-26):** fewer notes, see DONE.md. Kept on purpose: connection and error news,
    waiting lines (who a fight waits for), the spectator line in a fight you only watch, scene
    choices, quick messages from others, the one-time "Story cutscenes show the party" hint.
@@ -43,9 +45,9 @@ watch. Each needs its own design. Rules from the user:
   others play too (only watching is boring), with a note that it isn't canon: their text box is drawn
   in their hero's colour instead of white, and they get an entry line, e.g. Susie showing up in the
   weird-route Spamton fight: "Look who I found needing help".
-  How it plays (user, 2026-11-26): the turns stay together (same-time menu, shared enemy); only
-  the dodging is each on their own screen. So an ally who does well helps beat the enemy, and one
-  who does badly holds the team back (the enemy has more HP with more players).
+  How it plays (user, corrected 2026-11-26): a normal fight together (same-time menu, shared
+  enemy, the enemy with more HP for more players). Dodging on separate screens is only for the green
+  and orange SOULs (Hammer of Justice style shields, Flowery's clash), not for these fights.
 * **SOUL colours:** yellow = like Spamton NEO (everyone shoots). Green = like Hammer of Justice (each
   defends on their own screen). Orange (Flowery) = for now each player has their own clash on their
   own screen, like green; improve later. Aqua and blue = not used in the game yet (objects exist,
@@ -75,6 +77,14 @@ Rules:
 * A solo stand-in is worse than the team version: it costs more TP or does less (e.g. frees fewer,
   takes more turns), so playing together stays the better way.
 * It looks and sounds like the game's own actions (an existing spell or ACT in the normal menu).
+* Every combination gets one (user, 2026-11-26): each solo hero (Kris alone, Susie alone, Ralsei
+  alone, Noelle alone) and each duo without the needed hero. Cost ladder: the original (full team)
+  is cheapest; a duo stand-in costs more; a solo stand-in costs the most. Example, Queen's Throw:
+  Kris + Susie (+ anyone) = Kris's Throw, free; Susie + Ralsei = Susie throws Ralsei, 20% TP (done);
+  Kris + Ralsei, Susie alone, Kris alone, Ralsei alone: to do, 40% TP for solos (poses needed:
+  SPRITES.md).
+* Minigames: the best result is always a shared one (everyone in the same game); separate copies
+  only where sharing turns out impossible.
 Done (2026-11-26, DONE.md): team ACTs that only need the others' turns work without them, in every
 chapter (`tools/actsolo.py`: 22 found, plus the last board's). Open: the ~190 team ACTs whose code
 uses the helper (e.g. Sharpshoot, Rabbick's Warning): each needs its own stand-in, per the rules above.
@@ -86,6 +96,8 @@ the wires (20% TP). The throw is sent as angle + power (Susie's player throws), 
 Open: once in 6 test runs the client's game refused the host's replayed Z on Susie's MAGIC list at
 turn 1 (stuck on that list; host went on): looks like the menu replay, not the throw; cause not found.
 Open: Werewire's ThrowWire (Chapters 2-4) still has no stand-in.
+Where a stand-in needs a pose the game doesn't have, it goes in SPRITES.md (situation, why, how it
+would look) for the user to look for.
 Go through MINIGAMES.md for every mechanic that needs two specific heroes and pick one stand-in
 for each, the simplest that keeps the original's feel.
 
