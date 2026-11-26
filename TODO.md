@@ -29,7 +29,6 @@ on top of the game where the game itself can show it.
    waiting lines (who a fight waits for), the spectator line in a fight you only watch, scene
    choices, quick messages from others, the one-time "Story cutscenes show the party" hint.
 3. **Bugs reported in play (2026-11-25):**
-   - C menu does not open while playing another character (as Kris it opens: menuat test token).
    - The heart in the leaving animation keeps its original color instead of my character's.
    - Solo: the party still follows me. Solo should be really solo (this also fixes Kris looking
      Light World while Ralsei leads, so that one needs no fix of its own).
@@ -234,6 +233,7 @@ to check in play:
 
 | Issue | What is needed |
 |---|---|
+| C menu didn't open while playing Ralsei (Chapter 1, `room_field_checkers6`, hosting on Steam alone, 2026-11-25). Not reproduced: the same room, plot and character with the `menuat` token opens the menu (interact 5, screenshot of the ITEM page), and the key config has C. | F9 "Save logs for a bug report" right after it happens again, and whether a gamepad was used. |
 | A player had no sound for a while; it came back by itself (report 7). | `multiplayer_log.txt` from that session. Possibly the game muted while unfocused, or a song started late. |
 
 ## Re-check in play
