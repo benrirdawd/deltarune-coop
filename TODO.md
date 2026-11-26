@@ -19,9 +19,9 @@ on top of the game where the game itself can show it.
    sub-menus (enemy, ACT, item lists) move live in their panels. A hero with no player (or the
    solo party) works as now.
    **Part 1 done (2026-11-26, DONE.md):** panels up together, each lights its own choice, no turn
-   notes, a ready choice plays by itself. **Next part:** the sub-menus (enemy, ACT, spell, item lists)
-   of a hero chosen ahead are still the drawn box over the battle (`mp_plan_draw`): draw them in the
-   game's own bottom box with the heart cursor instead, and show the others' sub-menu cursor live.
+   notes, a ready choice plays by itself. **Part 2 done (2026-11-26, DONE.md):** the lists of a hero chosen ahead are in the battle's own
+   bottom box. **Left:** the spell list doesn't show the spell's description and TP cost on the
+   right as the game's does; the others' list cursor isn't seen live (only their main-row choice).
 2. **Fewer yellow notes (M).** Go through the 72 mp_notify texts and remove the ones the game can show
    by itself (battle turn notes, waiting lines); keep only real errors and connection news.
 3. **Bugs reported in play (2026-11-25):**

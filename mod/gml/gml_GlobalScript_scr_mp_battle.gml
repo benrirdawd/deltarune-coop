@@ -84,6 +84,7 @@ function mp_battle_reset()
     global.mp_down_hit_n = 0;
     global.mp_tp_flash_f = -9999;
     global.mp_pl_slot = -1;
+    global.mp_pl_hid = noone;
     global.mp_pl_turn = -1;
     global.mp_pl_d = 0;
     global.mp_pl_n = 0;
@@ -2194,67 +2195,72 @@ function mp_plan_run()
     global.mp_pl_t = global.mp_frame;
 }
 
-// GUI: the plan being made, over the battle (my next hero, while someone else chooses).
-function mp_plan_draw()
+// obj_battlecontroller's Draw: the plan's list (enemies, ACTs, spells, items, heroes) for my next
+// hero, in the battle's own bottom box with the SOUL as cursor, laid out as the game lays out that
+// list. The battle text is hidden meanwhile and comes back when the plan is done.
+function mp_plan_box_draw(xx, yy)
 {
-    if (!mp_battle_on() || global.mp_presel < 0 || global.mp_pl_slot != global.mp_presel || global.charturn >= 3)
-        return;
-    if (global.myfight != 0 || global.mnfight != 0 || global.mp_owner[global.charturn] == global.mp_myid)
-        return;
-    var s = global.mp_pl_slot;
-    var path = mp_presel_name(s);
-    for (var d = 1; d <= 2; d++)
+    var w = variable_instance_exists(id, "battlewriter") ? battlewriter : noone;
+    var on = variable_global_exists("mp_inited") && mp_battle_on() && global.mp_presel >= 0 && global.mp_pl_slot == global.mp_presel
+        && global.charturn < 3 && global.myfight == 0 && global.mnfight == 0 && global.mp_owner[global.charturn] != global.mp_myid
+        && global.mp_pl_d > 0 && !global.mp_pl_ready;
+    if (!on)
     {
-        if (d > global.mp_pl_d && d > global.mp_pl_n)
-            break;
-        var o = mp_plan_opts(s, global.mp_pl_v[0], d, global.mp_pl_v[1]);
-        for (var i = 0; i < array_length(o); i++)
+        if (variable_global_exists("mp_pl_hid") && global.mp_pl_hid != noone)
         {
-            if (o[i][0] == global.mp_pl_v[d])
-                path += " > " + o[i][1];
+            if (instance_exists(global.mp_pl_hid))
+                global.mp_pl_hid.visible = true;
+            global.mp_pl_hid = noone;
         }
+        return;
     }
-    var hero = string(global.charname[global.char[s]]);
-    var l1 = "Next for " + hero + ": " + path + (global.mp_pl_ready ? "   (ready: Z on your turn)" : "");
-    var l2 = "";
-    if (global.mp_pl_d > 0 && !global.mp_pl_ready)
+    if (instance_exists(w) && w.visible)
     {
-        var oc = mp_plan_opts(s, global.mp_pl_v[0], global.mp_pl_d, global.mp_pl_v[1]);
-        for (var j = 0; j < array_length(oc); j++)
-            l2 += (oc[j][0] == global.mp_pl_v[global.mp_pl_d] ? "> " + oc[j][1] + " <" : oc[j][1]) + "   ";
+        w.visible = false;
+        global.mp_pl_hid = w;
     }
-    var l3 = global.mp_pl_d == 0 ? "Left/Right: action   Z: choose more" : "Arrows: choose   Z: next   X: back";
-    var gw = display_get_gui_width();
-    var sc = max(1, floor(gw / 640));
-    var of = draw_get_font();
-    draw_set_font(global.mp_font);
-    var w = max(string_width(l1), string_width(l2), string_width(l3)) + 16;
-    var lh = string_height("A") + 2;
-    var h = lh * (l2 != "" ? 3 : 2) + 8;
-    var bx = (gw - w * sc) / 2;
-    var by = (display_get_gui_height() * 0.6) - (h * sc); // (just above the party's bar)
-    draw_set_alpha(0.85);
-    draw_set_colour(c_black);
-    draw_rectangle(bx, by, bx + w * sc, by + h * sc, false);
-    draw_set_alpha(1);
-    draw_set_colour(c_white);
-    draw_rectangle(bx, by, bx + w * sc, by + h * sc, true);
-    draw_set_halign(fa_left);
-    draw_set_valign(fa_top);
-    var ty = by + 4 * sc;
-    draw_set_colour(global.mp_pl_ready ? c_yellow : c_white);
-    draw_text_transformed(bx + 8 * sc, ty, l1, sc, sc, 0);
-    ty += lh * sc;
-    if (l2 != "")
+    var s = global.mp_pl_slot;
+    var d = global.mp_pl_d;
+    var bar = global.mp_pl_v[0];
+    var opts = mp_plan_opts(s, bar, d, global.mp_pl_v[1]);
+    var n = array_length(opts);
+    if (n == 0)
+        return;
+    var cur = 0;
+    for (var i = 0; i < n; i++)
     {
-        draw_set_colour(c_aqua);
-        draw_text_transformed(bx + 8 * sc, ty, l2, sc, sc, 0);
-        ty += lh * sc;
+        if (opts[i][0] == global.mp_pl_v[d])
+            cur = i;
     }
-    draw_set_colour(c_gray);
-    draw_text_transformed(bx + 8 * sc, ty, l3, sc, sc, 0);
-    draw_set_colour(c_white);
-    draw_set_font(of);
+    // (Whatever the hero choosing now has open there, replayed from its player, goes under mine:
+    // their choice shows in their panel.)
+    var bpv = variable_instance_exists(id, "bp") ? bp : 0;
+    draw_set_color(c_black);
+    draw_rectangle(xx - 10, (480 - bpv) + 37 + yy, xx + 700, 481 + yy, false);
+    // Enemy and hero lists are one column (the enemy list's place); ACTs, spells and items two.
+    var ch = global.char[s];
+    var twocol = (bar == 1 && ((ch == 1 && d == 2) || (ch != 1 && d == 1))) || (bar == 2 && d == 1);
+    scr_84_set_draw_font("mainbig");
+    draw_set_color(c_white);
+    if (!twocol)
+    {
+        for (var k = 0; k < min(3, n); k++)
+            draw_text(xx + 80, yy + 375 + (k * 30), string_hash_to_newline(opts[k][1]));
+        draw_sprite(spr_heart, 0, xx + 55, yy + 385 + (min(cur, 2) * 30));
+        return;
+    }
+    var page = floor(cur / 6);
+    for (var k2 = page * 6; k2 < min(n, (page * 6) + 6); k2++)
+    {
+        var j = k2 - (page * 6);
+        var t = string_hash_to_newline(opts[k2][1]);
+        var sc = min(1, 200 / max(1, string_width(t)));
+        draw_text_transformed(xx + ((j mod 2) ? 260 : 30), yy + 375 + (floor(j / 2) * 30), t, sc, 1, 0);
+    }
+    var jc = cur - (page * 6);
+    draw_sprite(spr_heart, 0, xx + ((jc mod 2) ? 230 : 10), yy + 385 + (floor(jc / 2) * 30));
+    if (n > (page * 6) + 6)
+        draw_sprite(spr_morearrow, 0, xx + 470, yy + 445);
 }
 
 // ---------------------------------------------------------------- ACTs with their own little game

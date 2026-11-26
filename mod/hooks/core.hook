@@ -616,3 +616,7 @@ btc\[global\.bmenucoord\[0\]\[global\.charturn\]
 @with
 btc[global.bmenucoord[0][charpos[c]]
 @end
+
+;; ...and the list of a hero chosen ahead (enemies, ACTs, spells, items) in the battle's own bottom box.
+@append gml_Object_obj_battlecontroller_Draw_0
+mp_plan_box_draw(xx, yy);

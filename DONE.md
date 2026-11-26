@@ -4,6 +4,20 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Battle menu, everyone at once, part 2 (2026-11-26)
+
+* Choosing ahead past the main row (which enemy, which ACT, spell or item, which hero) now shows the
+  list in the battle's own bottom box, laid out as the game lays out that list (enemies and heroes in
+  one column, ACTs, spells and items in two, six to a page), with the SOUL as cursor. The battle text
+  is hidden meanwhile; whatever the current chooser has open there goes under mine (their choice
+  shows in their panel). The drawn box over the battle (`mp_plan_draw`) and its key hints are gone.
+* Test tokens `planslow` (the plan bot presses every 20 frames, nothing else) and `planhold` (stays in
+  the plan's list).
+* **Tested:** Chapter 2 encounter 53, 2 players, host idle in its menu, client `plan:1:1:0,planhold`:
+  the screenshot shows both panels up and Susie's spell list (Rude Buster) with the SOUL in the bottom
+  box. With `chaos:10:120:60` at speed 20, client `plan:1:0:0` with full TP: 4 turns, identical state
+  in both games, 3 plans played.
+
 ## Battle menu, everyone at once, part 1 (2026-11-26)
 
 * While one hero chooses, every other player's next hero has its panel raised too, in the game's own

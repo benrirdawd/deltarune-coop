@@ -1009,8 +1009,10 @@ function mp_test_input()
             return;
         // plan:<bar>:<n1>:<n2>: while someone else chooses, plan my next hero's action: that bar,
         // then n1 presses down on level 1, n2 on level 2 (Z between). The bot's Z plays it after.
-        if (mp_test_arg("plan") != "" && (f mod 6) == 0 && global.mp_presel >= 0 && global.mp_pl_slot == global.mp_presel && !global.mp_pl_ready && global.charturn < 3 && global.mp_owner[global.charturn] != global.mp_myid)
+        if (mp_test_arg("plan") != "" && ((f mod (mp_test_has("planslow") ? 20 : 6)) == 0 || mp_test_has("planslow")) && global.mp_presel >= 0 && global.mp_pl_slot == global.mp_presel && !global.mp_pl_ready && global.charturn < 3 && global.mp_owner[global.charturn] != global.mp_myid)
         {
+            if ((f mod (mp_test_has("planslow") ? 20 : 6)) != 0)
+                return;
             var pv = string_split(mp_test_arg("plan"), ":");
             if (!variable_global_exists("mp_test_pl_k") || global.mp_test_pl_t != global.mp_bturn)
             {
@@ -1018,6 +1020,9 @@ function mp_test_input()
                 global.mp_test_pl_t = global.mp_bturn;
             }
             var lvl = global.mp_pl_d;
+            // planhold: stay in the plan's list (screenshots of it).
+            if (mp_test_has("planhold") && lvl > 0)
+                return;
             if (lvl == 0 && global.bmenucoord[0][global.mp_presel] != real(pv[0]))
                 global.input_pressed[1] = 1;
             else if (lvl > 0 && global.mp_test_pl_k < real(pv[lvl]))
