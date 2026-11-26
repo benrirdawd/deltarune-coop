@@ -4,6 +4,17 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Shadow Mantle: retries with 2 players (2026-11-26)
+
+After a loss each player walks back to the console and plays again on their own: the sword intro,
+`room_board_preshadowmantle_repeat`, the fight again with full HP (30), the shared hits starting over
+(a friend's count that went back to 0 is read as a new try). Test token `touchrooms`: `touch` again in
+every room where its object is (here the console after each Game Over).
+**Tested** (Chapter 3, 2 players, client with `chaos:10:120:60`, 20x, `smhit`, no `sturdy`, touching
+the console): 11 and 12 fights in a row, each starting at hp 30, both games going round sword intro,
+preshadowmantle_repeat and the fight; nobody pulled. `mpcheck`: all PASS except "moved" (the test
+moves both pieces).
+
 ## Shadow Mantle lost with 2 players; the TV row only at the console (2026-11-26)
 
 A loss with 2 players (no `sturdy`, flag 1055 = 5 as in the story; 6 is past the fight and makes the

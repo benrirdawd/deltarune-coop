@@ -199,14 +199,17 @@ function mp_test_tick()
     // touch:<object>@<frame>: stand just below the newest instance of <object>, facing it, and press Z
     // (talking to an NPC, a save point...). The Z goes out on the next few frames (mp_test_input).
     var tv = mp_test_arg("touch");
-    if (tv != "" && !variable_global_exists("mp_test_touched") && instance_exists(obj_mainchara))
+    // (touchrooms: touch again in every room where the object is, e.g. after a Game Over.)
+    if (tv != "" && mp_test_has("touchrooms") && variable_global_exists("mp_test_touched") && !is_undefined(global.mp_test_touched) && global.mp_test_touched != room + 1 && global.mp_room_frames < 5)
+        variable_global_set("mp_test_touched", undefined);
+    if (tv != "" && (!variable_global_exists("mp_test_touched") || is_undefined(global.mp_test_touched)) && instance_exists(obj_mainchara))
     {
         var ta = string_pos("@", tv);
         var tf = ta > 0 ? real(string_delete(tv, 1, ta)) : 300;
         var tobj = asset_get_index(ta > 0 ? string_copy(tv, 1, ta - 1) : tv);
         if (global.mp_room_frames >= tf && global.interact == 0)
         {
-            global.mp_test_touched = 1;
+            global.mp_test_touched = room + 1;
             if (tobj >= 0 && instance_exists(tobj))
             {
                 var tinst = instance_find(tobj, instance_number(tobj) - 1); // (the newest one)
