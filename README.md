@@ -45,6 +45,13 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
 * **Everyone dodges.** In the bullet phase every player controls their own SOUL. A hit only
   hurts the character *you* play. If all of your characters are down, hits do nothing.
   Your grazes add to the shared TP bar.
+* **Your own colours.** Your SOUL is your character's colour (Susie purple, Ralsei green,
+  Noelle yellow), in battle and on the map: when a map hazard shows the SOUL, your character goes
+  dark with an outline and heart in that colour, like the game does for Kris.
+* **Team ACTs without the whole team.** Some of Kris's ACTs need the others to give up their
+  turn. When that hero isn't in the fight at all (nobody plays them), the ACTs that are only
+  Kris's or only text (e.g. the last game board's Tenna fight) still work; ACTs that really use the
+  other heroes still need them.
 * **Explore independently.** Walk and talk to NPCs on your own, even in different rooms.
   Other players appear as name-tagged characters when you're in the same room. Everyone walks
   alone, as their own character: the game's party followers only show in story cutscenes.

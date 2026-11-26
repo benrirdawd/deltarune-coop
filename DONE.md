@@ -1694,3 +1694,21 @@ is placed like the normal one (bottom centre). Kris is unchanged. (`mp_ow_heart_
 
 **Tested** (Chapter 2, 3 players, `owsoul`, clients with `chaos:10:120:60`): screenshots show
 Susie with a purple heart and Ralsei with a green one, each on the chest, outline matching the body.
+
+## Team ACTs work without heroes nobody plays (2026-11-26, user request)
+
+Chapter 3's last board fight (Tenna + Shadowguy, encounters 133/134) gives every hero only ACT, and
+Kris's ACTs there need Susie and Ralsei (`actactor` 4: the game greys them out unless both are in the
+fight and standing). In a session the fight has only the played heroes, so with two players Kris
+could pick nothing and the fight stalled on turn 0. Looked at what each ACT does: Tenna's (ILOVETV,
+Resist) are text only, Shadowguy's Check and Boogie are Kris's own (Boogie: Kris dances); only
+Sharpshoot moves and dresses Susie and Ralsei (`obj_heroralsei.x` without a check, it would crash).
+So, the user's rule: if a helper is only there to skip their turn, the ACT works without them.
+`mp_act_blocked`: when the needed hero is not in the fight at all (a hero who is down still blocks,
+as in the game), the ACTs listed in `mp_act_turn_only` stay usable; Sharpshoot and every other ACT
+keep the game's rule. Tenna board 4 is off the "special" list (a normal same-time fight).
+
+**Tested** (Chapter 3, encounter 134, client with `chaos:10:120:60`, `mpcheck` all PASS): Kris +
+Noelle (no Susie, no Ralsei) and Kris + Susie both get past turn 0 (before: stuck there for 120 s),
+same pace as with all three heroes (3 players, turn 1 in 120 s, Tenna's long talks); turn states
+identical in both games; screenshot: "That's right." after ILOVETV.

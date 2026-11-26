@@ -150,7 +150,7 @@ function mp_participating(i)
 // fallback; single fights can be synced one by one later.
 function mp_battle_special()
 {
-    var names = ["obj_spamton_neo_enemy", "obj_gigaqueen_enemy", "obj_shadow_mantle_enemy", "obj_tenna_board4_enemy", "obj_titan_enemy", "obj_hammer_of_justice_enemy", "obj_sound_of_justice_enemy"];
+    var names = ["obj_spamton_neo_enemy", "obj_gigaqueen_enemy", "obj_shadow_mantle_enemy", "obj_titan_enemy", "obj_hammer_of_justice_enemy", "obj_sound_of_justice_enemy"];
     for (var m = 0; m < 3; m++)
     {
         if (!variable_global_exists("monsterinstancetype") || !global.monster[m])
@@ -2558,4 +2558,33 @@ function mp_soul_fly_created(out)
     dist = point_distance(x, y, distx, disty);
     move_towards_point(distx, disty, dist / flytime);
     mp_log("SOUL " + (out ? "back to " : "out of ") + object_get_name(h.object_index));
+}
+
+// Kris's ACTs that need other heroes (the game greys them out unless those heroes are in the fight
+// and standing). In a session the fight has only the played heroes, and some of those ACTs only
+// need the others to give up their turn (the act itself is Kris's, or only text): those stay
+// usable when the hero is not in this fight at all (a hero who is down still blocks them, as in
+// the game). ACTs that move or dress the other heroes (e.g. Sharpshoot) still need them.
+// h: havechar index (1 Susie, 2 Ralsei, 3 Noelle). a: the ACT. Called by obj_battlecontroller.
+function mp_act_blocked(h, a)
+{
+    if (havechar[h] != 0)
+        return global.hp[h + 1] <= 0;
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return true;
+    return !mp_act_turn_only(global.bmenucoord[11][global.charturn], a);
+}
+
+function mp_act_turn_only(e, a)
+{
+    var b4 = asset_get_index("obj_tenna_board4_enemy");
+    if (b4 < 0 || !instance_exists(b4))
+        return false;
+    var t = global.monsterinstancetype[e];
+    // Chapter 3, last board: Tenna's ACTs are text only; Shadowguy's Check and Boogie are Kris's.
+    if (t == b4)
+        return true;
+    if (t == asset_get_index("obj_shadowman_enemy") && a <= 1)
+        return true;
+    return false;
 }

@@ -60,7 +60,6 @@ watch. Each needs its own design. Rules from the user:
 | 2 | Spamton NEO (`obj_spamton_neo_enemy`) | Yellow shooting SOUL, Susie's ACT, BIG SHOT | Everyone shoots; shot targets' HP x players |
 | 2 | GigaQueen (`obj_gigaqueen_enemy`) | Robot fight (punches, shield) | to design |
 | 3 | Shadow Mantle (`obj_shadow_mantle_enemy`) | Real-time action boss on the game board (no menu): the board party walks, Kris swings the sword, bombs, fire, clones | Each player moves their own board piece and attacks; boss HP x players (as the shooting rule) |
-| 3 | Tenna board 4 (`obj_tenna_board4_enemy`) | Menu fight on the last board, with a gacha (`obj_tenna_board4_gacha`) and Shadowman / Zapper enemies | Likely normal same-time menu; gacha played by the one who uses it, result shared |
 | 4 | Hammer of Justice (`obj_hammer_of_justice_enemy`) | Green shield SOUL; a one-hero fight (only slot 0 is made, Kris) | Each defends on their own screen. Tried 2026-11-26 as a normal fight (encounter 160, 2 players): the hero's player plays it, the other only watches, and the first bullet phase did not end within 60 s. Needs the "fights meant for one hero" design first (the others' heroes join), then a look at why the phase hangs |
 | 4 | Sound of Justice (`obj_sound_of_justice_enemy`) | Gerson's hidden fight: darkness overlay, Susie's heal shots (`obj_susie_heal_projectile`), spear shots | Darkness per screen; Susie's heal shots by Susie's player |
 | 4 | Titan (`obj_titan_enemy`) | Final boss of Chapter 4: darkness, Titan heals (`obj_titan_heal`) | Look at which hero's actions are special |
@@ -78,6 +77,8 @@ Rules:
 * A solo stand-in is worse than the team version: it costs more TP or does less (e.g. frees fewer,
   takes more turns), so playing together stays the better way.
 * It looks and sounds like the game's own actions (an existing spell or ACT in the normal menu).
+Done for one fight (2026-11-26, DONE.md): team ACTs that only need the others' turns work without them
+(`mp_act_turn_only`, Chapter 3 last board). Still open there: Sharpshoot without Susie/Ralsei.
 Go through MINIGAMES.md for every mechanic that needs two specific heroes and pick one stand-in
 for each, the simplest that keeps the original's feel.
 

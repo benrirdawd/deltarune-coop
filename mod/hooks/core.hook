@@ -645,3 +645,39 @@ $1
     if ((arg0 == snd_hurt1 || arg0 == snd_damage) && variable_global_exists("mp_inited") && mp_on())
         mp_log("sound " + audio_get_name(arg0) + " by " + object_get_name(object_index) + " room=" + room_get_name(room));
 @end
+
+;; Kris's team ACTs that only need the others' turns work without them (mp_act_blocked).
+@regex gml_Object_obj_battlecontroller_Draw_0
+\(havechar\[1\] == 0 \|\| global\.hp\[2\] <= 0\)
+@with
+(mp_act_blocked(1, i))
+@end
+@regex gml_Object_obj_battlecontroller_Draw_0
+\(havechar\[2\] == 0 \|\| global\.hp\[3\] <= 0\)
+@with
+(mp_act_blocked(2, i))
+@end
+#chapters 2,3,4,5
+@regex gml_Object_obj_battlecontroller_Draw_0
+\(havechar\[3\] == 0 \|\| global\.hp\[4\] <= 0\)
+@with
+(mp_act_blocked(3, i))
+@end
+#chapters all
+@regex gml_Object_obj_battlecontroller_Step_0
+\(havechar\[1\] == 0 \|\| global\.hp\[2\] <= 0\)
+@with
+(mp_act_blocked(1, global.bmenucoord[9][global.charturn]))
+@end
+@regex gml_Object_obj_battlecontroller_Step_0
+\(havechar\[2\] == 0 \|\| global\.hp\[3\] <= 0\)
+@with
+(mp_act_blocked(2, global.bmenucoord[9][global.charturn]))
+@end
+#chapters 2,3,4,5
+@regex gml_Object_obj_battlecontroller_Step_0
+\(havechar\[3\] == 0 \|\| global\.hp\[4\] <= 0\)
+@with
+(mp_act_blocked(3, global.bmenucoord[9][global.charturn]))
+@end
+#chapters all
