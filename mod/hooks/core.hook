@@ -603,3 +603,16 @@ draw_sprite_ext\((o[b]j_climb_kris\.sprite_index),
 draw_sprite_ext(mp_climb_sprite($1),
 @end
 #chapters all
+
+;; Battle menu, everyone at once: each player's next hero to choose has its panel raised too, and
+;; every panel lights its own hero's main-row choice (the game lights only the current hero's).
+@regex gml_GlobalScript_scr_charbox
+gc == charpos\[c\]
+@with
+mp_box_up(charpos[c])
+@end
+@regex gml_GlobalScript_scr_charbox
+btc\[global\.bmenucoord\[0\]\[global\.charturn\]
+@with
+btc[global.bmenucoord[0][charpos[c]]
+@end

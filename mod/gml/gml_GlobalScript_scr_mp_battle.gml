@@ -1009,20 +1009,6 @@ function mp_presel_send(s)
     mp_send();
 }
 
-// The others' bars while they wait for their turn, for the status line ("" none).
-function mp_presel_others()
-{
-    var t = "";
-    for (var s = global.charturn + 1; s < 3; s++)
-    {
-        var o = global.mp_owner[s];
-        if (global.char[s] == 0 || o == global.mp_myid || o >= 8 || !global.mp_pconn[o] || global.hp[global.char[s]] <= 0)
-            continue;
-        t += "  " + global.mp_pname[o] + ": " + mp_presel_name(s);
-    }
-    return t;
-}
-
 function mp_presel_name(s)
 {
     var b = global.bmenucoord[0][s];
@@ -1041,6 +1027,26 @@ function mp_presel_name(s)
             return "DEFEND";
     }
     return "?";
+}
+
+// scr_charbox: is slot s's panel up? The current hero's (as in the game), and, in a session's
+// menu phase, every other player's next hero still to choose: everyone chooses at the same time.
+function mp_box_up(s)
+{
+    if (s == global.charturn)
+        return true;
+    if (!variable_global_exists("mp_inited") || !mp_battle_on() || global.myfight != 0 || global.mnfight != 0 || global.charturn >= 3 || s <= global.charturn || s >= 3)
+        return false;
+    var o = global.mp_owner[s];
+    if (global.char[s] == 0 || o >= 8 || !global.mp_pconn[o] || global.hp[global.char[s]] <= 0 || o == global.mp_owner[global.charturn])
+        return false;
+    // (Only the player's first hero still to come.)
+    for (var t = global.charturn + 1; t < s; t++)
+    {
+        if (global.char[t] != 0 && global.mp_owner[t] == o && global.hp[global.char[t]] > 0)
+            return false;
+    }
+    return true;
 }
 
 // The battle menu takes a press this frame (it ignores them while its countdowns run).
@@ -1373,20 +1379,7 @@ function mp_battle_status()
     {
         return "You're down: keep dodging.";
     }
-    if (global.myfight == 0 && global.mnfight == 0 && global.charturn < 3)
-    {
-        var o = global.mp_owner[global.charturn];
-        var cn = mp_char_name(global.char[global.charturn]);
-        if (o == global.mp_myid)
-            return "Your turn: choose " + cn + "'s action!" + mp_presel_others();
-        if (o < 8 && global.mp_pconn[o])
-        {
-            var ps = mp_presel_slot();
-            if (ps >= 0)
-                return global.mp_pname[o] + " is choosing for " + cn + ". Your " + mp_char_name(global.char[ps]) + ": < " + mp_presel_name(ps) + " > (Z on your turn)" + mp_presel_others();
-            return global.mp_pname[o] + " is choosing for " + cn + "..." + mp_presel_others();
-        }
-    }
+    // (Whose turn it is shows in the battle menu itself: every chooser's panel is up.)
     if (mp_my_slot_count() == 0)
     {
         for (var s = 0; s < 3; s++)
@@ -2160,8 +2153,21 @@ function mp_plan_run()
     }
     if (!global.mp_pl_run)
     {
-        if (global.bmenuno == 0 && (global.input_pressed[4] || global.input_pressed[7]) && global.mp_pl_n > 0)
+        // Chosen already: played as soon as the menu reaches this hero, no second Z.
+        var auto = global.mp_pl_ready && global.bmenuno == 0 && (global.mp_frame - global.mp_mn_last) >= 5 && mp_menu_ready();
+        if (auto && global.mp_pl_n == 0)
         {
+            global.bmenucoord[0][s] = global.mp_pl_v[0];
+            global.input_pressed[4] = 1;
+            global.input_held[4] = 1;
+            global.mp_pl_slot = -1;
+            mp_log("choose ahead: slot " + string(s) + " plays its bar choice");
+            return;
+        }
+        if (global.bmenuno == 0 && (auto || global.input_pressed[4] || global.input_pressed[7]) && global.mp_pl_n > 0)
+        {
+            global.input_pressed[4] = 1;
+            global.input_held[4] = 1;
             global.bmenucoord[0][s] = global.mp_pl_v[0];
             global.mp_pl_run = 1;
             global.mp_pl_step = 1;

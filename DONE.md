@@ -4,6 +4,19 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Battle menu, everyone at once, part 1 (2026-11-26)
+
+* While one hero chooses, every other player's next hero has its panel raised too, in the game's own
+  battle menu (scr_charbox hook: `mp_box_up`), and each panel lights its own hero's main-row choice,
+  so everyone sees the others' bars move live. The "Your turn" / "X is choosing for..." notes are gone.
+* A choice made ahead now plays by itself when the menu reaches that hero (no second Z). A plain
+  choice like DEFEND is pressed straight away.
+* Simplest choice: the game still plays the heroes' choices in order underneath (that is what keeps
+  every game the same); only the choosing happens at once.
+* **Tested:** Chapter 2 encounter 53, 2 players, host `botslow`, client `plan:4:0:0`: screenshots show
+  Kris's and Susie's panels up together with FIGHT and MAGIC lit; the client's DEFEND played by itself.
+  With `chaos:10:120:60` at speed 20: 4 turns, identical state in both games, 2 auto-played choices.
+
 ## Joining during my own scene, next to the host: the room is entered again (run, 2026-11-25)
 
 * The re-entry built with the post-baseball fix (a client that joins during its own scene, already
