@@ -39,6 +39,19 @@ watch. Each needs its own design. Rules from the user:
   shots get more HP per active player (multiplied), not the boss's HP in general.
 * **Green shield SOUL (defend in four directions):** each player defends on their own screen (the
   simplest; something more interactive would be nicer, no idea yet).
+* **Fights meant for one hero (e.g. Sound of Justice, Spamton NEO's weird-route version):** the
+  others play too (only watching is boring), with a note that it isn't canon: their text box is drawn
+  in their hero's colour instead of white, and they get an entry line, e.g. Susie showing up in the
+  weird-route Spamton fight: "Look who I found needing help".
+* **SOUL colours:** yellow = like Spamton NEO (everyone shoots). Green = like Hammer of Justice (each
+  defends on their own screen). Orange (Flowery) = for now each player has their own clash on their
+  own screen, like green; improve later. Aqua and blue = not used in the game yet (objects exist,
+  nothing to do). Pink/purple = Mew Mew's fight, the SOUL plays like a normal fight; the hard part is
+  her choice event, not the SOUL.
+* **Queen, Berdly's plug, the Knight:** on the special list only as a precaution (an early guess that
+  they "likely only partly sync"), no known problem. The Knight synced turn 1 with 3 bot players
+  (2026-11-22). Test each as a normal fight with 2 players and take it off the list if it works.
+* **GigaQueen:** no good idea yet for making it fun with several players. Open.
 * The rest: one design per fight, simplest that keeps the original's feel.
 
 | Ch | Fight (enemy object) | Kind | Plan |
