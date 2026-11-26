@@ -47,19 +47,15 @@ watch. Each needs its own design. Rules from the user:
   own screen, like green; improve later. Aqua and blue = not used in the game yet (objects exist,
   nothing to do). Pink/purple = Mew Mew's fight, the SOUL plays like a normal fight; the hard part is
   her choice event, not the SOUL.
-* **Queen, Berdly's plug, the Knight:** on the special list only as a precaution (an early guess that
-  they "likely only partly sync"), no known problem. The Knight synced turn 1 with 3 bot players
-  (2026-11-22). Test each as a normal fight with 2 players and take it off the list if it works.
+* **Queen, Berdly's plug, the Knight:** done 2026-11-26, now normal fights (DONE.md). Berdly's plug
+  (scene 25 inside the Queen fight) is still to see in play.
 * **GigaQueen:** no good idea yet for making it fun with several players. Open.
 * The rest: one design per fight, simplest that keeps the original's feel.
 
 | Ch | Fight (enemy object) | Kind | Plan |
 |---|---|---|---|
 | 2 | Spamton NEO (`obj_spamton_neo_enemy`) | Yellow shooting SOUL, Susie's ACT, BIG SHOT | Everyone shoots; shot targets' HP x players |
-| 2 | Queen (`obj_queen_enemy`) | Menu fight with her own pieces: the plug (`obj_queen_battle_plug`, Berdly plugged in), her shield (`obj_queenshield_enemy`), wine walls | Look at which part needs one player; likely everyone in the normal menu, plug/shield parts shared |
 | 2 | GigaQueen (`obj_gigaqueen_enemy`) | Robot fight (punches, shield) | to design |
-| 2 | Berdly plug (`obj_berdlyplug_enemy`) | Not a fight of its own: the plugged Berdly inside the Queen fight (driven by scene 25) | Goes with the Queen fight |
-| 3 | Knight (`obj_knight_enemy`) | Sword tunnel | to design |
 | 3 | Shadow Mantle (`obj_shadow_mantle_enemy`) | Real-time action boss on the game board (no menu): the board party walks, Kris swings the sword, bombs, fire, clones | Each player moves their own board piece and attacks; boss HP x players (as the shooting rule) |
 | 3 | Tenna board 4 (`obj_tenna_board4_enemy`) | Menu fight on the last board, with a gacha (`obj_tenna_board4_gacha`) and Shadowman / Zapper enemies | Likely normal same-time menu; gacha played by the one who uses it, result shared |
 | 4 | Hammer of Justice (`obj_hammer_of_justice_enemy`) | Green shield SOUL | Each defends on their own screen |

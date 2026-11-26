@@ -150,7 +150,7 @@ function mp_participating(i)
 // fallback; single fights can be synced one by one later.
 function mp_battle_special()
 {
-    var names = ["obj_spamton_neo_enemy", "obj_queen_enemy", "obj_gigaqueen_enemy", "obj_berdlyplug_enemy", "obj_knight_enemy", "obj_shadow_mantle_enemy", "obj_tenna_board4_enemy", "obj_titan_enemy", "obj_hammer_of_justice_enemy", "obj_sound_of_justice_enemy"];
+    var names = ["obj_spamton_neo_enemy", "obj_gigaqueen_enemy", "obj_shadow_mantle_enemy", "obj_tenna_board4_enemy", "obj_titan_enemy", "obj_hammer_of_justice_enemy", "obj_sound_of_justice_enemy"];
     for (var m = 0; m < 3; m++)
     {
         if (!variable_global_exists("monsterinstancetype") || !global.monster[m])

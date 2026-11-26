@@ -1671,3 +1671,14 @@ purple, Ralsei green, Noelle yellow; Kris keeps the game's own red sprite). `mp_
 **Tested** (Chapter 2, 3 players, new test token `owsoul`, clients with `chaos:10:120:60`):
 screenshots show Kris (game's red), Ralsei (green), Noelle (yellow) and Susie (purple), each dark
 with a crisp 1-pixel outline.
+
+## Queen, Berdly's plug and the Knight are normal fights (2026-11-26)
+
+They were on the "special" list (the leader plays every hero) only as a precaution. Taken off: every
+player plays their own hero, choosing at the same time, as in any fight. New test token `sturdy`
+(heroes have 999 HP in fights) for long test fights.
+
+**Tested** (2 players, bots with random menu choices, client with `chaos:10:120:60`, `mpcheck` all
+PASS): Chapter 2 Queen (encounter 59), 5 turns with identical turn states in both games; Chapter 3
+Knight (encounter 115), 7 turns identical, both heroes' panels up together (screenshot). Berdly's
+plug only shows up through the Queen fight's own scene 25, not reached here: re-check in play.
