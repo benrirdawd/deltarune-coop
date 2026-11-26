@@ -237,7 +237,7 @@ function mp_mirror_start(from, rm)
     ds_map_clear(global.mp_choices);
     mp_close_local_dialogue();
     global.interact = 1;
-    mp_notify("Watching " + global.mp_pname[from] + "'s cutscene");
+    mp_log("watching " + global.mp_pname[from] + "'s cutscene");
     mp_log("mirror: start, leader " + string(from) + ", room " + room_get_name(rm));
     global.mp_warp_mus = from;
     if (room != rm && mp_room_ok(rm))

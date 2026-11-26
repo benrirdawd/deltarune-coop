@@ -380,7 +380,7 @@ function mp_go_to_player(pid)
         mp_warp(global.mp_proom[pid], -99999, 0, 0);
     else
         mp_warp(global.mp_proom[pid], global.mp_pix[pid], global.mp_piy[pid], 0);
-    mp_notify("Going to " + global.mp_pname[pid] + ".");
+    mp_log("going to " + global.mp_pname[pid]);
 }
 
 // Host: everyone comes to where I am (as if they all pressed F8).
@@ -401,7 +401,7 @@ function mp_bring_everyone()
     mp_send_pos(1, -1);
     mp_begin(61);
     mp_send();
-    mp_notify("Bringing everyone here.");
+    mp_log("bringing everyone here");
 }
 
 // Someone (the host) asked everyone to come over.
@@ -2726,5 +2726,5 @@ function mp_gameover_recv(sender)
     if (!mp_gameover_room() || global.mp_go_sent)
         return;
     global.mp_go_remote = 1;
-    mp_notify(global.mp_pname[sender] + " chose CONTINUE.");
+    mp_log(global.mp_pname[sender] + " chose CONTINUE");
 }

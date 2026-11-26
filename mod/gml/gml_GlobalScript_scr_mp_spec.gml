@@ -74,7 +74,7 @@ function mp_spec_set(p)
     if (p < 0)
     {
         mp_spec_show_me();
-        mp_notify("Stopped watching.");
+        mp_log("stopped watching");
         mp_log("spectate: off");
     }
     else

@@ -1364,8 +1364,9 @@ function mp_battle_status()
 {
     if (!mp_battle_on())
         return "";
+    // (A held fight: the waiting box says who it waits for.)
     if (global.mp_hold)
-        return mp_timing_status();
+        return "";
     if (global.mp_bwait)
     {
         var names = mp_bwait_names();
@@ -1376,10 +1377,9 @@ function mp_battle_status()
     var q = mp_qte_waiting_name();
     if (q != "")
         return "Waiting for " + q + "'s attack...";
-    if (mp_soul_state() == 1 && instance_exists(obj_heart))
-    {
-        return "You're down: keep dodging.";
-    }
+    // (A downed hero shows in its panel: nothing to add.)
+    if (mp_soul_state() == 1)
+        return "";
     // (Whose turn it is shows in the battle menu itself: every chooser's panel is up.)
     if (mp_my_slot_count() == 0)
     {
@@ -1391,8 +1391,6 @@ function mp_battle_status()
         }
         return "Watching: " + mp_char_name(global.mp_cfg_char) + " is not in this battle. No need to dodge.";
     }
-    if (mp_soul_state() == 1)
-        return "You're down: you'll be back when you're revived.";
     return "";
 }
 

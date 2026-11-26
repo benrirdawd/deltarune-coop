@@ -4,6 +4,18 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Fewer notes on screen (2026-11-26)
+
+Notes that only repeated what the game already shows went to the log instead (`multiplayer_log.txt`):
+"Joining X's fight / battle" (the battle starts on screen), "Watching X's cutscene", "Stopped
+watching", my own quick message ("You: ...", the bubble shows it) and ping ("Ping!...", the arrow
+shows it), a ping from someone in my room (the arrow shows it; one from another room still has its
+note), "Going to X", "Bringing everyone here", "X chose CONTINUE". The yellow line no longer says
+"You're down" (the hero's panel shows it) nor repeats the waiting box of a held fight.
+**Tested:** Chapter 2 encounter 53, 2 players with `chaos:10:120:60` at speed 20, client `pingat`
+and `chat`: 3 turns, identical state in both games; the log has "ping sent", "said: Come here!",
+"P2 pings here", "joining Host's battle" and no note for them; the others' message still shows.
+
 ## Battle menu, everyone at once, part 2 (2026-11-26)
 
 * Choosing ahead past the main row (which enemy, which ACT, spell or item, which hero) now shows the

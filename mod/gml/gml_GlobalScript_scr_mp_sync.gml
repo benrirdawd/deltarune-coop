@@ -829,7 +829,7 @@ function mp_sync_try_pull()
         global.mp_battle_pulled = 1;
         global.mp_battle_from = from;
         global.mp_battle_from_seen = 0;
-        mp_notify("Joining " + global.mp_pname[from] + "'s battle!");
+        mp_log("joining " + global.mp_pname[from] + "'s battle");
         global.mp_warp_mus = from;
         // (A room switched off for a mirrored cutscene is built again.)
         global.mp_warp_reenter = dz_changed || was_mirror;

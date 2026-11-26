@@ -679,7 +679,7 @@ function mp_join_request(target)
 {
     mp_log("asking to join player " + string(target) + "'s fight");
     global.mp_join_asked = current_time;
-    mp_notify("Joining " + global.mp_pname[target] + "'s fight...");
+    mp_log("joining " + global.mp_pname[target] + "'s fight");
     mp_begin(52);
     mp_wu8(target);
     mp_send();

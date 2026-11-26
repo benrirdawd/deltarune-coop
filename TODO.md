@@ -25,8 +25,9 @@ on top of the game where the game itself can show it.
    (their panel). Their list (which enemy, which spell) has no place in the game's layout: the
    bottom box is mine while I choose. The hero choosing *now* is seen live (the game shows its lists
    in my box when I'm not choosing ahead). Is that enough, or where should the others' lists show?
-2. **Fewer yellow notes (M).** Go through the 72 mp_notify texts and remove the ones the game can show
-   by itself (battle turn notes, waiting lines); keep only real errors and connection news.
+2. **Done (2026-11-26):** fewer notes, see DONE.md. Kept on purpose: connection and error news,
+   waiting lines (who a fight waits for), the spectator line in a fight you only watch, scene
+   choices, quick messages from others, the one-time "Story cutscenes show the party" hint.
 3. **Bugs reported in play (2026-11-25):**
    - C menu does not open while playing another character (as Kris it opens: menuat test token).
    - The heart in the leaving animation keeps its original color instead of my character's.

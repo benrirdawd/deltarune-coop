@@ -1066,7 +1066,7 @@ function mp_chat_send(i)
     mp_begin(84);
     mp_wu8(i);
     mp_send();
-    mp_notify("You: " + msgs[i]);
+    mp_log("said: " + msgs[i]);
 }
 
 function mp_chat_recv(sender, b)
@@ -1094,7 +1094,7 @@ function mp_ping_send()
     mp_begin(85);
     mp_wu16(room);
     mp_send();
-    mp_notify("Ping! The others see where you are.");
+    mp_log("ping sent");
 }
 
 function mp_ping_recv(sender, b)
@@ -1104,7 +1104,7 @@ function mp_ping_recv(sender, b)
         return;
     global.mp_pping_t[sender] = current_time;
     if (rm == room)
-        mp_notify(global.mp_pname[sender] + " pings: here!");
+        mp_log(global.mp_pname[sender] + " pings here");
     else
         mp_notify(global.mp_pname[sender] + " pings from another room" + (room_exists(rm) ? " (" + room_get_name(rm) + ")" : "") + ".");
 }
