@@ -44,16 +44,16 @@ watch. Each needs its own design. Rules from the user:
 | Ch | Fight (enemy object) | Kind | Plan |
 |---|---|---|---|
 | 2 | Spamton NEO (`obj_spamton_neo_enemy`) | Yellow shooting SOUL, Susie's ACT, BIG SHOT | Everyone shoots; shot targets' HP x players |
-| 2 | Queen (`obj_queen_enemy`) | to look at | |
+| 2 | Queen (`obj_queen_enemy`) | Menu fight with her own pieces: the plug (`obj_queen_battle_plug`, Berdly plugged in), her shield (`obj_queenshield_enemy`), wine walls | Look at which part needs one player; likely everyone in the normal menu, plug/shield parts shared |
 | 2 | GigaQueen (`obj_gigaqueen_enemy`) | Robot fight (punches, shield) | to design |
-| 2 | Berdly plug (`obj_berdlyplug_enemy`) | to look at | |
+| 2 | Berdly plug (`obj_berdlyplug_enemy`) | Not a fight of its own: the plugged Berdly inside the Queen fight (driven by scene 25) | Goes with the Queen fight |
 | 3 | Knight (`obj_knight_enemy`) | Sword tunnel | to design |
-| 3 | Shadow Mantle (`obj_shadow_mantle_enemy`) | Board fight | to design |
-| 3 | Tenna board 4 (`obj_tenna_board4_enemy`) | Board fight | to design |
+| 3 | Shadow Mantle (`obj_shadow_mantle_enemy`) | Real-time action boss on the game board (no menu): the board party walks, Kris swings the sword, bombs, fire, clones | Each player moves their own board piece and attacks; boss HP x players (as the shooting rule) |
+| 3 | Tenna board 4 (`obj_tenna_board4_enemy`) | Menu fight on the last board, with a gacha (`obj_tenna_board4_gacha`) and Shadowman / Zapper enemies | Likely normal same-time menu; gacha played by the one who uses it, result shared |
 | 4 | Hammer of Justice (`obj_hammer_of_justice_enemy`) | Green shield SOUL | Each defends on their own screen |
-| 4 | Sound of Justice (`obj_sound_of_justice_enemy`) | to look at | |
-| 4 | Titan (`obj_titan_enemy`) | to look at | |
-| 5 | not listed yet | Chapter 5 has yellow/green attack objects (`obj_attack_yellow_reticle`, `obj_attack_green_cookingtime`): find its special fights and add them | |
+| 4 | Sound of Justice (`obj_sound_of_justice_enemy`) | Gerson's hidden fight: darkness overlay, Susie's heal shots (`obj_susie_heal_projectile`), spear shots | Darkness per screen; Susie's heal shots by Susie's player |
+| 4 | Titan (`obj_titan_enemy`) | Final boss of Chapter 4: darkness, Titan heals (`obj_titan_heal`) | Look at which hero's actions are special |
+| 5 | Coloured enemies (`obj_yellow/green/orange/aqua/blue/pink/purple_enemy`, `obj_orangeheart_enemy`, `obj_flowery_enemy`) | Fights with their own SOUL rules (yellow reticle, green cooking time, orange heart, a yellow trial manager); not in the special list today, so they run as normal shared fights | Play each with 2 players and check; add to the list the ones that break |
 
 ## Later: a stand-in when the hero a mechanic needs isn't there (user request, 2026-11-25)
 
