@@ -11,6 +11,10 @@ that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row
   one column, ACTs, spells and items in two, six to a page), with the SOUL as cursor. The battle text
   is hidden meanwhile; whatever the current chooser has open there goes under mine (their choice
   shows in their panel). The drawn box over the battle (`mp_plan_draw`) and its key hints are gone.
+* Part 3: a spell list chosen ahead shows the spell's description and TP cost on the right, and a
+  spell the TP can't pay for is grey, as in the game's own list; an item list shows the item's
+  description. Tested: screenshot of Susie's list (Rude Buster, "Rude Damage", 50% TP) with the
+  host idle in its menu, and the enemy list without TP.
 * Test tokens `planslow` (the plan bot presses every 20 frames, nothing else) and `planhold` (stays in
   the plan's list).
 * **Tested:** Chapter 2 encounter 53, 2 players, host idle in its menu, client `plan:1:1:0,planhold`:

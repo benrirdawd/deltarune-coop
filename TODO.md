@@ -19,9 +19,12 @@ on top of the game where the game itself can show it.
    sub-menus (enemy, ACT, item lists) move live in their panels. A hero with no player (or the
    solo party) works as now.
    **Part 1 done (2026-11-26, DONE.md):** panels up together, each lights its own choice, no turn
-   notes, a ready choice plays by itself. **Part 2 done (2026-11-26, DONE.md):** the lists of a hero chosen ahead are in the battle's own
-   bottom box. **Left:** the spell list doesn't show the spell's description and TP cost on the
-   right as the game's does; the others' list cursor isn't seen live (only their main-row choice).
+   notes, a ready choice plays by itself. **Parts 2 and 3 done (2026-11-26, DONE.md):** the lists of a hero chosen ahead are in the battle's
+   own bottom box, spells with their description and TP cost like the game's.
+   **Question for the user:** a player choosing ahead shows the others only their main-row choice
+   (their panel). Their list (which enemy, which spell) has no place in the game's layout: the
+   bottom box is mine while I choose. The hero choosing *now* is seen live (the game shows its lists
+   in my box when I'm not choosing ahead). Is that enough, or where should the others' lists show?
 2. **Fewer yellow notes (M).** Go through the 72 mp_notify texts and remove the ones the game can show
    by itself (battle turn notes, waiting lines); keep only real errors and connection news.
 3. **Bugs reported in play (2026-11-25):**

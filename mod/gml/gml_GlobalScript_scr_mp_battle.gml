@@ -2249,18 +2249,37 @@ function mp_plan_box_draw(xx, yy)
         draw_sprite(spr_heart, 0, xx + 55, yy + 385 + (min(cur, 2) * 30));
         return;
     }
+    var isspell = bar == 1 && ch != 1 && d == 1 && variable_global_exists("spellcost") && variable_global_exists("spelldescb");
     var page = floor(cur / 6);
     for (var k2 = page * 6; k2 < min(n, (page * 6) + 6); k2++)
     {
         var j = k2 - (page * 6);
         var t = string_hash_to_newline(opts[k2][1]);
         var sc = min(1, 200 / max(1, string_width(t)));
+        // (A spell the TP can't pay for is grey, as in the game's list.)
+        draw_set_color((isspell && global.tension < global.spellcost[ch][opts[k2][0]]) ? c_gray : c_white);
         draw_text_transformed(xx + ((j mod 2) ? 260 : 30), yy + 375 + (floor(j / 2) * 30), t, sc, 1, 0);
     }
     var jc = cur - (page * 6);
     draw_sprite(spr_heart, 0, xx + ((jc mod 2) ? 230 : 10), yy + 385 + (floor(jc / 2) * 30));
     if (n > (page * 6) + 6)
         draw_sprite(spr_morearrow, 0, xx + 470, yy + 445);
+    // The description on the right, and a spell's TP cost under it, as the game shows them.
+    var so = variable_instance_exists(id, "spell_offset") ? spell_offset : 440;
+    var desc = "";
+    if (isspell)
+        desc = global.spelldescb[ch][opts[cur][0]];
+    else if (bar == 2 && variable_instance_exists(id, "tempitemdescb") && is_array(tempitemdescb) && is_array(tempitemdescb[opts[cur][0]]) && s < array_length(tempitemdescb[opts[cur][0]]))
+        desc = tempitemdescb[opts[cur][0]][s];
+    draw_set_color(c_gray);
+    if (is_string(desc))
+        draw_text(xx + so, yy + 375, string_hash_to_newline(desc));
+    if (isspell)
+    {
+        draw_set_color(c_orange);
+        draw_text(xx + so, yy + 440, string_hash_to_newline(string(round((global.spellcost[ch][opts[cur][0]] / global.maxtension) * 100)) + "% TP"));
+    }
+    draw_set_color(c_white);
 }
 
 // ---------------------------------------------------------------- ACTs with their own little game
