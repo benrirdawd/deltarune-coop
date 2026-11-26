@@ -331,7 +331,22 @@ function mp_tv_row_on()
     return variable_global_exists("mp_inited") && mp_on();
 }
 
-// From obj_gameshow_swordroute's Draw, inside with (kris) right after Kris is drawn: the same three
+// From obj_gameshow_swordroute's Draw, inside with (kris), in place of the game's three draws of Kris.
+// The others stand beside him only while he holds the controller at the console (not while he
+// walks there after a loss). (Outside the TV the board rooms show the game's own party: no swaps.)
+function mp_tv_kris_draw(sh)
+{
+    var spr = sprite_index;
+    var atconsole = string_pos("holdcontroller", sprite_get_name(spr)) > 0;
+    var h = sprite_get_height(spr) * image_yscale;
+    draw_sprite_ext(spr, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha);
+    draw_sprite_ext(spr, image_index, x, y + 2, image_xscale, image_yscale, image_angle, c_gray, 1 * sh);
+    draw_sprite_ext(spr, image_index, x, (y + (h * 2)) - 4, image_xscale, -image_yscale, image_angle, c_black, 0.8 * sh);
+    if (atconsole)
+        mp_tv_row_draw(sh);
+}
+
+// From mp_tv_kris_draw (Kris at the console) right after Kris is drawn: the same three
 // passes (the figure, its gray glow, the reflection on the floor) for each hero.
 function mp_tv_row_draw(sh)
 {

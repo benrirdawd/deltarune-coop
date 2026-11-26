@@ -4,6 +4,18 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Shadow Mantle lost with 2 players; the TV row only at the console (2026-11-26)
+
+A loss with 2 players (no `sturdy`, flag 1055 = 5 as in the story; 6 is past the fight and makes the
+console unplayable): both games go through Game Over to `room_board_sword_intro` on their own (no
+pull, no stuck scene) and are free to walk back to the console. There Kris walks in from the right:
+the heroes of the TV row now stand beside him only while he holds the controller at the console
+(`mp_tv_kris_draw`), not while he walks there.
+**Tested** (Chapter 3, 2 players, client with `chaos:10:120:60`, 20x, `smhit`): both reach the sword
+intro with `sst=0 ia=0`; screenshots show Kris walking alone; the console case still logs "tv row: 1
+hero(es) beside Kris". (The two figures standing at the console in that room are the game's
+party followers made by the test's `party` token; on the real sword route Kris is alone.)
+
 ## Shadow Mantle: every copy follows the first player's HP (2026-11-26)
 
 When the players' fights start at different moments, a hit made before the other's fight began

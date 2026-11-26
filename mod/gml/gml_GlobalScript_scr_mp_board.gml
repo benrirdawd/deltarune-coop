@@ -43,3 +43,7 @@ function mp_tv_row_on()
 function mp_tv_row_draw(sh)
 {
 }
+
+function mp_tv_kris_draw(sh)
+{
+}

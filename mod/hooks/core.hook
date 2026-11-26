@@ -774,12 +774,22 @@ $1 mp_ph_mercy_add(myself, $2.mercyaccumulated);
 
 ;; Chapter 3's sword route: the players' heroes stand at the TV beside Kris (scr_mp_board, ch3).
 #chapters 3
+;; (Only while Kris holds the controller at the console.)
 @find gml_Object_obj_gameshow_swordroute_Draw_0
+        draw_self();
+        draw_sprite_ext(sprite_index, image_index, x, y + 2, image_xscale, image_yscale, image_angle, c_gray, 1 * other.krishadow);
         draw_sprite_ext(sprite_index, image_index, x, (y + (sprite_height * 2)) - 4, image_xscale, -image_yscale, image_angle, c_black, 0.8 * other.krishadow);
 @with
-        draw_sprite_ext(sprite_index, image_index, x, (y + (sprite_height * 2)) - 4, image_xscale, -image_yscale, image_angle, c_black, 0.8 * other.krishadow);
         if (mp_tv_row_on())
-            mp_tv_row_draw(other.krishadow);
+        {
+            mp_tv_kris_draw(other.krishadow);
+        }
+        else
+        {
+            draw_self();
+            draw_sprite_ext(sprite_index, image_index, x, y + 2, image_xscale, image_yscale, image_angle, c_gray, 1 * other.krishadow);
+            draw_sprite_ext(sprite_index, image_index, x, (y + (sprite_height * 2)) - 4, image_xscale, -image_yscale, image_angle, c_black, 0.8 * other.krishadow);
+        }
 @end
 #chapters all
 
