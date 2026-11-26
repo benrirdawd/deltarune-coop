@@ -46,8 +46,8 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   hurts the character *you* play. If all of your characters are down, hits do nothing.
   Your grazes add to the shared TP bar.
 * **Explore independently.** Walk and talk to NPCs on your own, even in different rooms.
-  Other players appear as name-tagged characters when you're in the same room. A party
-  member someone is playing never also follows you as an NPC, wherever that player is.
+  Other players appear as name-tagged characters when you're in the same room. Everyone walks
+  alone, as their own character: the game's party followers only show in story cutscenes.
 * **Battles and story cutscenes bring everyone together.** When someone touches an enemy
   or triggers a story cutscene, everyone else is pulled into that room. A story cutscene
   plays only in the game of whoever triggered it; everyone else sees exactly what that
@@ -93,7 +93,7 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
 
 Up to 8 players can connect. Each party member is controlled by one player. Extra players,
 or players whose character isn't in the party, watch (and dodge, harmlessly) in battle.
-The host controls any party member nobody picked. Out of battle, a party member nobody plays (Ralsei, with two players) follows the host, and everyone sees that one.
+The host controls any party member nobody picked in battle.
 
 ## Online multiplayer, not local
 

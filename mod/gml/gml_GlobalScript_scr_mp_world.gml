@@ -28,8 +28,6 @@ function mp_world_init()
     global.mp_swap_prev = 1;
     global.mp_swap_fade = -1;       // [sprite, frame, x, y, xscale, yscale, start time]
     global.mp_swap_told = 0;
-    global.mp_npcfol = [];      // host: followers nobody plays, as drawn last frame (sent to the others)
-    global.mp_npcfol_cur = [];
     global.mp_fol_last = 0;
     mp_vars_init();
 }
@@ -262,28 +260,8 @@ function mp_draw_caterpillar()
     }
     if (!visible || image_alpha <= 0)
         return;
-    // The follower that matches my character stands in for Kris (I am walking in front).
-    var shown = c;
-    if (c == global.mp_cfg_char)
-        shown = 1;
-    // A party member someone else is playing never also follows me as an NPC: that player
-    // walks around by themselves (drawn as a name-tagged character when in this room).
-    if (mp_char_player_other(shown) >= 0)
-        return;
-    // Nobody plays this one (Ralsei, with two players): there is one of them, following the host.
-    // The host's game sends it along with the host's position; the others show that one.
-    if (global.mp_role != 1)
-        return;
-    global.mp_fol_mask |= 1 << shown;
-    if (shown == c)
-    {
-        draw_self();
-        array_push(global.mp_npcfol_cur, [shown, sprite_index, image_index, x, y, image_xscale, image_yscale]);
-        return;
-    }
-    mp_draw_swapped(mp_swap_sprite(sprite_index, c, shown), image_index, x, y, image_xscale, image_yscale, image_blend, image_alpha, false);
-    var d = global.mp_swap_drawn;
-    array_push(global.mp_npcfol_cur, [shown, d[0], d[1], d[2], d[3], image_xscale, image_yscale]);
+    // In a session everyone walks alone, as their own character: the game's party followers
+    // aren't drawn (story cutscenes, which show the party as the story has it, still do).
 }
 
 // When a story cutscene starts (or ends), my figure turns into the story's (or back): the one I was
@@ -521,13 +499,7 @@ function mp_send_pos(force, sock)
         pys = clinfo[5];
         vis = clinfo[6];
     }
-    // The followers nobody plays (only the host has them).
-    var fol = (global.mp_role == 1 && vis) ? global.mp_npcfol : [];
-    var nf = min(2, array_length(fol));
-    var fsig = "";
-    for (var f = 0; f < nf; f++)
-        fsig += "|" + string(fol[f][1]) + "," + string(floor(fol[f][2])) + "," + string(round(fol[f][3])) + "," + string(round(fol[f][4]));
-    var sig = string(room) + "," + string(round(px)) + "," + string(round(py)) + "," + string(pspr) + "," + string(pimg) + "," + string(vis) + "," + string(mp_state_bits()) + fsig;
+    var sig = string(room) + "," + string(round(px)) + "," + string(round(py)) + "," + string(pspr) + "," + string(pimg) + "," + string(vis) + "," + string(mp_state_bits());
     // Standing still: sent again every 1.5 s, but every 250 ms for the first 3 s in a room or after
     // someone joins (a lost first position would leave me missing from their screen until the next one).
     var still_every = (global.mp_room_frames < 90 || current_time < global.mp_pos_fast_until) ? 250 : 1500;
@@ -555,18 +527,8 @@ function mp_send_pos(force, sock)
     }
     mp_ws16(ix);
     mp_ws16(iy);
-    mp_wu8(nf);
-    for (var f2 = 0; f2 < nf; f2++)
-    {
-        var e = fol[f2];
-        mp_wu8(e[0]);
-        mp_ws16(e[1]);
-        mp_wu8(floor(e[2]));
-        mp_ws16(e[3]);
-        mp_ws16(e[4]);
-        mp_ws8(e[5] * 10);
-        mp_ws8(e[6] * 10);
-    }
+    // (No followers any more: always 0, kept so build 19 games still read the message.)
+    mp_wu8(0);
     if (is_struct(sock))
         mp_send_unreliable_to(sock);
     else
@@ -589,21 +551,18 @@ function mp_recv_pos(pid, b)
     global.mp_pstate[pid] = buffer_read(b, buffer_u8);
     global.mp_pix[pid] = buffer_read(b, buffer_s16);
     global.mp_piy[pid] = buffer_read(b, buffer_s16);
+    // (A build 19 host still sends the NPC followers it draws: read past them.)
     var nf = buffer_read(b, buffer_u8);
-    var fol = [];
     for (var f = 0; f < nf; f++)
     {
-        var e = [];
-        e[0] = buffer_read(b, buffer_u8);
-        e[1] = buffer_read(b, buffer_s16);
-        e[2] = buffer_read(b, buffer_u8);
-        e[3] = buffer_read(b, buffer_s16);
-        e[4] = buffer_read(b, buffer_s16);
-        e[5] = buffer_read(b, buffer_s8) / 10;
-        e[6] = buffer_read(b, buffer_s8) / 10;
-        array_push(fol, e);
+        buffer_read(b, buffer_u8);
+        buffer_read(b, buffer_s16);
+        buffer_read(b, buffer_u8);
+        buffer_read(b, buffer_s16);
+        buffer_read(b, buffer_s16);
+        buffer_read(b, buffer_s8);
+        buffer_read(b, buffer_s8);
     }
-    global.mp_pfol[pid] = fol;
     global.mp_ppostime[pid] = current_time;
     if (oldroom != global.mp_proom[pid])
     {
@@ -773,8 +732,6 @@ function mp_ghosts_clear()
         instance_destroy();
     for (var i = 0; i < 8; i++)
         global.mp_pghost[i] = -4;
-    for (var j = 0; j < 16; j++)
-        global.mp_pfghost[j] = -4;
 }
 
 // Open-world battles: a friend in a fight stays where they were, so others can walk up and join.
@@ -821,28 +778,6 @@ function mp_ghosts_update()
                 g.leaving = 1;
             else
                 mp_ghost_remove(i);
-        }
-        // Their followers (the host's NPC party members), while they're walking around.
-        var fw = want && global.mp_pvis[i] && (global.mp_pstate[i] & 1) == 0;
-        for (var f = 0; f < 2; f++)
-        {
-            var fol = global.mp_pfol[i];
-            var fwant = fw && is_array(fol) && f < array_length(fol) && sprite_exists(fol[f][1]);
-            var k = (i * 2) + f;
-            var fg = global.mp_pfghost[k];
-            if (fwant && !instance_exists(fg))
-            {
-                fg = instance_create_depth(fol[f][3], fol[f][4], 0, obj_mp_ghost);
-                fg.pid = i;
-                fg.fol = f;
-                global.mp_pfghost[k] = fg;
-            }
-            else if (!fwant && instance_exists(fg))
-            {
-                with (fg)
-                    instance_destroy();
-                global.mp_pfghost[k] = -4;
-            }
         }
     }
 }
@@ -2207,7 +2142,7 @@ function mp_mirror_reflect_others()
     {
         with (obj_mp_ghost)
         {
-            if (pid >= 0 && fol < 0 && !leaving && fade > 0 && sprite_exists(sprite_index) && !mp_ghost_fighting(pid))
+            if (pid >= 0 && !leaving && fade > 0 && sprite_exists(sprite_index) && !mp_ghost_fighting(pid))
                 array_push(list, id);
         }
     }
@@ -2453,7 +2388,7 @@ function mp_puz_tiles_tick()
             continue;
         with (obj_mp_ghost)
         {
-            if (pid < 0 || fol >= 0 || leaving || !visible || !sprite_exists(sprite_index) || global.mp_proom[pid] != room || mp_ghost_fighting(pid))
+            if (pid < 0 || leaving || !visible || !sprite_exists(sprite_index) || global.mp_proom[pid] != room || mp_ghost_fighting(pid))
                 continue;
             var fx1 = bbox_left + 4;
             var fx2 = bbox_right - 4;

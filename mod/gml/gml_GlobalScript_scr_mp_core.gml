@@ -28,8 +28,6 @@ function mp_init()
     global.mp_pstate = array_create(8, 0);
     global.mp_pvis = array_create(8, 0);
     global.mp_pghost = array_create(8, -4);
-    global.mp_pfghost = array_create(16, -4);
-    global.mp_pfol = array_create(8, 0);
     global.mp_ppostime = array_create(8, 0);
     global.mp_proom_t = array_create(8, 0);
     global.mp_ptalk = array_create(8, "");     // what they are reading with an NPC (talk bubble)
@@ -684,8 +682,6 @@ function mp_after_input()
     global.mp_room_frames += 1;
     global.mp_fol_last = global.mp_fol_mask;
     global.mp_fol_mask = 0;
-    global.mp_npcfol = global.mp_npcfol_cur;
-    global.mp_npcfol_cur = [];
     mp_ui_input();
     mp_test_input();
     // (Tests with "party": connect once the test setup has put us in our room.)

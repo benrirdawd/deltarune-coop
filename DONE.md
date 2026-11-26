@@ -4,6 +4,19 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Everyone walks alone (2026-11-26, reported in play)
+
+In a session the game's party followers (`obj_caterpillarchara`) are no longer drawn: each player walks
+alone as their own character, and the others show as themselves. Before, a party member nobody played
+followed the host (and was sent to the others), and the follower matching my character was drawn as
+Kris, which showed Kris's Light World look while Ralsei led. Story cutscenes (swaps off) still show the
+party as the story has it; the Chapter 3 board keeps its own pieces. The follower mirroring (the host's
+NPC followers in message 10, the follower ghosts) is gone; the message keeps a 0 count so build 19
+games still read it, and its followers from a build 19 host are read past.
+**Tested:** Chapter 1 `room_field_checkers6`, 2 players walking (`wander`) with `chaos:10:120:60`:
+`mpcheck.py` passes every check (char, follower, ghost, state, sync, world); screenshots show Kris
+and P2's Susie alone, no Ralsei following.
+
 ## The SOUL flying out and back is my character's (2026-11-26, reported in play)
 
 The SOUL that flies out of the hero into the box when the bullet phase starts (`obj_moveheart`) and

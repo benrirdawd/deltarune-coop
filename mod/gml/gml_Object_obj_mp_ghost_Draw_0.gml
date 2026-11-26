@@ -11,7 +11,7 @@ var dspr = sprite_index;
 var dimg = image_index;
 var dx = x;
 var dy = y;
-if (fighting && fol < 0)
+if (fighting)
 {
     var bs = mp_battle_idle_sprite(global.mp_pchar[pid]);
     if (bs >= 0)
@@ -25,9 +25,6 @@ if (fighting && fol < 0)
     }
 }
 draw_sprite_ext(dspr, dimg, dx, dy, (fighting && dspr != sprite_index) ? abs(image_xscale) : image_xscale, image_yscale, 0, c_white, fade);
-// A follower: just the figure, no name tag.
-if (fol >= 0)
-    exit;
 // In a fight: a slow white pulse, so it reads as "busy" rather than a figure standing around.
 if (fighting)
 {

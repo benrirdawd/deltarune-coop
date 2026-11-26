@@ -1124,7 +1124,7 @@ function mp_ping_where(p)
         return -1;
     with (obj_mp_ghost)
     {
-        if (pid == p && fol < 0 && visible && sprite_exists(sprite_index))
+        if (pid == p && visible && sprite_exists(sprite_index))
             r = [x + (((sprite_get_width(sprite_index) / 2) - sprite_get_xoffset(sprite_index)) * image_xscale), y - (sprite_get_yoffset(sprite_index) * image_yscale) - 16];
     }
     return r;
