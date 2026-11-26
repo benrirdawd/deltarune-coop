@@ -320,6 +320,14 @@ function mp_test_tick()
         // (A client that already joined keeps the story progress it got from the host.)
         if (pl != "" && !(mp_on() && global.mp_role == 2))
             global.plot = real(pl);
+        // setflag:<n>:<v>: a story flag as it would be by then (e.g. setflag:34:0, Chapter 2's
+        // "Susie and Ralsei can ACT", turned on by the story long before Queen).
+        var sf = mp_test_arg("setflag");
+        if (sf != "")
+        {
+            var sfv = string_split(sf, ":");
+            global.flag[real(sfv[0])] = real(sfv[1]);
+        }
         mp_ch_test_party();
         // duo: Kris and Susie
         if (mp_test_has("duo"))
@@ -1067,6 +1075,37 @@ function mp_test_input()
                 global.mp_test_pl_k = 0;
             }
             return;
+        }
+        // pickact:<char>:<n>: that hero (2 Susie, 3 Ralsei) picks entry n of their MAGIC/ACT list
+        // (the bot's Z does the rest). throwbot: press C now and then while a throw is aimed.
+        if (mp_test_arg("pickact") != "" && global.myfight == 0 && global.mnfight == 0 && global.charturn < 3 && global.mp_owner[global.charturn] == global.mp_myid)
+        {
+            var pa = string_split(mp_test_arg("pickact"), ":");
+            if (global.char[global.charturn] == real(pa[0]))
+            {
+                if (global.bmenuno == 0 && global.bmenucoord[0][global.charturn] != 1)
+                {
+                    if ((f mod 6) == 0)
+                        global.input_pressed[1] = 1;
+                    return;
+                }
+                // (Keys, not the cursor itself: the others' games replay my keys.)
+                if (global.bmenuno == 2 && global.bmenucoord[2][global.charturn] < real(pa[1]) && global.battlespell[global.charturn][real(pa[1])] != 0)
+                {
+                    if ((f mod 6) == 0)
+                        global.input_pressed[1] = 1;
+                    return;
+                }
+            }
+        }
+        if (mp_test_has("throwbot") && (f mod 40) == 0)
+        {
+            var tk = asset_get_index("obj_queen_throwkris");
+            if (tk >= 0 && instance_exists(tk))
+            {
+                global.input_pressed[6] = 1;
+                return;
+            }
         }
         if ((f mod 6) == 0)
         {

@@ -1778,3 +1778,28 @@ now only the turns of the helpers in the fight are taken (hooks in Chapter 1's b
 * Bots picking random ACTs: Clubs crashed before the turn fix (`Variable Index [-1] out of range`),
   none after; Clubs 3 turns, Rabbick 6, Berdly 4, all in sync (the only difference, turn 0's enemy
   HP, comes from the test's `tough` token on the host alone).
+
+## Improvise: Susie throws Ralsei at Berdly's wires when Kris isn't in the fight (2026-11-26)
+
+The Queen fight with Berdly plugged in (Chapter 2) has Kris's Throw: Susie throws Kris at the wires
+holding Berdly. Without Kris (e.g. Susie and Ralsei players only) that was gone. Now Susie gets
+**Improvise** in her own ACT list (MAGIC menu, description "Throw#Ralsei", 20% TP; Kris's Throw is
+free): she throws Ralsei, the game's own second throw (the one Kris's ThrowX ends with: Ralsei drops
+onto Susie's shoulders, same aim, same wire targets, same mercy for Berdly). Only when Kris isn't
+there, Susie and Ralsei are up, and Queen's shield is down (like Kris's Throw).
+"Improvise" is the name for every stand-in from now on (user idea).
+Found and fixed on the way:
+* **A hero other than Kris in place 0 lost their ACT** (Chapters 2-5): the game starts the heroes'
+  ACTs at place 1 (place 0 is always Kris for it). `mp_first_act_place0` (from `scr_endturn`) starts it.
+* **The throw is the same in every game:** the aim swings every frame, so keys can't replay it. Susie's
+  player throws; the others' copies throw with the same angle and power when it arrives (type 58,
+  kind 2). Covers Kris's Throw as well.
+* Ralsei stayed invisible when the last wire was cut while he flew (the game's own ThrowX path).
+* Susie's and Ralsei's own Loosen are set up when Berdly is plugged in after the fight was built.
+Test tokens: `pickact:<char>:<n>` (that hero picks entry n of their MAGIC/ACT list, with keys),
+`throwbot` (presses C during a throw), `setflag:<n>:<v>` (a story flag, e.g. 34:0 "Susie and Ralsei
+can ACT").
+**Tested** (Chapter 2, encounter 59 at plot 100, host Susie + client Ralsei with `chaos:10:120:60`,
+20x, `mpcheck` all PASS): Improvise picked, "ACT of place 0 started", the same throw in both games
+(e.g. angle 24 power 30), both end with 1 wire cut and Berdly at 13 mercy, turns 0-4 identical;
+with the shield up Improvise leaves the list. 5 runs of 6 clean; the sixth: see TODO (menu replay).

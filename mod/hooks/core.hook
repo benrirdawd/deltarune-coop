@@ -707,3 +707,57 @@ global\.acting\[2\] = 1;\s*global\.acting\[1\] = 1;
 if (charpos[1] >= 0) global.acting[charpos[1]] = 1; if (charpos[2] >= 0) global.acting[charpos[2]] = 1;
 @end
 #chapters all
+
+// ---- Chapter 2 stand-in: Susie throws Ralsei at Berdly's wires when Kris isn't in the fight
+#chapters 2
+@regex gml_Object_obj_queen_enemy_Other_11
+(s[c]r_spellmenu_setup\(\);)
+@with
+mp_queen_standin_acts(); $1
+@end
+@prepend gml_Object_obj_queen_enemy_Step_0
+mp_queen_standin_step();
+
+@regex gml_Object_obj_queen_enemy_Step_0
+(throwsus = instance_create\(obj_herosusie\.x, obj_herosusie\.y, o[b]j_queen_throwkris\);)
+@with
+$1 mp_queen_throw_made(throwsus);
+@end
+@regex gml_Object_obj_queen_throwkris_Draw_0
+if \(ralseiy < 1 && !instance_exists\(obj_writer\)
+@with
+if (ralseiy < 1 && (!instance_exists(obj_writer) || variable_instance_exists(id, "mp_solo"))
+@end
+@regex gml_Object_obj_queen_throwkris_Step_0
+if \(button3_p\(\)\)
+@with
+if (mp_throw_press(id))
+@end
+@regex gml_Object_obj_queen_throwkris_Step_0
+throwXcon = 5;
+@with
+throwXcon = 5; with (obj_heroralsei) visible = 1;
+@end
+@regex gml_Object_obj_queen_ralseithrown_Step_0
+obj_herokris\.x - 10
+@with
+mp_queen_kris_x() - 10
+@end
+@regex gml_Object_obj_queen_ralseithrown_Step_0
+obj_herokris\.depth \+ 1000
+@with
+mp_queen_kris_depth() + 1000
+@end
+#chapters all
+
+// ---- A hero other than Kris in place 0 (e.g. Susie played alone) who picked an ACT: the game starts
+// the heroes' ACTs with scr_nextact, which begins at place 1 (place 0 is always Kris for it), so that
+// ACT was dropped. Start it the way scr_nextact starts the others.
+#chapters 2,3,4,5
+@regex gml_GlobalScript_scr_endturn
+global\.currentactingchar = 0;\s*if \(global\.acting\[0\] == 0\)(\s*\{\s*s[c]r_nextact\(\);)
+@with
+global.currentactingchar = 0;
+        if (global.acting[0] == 0 && !mp_first_act_place0())$1
+@end
+#chapters all

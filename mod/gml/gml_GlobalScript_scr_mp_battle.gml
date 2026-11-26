@@ -2357,7 +2357,8 @@ function mp_actg_tick()
     {
         global.mp_actg_on = 1;
         global.mp_actg_n += 1;
-        var ct = global.charturn;
+        // The hero whose ACT this is plays it (e.g. Susie's own Throw; for Kris's ACTs that is Kris).
+        var ct = (global.myfight == 1 && variable_global_exists("currentactingchar") && global.currentactingchar < 3) ? global.currentactingchar : global.charturn;
         global.mp_actg_owner = (ct >= 0 && ct < 3) ? global.mp_owner[ct] : global.mp_owner[0];
         if (global.mp_actg_owner == 255 || global.mp_actg_owner < 0 || global.mp_actg_owner > 7 || !global.mp_pconn[global.mp_actg_owner])
             global.mp_actg_owner = global.mp_b_leader;
@@ -2498,6 +2499,15 @@ function mp_actg_recv(from, b)
         array_push(global.mp_actg_q, [n, buffer_read(b, buffer_u16)]);
         return;
     }
+    if (kind == 2)
+    {
+        var ang = buffer_read(b, buffer_f64);
+        var pw = buffer_read(b, buffer_f64);
+        if (!variable_global_exists("mp_throw_q"))
+            global.mp_throw_q = [];
+        array_push(global.mp_throw_q, [bid, n, ang, pw]);
+        return;
+    }
     var res = [n];
     for (var k = 0; k < 6; k++)
         array_push(res, buffer_read(b, buffer_f64));
@@ -2595,4 +2605,101 @@ function mp_act_turn_only(e, a)
     if (t == asset_get_index("obj_shadowman_enemy") && a <= 1)
         return true;
     return false;
+}
+
+// From scr_endturn (Chapters 2-5), as the heroes' ACTs start: place 0 is not Kris and picked an ACT
+// of their own. Start theirs (scr_nextact would begin at place 1 and drop it). True if started.
+function mp_first_act_place0()
+{
+    if (global.char[0] == 1 || global.char[0] == 0 || global.actingsingle[0] != 1)
+        return false;
+    if (global.actingsimul[0] == 1)
+    {
+        script_execute(asset_get_index("s" + "cr_act_simul"));
+        return true;
+    }
+    var c = global.char[0];
+    with (global.monsterinstance[global.actingtarget[0]])
+    {
+        if (c == 2)
+            actconsus = 1;
+        if (c == 3)
+            actconral = 1;
+        if (c == 4)
+            actconnoe = 1;
+    }
+    mp_log("ACT of place 0 (char " + string(c) + ") started");
+    return true;
+}
+
+// ---------------------------------------------------------------- throws
+
+// Chapter 2's Queen fight: Susie throws Kris (or Ralsei) at Berdly's wires. The aim swings every
+// frame, so sending keys can't give the same throw everywhere; the throw itself is sent instead.
+// Susie's player throws (the thrower aims); every other copy throws when that arrives, with the same
+// angle and power, and the flight is the same everywhere from there. Called in place of the throw's
+// button3_p(); inst = the throw (angle, mypower).
+function mp_throw_press(inst)
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || !mp_battle_on())
+        return button3_p();
+    if (!variable_global_exists("mp_throw_q"))
+        global.mp_throw_q = [];
+    if (!variable_global_exists("mp_throw_bid") || global.mp_throw_bid != global.mp_bid)
+    {
+        global.mp_throw_bid = global.mp_bid;
+        global.mp_throw_n = 0;
+    }
+    if (mp_throw_owner() == global.mp_myid)
+    {
+        if (!button3_p())
+            return false;
+        global.mp_throw_n += 1;
+        mp_begin_b(58);
+        mp_wu8(2);
+        mp_wu16(global.mp_bid);
+        mp_wu16(global.mp_throw_n);
+        mp_wf64(inst.angle);
+        mp_wf64(inst.mypower);
+        mp_send();
+        mp_log("throw " + string(global.mp_throw_n) + " sent: angle " + string(inst.angle) + " power " + string(inst.mypower));
+        return true;
+    }
+    var q = global.mp_throw_q;
+    var nq = [];
+    var got = false;
+    for (var i = 0; i < array_length(q); i++)
+    {
+        if (q[i][0] != global.mp_bid || q[i][1] <= global.mp_throw_n)
+            continue;
+        if (!got && q[i][1] == global.mp_throw_n + 1)
+        {
+            got = true;
+            inst.angle = q[i][2];
+            inst.mypower = q[i][3];
+            continue;
+        }
+        array_push(nq, q[i]);
+    }
+    global.mp_throw_q = nq;
+    if (!got)
+        return false;
+    global.mp_throw_n += 1;
+    mp_log("throw " + string(global.mp_throw_n) + " played: angle " + string(inst.angle) + " power " + string(inst.mypower));
+    return true;
+}
+
+// Who throws: Susie's player; the fight's leader if Susie's player isn't connected.
+function mp_throw_owner()
+{
+    for (var s = 0; s < 3; s++)
+    {
+        if (global.char[s] == 2)
+        {
+            var o = global.mp_owner[s];
+            if (o >= 0 && o < 8 && global.mp_pconn[o])
+                return o;
+        }
+    }
+    return global.mp_b_leader;
 }
