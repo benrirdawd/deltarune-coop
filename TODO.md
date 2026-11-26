@@ -63,7 +63,6 @@ watch. Each needs its own design. Rules from the user:
 | 4 | Hammer of Justice (`obj_hammer_of_justice_enemy`) | Green shield SOUL; a one-hero fight (only slot 0 is made, Kris) | Each defends on their own screen. Tried 2026-11-26 as a normal fight (encounter 160, 2 players): the hero's player plays it, the other only watches, and the first bullet phase did not end within 60 s. Needs the "fights meant for one hero" design first (the others' heroes join), then a look at why the phase hangs |
 | 4 | Sound of Justice (`obj_sound_of_justice_enemy`) | Gerson's hidden fight: darkness overlay, Susie's heal shots (`obj_susie_heal_projectile`), spear shots | Darkness per screen; Susie's heal shots by Susie's player |
 | 4 | Titan (`obj_titan_enemy`) | Final boss of Chapter 4: darkness, Titan heals (`obj_titan_heal`) | Look at which hero's actions are special |
-| 5 | Coloured enemies (`obj_yellow/green/orange/aqua/blue/pink/purple_enemy`, `obj_orangeheart_enemy`, `obj_flowery_enemy`) | Fights with their own SOUL rules (yellow reticle, green cooking time, orange heart, a yellow trial manager); not in the special list today, so they run as normal shared fights | Play each with 2 players and check; add to the list the ones that break |
 
 ## Later: a stand-in when the hero a mechanic needs isn't there (user request, 2026-11-25)
 

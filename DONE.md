@@ -1712,3 +1712,23 @@ keep the game's rule. Tenna board 4 is off the "special" list (a normal same-tim
 Noelle (no Susie, no Ralsei) and Kris + Susie both get past turn 0 (before: stuck there for 120 s),
 same pace as with all three heroes (3 players, turn 1 in 120 s, Tenna's long talks); turn states
 identical in both games; screenshot: "That's right." after ILOVETV.
+
+## Chapter 5 coloured-SOUL fights checked with 2 players (2026-11-26)
+
+Every Chapter 5 fight with its own SOUL rules was played as a normal shared fight (2 players, bots
+with random menu choices, client with `chaos:10:120:60`, `sturdy`), `mpcheck` all PASS, turn states
+identical in both games:
+
+| Encounter | Enemies | Turns checked |
+|---|---|---|
+| 220 | aqua | 5 |
+| 221 | green + orange | 4 |
+| 222 | yellow + blue | 4 |
+| 223 | purple | 3 |
+| 224 | pink | 3 |
+| 225 | Flowery (orange heart: each player has their own clash, as decided) | 3 |
+
+None needed to go on the "special" list. Not covered by the bots: Mew Mew's choice event (the pink
+fight's story part). A first run of 222 froze the host for 26 minutes right when the test took its
+screenshot (frames of exactly 1 s and 3 s, then nothing until the client's game was closed); run
+again without screenshots it was fine, so it is the test's screenshot step, not the mod.
