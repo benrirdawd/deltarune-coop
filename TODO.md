@@ -82,9 +82,10 @@ Looked at (2026-11-26): the user's example, Susie throwing Kris at the wires, is
 Berdly plugged in (Chapter 2, monster 48 "Throw", and Werewire's "ThrowWire" in Chapters 2-4). Neither
 is a hard gap: without Kris or Susie the fight is still won with Loosen (Kris, Susie and Ralsei each
 have one; Berdly's mercy) and Werewire with S-/R-/N-Action mercy. The stand-in (Susie's Rude Buster
-cutting a wire for more TP when Kris isn't there) is an extra, and the plugged part is only reached
-through the Queen fight's own scene 25, which the test harness can't reach yet. Next step there: a
-test token that starts the Queen fight in its plugged phase.
+cutting a wire for more TP when Kris isn't there) is an extra. Test entry: encounter 59 at plot 100
+starts with Berdly plugged in (`scr_sideb_get_phase` < 2); with Kris + Ralsei, `actlist` shows Throw,
+RedBuster and GroupLoosen blocked, DualHeal allowed. The stand-in needs its own code path (Throw's
+`obj_queen_throw_controller` draws Susie throwing Kris).
 Go through MINIGAMES.md for every mechanic that needs two specific heroes and pick one stand-in
 for each, the simplest that keeps the original's feel.
 
