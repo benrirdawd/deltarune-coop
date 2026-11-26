@@ -26,9 +26,10 @@ on top of the game where the game itself can show it.
    **Done (2026-11-26, DONE.md):** Chapter 3's sword route, the players' heroes stand at the TV
    beside Kris (back views; a "holding the controller" back pose is in SPRITES.md).
    **Next (user, 2026-11-26):** a hero who isn't in a fight leaves no prop behind: remove what belongs
-   to them instead of a stand-in sprite (Ralsei's cart in Berdly's coaster fight, the ball in the
-   Tenna fight). ACTs changed for co-op are listed in ACTS.md (to give versions with Noelle, later
-   Berdly).
+   to them instead of a stand-in sprite. Berdly's coaster: done (DONE.md). **Question:** "the ball
+   in the Tenna fight": which ball is it (which Tenna fight, which turn or ACT, whose ball)? Not found
+   in the code by name. ACTs changed for co-op are listed in ACTS.md (to give versions with Noelle,
+   later Berdly).
 2. **Done (2026-11-26):** fewer notes, see DONE.md. Kept on purpose: connection and error news,
    waiting lines (who a fight waits for), the spectator line in a fight you only watch, scene
    choices, quick messages from others, the one-time "Story cutscenes show the party" hint.

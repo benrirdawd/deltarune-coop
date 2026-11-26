@@ -97,3 +97,28 @@ function mp_queen_kris_depth()
         return obj_herokris.depth;
     return obj_herosusie.depth;
 }
+
+// ---------------------------------------------------------------- Berdly's roller coaster
+// The fight (encounter 58) always builds three coaster cars, Kris's, Susie's and Ralsei's. A hero
+// who isn't in the fight leaves no car behind: their car and its back aren't drawn (the car object
+// stays, so the fight's own bookkeeping is unchanged; a missing hero never rides it).
+function mp_coaster_absent(heroid)
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return false;
+    for (var s = 0; s < 3; s++)
+    {
+        if (global.char[s] == heroid + 1)
+            return false;
+    }
+    if (!variable_global_exists("mp_coaster_logged") || global.mp_coaster_logged != global.mp_frame)
+    {
+        global.mp_coaster_logged = global.mp_frame;
+        if (!variable_instance_exists(id, "mp_hid_logged"))
+        {
+            mp_hid_logged = 1;
+            mp_log("coaster: car " + string(heroid) + " not drawn (hero not in the fight)");
+        }
+    }
+    return true;
+}

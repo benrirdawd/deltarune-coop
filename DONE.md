@@ -4,6 +4,15 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Berdly's roller coaster: no car for a missing hero (2026-11-26, user request)
+
+Chapter 2's coaster fight with Berdly (encounter 58) always builds three cars, Kris's, Susie's and
+Ralsei's. A hero who isn't in the fight now leaves no car behind: the car and its back aren't drawn
+(`o_coaster_hero` / `o_coaster_hero_back` Draw, `mp_coaster_absent` in `scr_mp_standin_ch2`). The
+car objects stay, so the fight's own bookkeeping is unchanged; a missing hero never rides one.
+**Tested:** encounter 58, Kris (host) and Susie (client, `chaos:10:120:60`): both games log "car 2 not
+drawn"; the screenshot shows only Kris's and Susie's cars facing Berdly. `mpcheck`: all PASS.
+
 ## The party at the TV on the sword route (2026-11-26, user request)
 
 On Chapter 3's sword route (`scr_swordroom`), the game has Kris alone at the console holding the

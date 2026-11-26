@@ -782,3 +782,15 @@ $1 mp_ph_mercy_add(myself, $2.mercyaccumulated);
             mp_tv_row_draw(other.krishadow);
 @end
 #chapters all
+
+;; Chapter 2, Berdly's roller coaster: no car for a hero who isn't in the fight (scr_mp_standin_ch2).
+#chapters 2
+@prepend gml_Object_o_coaster_hero_Draw_0
+if (mp_coaster_absent(HeroID))
+    exit;
+
+@prepend gml_Object_o_coaster_hero_back_Draw_0
+if (instance_exists(parentid) && mp_coaster_absent(parentid.HeroID))
+    exit;
+
+#chapters all
