@@ -59,7 +59,10 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
 * **Spamton NEO and Shadow Mantle together.** In Spamton NEO everyone plays their own hero and
   shoots with the yellow SOUL; the mercy each player's shooting earns adds up. Shadow Mantle on the
   game board: everyone fights their own copy, and his HP grows with the players, every hit counting
-  for all.
+  for all (a friend's hit can be the one that beats him). On Chapter 3's sword route the players'
+  heroes stand at the TV beside Kris.
+* **Nothing left of a missing hero.** A hero nobody plays leaves nothing behind in a fight: e.g. no
+  empty car in Berdly's roller coaster.
 * **Explore independently.** Walk and talk to NPCs on your own, even in different rooms.
   Other players appear as name-tagged characters when you're in the same room. Everyone walks
   alone, as their own character: the game's party followers only show in story cutscenes.
@@ -218,7 +221,9 @@ good), the F9 menu has softlock tools:
 The player list (top-left) shows each player's character, ping and whether they're in a
 battle or cutscene.
 In battle everyone chooses at the same time, in the game's own battle menu: every player's hero
-has its panel up, and you see the others' choices light up in their panels. Pick your action as
+has its panel up, and you see the others' choices light up in their panels: an arrow in their
+SOUL colour over the enemy they picked, the name of their spell, ACT or item rising in their panel.
+Pick your action as
 usual (the enemy, act, spell or item list opens in the bottom box); it plays by itself when the
 fight reaches your hero (anything no longer possible becomes the first possible choice). Battle text is turned
 by anyone's Z, for everyone. The F9 menu's "Story fights" setting (host) can keep story fights to
