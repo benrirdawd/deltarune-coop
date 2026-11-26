@@ -4,6 +4,20 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Shadow Mantle, part 2: a friend's hit can win the fight (2026-11-26)
+
+The game checks Shadow Mantle's rules only when my own sword hits him (`obj_shadow_mantle_enemy`
+Step_2): his HP held at 4 until the last phase, his defeat below 1. A friend's shared hit lowered
+my copy's HP without those checks, so it could go below 4 too early or below 0 with the fight going
+on until my next hit. Now the same rules run after every shared hit (`mp_sm_tick`), and his defeat
+is the game's own (`mp_sm_defeat`: the outro and the same clean-up). Test token `smhit:<n>` (n HP
+per hit); with `sturdy` the board piece's health stays full.
+**Tested** (Chapter 3, `room_board_preshadowmantle`, 2 players, client with `chaos:10:120:60`, 20x,
+`smhit:3`): host "defeated (hp -0.50)" on its own hit, the client "defeated (hp 0)" on the host's
+hit; the client's outro plays and the host watches it (P2's cutscene, same music). Without sturdy
+(an earlier run) both lose and go back to `room_board_sword_intro`. Seen, still open (TODO): the
+watcher sees a gray TV and the heroes stacked at the console during the outro.
+
 ## Berdly's roller coaster: no car for a missing hero (2026-11-26, user request)
 
 Chapter 2's coaster fight with Berdly (encounter 58) always builds three cars, Kris's, Susie's and

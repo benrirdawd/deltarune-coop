@@ -664,14 +664,28 @@ function mp_test_input()
             }
         }
     }
+    // smhit:<n>: n HP per hit (default 1). With sturdy, my board piece keeps its health topped up.
     if (mp_test_has("smhit") && (global.mp_frame mod 240) == 0)
     {
         var sme = asset_get_index("obj_shadow_mantle_enemy");
         if (sme >= 0 && instance_exists(sme))
         {
+            var smd = (mp_test_arg("smhit") != "") ? real(mp_test_arg("smhit")) : 1;
             with (sme)
-                hp -= 1;
-            mp_log("test: sword hit on Shadow Mantle");
+                hp -= smd;
+            mp_log("test: sword hit on Shadow Mantle (" + string(smd) + ")");
+        }
+    }
+    if (mp_test_has("smhit") && mp_test_has("sturdy"))
+    {
+        var smk = asset_get_index("obj_mainchara_board");
+        if (smk >= 0)
+        {
+            with (smk)
+            {
+                if (variable_instance_exists(id, "maxhealth") && myhealth < maxhealth && myhealth > 0)
+                    myhealth = maxhealth;
+            }
         }
     }
     // openmenu: open the C menu once, a few seconds into the room (to see what it shows).

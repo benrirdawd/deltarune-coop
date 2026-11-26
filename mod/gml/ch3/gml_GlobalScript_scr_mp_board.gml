@@ -218,6 +218,17 @@ function mp_sm_tick()
             }
         }
     }
+    // The game's own rules run only on my sword's hit (obj_shadow_mantle_enemy Step_2): a friend's hit
+    // goes through the same ones here (held at 4 until the last phase, defeated below 1).
+    if ((e.phase != 4 || e.phasetransitioncon == 1) && e.hp < 4)
+        e.hp = 4;
+    if (e.hp < 1 || (e.hp < 2 && global.shadow_mantle_losses >= 7))
+    {
+        mp_log("Shadow Mantle: defeated (hp " + string(e.hp) + ")");
+        mp_sm_defeat(e);
+        global.mp_sm_on = 0;
+        return;
+    }
     global.mp_sm_last = e.hp;
     if ((global.mp_sm_sent != global.mp_sm_mine || (global.mp_frame - global.mp_sm_sentf) > 30) && (global.mp_frame - global.mp_sm_sentf) >= 3)
     {
@@ -227,6 +238,39 @@ function mp_sm_tick()
         global.mp_sm_sent = global.mp_sm_mine;
         global.mp_sm_sentf = global.mp_frame;
     }
+}
+
+// His defeat, as the game does it when a sword hit takes him below 1 (Step_2).
+function mp_sm_defeat(e)
+{
+    with (e)
+    {
+        snd_free(global.currentsong[0]);
+        instance_create(x, y, obj_shadow_mantle_enemy_outro);
+        instance_destroy();
+    }
+    with (obj_shadow_mantle_clone)
+        instance_destroy();
+    with (obj_shadow_mantle_cloud_bullet)
+        instance_destroy();
+    with (obj_shadow_mantle_bomb)
+        instance_destroy();
+    with (obj_shadow_mantle_cloud)
+        instance_destroy();
+    with (obj_shadow_mantle_enemy_spawn)
+        instance_destroy();
+    with (obj_shadow_mantle_fire_controller)
+        instance_destroy();
+    with (obj_shadow_mantle_fire)
+        instance_destroy();
+    with (obj_spawn_pos)
+        instance_destroy();
+    with (obj_shadow_mantle_fire3)
+        instance_destroy();
+    with (obj_shadow_mantle_groundfire)
+        instance_destroy();
+    with (obj___)
+        instance_destroy();
 }
 
 function mp_sm_recv(from, b)
