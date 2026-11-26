@@ -2077,13 +2077,18 @@ function mp_draw_ow_heart(spr, img, xx, yy, xs, ys, rot, blend, alpha)
     var s2 = mp_swap_sprite(sprite_index, 1, global.mp_cfg_char);
     if (s2 < 0 || s2 == sprite_index)
         return;
-    gpu_set_fog(true, c_white, 0, 0);
-    draw_sprite_ext(s2, image_index, xx - 1, yy, xs, ys, rot, c_white, alpha);
-    draw_sprite_ext(s2, image_index, xx + 1, yy, xs, ys, rot, c_white, alpha);
-    draw_sprite_ext(s2, image_index, xx, yy - 1, xs, ys, rot, c_white, alpha);
-    draw_sprite_ext(s2, image_index, xx, yy + 1, xs, ys, rot, c_white, alpha);
+    // As the game's own Kris version: the hero goes dark with a 1-pixel outline in the colour of
+    // their SOUL (one sprite pixel is xs screen pixels wide).
+    var col = mp_soul_color(global.mp_cfg_char);
+    var ox = abs(xs);
+    var oy = abs(ys);
+    gpu_set_fog(true, col, 0, 0);
+    draw_sprite_ext(s2, image_index, xx - ox, yy, xs, ys, rot, c_white, alpha);
+    draw_sprite_ext(s2, image_index, xx + ox, yy, xs, ys, rot, c_white, alpha);
+    draw_sprite_ext(s2, image_index, xx, yy - oy, xs, ys, rot, c_white, alpha);
+    draw_sprite_ext(s2, image_index, xx, yy + oy, xs, ys, rot, c_white, alpha);
     gpu_set_fog(false, c_white, 0, 0);
-    draw_sprite_ext(s2, image_index, xx, yy, xs, ys, rot, blend, alpha);
+    draw_sprite_ext(s2, image_index, xx, yy, xs, ys, rot, merge_color(blend, c_black, 0.85), alpha);
 }
 
 // Out-of-battle hits (map hazards): in a session, they hit the character I play, in my game. (The

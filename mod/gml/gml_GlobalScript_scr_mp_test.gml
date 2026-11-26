@@ -60,6 +60,7 @@
 //   menuat:<f>      press C (game menu) at frame f and log whether it opened ([MPMENU])
 //   pingat:<f>      press F5 (map ping) at frame f
 //   pinglong        ping arrows stay on screen 30 s (for screenshots)
+//   owsoul          the map SOUL look (as in a map hazard) stays on my character
 //   watchnext:<f>   while watching, switch to the next player at room frame f
 //   <name>/<token>  only for the player with that name (-mpname), e.g. P3/away:room_x:100
 //   logreading      log who the player list shows as "(reading)" every 30 frames
@@ -239,6 +240,12 @@ function mp_test_tick()
         }
         if ((global.mp_frame mod 60) == 0)
             mp_log("[test] bumpflag " + string(bn) + " = " + string(global.flag[bn]) + " (bumped " + string(global.mp_test_bumped) + ") flags 1600-1601 = " + string(global.flag[1600]) + "," + string(global.flag[1601]));
+    }
+    if (mp_test_has("owsoul") && instance_exists(obj_mainchara))
+    {
+        obj_mainchara.battlemode = 1;
+        if ((global.mp_frame mod 120) == 0)
+            mp_log("[test] owsoul alpha=" + string(obj_mainchara.battlealpha));
     }
     // pingat:<frame>: the map ping (F5).
     if (mp_test_arg("pingat") != "" && mp_on() && global.mp_frame == real(mp_test_arg("pingat")))

@@ -1660,3 +1660,14 @@ Done on 2026-11-22.
 |---|---|---|
 | Party menu (C) always shows the story's party, not your character. | ~~While the menu is open a "You: Susie" label shows in the bottom-right corner.~~ A misread of the request; replaced 2026-11-23 (see "The C menu names my character"): the status page names my character in Kris's place. | **Tested** (`openmenu` + screenshot). |
 | Light World: characters without Light World sprites. | Susie now uses her Light World walking sprites (Chapter 2+). Ralsei has none, so his own sprites stay (as the TODO suggested). Kris never showed: that fallback only happened for sprites with no direction. | **Tested** (log of the drawn sprite: `spr_susie_walk_*_lw`). |
+
+## Map SOUL look in every hero's colour (2026-11-26)
+
+A player whose fight shows on the map (map hazards) had a white, blurred-looking outline over the
+normal sprite. Now it matches the game's own Kris version: the hero goes dark (85% towards black,
+faded in with the game's own alpha) with a 1-pixel outline in the colour of their SOUL (Susie
+purple, Ralsei green, Noelle yellow; Kris keeps the game's own red sprite). `mp_draw_ow_heart`.
+
+**Tested** (Chapter 2, 3 players, new test token `owsoul`, clients with `chaos:10:120:60`):
+screenshots show Kris (game's red), Ralsei (green), Noelle (yellow) and Susie (purple), each dark
+with a crisp 1-pixel outline.

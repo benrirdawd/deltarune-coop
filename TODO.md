@@ -28,11 +28,7 @@ on top of the game where the game itself can show it.
 2. **Done (2026-11-26):** fewer notes, see DONE.md. Kept on purpose: connection and error news,
    waiting lines (who a fight waits for), the spectator line in a fight you only watch, scene
    choices, quick messages from others, the one-time "Story cutscenes show the party" hint.
-3. **Bugs reported in play (2026-11-25):**
-   - The map SOUL look (a player whose fight shows on the map) is a white blurred-looking outline over
-     a normal sprite. The game's own (Kris) is a pixel-drawn outline and the hero goes dark. Do the
-     same for every hero: darken the sprite, 1-pixel outline in the hero's colour instead of red
-     (Susie purple, Ralsei green, Noelle yellow; Kris keeps the game's red). (mp_draw_ow_heart)
+3. **Bugs reported in play (2026-11-25):** done or moved to "Needs information" (hurt sound), see DONE.md.
 
 ## Special fights: everyone plays their own hero (user request, 2026-11-25)
 
