@@ -4,6 +4,20 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## What a player chose ahead shows to the others (2026-11-26, user's answer)
+
+When a player picks ahead in a fight, the others see it the game's way: an enemy target gets the
+game's down arrow (`spr_morearrow`) over its head in that player's SOUL colour, gently bobbing; a
+spell, ACT or item shows its name for a moment in that player's own panel box, rising and fading
+(45 frames, the battle's big font, in their colour). The pick travels in the choose-ahead message
+(type 54, now with the choice and whether it is ready).
+Tested: encounter 58 (Berdly, Chapter 2), host + client, client picks Rude Buster on Berdly ahead:
+host log "plan seen: slot 1 chose Rude Buster", screenshots show the purple arrow over Berdly and
+"Rude Buster" rising over Susie's panel; the same run at 20x with chaos:10:120:60 passed mpcheck.
+
+Also: ACTS.md (from `tools/actlist.py`) lists every team ACT per chapter, who it needs and what
+co-op does without them, with columns to fill for Noelle and, later, Berdly.
+
 ## Everyone walks alone (2026-11-26, reported in play)
 
 In a session the game's party followers (`obj_caterpillarchara`) are no longer drawn: each player walks

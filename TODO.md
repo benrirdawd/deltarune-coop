@@ -21,12 +21,14 @@ on top of the game where the game itself can show it.
    **Part 1 done (2026-11-26, DONE.md):** panels up together, each lights its own choice, no turn
    notes, a ready choice plays by itself. **Parts 2 and 3 done (2026-11-26, DONE.md):** the lists of a hero chosen ahead are in the battle's
    own bottom box, spells with their description and TP cost like the game's.
-   **Next (user's answer, 2026-11-26):** what a player chose ahead, shown to the others:
-   * an enemy: the arrow over the head of the enemy they picked (as when choosing a target);
-   * a spell (or ACT, item): its name shows for a moment in that player's own panel box, rising
-     and fading out.
-   **Next (user, 2026-11-26):** heroes stand side by side on the battle screen, Kris in the middle
-   (to confirm while doing it: which order for the others, and whether "side by side" means a row).
+   **Done (2026-11-26, DONE.md):** what a player chose ahead shows to the others (arrow over the
+   enemy, the spell/ACT/item name rising in their panel).
+   **Next (user, 2026-11-26):** in Chapter 3's board-game room (the party standing at the TV, where
+   the game has only Kris), the players' heroes stand side by side, Kris in the middle.
+   **Next (user, 2026-11-26):** a hero who isn't in a fight leaves no prop behind: remove what belongs
+   to them instead of a stand-in sprite (Ralsei's cart in Berdly's coaster fight, the ball in the
+   Tenna fight). ACTs changed for co-op are listed in ACTS.md (to give versions with Noelle, later
+   Berdly).
 2. **Done (2026-11-26):** fewer notes, see DONE.md. Kept on purpose: connection and error news,
    waiting lines (who a fight waits for), the spectator line in a fight you only watch, scene
    choices, quick messages from others, the one-time "Story cutscenes show the party" hint.

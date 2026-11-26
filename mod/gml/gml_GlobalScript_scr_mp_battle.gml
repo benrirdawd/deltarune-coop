@@ -435,8 +435,15 @@ function mp_battle_recv(type, from, b)
         var pturn = buffer_read(b, buffer_u16);
         var pslot = buffer_read(b, buffer_u8);
         var pbar = buffer_read(b, buffer_u8);
+        var pd = buffer_read(b, buffer_u8);
+        var pv1 = buffer_read(b, buffer_u8);
+        var pv2 = buffer_read(b, buffer_u8);
+        var prd = buffer_read(b, buffer_u8);
         if (pturn == global.mp_bturn && pslot < 3 && pbar < 5 && global.mp_owner[pslot] == from && pslot > global.charturn && global.bmenuno >= 0)
+        {
             global.bmenucoord[0][pslot] = pbar;
+            mp_plan_recv(from, pturn, pslot, pbar, pd, pv1, pv2, prd);
+        }
         return;
     }
     if (type == 53) // the sender's own TP gain this bullet phase (live TP)
@@ -912,6 +919,7 @@ function mp_battle_input()
     // I can already move the bar of my hero who comes next (mp_presel_input).
     global.mp_mn_pend = 0;
     mp_presel_input();
+    mp_plan_share();
     mp_ui_block();
     for (var k = 0; k < ds_list_size(global.mp_minq); k++)
     {
@@ -1037,7 +1045,155 @@ function mp_presel_send(s)
     mp_wu16(global.mp_bturn);
     mp_wu8(s);
     mp_wu8(global.bmenucoord[0][s]);
+    // The plan under it (level, cursors, chosen): the others show its enemy and its spell/ACT/item.
+    var same = global.mp_pl_slot == s && global.mp_pl_turn == global.mp_bturn;
+    mp_wu8(same ? global.mp_pl_d : 0);
+    mp_wu8(same ? global.mp_pl_v[1] : 0);
+    mp_wu8(same ? global.mp_pl_v[2] : 0);
+    mp_wu8(same ? global.mp_pl_ready : 0);
     mp_send();
+}
+
+// Every frame while I choose ahead: my plan reaches the others whenever it changes.
+function mp_plan_share()
+{
+    var s = global.mp_presel;
+    if (s < 0 || global.mp_pl_slot != s || global.mp_pl_turn != global.mp_bturn)
+        return;
+    var key = string(global.mp_bturn) + ":" + string(s) + ":" + string(global.bmenucoord[0][s]) + ":" + string(global.mp_pl_d) + ":" + string(global.mp_pl_v[1]) + ":" + string(global.mp_pl_v[2]) + ":" + string(global.mp_pl_ready);
+    if (!variable_global_exists("mp_pl_shared") || global.mp_pl_shared != key)
+    {
+        global.mp_pl_shared = key;
+        mp_presel_send(s);
+    }
+}
+
+// Another player's plan arrived. On "chosen" for a spell, ACT or item: its name rises in their
+// hero's panel box (mp_plan_others_draw).
+function mp_plan_recv(from, turn, s, bar, d, v1, v2, ready)
+{
+    if (!variable_global_exists("mp_rpl"))
+        global.mp_rpl = [[-1], [-1], [-1]];
+    var old = global.mp_rpl[s];
+    var was = array_length(old) > 6 && old[0] == turn && old[6] && old[2] == bar && old[4] == v1 && old[5] == v2;
+    global.mp_rpl[s] = [turn, from, bar, d, v1, v2, ready];
+    if (!ready || was || (bar != 1 && bar != 2))
+        return;
+    var c = global.char[s];
+    var nm = "";
+    if (bar == 1 && c == 1)
+    {
+        var acts = mp_plan_acts(1, v1);
+        for (var i = 0; i < array_length(acts); i++)
+        {
+            if (acts[i][0] == v2)
+                nm = acts[i][1];
+        }
+    }
+    else if (bar == 1)
+    {
+        var sps = mp_plan_spells(c);
+        for (var j = 0; j < array_length(sps); j++)
+        {
+            if (sps[j][0] == v1)
+                nm = sps[j][1];
+        }
+    }
+    else
+    {
+        var its = mp_plan_items(s);
+        for (var k = 0; k < array_length(its); k++)
+        {
+            if (its[k][0] == v1)
+                nm = its[k][1];
+        }
+    }
+    if (nm == "")
+        return;
+    if (!variable_global_exists("mp_rise"))
+        global.mp_rise = [];
+    array_push(global.mp_rise, [s, nm, global.mp_frame, mp_soul_color(c)]);
+    mp_log("plan seen: slot " + string(s) + " chose " + nm);
+}
+
+// The enemy another player's plan for slot s points at (-1 none).
+function mp_plan_enemy_of(s)
+{
+    if (!variable_global_exists("mp_rpl"))
+        return -1;
+    var p = global.mp_rpl[s];
+    if (array_length(p) < 7 || p[0] != global.mp_bturn || p[1] == global.mp_myid || global.mp_owner[s] != p[1])
+        return -1;
+    var bar = p[2];
+    var d = p[3];
+    var c = global.char[s];
+    var e = -1;
+    if ((bar == 0 || bar == 3) && d >= 1)
+        e = p[4];
+    else if (bar == 1 && c == 1 && d >= 1)
+        e = p[4];
+    else if (bar == 1 && c != 1 && d >= 2 && mp_plan_spell_target(c, p[4]) == 2)
+        e = p[5];
+    if (e < 0 || e > 2 || !global.monster[e])
+        return -1;
+    return e;
+}
+
+// Appended to obj_battlecontroller's Draw: the others' plans. The enemy one picked gets the game's
+// own menu arrow over its head, in that player's colour; a spell/ACT/item they chose rises from
+// their hero's panel and fades.
+function mp_plan_others_draw(xx, yy)
+{
+    if (!variable_global_exists("mp_inited") || !mp_battle_on())
+        return;
+    var menu = global.myfight == 0 && global.mnfight == 0 && global.charturn < 3;
+    if (menu)
+    {
+        var cnt = [0, 0, 0];
+        for (var s = 0; s < 3; s++)
+        {
+            if (s <= global.charturn || global.char[s] == 0)
+                continue;
+            var e = mp_plan_enemy_of(s);
+            if (e < 0 || !instance_exists(global.monsterinstance[e]))
+                continue;
+            var m = global.monsterinstance[e];
+            var ax = ((m.bbox_left + m.bbox_right) / 2) + (cnt[e] * 16);
+            var ay = m.bbox_top - 14 + (sin(global.mp_frame / 6) * 2);
+            cnt[e] += 1;
+            draw_sprite_ext(spr_morearrow, 0, ax, ay, 2, 2, 0, mp_soul_color(global.char[s]), 1);
+        }
+    }
+    if (!variable_global_exists("mp_rise") || array_length(global.mp_rise) == 0)
+        return;
+    var total = 0;
+    for (var t = 0; t < 3; t++)
+    {
+        if (global.char[t] != 0)
+            total += 1;
+    }
+    var chunks = (total == 3) ? [0, 213, 426] : ((total == 2) ? [108, 322, 322] : [213, 213, 213]);
+    var keep = [];
+    var oa = draw_get_alpha();
+    var oc = draw_get_colour();
+    var bpv = variable_instance_exists(id, "bp") ? bp : 0;
+    scr_84_set_draw_font("mainbig");
+    draw_set_halign(fa_center);
+    for (var r = 0; r < array_length(global.mp_rise); r++)
+    {
+        var it = global.mp_rise[r];
+        var age = global.mp_frame - it[2];
+        if (age > 45 || it[0] > 2)
+            continue;
+        array_push(keep, it);
+        draw_set_alpha(1 - (age / 45));
+        draw_set_colour(it[3]);
+        draw_text(xx + chunks[it[0]] + 106, yy + 480 - bpv - 40 - age, it[1]);
+    }
+    draw_set_halign(fa_left);
+    draw_set_alpha(oa);
+    draw_set_colour(oc);
+    global.mp_rise = keep;
 }
 
 function mp_presel_name(s)
