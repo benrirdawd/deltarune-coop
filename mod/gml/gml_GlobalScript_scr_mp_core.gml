@@ -5,8 +5,8 @@ function mp_init()
     if (variable_global_exists("mp_inited"))
         return;
     global.mp_inited = 1;
-    global.mp_version = 13;
-    global.mp_build = 19;   // the release's build number (DeltaruneOnline-v19.zip): raise it with each release
+    global.mp_version = 14;
+    global.mp_build = 20;   // the release's build number (DeltaruneOnline-v20.zip): raise it with each release
     global.mp_chapter = __CHAPTER__;
     global.mp_frame = 0;
     mp_filelog_init();
