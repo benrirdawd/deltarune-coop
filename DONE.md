@@ -4,6 +4,15 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## The SOUL flying out and back is my character's (2026-11-26, reported in play)
+
+The SOUL that flies out of the hero into the box when the bullet phase starts (`obj_moveheart`) and
+back at its end (`obj_returnheart`) kept the red SOUL and Kris's position. Now (`mp_soul_fly_created`,
+appended to both Creates) it is recoloured like the SOUL in the box (`mp_soul_sprite`) and leaves from
+/ goes back to my own hero (its burst too); Kris's player and fights without me as a hero are as before.
+**Tested:** Chapter 2 encounter 53, 2 players, the client plays Susie: the log shows "SOUL out of
+obj_herosusie" and "SOUL back to obj_herosusie" on each of 3 bullet phases.
+
 ## Fewer notes on screen (2026-11-26)
 
 Notes that only repeated what the game already shows went to the log instead (`multiplayer_log.txt`):

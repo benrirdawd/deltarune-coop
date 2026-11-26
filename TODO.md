@@ -29,7 +29,6 @@ on top of the game where the game itself can show it.
    waiting lines (who a fight waits for), the spectator line in a fight you only watch, scene
    choices, quick messages from others, the one-time "Story cutscenes show the party" hint.
 3. **Bugs reported in play (2026-11-25):**
-   - The heart in the leaving animation keeps its original color instead of my character's.
    - Solo: the party still follows me. Solo should be really solo (this also fixes Kris looking
      Light World while Ralsei leads, so that one needs no fix of its own).
    - Starting a battle plays the hurt sound with nothing hitting me.

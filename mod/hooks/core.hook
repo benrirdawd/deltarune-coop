@@ -620,3 +620,9 @@ btc[global.bmenucoord[0][charpos[c]]
 ;; ...and the list of a hero chosen ahead (enemies, ACTs, spells, items) in the battle's own bottom box.
 @append gml_Object_obj_battlecontroller_Draw_0
 mp_plan_box_draw(xx, yy);
+
+;; The SOUL flying out of the hero into the box and back: my character's colour, from / to my hero.
+@append gml_Object_obj_moveheart_Create_0
+mp_soul_fly_created(false);
+@append gml_Object_obj_returnheart_Create_0
+mp_soul_fly_created(true);

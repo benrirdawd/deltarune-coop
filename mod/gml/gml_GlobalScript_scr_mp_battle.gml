@@ -2504,3 +2504,58 @@ function mp_actg_recv(from, b)
     array_push(global.mp_actg_res, res);
     mp_actg_apply();
 }
+
+// ---------------------------------------------------------------- the SOUL leaving and coming back
+
+// My hero's battle instance when I play someone other than Kris (noone otherwise).
+function mp_soul_hero()
+{
+    if (!variable_global_exists("mp_inited") || !mp_battle_on() || global.mp_pchar[global.mp_myid] <= 1)
+        return noone;
+    for (var s = 0; s < 3; s++)
+    {
+        if (global.char[s] == global.mp_pchar[global.mp_myid] && is_array(global.charinstance) && s < array_length(global.charinstance) && instance_exists(global.charinstance[s]))
+            return global.charinstance[s];
+    }
+    return noone;
+}
+
+// Appended to obj_moveheart's and obj_returnheart's Create: the SOUL that flies out of the hero at
+// the start of the bullet phase (in) and back at its end (out) is my character's colour, and leaves
+// from / goes back to my hero instead of Kris.
+function mp_soul_fly_created(out)
+{
+    if (!variable_global_exists("mp_inited") || !mp_battle_on())
+        return;
+    sprite_index = mp_soul_sprite(sprite_index, global.mp_pchar[global.mp_myid]);
+    var h = mp_soul_hero();
+    if (h == noone || !instance_exists(obj_herokris))
+        return;
+    var kx = obj_herokris.x + 10;
+    var ky = obj_herokris.y + 40;
+    if (out)
+    {
+        if (distx != kx || disty != ky)
+            return;
+        distx = h.x + 10;
+        disty = h.y + 40;
+    }
+    else
+    {
+        if (x != kx || y != ky)
+            return;
+        x = h.x + 10;
+        y = h.y + 40;
+        with (obj_heartburst)
+        {
+            if (xstart == kx && ystart == ky)
+            {
+                xstart = other.x;
+                ystart = other.y;
+            }
+        }
+    }
+    dist = point_distance(x, y, distx, disty);
+    move_towards_point(distx, disty, dist / flytime);
+    mp_log("SOUL " + (out ? "back to " : "out of ") + object_get_name(h.object_index));
+}
