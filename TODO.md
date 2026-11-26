@@ -78,6 +78,13 @@ Rules:
 Done (2026-11-26, DONE.md): team ACTs that only need the others' turns work without them, in every
 chapter (`tools/actsolo.py`: 22 found, plus the last board's). Open: the ~190 team ACTs whose code
 uses the helper (e.g. Sharpshoot, Rabbick's Warning): each needs its own stand-in, per the rules above.
+Looked at (2026-11-26): the user's example, Susie throwing Kris at the wires, is the Queen fight with
+Berdly plugged in (Chapter 2, monster 48 "Throw", and Werewire's "ThrowWire" in Chapters 2-4). Neither
+is a hard gap: without Kris or Susie the fight is still won with Loosen (Kris, Susie and Ralsei each
+have one; Berdly's mercy) and Werewire with S-/R-/N-Action mercy. The stand-in (Susie's Rude Buster
+cutting a wire for more TP when Kris isn't there) is an extra, and the plugged part is only reached
+through the Queen fight's own scene 25, which the test harness can't reach yet. Next step there: a
+test token that starts the Queen fight in its plugged phase.
 Go through MINIGAMES.md for every mechanic that needs two specific heroes and pick one stand-in
 for each, the simplest that keeps the original's feel.
 
