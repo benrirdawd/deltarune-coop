@@ -23,8 +23,8 @@ on top of the game where the game itself can show it.
    own bottom box, spells with their description and TP cost like the game's.
    **Done (2026-11-26, DONE.md):** what a player chose ahead shows to the others (arrow over the
    enemy, the spell/ACT/item name rising in their panel).
-   **Next (user, 2026-11-26):** in Chapter 3's board-game room (the party standing at the TV, where
-   the game has only Kris), the players' heroes stand side by side, Kris in the middle.
+   **Done (2026-11-26, DONE.md):** Chapter 3's sword route, the players' heroes stand at the TV
+   beside Kris (back views; a "holding the controller" back pose is in SPRITES.md).
    **Next (user, 2026-11-26):** a hero who isn't in a fight leaves no prop behind: remove what belongs
    to them instead of a stand-in sprite (Ralsei's cart in Berdly's coaster fight, the ball in the
    Tenna fight). ACTs changed for co-op are listed in ACTS.md (to give versions with Noelle, later

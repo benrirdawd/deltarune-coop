@@ -35,6 +35,19 @@ Kris's battle sprites).
 Kris's ACT with Susie: Susie throws Kris onto the wire to knock the Werewire off (`spr_werewire_throwarrow`
 for the aim). Same combinations as Queen's Throw: the poses above would serve both fights.
 
+## Chapter 3: the sword route's TV (everyone plays the board)
+
+The game has Kris alone at the console, back to us, holding the controller
+(`spr_krisu_holdcontroller`, and `_hurt` when the board hurts him). Co-op puts the other players'
+heroes beside him; today they stand with their plain back view (walk up).
+
+* **Susie / Ralsei / Noelle holding a controller, back view** — why: they are playing too, the plain
+  standing pose doesn't show it. How: like Kris's, seen from behind, elbows out, a controller in both
+  hands, plus a "hurt" frame (a jolt) for when the board hits their piece. Closest:
+  `spr_krisu_holdcontroller` (the pose to copy), `spr_susie_racing_play` /
+  `spr_ralsei_racing_play` (Chapter 3 green room, same idea but facing the camera),
+  `spr_susie_sm5_holdcontroller_left` (Susie with a controller, side view).
+
 ## Notes
 
 * All poses are battle sprites at the game's battle scale, facing right, with the same palette as

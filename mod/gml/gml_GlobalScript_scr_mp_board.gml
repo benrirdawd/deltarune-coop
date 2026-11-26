@@ -34,3 +34,12 @@ function mp_sm_recv(from, b)
 {
     buffer_read(b, buffer_f64);
 }
+
+function mp_tv_row_on()
+{
+    return false;
+}
+
+function mp_tv_row_draw(sh)
+{
+}

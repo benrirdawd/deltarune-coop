@@ -4,6 +4,21 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## The party at the TV on the sword route (2026-11-26, user request)
+
+On Chapter 3's sword route (`scr_swordroom`), the game has Kris alone at the console holding the
+controller. In a session every player's hero now stands there with him, close beside him as players
+sharing one TV (user: "closer to Kris"): Kris (the game's own, not swapped) in the middle, Susie on
+his left, Ralsei on his right, Noelle at the next free place, feet in line with his, drawn with the
+same gray glow and floor reflection the game gives Kris (`obj_gameshow_swordroute` Draw,
+`mp_tv_row_draw` in `scr_mp_board`). Back views (`spr_susie_walk_up_dw`, `spr_ralsei_walk_up`): the
+green room's `*_racing_play` controller sprites face the camera, so they don't fit; a back pose
+holding a controller is in SPRITES.md.
+**Tested:** `room_board_preshadowmantle` (plot 180, flag 1055 = 6), 3 players (Kris host, Susie and
+Ralsei clients, clients with `chaos:10:120:60`): every game logs "tv row: 2 hero(es) beside Kris";
+screenshots show Susie, Kris and Ralsei side by side at the console. `mpcheck`: all PASS except
+"moved" (nobody walks in this test).
+
 ## What a player chose ahead shows to the others (2026-11-26, user's answer)
 
 When a player picks ahead in a fight, the others see it the game's way: an enemy target gets the

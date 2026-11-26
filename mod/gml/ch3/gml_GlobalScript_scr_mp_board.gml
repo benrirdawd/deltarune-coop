@@ -238,3 +238,77 @@ function mp_sm_recv(from, b)
     global.mp_sm_rtot[from] = t;
     global.mp_sm_rf[from] = current_time;
 }
+
+// ---------------------------------------------------------------- the TV row (sword route)
+// On the route where Kris plays the board alone (scr_swordroom: Kris stands at the console holding
+// the controller), every player's hero stands at the TV with him: Kris (the game's own, never
+// swapped) in the middle, the others side by side, as the normal board's party stands (Susie on the
+// left, Ralsei on the right, at the same distances; Noelle takes the next free place).
+function mp_tv_row_on()
+{
+    return variable_global_exists("mp_inited") && mp_on();
+}
+
+// From obj_gameshow_swordroute's Draw, inside with (kris) right after Kris is drawn: the same three
+// passes (the figure, its gray glow, the reflection on the floor) for each hero.
+function mp_tv_row_draw(sh)
+{
+    var has = [0, 0, 0, 0, 0];
+    var me = global.mp_cfg_char;
+    if (me >= 2 && me <= 4)
+        has[me] = 1;
+    for (var i = 0; i < 8; i++)
+    {
+        if (i != global.mp_myid && global.mp_pconn[i] && global.mp_proom[i] == room)
+        {
+            var c = global.mp_pchar[i];
+            if (c >= 2 && c <= 4)
+                has[c] = 1;
+        }
+    }
+    // Places: left, right, far left, far right (offsets from Kris, as the board's party stands).
+    var used = [0, 0, 0, 0];
+    // Their backs to us, facing the TV like Kris (the game has no back view of them holding a
+    // controller: SPRITES.md).
+    var sprs = ["", "", "spr_susie_walk_up_dw", "spr_ralsei_walk_up", "spr_noelle_walk_up_dw"];
+    var alts = ["", "", "spr_susie_walk_up_dw", "spr_ralsei_walk_up", "spr_noelle_walk_up_dw"];
+    var pref = [0, 0, 0, 1, 1];
+    var n = 0;
+    for (var c = 2; c <= 4; c++)
+    {
+        if (!has[c])
+            continue;
+        var spr = mp_try_sprite(sprs[c]);
+        if (spr < 0)
+            spr = mp_try_sprite(alts[c]);
+        if (spr < 0)
+            continue;
+        var p = pref[c];
+        if (used[p])
+            p = 1 - p;
+        if (used[p])
+            p += 2;
+        if (used[p])
+            p = (p == 2) ? 3 : 2;
+        used[p] = 1;
+        // Close beside him, as players sharing one TV.
+        var hw = sprite_get_width(spr) * image_xscale;
+        var hx = x - hw + 4;
+        if (p == 1)
+            hx = x + sprite_width - 4;
+        if (p == 2)
+            hx = x - (2 * hw) + 8;
+        if (p == 3)
+            hx = x + sprite_width + hw - 8;
+        var hy = y + sprite_height - (sprite_get_height(spr) * image_yscale); // feet in line with Kris's
+        draw_sprite_ext(spr, 0, hx, hy, image_xscale, image_yscale, 0, image_blend, image_alpha);
+        draw_sprite_ext(spr, 0, hx, hy + 2, image_xscale, image_yscale, 0, c_gray, sh);
+        draw_sprite_ext(spr, 0, hx, (hy + (sprite_get_height(spr) * image_yscale * 2)) - 4, image_xscale, -image_yscale, 0, c_black, 0.8 * sh);
+        n++;
+    }
+    if (!variable_global_exists("mp_tv_row_n") || n != global.mp_tv_row_n)
+    {
+        global.mp_tv_row_n = n;
+        mp_log("tv row: " + string(n) + " hero(es) beside Kris (susie " + string(has[2]) + " ralsei " + string(has[3]) + " noelle " + string(has[4]) + ")");
+    }
+}
