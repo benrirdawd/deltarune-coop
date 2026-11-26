@@ -1732,3 +1732,13 @@ None needed to go on the "special" list. Not covered by the bots: Mew Mew's choi
 fight's story part). A first run of 222 froze the host for 26 minutes right when the test took its
 screenshot (frames of exactly 1 s and 3 s, then nothing until the client's game was closed); run
 again without screenshots it was fine, so it is the test's screenshot step, not the mod.
+
+## Titan is a normal fight (2026-11-26)
+
+Chapter 4's final boss was on the "special" list. Its own parts (darkness, the TP gain cut, Titan's
+heals, the light aura) are per screen or are the enemy's, and each hero's spells are played by that
+hero's player, so it runs as a normal same-time fight. Taken off the list.
+
+**Tested** (Chapter 4, encounter 175, 3 players Kris/Susie/Ralsei, bots with random choices,
+clients with `chaos:10:120:60`, `mpcheck` all PASS): 6 turns with identical turn states in all
+three games, each hero owned by their own player.
