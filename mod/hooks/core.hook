@@ -1239,3 +1239,10 @@ if (con == 0 && mp_mirror_resuming())
     con = 2;
 }
 #chapters all
+;; Chapter 5's castle light shafts (drawn added onto the room) and its falling petals are kept
+;; scenery: they draw in the watchers' games, the petals' Step paused while they watch.
+#chapters 5
+@prepend gml_Object_obj_leafpetals_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+#chapters all

@@ -171,7 +171,9 @@ for each, the simplest that keeps the original's feel.
    plot 126: no scene lock, no errors); nothing to mirror. The same goes for the walk-by prophecies.
    Chapter 5's castle top (Asgore's story, DW22) compared and matching (DONE.md); the castle
    entrance (DW19, with the town memory) has the town's colours and the exit's light pillar now (DONE.md); the party jail's two parts
-   done (DONE.md). Other Chapter 5 castle scenes open (DW20, DW25-DW30, DW40, the fountain DW45). An object found drawing by hand gets the `mp_mir_dse` hook or kept
+   done (DONE.md). The top staircase (DW25) done:
+   the castle's light shafts and petals (DONE.md). Other Chapter 5 castle scenes open (DW27-DW30,
+   DW40, the fountain DW45). An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
 
 ## Next puzzles to look at (found 2026-11-24, from MINIGAMES.md), one per cycle

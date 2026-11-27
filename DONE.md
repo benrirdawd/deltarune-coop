@@ -2600,3 +2600,15 @@ that chapter (`#chapters 5` blocks may name Chapter 5's assets).
 locked in the cell like the host (shots at 50/60/70 s); the client then talks to the moss
 (`useobj:obj_interactable`), the host is pulled into the second part (part 2 > 1), and the scene
 takes both to `room_dw_fcastle_post_party_jail`, plot 398 (260 s run); no errors.
+
+## Chapter 5's castle light shafts for the watchers (2026-11-27)
+Compared the top staircase scene (`obj_ch5_DW25`, `room_dw_fcastle_top_staircase_1`, plot 450,
+trigger `enter_trigger`). The scene itself matched (Susie's yell, made by `obj_anim_custom` on her
+actor, shows on the watcher a moment later, as the network allows), but the light shafts falling
+across the room (`obj_fcastle_light`, drawn added onto the room, which the mirror can't send) were
+missing for the watcher. They and the castle's falling petals (`obj_leafpetals`, drawn from
+surfaces of their own) are now kept scenery, the petals' Step paused while watching.
+**Tested:** all 5 chapters build; Chapter 5 `room_dw_fcastle_top_staircase_1`, plot 450,
+`trig:enter_trigger` (host Kris with `mash` + client Susie, `chaos:10:120:60`, 62 s, shots at
+35/45/55 s, and every 2 s from 44 to 58 s before the change): the client shows the light shafts on
+the left as the host; no errors.
