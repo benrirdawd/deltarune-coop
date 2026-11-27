@@ -298,7 +298,7 @@ choice and real players to judge it; the platformer figure and the special-fight
 | Chapter 5 platformer: hits, enemies and most pickups aren't shared (remembered coins, pinata bells, leaf piles and paper grass are, DONE.md 2026-11-25) (the per-character figure is done, DONE.md 2026-11-24; the game's own follower of a character a friend plays is hidden, DONE.md). | Shared pickups. | M |
 |  | User (2026-11-25): **must be 100% before calling the mod finished.** Every player controls their own figure in the platformer (needs new platformer sprites for Susie, Ralsei, Noelle). | L |
 | Separate fights: players left out of a fight (hero not in the story party, taken, or a 4th+ player) only watch. | Support for up to 5 players and a proper spectator role. | L |
-| A player in a fight, seen from the map, only shows a battle stance. | User (2026-11-25): no need to show choosing and dodging. Keep the hero in their battle idle pose and draw the enemy (or enemies) of that fight standing in front of them. | M |
+| **Done (2026-11-26, DONE.md):** a player in a fight, seen from the map: their hero's battle stance with the fight's enemies standing in front of them. | User (2026-11-25): no need to show choosing and dodging. | done |
 | The host as referee, next steps: NPC talk and battle start through the host (cutscene start already is: the scene lock). | See "The server layer idea" in DONE.md (report 7). | M |
 |  | User (2026-11-25): when a player talks to an NPC with other players in the room, everyone in the room hears the NPC (the text box shows for all, not only a bubble). | M |
 

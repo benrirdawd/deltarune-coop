@@ -36,6 +36,8 @@ function mp_init()
     global.mp_pchat_t = array_create(8, -100000);   // when they last changed room (as I heard it)
     global.mp_pmg = array_create(8, "");       // the minigame they are playing ("" none)
     global.mp_pmg_t = array_create(8, 0);
+    global.mp_pfoes = array_create(8, -1);     // the enemies of the fight they are in: [[sprite, xscale, yscale], ...]
+    global.mp_pfoes_t = array_create(8, 0);
     global.mp_vote_v = array_create(8, -1);    // scene choice votes (mp_vote_*)
     global.mp_vote_vt = array_create(8, 0);
     global.mp_vote_c = array_create(8, -1);    // where their cursor is
@@ -603,6 +605,11 @@ function mp_handle(type, sender, b, sock, endpos)
     if (type == 83) // a counter flag went up (scr_mp_world: mp_recv_counter)
     {
         mp_recv_counter(b);
+        return;
+    }
+    if (type == 87) // the enemies of the fight a player is in (drawn in front of them on the map)
+    {
+        mp_foes_recv(sender, b);
         return;
     }
     if (type == 69) // the minigame a player is playing

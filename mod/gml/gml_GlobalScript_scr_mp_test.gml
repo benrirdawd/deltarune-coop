@@ -5,6 +5,7 @@
 //   plot:<n>        story progress to use (with `party`)
 //   battle:<enc>    start encounter <enc> ~4s after arriving (once)
 //   camx:<x>        with battle: put the camera at x first (where a story scene leaves it)
+//   alone           my fights bring in nobody (open-world fights: as if the others were off screen)
 //   tp:<n>          with battle: the fight starts with n TP
 //   ohfslow         a one-hero fight's entry lines stay up 20 s each (to look at them)
 //   bot             press buttons automatically (menus, attacks, dodging)

@@ -105,6 +105,9 @@ function mp_open_fight()
 function mp_nearby_mask(watchers)
 {
     var m = 1 << global.mp_myid;
+    // (Test token alone: my fights bring nobody in, as if the others were off my screen.)
+    if (global.mp_test != "" && mp_test_has("alone"))
+        return m;
     var cam = view_camera[0];
     var cx = camera_get_view_x(cam);
     var cy = camera_get_view_y(cam);

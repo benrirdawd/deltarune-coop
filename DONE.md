@@ -4,6 +4,19 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## A player in a fight, seen from the map: their enemies stand in front of them (2026-11-26)
+
+User's design (2026-11-25): no need to show choosing and dodging; the hero in their battle idle pose
+(done before) with the enemy or enemies of that fight standing in front of them. Now each game in a
+fight sends its enemies' battle sprites (message 87, every 2 s and when they change, an empty list
+as it ends); players outside that fight draw them to the right of the fighting hero, facing them,
+feet on the same line, with the same slow white pulse, animated, at most about a hero's height.
+New test token: `alone` (my fights bring in nobody, as if the others were off screen).
+**Tested** (Chapter 2, `room_dw_cyber_maze_queenscreen`, host Kris starts encounter 54 with `alone`,
+client Susie with `chaos:10:120:60`, 1x): the client stays on the map and shows the host's Kris in
+battle stance with the two Maus in front of him, plus the game's "Press Z to join" prompt
+(screenshot). `mpcheck`: all PASS except "battle" (the client is not in the fight, on purpose).
+
 ## Maus' basket (an ACT's own game) is the same in every game (2026-11-26)
 
 The ACT games (MINIGAMES.md) had only been tested with a simulated one (`fakeactg`). With a real one,

@@ -32,6 +32,13 @@ if (fighting)
     draw_sprite_ext(dspr, dimg, dx, dy, (dspr != sprite_index) ? abs(image_xscale) : image_xscale, image_yscale, 0, c_white, fade * (0.25 + (0.2 * sin(current_time / 250))));
     gpu_set_fog(false, c_white, 0, 1);
 }
+// In a fight: the enemies they are fighting, in front of them.
+if (fighting)
+{
+    var ffx = x + (((sprite_get_width(sprite_index) / 2) - sprite_get_xoffset(sprite_index)) * image_xscale);
+    var ffy = y + ((sprite_get_height(sprite_index) - sprite_get_yoffset(sprite_index)) * image_yscale);
+    mp_foes_draw(pid, ffx, ffy, fade);
+}
 // Name tag above the sprite's centre (sprite origins differ: walking sprites have it at the top
 // left, the Chapter 5 platformer's sprites don't).
 var tcx = x + (((sprite_get_width(sprite_index) / 2) - sprite_get_xoffset(sprite_index)) * image_xscale);

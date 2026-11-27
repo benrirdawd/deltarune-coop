@@ -1257,6 +1257,7 @@ function mp_menu_ready()
 
 function mp_battle_tick()
 {
+    mp_foes_send();
     if (mp_b_lead() && global.mp_bwait)
     {
         var bn = mp_bwait_names();
@@ -2972,4 +2973,100 @@ function mp_basket_press(inst)
         }
     }
     return false;
+}
+
+// ---------------------------------------------------------------- my fight, seen from the map
+// Players who aren't in my fight see my hero in their battle stance on the map; the enemies I'm
+// fighting stand in front of them (their battle sprites). Sent every 2 s while I'm in a fight
+// (someone may walk into the room later), and once more as it ends (an empty list).
+function mp_foes_send()
+{
+    var on = mp_in_battle_scene() && instance_exists(obj_battlecontroller);
+    if (!on)
+    {
+        if (variable_global_exists("mp_foes_sent") && global.mp_foes_sent != "")
+        {
+            global.mp_foes_sent = "";
+            mp_begin(87);
+            mp_wu8(0);
+            mp_send();
+        }
+        return;
+    }
+    var l = [];
+    for (var s = 0; s < 3; s++)
+    {
+        if (global.monster[s] && instance_exists(global.monsterinstance[s]))
+        {
+            var m = global.monsterinstance[s];
+            if (sprite_exists(m.sprite_index) && m.visible)
+                array_push(l, [m.sprite_index, m.image_xscale, m.image_yscale]);
+        }
+    }
+    var sig = json_stringify(l);
+    if (!variable_global_exists("mp_foes_sent"))
+        global.mp_foes_sent = "";
+    if (sig == global.mp_foes_sent && (global.mp_frame mod 60) != 0)
+        return;
+    global.mp_foes_sent = sig;
+    mp_begin(87);
+    mp_wu8(array_length(l));
+    for (var i = 0; i < array_length(l); i++)
+    {
+        mp_ws16(l[i][0]);
+        mp_ws8(round(l[i][1] * 10));
+        mp_ws8(round(l[i][2] * 10));
+    }
+    mp_send();
+}
+
+function mp_foes_recv(from, b)
+{
+    var n = buffer_read(b, buffer_u8);
+    var l = [];
+    for (var i = 0; i < n; i++)
+    {
+        var sp = buffer_read(b, buffer_s16);
+        var xs = buffer_read(b, buffer_s8) / 10;
+        var ys = buffer_read(b, buffer_s8) / 10;
+        array_push(l, [sp, xs, ys]);
+    }
+    if (from < 8)
+    {
+        global.mp_pfoes[from] = (n > 0) ? l : -1;
+        global.mp_pfoes_t[from] = current_time;
+    }
+}
+
+// From the ghost's Draw: the enemies of player pid's fight, standing in front of their hero (feet at
+// fx, fy; facing them, as in the fight), drawn the way the hero is.
+function mp_foes_draw(pid, fx, fy, a)
+{
+    var l = global.mp_pfoes[pid];
+    if (!is_array(l) || current_time - global.mp_pfoes_t[pid] > 6000)
+        return;
+    var x0 = fx + 36;
+    for (var i = 0; i < array_length(l); i++)
+    {
+        var sp = l[i][0];
+        if (!sprite_exists(sp))
+            continue;
+        var xs = abs(l[i][1]) > 0 ? l[i][1] : 2;
+        var ys = abs(l[i][2]) > 0 ? l[i][2] : 2;
+        // (Battle enemies are often bigger than a map figure: about a hero's height at most.)
+        var k = min(1, 80 / max(1, sprite_get_height(sp) * abs(ys)));
+        xs *= k;
+        ys *= k;
+        var w = sprite_get_width(sp) * abs(xs);
+        var dx = x0 + (sprite_get_xoffset(sp) * abs(xs));
+        if (xs < 0)
+            dx = x0 + w - (sprite_get_xoffset(sp) * abs(xs));
+        var dy = fy - ((sprite_get_height(sp) - sprite_get_yoffset(sp)) * ys);
+        var img = (current_time / 160) mod max(1, sprite_get_number(sp));
+        draw_sprite_ext(sp, img, dx, dy, xs, ys, 0, c_white, a);
+        gpu_set_fog(true, c_white, 0, 1);
+        draw_sprite_ext(sp, img, dx, dy, xs, ys, 0, c_white, a * (0.25 + (0.2 * sin(current_time / 250))));
+        gpu_set_fog(false, c_white, 0, 1);
+        x0 += w + 8;
+    }
 }
