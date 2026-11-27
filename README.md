@@ -89,7 +89,8 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   pulled into ends where it began, you go back to where you were; one that moves the story
   somewhere else (another room, the other world, or far along the same room, like Chapter 2's
   ride beside Queen's car) takes everyone along. Scenes that scroll the room itself (that ride's
-  road and traffic) scroll it on every screen too.
+  road and traffic) scroll it on every screen too, and backdrops a scene draws itself (the city,
+  the giant Queen and the fall at the top of Chapter 2's mansion) show for everyone watching.
 * **Joining mid-story.** Someone who joins (or comes back after a crash) while a cutscene is on
   watches it with the others. In Chapter 1's opening the vessel is the host's: a client skips
   its own (or waits on a "the host is creating the vessel" screen) and goes to the host.

@@ -154,15 +154,14 @@ for each, the simplest that keeps the original's feel.
 5. **Done:** Chapter 2 keyboard puzzles follow a friend's solve (DONE.md). Simplest choice: the solve
    is shared, not each key. Puzzles 2 and 3 only checked by reading the code (same path as puzzle 1).
 
-8. **Parts 1-2 done (2026-11-27):** a watched cutscene's backdrop drawn by an object shows for the
-   watchers (kept scenery: the city, the giant Queen's head, the walls of the fall), and the leader's
-   sprites behind the room's tiles (a black cover behind the floor) are drawn behind them (DONE.md).
-   **Open, part 3:** what the scene *creates* only in the leader's game and draws itself: in
-   `room_dw_mansion_top` (scene 26) the power-up figure (`obj_ch2_scene26_powers_combined`) shows only
-   as a black outline for the watcher, the anime background (`obj_anime_bg_controller`) only its upper
-   copy (it draws its sprite twice), so the walls show through below. Idea: the watcher makes its own
-   copy of such a kept object when the leader's game has one (message 91 carrying where it is), and
-   removes it when the leader's is gone. Found with host/client screenshots (work/fol/cmp7, 140 s).
+8. **Parts 1-3 done (2026-11-27):** a watched cutscene's backdrop drawn by an object shows for the
+   watchers (kept scenery: the city, the giant Queen's head, the walls of the fall, the anime
+   power-up's background and figure, which the watcher copies when the leader's scene makes it),
+   and the leader's sprites behind the room's tiles are drawn behind them (DONE.md).
+   **Open, part 4:** the coaster ride right after (`obj_berdlycoaster_event`): it draws the coaster
+   and everyone riding it itself, from arrays (positions per rider) and markers it makes, so the
+   watcher sees only the walls. Needs arrays in message 91, or the object's own drawing replaced by
+   sprites in the leader's list. Then compare other chapters' big scenes the same way (SHOTS).
 
 ## Next puzzles to look at (found 2026-11-24, from MINIGAMES.md), one per cycle
 

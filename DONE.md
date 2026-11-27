@@ -2382,3 +2382,23 @@ Part 2 of the backdrops in Chapter 2's scene at the top of the mansion, found th
 `chaos:10:120:60`, 150 s): at 100 s the client shows the floor and the giant Queen's head as the host
 does (before: black, no head); at 120 s the walls of the fall behind the party (before: black); no
 crash. Left (TODO.md, part 3): the anime power-up part, made only in the leader's game.
+
+## Watched cutscenes: the anime power-up of the top of the mansion (2026-11-27)
+
+Part 3 of the backdrops in Chapter 2's scene 26: the anime background (`obj_anime_bg_controller`,
+which draws its sprite twice, so the watcher saw only the upper copy and the walls below) and the
+power-up figure (`obj_ch2_scene26_powers_combined`, which the scene makes only in the leader's game)
+are kept scenery too. Kept objects now also carry their place and look (x, y, depth, sprite,
+frame, alpha, colour, scale, angle, visible, as "@" names in message 91) and leave the leader's
+sprite list (the watcher draws its own). For an object the leader's scene makes, the leader sends
+how many there are ("#n") and the watcher makes or removes its own copies (without their Destroy
+event). The sparkles and streaks these objects make while drawing, and the background's drone,
+are made only in the leader's game (they reach the watcher in its sprite list). An id of an
+object the leader's game made is sent as "none".
+**Tested** (Chapter 2, `room_dw_mansion_top`, plot 165, host Kris + client Susie,
+`chaos:10:120:60`, 170 s, through to the GigaQueen fight): "made a copy of the leader's
+obj_ch2_scene26_powers_combined" logged; at 150 s the client shows the anime background over the
+whole screen and the power-up figure as the host does (before: walls under half the background);
+the scene ended and the fight began in both games; no crash. Left (TODO.md, part 4): the coaster
+ride, which draws its riders itself.
+README: watched scenes show the backdrops a scene draws itself.

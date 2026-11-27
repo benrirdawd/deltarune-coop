@@ -84,6 +84,9 @@ function mp_mirror_lead_tick()
             var k = 2;
             if (oi >= 0 && oi < nk)
                 k = kinds[oi];
+            // (A kept backdrop draws itself in the watchers' games.)
+            if (k != 2 && mp_mirror_kept(oi))
+                k = 2;
             var r = -1;
             if (k == 3)
                 r = script_execute(evals[oi]);
@@ -848,12 +851,22 @@ function mp_mirror_layers_recv(from, b)
 function mp_mirror_keep_init()
 {
     global.mp_mir_keep = [];
-    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area"];
+    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined"];
     for (var i = 0; i < array_length(names); i++)
     {
         var o = asset_get_index(names[i]);
         if (o >= 0)
             array_push(global.mp_mir_keep, o);
+    }
+    // Of those, the ones the leader's scene makes as it plays (not part of the room): the watcher
+    // makes its own copy while the leader's game has one.
+    global.mp_mir_made = [];
+    var made = ["obj_ch2_scene26_powers_combined"];
+    for (var i = 0; i < array_length(made); i++)
+    {
+        var o = asset_get_index(made[i]);
+        if (o >= 0)
+            array_push(global.mp_mir_made, o);
     }
     global.mp_mir_ksent = ds_map_create();
     global.mp_mir_kroom = -1;
@@ -867,6 +880,16 @@ function mp_mirror_kept(obj)
     for (var i = 0; i < array_length(global.mp_mir_keep); i++)
     {
         if (global.mp_mir_keep[i] == obj)
+            return true;
+    }
+    return false;
+}
+
+function mp_mirror_is_made(obj)
+{
+    for (var i = 0; i < array_length(global.mp_mir_made); i++)
+    {
+        if (global.mp_mir_made[i] == obj)
             return true;
     }
     return false;
@@ -899,19 +922,40 @@ function mp_mirror_keep_send()
     for (var oi = 0; oi < array_length(global.mp_mir_keep); oi++)
     {
         var obj = global.mp_mir_keep[oi];
+        // (How many the leader's scene has made, first: the watcher makes or removes its copies.)
+        if (mp_mirror_is_made(obj))
+        {
+            var cn = min(instance_number(obj), 8);
+            var ck = string(obj) + ":0:#n";
+            if (ds_map_find_value(m, ck) != cn)
+                array_push(chg, [obj, 0, "#n", cn]);
+            else
+                array_push(rest, [obj, 0, "#n", cn]);
+        }
         for (var k = 0; k < instance_number(obj) && k < 8; k++)
         {
             var inst = instance_find(obj, k);
             var nms = variable_instance_get_names(inst);
+            // (Its place and look too, as "@" names.)
+            var bn = ["@x", "@y", "@depth", "@sprite_index", "@image_index", "@image_alpha", "@image_blend", "@image_xscale", "@image_yscale", "@image_angle", "@visible"];
+            var bv = [inst.x, inst.y, inst.depth, inst.sprite_index, inst.image_index, inst.image_alpha, inst.image_blend, inst.image_xscale, inst.image_yscale, inst.image_angle, inst.visible];
+            for (var q = 0; q < array_length(bn); q++)
+            {
+                var bk = string(obj) + ":" + string(k) + ":" + bn[q];
+                if (ds_map_find_value(m, bk) != real(bv[q]))
+                    array_push(chg, [obj, k, bn[q], real(bv[q])]);
+                else
+                    array_push(rest, [obj, k, bn[q], real(bv[q])]);
+            }
             for (var v = 0; v < array_length(nms); v++)
             {
                 var val = variable_instance_get(inst, nms[v]);
                 if (!(is_real(val) || is_bool(val) || is_int32(val) || is_int64(val)))
                     continue;
                 val = real(val);
-                // (Not the ids of objects it made: those are the leader's own.)
+                // (Not the ids of objects it made, which are the leader's own: "none" there.)
                 if (val >= 100000 && instance_exists(val))
-                    continue;
+                    val = noone;
                 var e = [obj, k, nms[v], val];
                 var key = string(obj) + ":" + string(k) + ":" + nms[v];
                 if (ds_map_find_value(m, key) != val)
@@ -960,9 +1004,22 @@ function mp_mirror_keep_recv(from, b)
         var k = buffer_read(b, buffer_u8);
         var nm = buffer_read(b, buffer_string);
         var val = buffer_read(b, buffer_f64);
-        if (!use || !mp_mirror_kept(obj) || k >= instance_number(obj))
+        if (!use || !mp_mirror_kept(obj))
+            continue;
+        if (nm == "#n")
+        {
+            if (mp_mirror_is_made(obj))
+                set += mp_mirror_made_count(obj, val);
+            continue;
+        }
+        if (k >= instance_number(obj))
             continue;
         var inst = instance_find(obj, k);
+        if (string_char_at(nm, 1) == "@")
+        {
+            set += mp_mirror_set_builtin(inst, nm, val);
+            continue;
+        }
         if (variable_instance_get(inst, nm) != val)
         {
             variable_instance_set(inst, nm, val);
@@ -974,4 +1031,49 @@ function mp_mirror_keep_recv(from, b)
         global.mp_mir_klog = global.mp_frame + 120;
         mp_log("mirror: " + string(set) + " values of the scene's backdrop set as in the leader's game");
     }
+}
+
+// The watcher's copies of a made backdrop object: as many as the leader's game has.
+function mp_mirror_made_count(obj, n)
+{
+    var did = 0;
+    while (instance_number(obj) < n)
+    {
+        var c = instance_create_depth(camerax(), cameray(), 0, obj);
+        c.mp_mir_copy = true;
+        did++;
+        mp_log("mirror: made a copy of the leader's " + object_get_name(obj));
+    }
+    while (instance_number(obj) > n)
+    {
+        // (Without its Destroy event: what that makes is the leader's scene's.)
+        instance_destroy(instance_find(obj, instance_number(obj) - 1), false);
+        did++;
+        mp_log("mirror: removed a copy of " + object_get_name(obj));
+    }
+    return did;
+}
+
+// A kept object's place and look, as in the leader's game ("@" names in message 91).
+function mp_mirror_set_builtin(inst, nm, v)
+{
+    var did = 0;
+    with (inst)
+    {
+        switch (nm)
+        {
+            case "@x": if (x != v) { x = v; did = 1; } break;
+            case "@y": if (y != v) { y = v; did = 1; } break;
+            case "@depth": if (depth != v) { depth = v; did = 1; } break;
+            case "@sprite_index": if (sprite_index != v && sprite_exists(v)) { sprite_index = v; did = 1; } break;
+            case "@image_index": if (image_index != v) { image_index = v; did = 1; } break;
+            case "@image_alpha": if (image_alpha != v) { image_alpha = v; did = 1; } break;
+            case "@image_blend": if (image_blend != v) { image_blend = v; did = 1; } break;
+            case "@image_xscale": if (image_xscale != v) { image_xscale = v; did = 1; } break;
+            case "@image_yscale": if (image_yscale != v) { image_yscale = v; did = 1; } break;
+            case "@image_angle": if (image_angle != v) { image_angle = v; did = 1; } break;
+            case "@visible": if (visible != v) { visible = v; did = 1; } break;
+        }
+    }
+    return did;
 }

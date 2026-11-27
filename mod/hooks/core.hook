@@ -268,6 +268,20 @@ if (mp_mirror_kept_paused())
 @prepend gml_Object_obj_ch2_scene26_gigaqueen_Step_0
 if (mp_mirror_kept_paused())
     exit;
+;; The anime power-up's backdrop and figure too; their sparkles and streaks are made only in the
+;; leader's game (they come in its sprite list), and the backdrop's drone too.
+@prepend gml_Object_obj_ch2_scene26_powers_combined_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_ch2_scene26_powers_combined_Draw_0
+if (mp_mirror_kept_paused())
+    streak_timer = 1;
+@prepend gml_Object_obj_anime_bg_controller_Draw_0
+if (mp_mirror_kept_paused())
+{
+    timer = 0;
+    init = 1;
+}
 @prepend gml_Object_obj_ch2_scene26_cityscape_Draw_0
 if (show_mini_fountains && !(instance_exists(kris_screen) && instance_exists(sus_screen) && instance_exists(no_screen)))
     show_mini_fountains = false;
