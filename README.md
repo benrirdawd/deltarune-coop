@@ -40,8 +40,9 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
 * **Pick a party member.** Each player plays as Kris, Susie, Ralsei or (Chapter 2+) Noelle.
   Your character is what you walk around as, and in battle you choose that character's
   actions (FIGHT / ACT / MAGIC / ITEM / SPARE / DEFEND) and press for their attacks. An ACT
-  with its own little game (Maus' baskets, Tasque Manager's quiz, Chapter 5's scissors...) is
-  played by that hero's player; the others see it and get the same result.
+  with its own little game (Maus' baskets, Chapter 5's scissors...) is played by that hero's
+  player; the others see it and get the same result (Maus' basket drops at the same place in every
+  game).
 * **Everyone dodges.** In the bullet phase every player controls their own SOUL. A hit only
   hurts the character *you* play. If all of your characters are down, hits do nothing.
   Your grazes add to the shared TP bar.
@@ -55,7 +56,9 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   other heroes still need them.
 * **Improvise.** When a fight's mechanic needs a hero nobody plays, the hero who is there may get
   "Improvise" in their own ACT list: e.g. in the Queen fight without Kris, Susie throws Ralsei at
-  Berdly's wires (the game's own throw, for some TP). Playing with the full team stays cheaper.
+  Berdly's wires (the game's own throw, for some TP), and Werewire's ThrowWire works the same way.
+  Playing with the full team stays cheaper. Throws are aimed by Susie's player and land the same in
+  every game.
 * **Spamton NEO and Shadow Mantle together.** In Spamton NEO everyone plays their own hero and
   shoots with the yellow SOUL; the mercy each player's shooting earns adds up. Shadow Mantle on the
   game board: everyone fights their own copy, and his HP grows with the players, every hit counting
@@ -145,7 +148,7 @@ keyboard or controller, and can walk to a different room from everyone else.
 
 The host picks one under F9 > Settings:
 
-* **Open-world battles** (default). Touch an enemy and you fight it with the players on your screen in that room. Everyone else keeps playing, and any number of fights can run at once. A player in a fight stays visible where they stood, glowing and tagged [FIGHTING]; walk up to them and press Z (the prompt appears above them) to join at the next player turn (this also works for a fight that started before you joined the session; you come in with the HP the fight has for your hero). In a fight, only the heroes of its players take part, so a solo Susie or Ralsei fights alone, and may not be able to spare enemies. Story cutscenes and scripted bosses still bring in everyone. If your whole fight falls, only your fight sees Game Over: you come back at the room's entrance with some HP, and nothing is reloaded. If the player who started a fight leaves or loses connection, the next player in it takes over within about 10 seconds. A player already in a fight of their own isn't waited for when a story battle starts; their hero is played by the story fight's leader. A fight keeps the rules it started with if the host changes this setting meanwhile.
+* **Open-world battles** (default). Touch an enemy and you fight it with the players on your screen in that room. Everyone else keeps playing, and any number of fights can run at once. A player in a fight stays visible where they stood, in their battle stance with the enemies they fight standing in front of them, glowing and tagged [FIGHTING]; walk up to them and press Z (the prompt appears above them) to join at the next player turn (this also works for a fight that started before you joined the session; you come in with the HP the fight has for your hero). In a fight, only the heroes of its players take part, so a solo Susie or Ralsei fights alone, and may not be able to spare enemies. Story cutscenes and scripted bosses still bring in everyone. If your whole fight falls, only your fight sees Game Over: you come back at the room's entrance with some HP, and nothing is reloaded. If the player who started a fight leaves or loses connection, the next player in it takes over within about 10 seconds. A player already in a fight of their own isn't waited for when a story battle starts; their hero is played by the story fight's leader. A fight keeps the rules it started with if the host changes this setting meanwhile.
 * **Everyone gets pulled in.** Every battle is every player's. A wipe sends everyone back to their last save.
 
 **Timing.** Every game keeps a clock shared with the host. Before an encounter's "!" and before each turn, hero action and bullet phase, each game in the fight stops and reports ready. The fight's leader then names a moment slightly ahead and everyone starts at that moment, so someone with a higher ping doesn't start later. Nobody waits forever: there are time limits. Measured on one PC: at most about 18 ms apart (a frame is 33 ms).
