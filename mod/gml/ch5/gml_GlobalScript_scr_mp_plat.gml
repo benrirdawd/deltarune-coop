@@ -227,3 +227,49 @@ function mp_plat_wall_follow()
     with (barrier_plat)
         instance_destroy();
 }
+
+// An enemy fight (obj_plat_combatstarter: the battle background, the waves of flower enemies)
+// a friend's game won. If mine had not started, the game's own code already counts it beaten
+// when the victory bit arrives. If I am in the middle of it, it now ends here too: the enemies
+// left of its waves go as the game's own time limit takes them, and the fight ends the game's
+// way (endcombat: the feather sound, the music and the camera back). Prepended to its Step.
+function mp_plat_combat_follow()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return;
+    // (Test token platfight: the fight starts at once, wherever my figure is.)
+    if (mp_test_has("platfight") && con == 0 && hostile && victoryflag > 0 && global.mp_test_timer > 120)
+        con = 1;
+    if (con != 2 || victoryflag <= 0 || !mp_friend_set_bit(victoryflag, victoryflagbit))
+        return;
+    mp_log("[MPCOIN] a friend won the platformer fight flag" + string(victoryflag) + " bit " + string(victoryflagbit) + ": over here too");
+    var w = enemy_wave_extflags;
+    for (var i = 0; i < array_length(w); i++)
+    {
+        var e = w[i];
+        with (obj_enemy_wave)
+        {
+            if (extflag == e)
+                con = 3;
+        }
+        with (obj_flower_spawner)
+        {
+            if (extflag == e || enemy_wave == e)
+                instance_destroy();
+        }
+        with (obj_flower_respwn)
+        {
+            if (extflag == e)
+                instance_destroy();
+        }
+        with (obj_flower_enmparent)
+        {
+            if (extflag == e)
+            {
+                hp = 0;
+                instance_destroy();
+            }
+        }
+    }
+    endcombat();
+}

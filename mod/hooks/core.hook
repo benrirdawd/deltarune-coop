@@ -442,6 +442,10 @@ mp_plat_lantern_follow();
 
 @prepend gml_Object_obj_plat_orangewall_Step_2
 mp_plat_wall_follow();
+
+;; ... and an enemy fight a friend won, ended here too if I was in it.
+@prepend gml_Object_obj_plat_combatstarter_Step_0
+mp_plat_combat_follow();
 #chapters 1
 
 ;; The suits puzzles' buttons (spade, diamond, swap: room_field_secret1, the forest's clover and suits

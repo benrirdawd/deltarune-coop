@@ -38,6 +38,7 @@
 //   sturdy          heroes have 999 HP in fights (long fights)
 //   halfhp          enemies start fights at 45% HP (e.g. Tenna's minigame turns)
 //   tennascore      each Tenna minigame I play scores 10 more
+//   platfight       (Ch5) a platformer enemy fight starts at once, wherever my figure is
 //   sturdy          heroes have 10 times their HP in fights (long fights)
 //   dbgchar         log every party change made by the shared state, with the call stack
 //   save            save the game to slot 0 once in free roam (for later load tests)

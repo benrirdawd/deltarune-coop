@@ -736,6 +736,19 @@ and `chat`: 3 turns, identical state in both games; the log has "ping sent", "sa
   host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
   checks pass except `moved` (nobody walks).
 
+## Chapter 5 platformer: an enemy fight a friend won ends in my game too (2026-11-27)
+
+* The platformer's enemy fights (`obj_plat_combatstarter`: the battle background and waves of flower
+  enemies) set a victory bit when won. If my fight had not started, the game's own code already
+  counts it beaten when that bit arrives. If I was in the middle of it, it now ends too. Its
+  remaining waves stop, and the enemies left go the way the game's own wave time limit removes them.
+  Then the fight ends the game's way (`endcombat`: feather sound, the music and camera come back).
+  Only a bit a friend's game set counts. `mp_plat_combat_follow` is prepended to the starter's Step.
+* New test token `platfight`: the fight starts at once, wherever the figure is.
+* Test, `room_dw_cliff_bonuscombat`, both with `chaos:10:120:60` (`work/fol/fight1`). The host
+  started the fight. The client set 1731 to bit 18 at frame 700. Mid-fight, the host's game logged
+  the fight over and ran on for another 9,000 frames with no crash.
+
 ## Chapter 5: paper lanterns and orange walls a friend broke are broken for me too (2026-11-27)
 
 * Paper lanterns (coins, a pinata, an NPC or more lanterns inside) and orange walls are remembered
