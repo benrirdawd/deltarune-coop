@@ -170,8 +170,7 @@ for each, the simplest that keeps the original's feel.
    the player keeps control, in each game as its player walks by (tested with `trig:gersontrig`,
    plot 126: no scene lock, no errors); nothing to mirror. The same goes for the walk-by prophecies.
    Chapter 5's castle top (Asgore's story, DW22) compared and matching (DONE.md); the castle
-   entrance (DW19, with the town memory) has the town's colours now (DONE.md); open there: the
-   light on the floor at the room's right side is a brighter white for the watcher. Other
+   entrance (DW19, with the town memory) has the town's colours and the exit's light pillar now (DONE.md). Other
    Chapter 5 castle scenes open. An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
 

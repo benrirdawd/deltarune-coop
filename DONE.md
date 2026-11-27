@@ -2565,3 +2565,15 @@ comes back with its room when the scene is over, as before).
 (host Kris with `mash` + client Susie, `chaos:10:120:60`, 120 s, shots from 70 to 110 s): the
 scene plays, moves to the town, and the client shows the town in the same evening colours and size
 as the host; no errors.
+
+## The Dark World's exit pillar as the leader sees it (2026-11-27)
+In the castle entrance scene the light at the room's right side was a flat bright white for the
+watcher and a faint glow for the leader: it is the Dark World's exit (`obj_dw_leave_flowercastle`),
+which draws its sprite three times, narrower and see-through each time, and the mirror sent its
+plain sprite at full strength. Its drawing calls now go through `mp_mir_dse` (what it draws reaches
+the watchers), for every exit of the kind: `obj_dw_leave` (Chapters 2-5), `obj_dw_leave_ch4`,
+`obj_dw_leave_flowercastle` and `obj_dw_leave_flowery` (core.hook).
+**Tested:** all 5 chapters build; Chapter 5 `room_dw_fcastle_entrance`, plot 385, `trig:dw19`
+(host Kris with `mash` + client Susie, `chaos:10:120:60`, 65 s, shots at 40/50/60 s): the pillar
+looks the same in both games (565 near-white pixels in the right quarter on both, every shot); no
+errors.

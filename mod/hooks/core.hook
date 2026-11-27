@@ -1153,3 +1153,40 @@ if (mp_mirror_kept_paused())
 if (mp_mirror_kept_paused())
     lut_texture = sprite_get_texture(asset_get_index("spr_luts"), lut_slot);
 #chapters all
+;; The Dark World's exit, a pillar of light drawn three times see-through (obj_dw_leave and its
+;; Chapter 4/5 kin): what it draws goes to the watchers (scr_mp_mirror: mp_mir_dse), not its
+;; plain sprite at full strength.
+#chapters 2,3
+@regex gml_Object_obj_dw_leave_Draw_0
+\bdraw_sprite_ext\(sprite_index, 
+@with
+mp_mir_dse(sprite_index, 
+@end
+#chapters 4
+@regex gml_Object_obj_dw_leave_Draw_0
+\bdraw_sprite_ext\(sprite_index, 
+@with
+mp_mir_dse(sprite_index, 
+@end
+@regex gml_Object_obj_dw_leave_ch4_Draw_0
+\bdraw_sprite_ext\(sprite_index, 
+@with
+mp_mir_dse(sprite_index, 
+@end
+#chapters 5
+@regex gml_Object_obj_dw_leave_Draw_0
+\bdraw_sprite_ext\(sprite_index, 
+@with
+mp_mir_dse(sprite_index, 
+@end
+@regex gml_Object_obj_dw_leave_flowercastle_Draw_0
+\bdraw_sprite_ext\(sprite_index, 
+@with
+mp_mir_dse(sprite_index, 
+@end
+@regex gml_Object_obj_dw_leave_flowery_Draw_0
+\bdraw_sprite_ext\(sprite_index, 
+@with
+mp_mir_dse(sprite_index, 
+@end
+#chapters all
