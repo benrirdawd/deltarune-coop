@@ -65,7 +65,10 @@ function mp_mirror_reset()
 function mp_mirror_lead_tick()
 {
     if (!mp_on() || global.mp_sstate != 1 || mp_player_count() < 2 || mp_in_battle_scene())
+    {
+        global.mp_mir_extra = [];
         return;
+    }
     var cam = view_camera[0];
     var vx = camera_get_view_x(cam);
     var vy = camera_get_view_y(cam);
@@ -1107,12 +1110,39 @@ function mp_mir_dse(spr, img, xx, yy, xs, ys, ang, col, al)
 {
     draw_sprite_ext(spr, img, xx, yy, xs, ys, ang, col, al);
     mp_mir_hand = true;
-    if (variable_global_exists("mp_mir_extra") && global.mp_sstate == 1 && mp_on())
-    {
-        if (array_length(global.mp_mir_extra) >= 200)
-            global.mp_mir_extra = [];
-        array_push(global.mp_mir_extra, [depth, spr, img, xx, yy, xs, ys, ang, col, al]);
-    }
+    if (mp_mir_recording())
+        array_push(global.mp_mir_extra, [depth, spr, img < 0 ? image_index : img, xx, yy, xs, ys, ang, col, al]);
+}
+
+// The same for draw_self.
+function mp_mir_dself()
+{
+    draw_self();
+    mp_mir_hand = true;
+    if (sprite_index >= 0 && mp_mir_recording())
+        array_push(global.mp_mir_extra, [depth, sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha]);
+}
+
+// The same for draw_sprite.
+function mp_mir_ds(spr, img, xx, yy)
+{
+    draw_sprite(spr, img, xx, yy);
+    mp_mir_hand = true;
+    if (mp_mir_recording())
+        array_push(global.mp_mir_extra, [depth, spr, img < 0 ? image_index : img, xx, yy, 1, 1, 0, c_white, draw_get_alpha()]);
+}
+
+// Whether what the calling instance draws by hand goes to the watchers now: in my shared cutscene,
+// not a persistent object or kept scenery (those draw in the watchers' games themselves), not
+// drawn into a surface of its own (another place), and at most 200 a frame.
+function mp_mir_recording()
+{
+    if (!variable_global_exists("mp_mir_extra") || global.mp_sstate != 1 || !mp_on() || persistent)
+        return false;
+    if (array_length(global.mp_mir_extra) >= 200 || mp_mirror_kept(object_index))
+        return false;
+    var t = surface_get_target();
+    return t == -1 || t == application_surface;
 }
 
 // The same for a filled rectangle (a flash, a fade over the screen, the light of a sealed fountain):
@@ -1121,10 +1151,8 @@ function mp_mir_drect(x1, y1, x2, y2, outline)
 {
     draw_rectangle(x1, y1, x2, y2, outline);
     mp_mir_hand = true;
-    if (!outline && variable_global_exists("mp_mir_extra") && global.mp_mir_pix >= 0 && global.mp_sstate == 1 && mp_on())
+    if (!outline && global.mp_mir_pix >= 0 && mp_mir_recording())
     {
-        if (array_length(global.mp_mir_extra) >= 200)
-            global.mp_mir_extra = [];
         array_push(global.mp_mir_extra, [depth, global.mp_mir_pix, 0, min(x1, x2), min(y1, y2), abs(x2 - x1) + 1, abs(y2 - y1) + 1, 0, draw_get_colour(), draw_get_alpha()]);
     }
 }

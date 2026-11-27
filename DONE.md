@@ -2434,3 +2434,22 @@ both games entering `room_school_unusedroom` 0.3 s apart; no crash. (On the way,
 `#chapters all` line put inside the hook that makes the multiplayer controller by a failed edit
 kept the mod from starting in Chapter 1; found by building Chapter 1 from each commit, removed
 before committing.)
+
+## Watched cutscenes: every cutscene object that draws by hand (2026-11-27)
+
+Instead of finding scene by scene the objects that draw their sprites by hand (which the mirror
+didn't send), `tools/gen_handdrawn.py` reads the decompiled code and writes
+`mod/hooks/handdrawn.hook`: in every chapter, the Draw event of each cutscene object (name with
+event, scene, cutscene or intro) that draws sprites or rectangles by hand gets those calls through
+the mirror's wrappers (`mp_mir_dse`, `mp_mir_ds`, `mp_mir_drect`, and `mp_mir_dself` for its own
+sprite then): 73 edits over the 5 chapters, among them King's and the car's scenes (Chapter 1),
+Queen's transformation, laser and rocks (Chapter 2), the board's events and Tenna's (Chapter 3),
+the church intro and purification (Chapter 4). What they draw reaches the watchers only from a
+shared cutscene's leader, not for a persistent object or kept scenery (they draw in the watchers'
+games themselves), not when drawn into a surface of its own, and at most 200 sprites a frame; the
+list is cleared whenever the leader isn't mirroring. Objects already handled in core.hook are left
+out. Run the script again after decompiling a new game version.
+**Tested:** all 5 chapters build; Chapter 2's scene 26 again (host Kris + client Susie,
+`chaos:10:120:60`, 170 s): the watcher's screen as before (floor, head, city, coaster), the white
+power-up screen at 155 s, the scene ends in the GigaQueen fight; no crash. Chapter 1's castle
+front with plot 160 (its scene didn't start by entering the room): no crash, same screens.
