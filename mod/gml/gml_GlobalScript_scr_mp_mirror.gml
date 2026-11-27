@@ -38,7 +38,7 @@ function mp_mirror_init()
     mp_mirror_keep_init();
     global.mp_mir_klog = 0;
     global.mp_mir_extra = [];                   // sprites drawn by hand in my scene's objects (mp_mir_dse)
-    global.mp_mir_pix = asset_get_index("spr_pixel_white"); // a 1x1 white sprite: rectangles go as it
+    global.mp_mir_pix = asset_get_index("spr_pixel_white"); // a small white sprite (2x2 in Chapter 5): rectangles go as it, stretched
     // Text boxes are opened by the followers themselves; the mod's own objects are never sent.
     var never = ["obj_writer", "obj_dialoguer", "obj_face", "obj_smallface", "obj_choicer_neo", "obj_mp_controller", "obj_mp_ghost", "obj_mp_mirror"];
     for (var i = 0; i < array_length(never); i++)
@@ -125,7 +125,7 @@ function mp_mirror_lead_tick()
                 r = [sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha];
             // (A one-colour silhouette, Chapter 5's coloured afterimages, obj_marker_fog: its
             // colour, and 10000 added to the angle as the mark.)
-            if (is_array(r) && oi == global.mp_mir_fogobj && variable_instance_exists(id, "color"))
+            if (is_array(r) && (oi == global.mp_mir_fogobj || oi == global.mp_mir_fogobj2) && variable_instance_exists(id, "color"))
             {
                 r[7] = color;
                 r[6] += 10000;
@@ -1064,7 +1064,7 @@ function mp_mirror_layers_recv(from, b)
 function mp_mirror_keep_init()
 {
     global.mp_mir_keep = [];
-    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight", "obj_dw_gameshow_stage_overlay", "obj_dw_tv_funometer", "obj_darkness_overlay", "obj_lightbeamfx", "obj_light_area_mask", "obj_light_following", "obj_lutshader", "obj_bg_palette_swap", "obj_fcastle_light", "obj_leafpetals"];
+    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight", "obj_dw_gameshow_stage_overlay", "obj_dw_tv_funometer", "obj_darkness_overlay", "obj_lightbeamfx", "obj_light_area_mask", "obj_light_following", "obj_lutshader", "obj_bg_palette_swap", "obj_fcastle_light", "obj_leafpetals", "obj_parallax_cliffs", "obj_parallax_cliffs_moving_layers", "obj_parallax_cliffs_moving_layers_back", "obj_parallax_cliffs_sunlayer", "obj_parallax_cliffs_simple"];
     for (var i = 0; i < array_length(names); i++)
     {
         var o = asset_get_index(names[i]);
@@ -1093,6 +1093,7 @@ function mp_mirror_keep_init()
             array_push(global.mp_mir_front, o);
     }
     global.mp_mir_fogobj = asset_get_index("obj_marker_fog");
+    global.mp_mir_fogobj2 = asset_get_index("obj_marker_fogblend");
     global.mp_mir_ksent = ds_map_create();
     global.mp_mir_kroom = -1;
     global.mp_mir_koff = 0;
@@ -1212,8 +1213,14 @@ function mp_mirror_keep_send()
                     {
                         one = real(one);
                         // (Not the ids of objects it made, which are the leader's own: "none" there.)
+                        // (Nor one of another kept object, which the watcher has its own of: Chapter
+                        // 5's sky layers point at their parallax backdrop.)
                         if (one >= 100000 && instance_exists(one))
+                        {
+                            if (mp_mirror_kept(one.object_index))
+                                continue;
                             one = noone;
+                        }
                     }
                     else
                         continue;
@@ -1422,7 +1429,22 @@ function mp_mir_drect(x1, y1, x2, y2, outline)
     mp_mir_hand = true;
     if (!outline && global.mp_mir_pix >= 0 && mp_mir_recording())
     {
-        array_push(global.mp_mir_extra, [depth, global.mp_mir_pix, 0, min(x1, x2), min(y1, y2), abs(x2 - x1) + 1, abs(y2 - y1) + 1, 0, draw_get_colour(), draw_get_alpha()]);
+        array_push(global.mp_mir_extra, [depth, global.mp_mir_pix, 0, min(x1, x2), min(y1, y2), (abs(x2 - x1) + 1) / sprite_get_width(global.mp_mir_pix), (abs(y2 - y1) + 1) / sprite_get_height(global.mp_mir_pix), 0, draw_get_colour(), draw_get_alpha()]);
+    }
+}
+
+// The same for a thick line (Chapter 5's red threads in Asgore's flashback): a white pixel
+// stretched along it, as thick as the line, turned to its direction, in its colour.
+function mp_mir_dline(x1, y1, x2, y2, w, c1, c2)
+{
+    draw_line_width_color(x1, y1, x2, y2, w, c1, c2);
+    mp_mir_hand = true;
+    if (global.mp_mir_pix >= 0 && mp_mir_recording())
+    {
+        var ang = point_direction(x1, y1, x2, y2);
+        var sx = x1 - lengthdir_x(w / 2, ang - 90);
+        var sy = y1 - lengthdir_y(w / 2, ang - 90);
+        array_push(global.mp_mir_extra, [depth, global.mp_mir_pix, 0, sx, sy, point_distance(x1, y1, x2, y2) / sprite_get_width(global.mp_mir_pix), w / sprite_get_height(global.mp_mir_pix), ang, c1, draw_get_alpha()]);
     }
 }
 

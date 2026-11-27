@@ -173,7 +173,12 @@ for each, the simplest that keeps the original's feel.
    entrance (DW19, with the town memory) has the town's colours and the exit's light pillar now (DONE.md); the party jail's two parts
    done (DONE.md). The top staircase (DW25) done:
    the castle's light shafts and petals (DONE.md). The second staircase (DW27) done: hit words and
-   coloured afterimages (DONE.md). Other Chapter 5 castle scenes open (DW29-DW30, DW40, the fountain DW45). An object found drawing by hand gets the `mp_mir_dse` hook or kept
+   coloured afterimages (DONE.md). After the Flowery fight (DW30) part 1 done: sunset sky, silhouettes, red threads (DONE.md).
+   DW30 still open: (a) the flashback's narration ("* Kris. ..."), an `obj_writer` the scene makes
+   without a text box, isn't shown to the watcher (the mirror only sends a dialoguer's writer; send a
+   lone writer's text, place and colour too); (b) the scene's wobbling blur (`obj_ch5_DW30` Draw blurs
+   the screen while `bluramt` > 0) is missing for the watcher. Other Chapter 5 castle scenes open
+   (DW40, the fountain DW45). An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
 
 ## Next puzzles to look at (found 2026-11-24, from MINIGAMES.md), one per cycle

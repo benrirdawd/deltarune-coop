@@ -1255,3 +1255,12 @@ if (mp_mirror_kept_paused())
 mp_mir_dse(message_sprite,
 @end
 #chapters all
+
+#chapters 5
+;; Asgore's flashback (DW30): the red threads from the papers reach the friends watching.
+@regex gml_Object_obj_ch5_DW30_line_Draw_0
+\bd_line_width_color\(
+@with
+mp_mir_dline(
+@end
+#chapters all

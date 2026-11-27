@@ -2630,3 +2630,20 @@ New test token `mirfog`: the watcher logs the silhouettes and hit words it gets.
 silhouettes (`spr_flowery_kiss`, `spr_flowery_float`...) and `spr_battlemsg` at both strikes, and its
 shots show the "MISS", the slash and the red and orange trail as the host's (shots every second
 from 26 to 36 s); no errors.
+
+## After the Flowery fight (DW30), part 1: the sunset sky, the flashback's colours and red threads (2026-11-27)
+Compared the scene after the Flowery fight (`obj_ch5_DW30`, `room_dw_post_flowery_battle`, plot
+490, starts on entering). The watcher had:
+- a black sky: the sunset backdrop (`obj_parallax_cliffs` and its layers, drawn with a palette
+  shader) is now kept scenery. Kept objects' references to another kept object (the layers' `daddy`)
+  are no longer sent, since the watcher has its own.
+- white silhouettes in Asgore's flashback: `obj_marker_fogblend` is sent as a one-colour silhouette
+  like `obj_marker_fog`.
+- no red threads from the papers: `obj_ch5_DW30_line` draws them with `d_line_width_color`, now
+  through the new `mp_mir_dline`, which sends a white pixel stretched along the line. The mirror's
+  stretched pixel now divides by the sprite's size (Chapter 5's `spr_pixel_white` is 2x2).
+Still open (TODO): the flashback's narration (a writer made without a text box) and the scene's blur.
+**Tested:** all 5 chapters build; Chapter 5 `room_dw_post_flowery_battle`, plot 490 (host Kris
+with `mash` + client Susie, `chaos:10:120:60`, 100-112 s, shots from 20 to 108 s): the client shows
+the sunset, the coloured silhouettes (yellow, aqua, green, lilac, then red Asgore) and the threads
+as in the host's game; no errors.
