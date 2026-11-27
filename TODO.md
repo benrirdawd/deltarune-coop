@@ -125,8 +125,9 @@ for each, the simplest that keeps the original's feel.
 
 1. **Done:** ACTs that open their own little game are played by the hero's owner (DONE.md). Run with
    a real one (Maus' TrapOne, 2026-11-26, DONE.md): the basket now drops at the same place in every
-   game. Still only checked by reading: Tasque Manager's quiz, Tenna's "popular boy", Chapter 5's ACT
-   games. Seen in the test, open: when two games start the same fight on their own in the same frame
+   game. Looked at the others (2026-11-26, MINIGAMES.md): Tasque Manager's quiz is an attack (each dodges
+   their own), Tenna's "popular boy" has no input; Chapter 5's scissors are steered with held keys
+   (replayed, a little later; mercy corrected), not run. Seen in the test, open: when two games start the same fight on their own in the same frame
    as one pulls the other in, the pulled game rebuilt the fight after turn 0 and stayed waiting (the
    test gave both games `battle:54`; with only the host starting it, no stall in 2 runs).
 2. **Done:** Chapter 4 bookshelf puzzle shared; the train tracks stay local on purpose (DONE.md).

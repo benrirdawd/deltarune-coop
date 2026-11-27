@@ -29,12 +29,12 @@ each real one).
 
 | Ch | ACT / mode | Objects | Today | Idea |
 |---|---|---|---|---|
-| 2 | Tasque Manager's quiz | `obj_tm_quizzler` (from her fight) | Replayed (owner plays) | The ACT's owner answers and their presses are replayed, like the menu. Or each player answers and the majority wins. |
+| 2 | Tasque Manager's quiz | `obj_tm_quizzler` (from her fight) | Own copy: it is one of her attacks (made by the bullet controller), not an ACT, so each player dodges it in their own game like any attack (looked at 2026-11-26) | Nothing more needed. |
 | 2 | Maus / Mauswheel baskets (Susie's version too) | `obj_maus_basket`, `obj_maus_basket_susie`, `obj_maus_split_basket` | Replayed (owner plays) | Replay the owner's keys. Susie's basket could be played by Susie's player. |
 | 2 | Spamton NEO: Susie's ACT, BIG SHOT | `obj_sneo_susie_act`, `obj_sneo_bigshot` | One plays (special fight) | Hand-sync this fight: Susie's player does her ACT, Kris's player does BIG SHOT. |
 | 2 | Giga Queen (boxing) | `obj_gigaqueen_enemy`, `obj_rocketpunch_*` | One plays | Idea: one player per punch hand, or take turns. L. |
 | 2 | Queen, Berdly's plug | `obj_queen_enemy`, `obj_berdlyplug_enemy` | One plays | One at a time, if people want it. |
-| 3 | Tenna's fight: the "popular boy" ACT | `obj_popularboy_act` (from `obj_tenna_enemy`) | Replayed (owner plays) | Replay the owner's keys. |
+| 3 | Tenna's fight: the "popular boy" ACT | `obj_popularboy_act` (from `obj_tenna_enemy`) | Plays the same everywhere: an animation with no input (looked at 2026-11-26) | Nothing more needed. |
 | 3 | Shadowguys' tommy gun (shooting SOUL) | `obj_shadowman_tommygun` (enemy turn) | Each player plays with their own SOUL, like dodging | Check that damage dealt to the enemies is shared. |
 | 3 | The Knight's sword tunnel | `obj_sword_tunnel_*` (enemy turn) | One plays (the Knight is a special fight) | — |
 | 3 | Shadow Mantle, Tenna's board fight | `obj_shadow_mantle_enemy`, `obj_tenna_board4_enemy` | One plays | — |
@@ -42,7 +42,7 @@ each real one).
 | 4 | Organ enemy | `obj_organ_enemy` | Normal fight sync | Check in play. |
 | 4 | Titan, Gerson (Hammer and Sound of Justice) | `obj_titan_enemy`, `obj_hammer_of_justice_enemy`, `obj_sound_of_justice_enemy` | One plays | — |
 | 5 | Flowery's ACT menu (a SOUL picks the ACT) | `obj_flowery_act_menu_*` | Replayed (owner plays) | Replay the owner's SOUL movement and presses, as the menu is replayed. |
-| 5 | Scissors ACT (cutting a line) | `obj_scissors_act_*` | Replayed (owner plays) | The same: the owner plays, everyone sees it. |
+| 5 | Scissors ACT (cutting a line) | `obj_scissors_act_*` | Replayed (owner plays): held keys steer, so the others' copy follows a little later and its mercy is corrected at the end | Exact copy would need the keys replayed with their frame timing (later, if it looks off in play). |
 | 5 | Sharing food (pink enemy) | `obj_sharefood_act` | Replayed (owner plays) | The same. Or each player gives food to their own hero. |
 | 5 | Pink nodes (heart ACT) | `obj_pinknodeact`, `obj_dokiheart` | Replayed (owner plays) | The same. |
 | 5 | Shooting SOUL modes | `obj_kawkaw_shooter`, `obj_flowery_shooter` | Each player with their own SOUL | Check that damage is shared. |
