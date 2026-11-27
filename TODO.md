@@ -154,6 +154,14 @@ for each, the simplest that keeps the original's feel.
 5. **Done:** Chapter 2 keyboard puzzles follow a friend's solve (DONE.md). Simplest choice: the solve
    is shared, not each key. Puzzles 2 and 3 only checked by reading the code (same path as puzzle 1).
 
+8. **Part 1 done (2026-11-27):** a watched cutscene's backdrop drawn by an object (the city behind the
+   top of the Chapter 2 mansion) shows for the watchers (kept scenery, DONE.md). **Open, part 2:** in
+   the same scene (`room_dw_mansion_top`, scene 26) the watcher still misses what the scene *creates*
+   with its own drawing: the GigaQueen background (`obj_anime_bg_controller`) and the floor (the `TILES`
+   layer, or the black `bg_cover`), found by comparing host/client screenshots (work/fol/cmp3,
+   100 s). Idea: the watcher makes its own copy of a kept object the leader's scene made, at the
+   leader's place, and syncs its variables the same way. Then compare other scenes' screenshots.
+
 ## Next puzzles to look at (found 2026-11-24, from MINIGAMES.md), one per cycle
 
 For each: if the solve is a story flag read only when the room is built, the same "follow" as the

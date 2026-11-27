@@ -2346,3 +2346,23 @@ both minigames scored 58, the leader logged "the others' minigames scored 58 (fi
 116)" and the client took "fight score 116 from the leader"; turn 2 the same with 16 + 16 = 148
 in both games; the third minigame (the shooting gallery) was running in both when the test ended;
 no crash.
+
+## Watched cutscenes: backdrops drawn by an object show for the watchers (2026-11-27)
+
+Comparing host and client screenshots of the same moment (`SHOTS`) during Chapter 2's scene at
+the top of the mansion (`room_dw_mansion_top`): the watcher saw a plain dark sky where the leader
+saw the city. The city is `obj_ch2_scene26_cityscape`, an object that draws the backdrop itself
+(tiled sprites, masks, blend modes), which the mirror's sprite list can't carry, and the watcher's
+room is switched off. Now such objects are "kept scenery" (`mp_mirror_keep_init`, a list by name):
+they stay on in the watcher's game and draw there; their Step (which makes the scene's other
+objects) runs only in the leader's game; their own sounds come from the leader's game (`snd_play`
+returns at once for them while watching); and the leader sends their changed number variables
+every 3 frames (message 91, unreliable) with a few unchanged ones twice a second for lost datagrams
+(not the ids of objects it made). The laser beams between the leader's screens are drawn only
+where those screens exist.
+**Tested** (Chapter 2, `room_dw_mansion_top`, plot 165, host Kris + client Susie,
+`chaos:10:120:60`): at 30 s and 60 s the client's screen shows the same city skyline as the host's
+(before: none); "values of the scene's backdrop set as in the leader's game" logged; traffic about
+5 KB/s as before (a first version sending more rotating values doubled it to 14 KB/s, cut down);
+no crash through the 150 s run. Part 2 (what the scene creates: the GigaQueen background, the
+floor) is in TODO.md.

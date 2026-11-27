@@ -259,6 +259,16 @@ mp_puz_switch_used();
 @prepend gml_Object_obj_shapepuzzlebutton_Step_0
 mp_shape_step();
 
+;; The city behind the top of the mansion stays on for a friend watching the scene (kept scenery,
+;; scr_mp_mirror): its Step runs only in the leader's game, and the beams between the leader's
+;; screens are drawn only where those screens exist.
+@prepend gml_Object_obj_ch2_scene26_cityscape_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_ch2_scene26_cityscape_Draw_0
+if (show_mini_fountains && !(instance_exists(kris_screen) && instance_exists(sus_screen) && instance_exists(no_screen)))
+    show_mini_fountains = false;
+
 @regex gml_Object_obj_alleySwitch_Step_0
 place_meeting\(x, y, obj_mainchara\)
 @with
@@ -533,7 +543,14 @@ mp_end_markers();
 @append gml_Object_obj_dialoguer_Other_10
 mp_mirror_dialoguer_made();
 
-;; ...and the sounds of the leader's scene play there too.
+;; ...and the sounds of the leader's scene play there too (a kept backdrop's own ones come from there).
+@regex gml_GlobalScript_snd_play
+(function snd_play\([^)]*\)\s*\{)
+@with
+$1
+    if (mp_mirror_kept_quiet())
+        return -1;
+@end
 #chapters 1,2
 @regex gml_GlobalScript_snd_play
 (function snd_play\(arg0\)\s*\{)

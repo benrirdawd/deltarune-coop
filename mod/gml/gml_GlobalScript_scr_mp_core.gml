@@ -612,6 +612,11 @@ function mp_handle(type, sender, b, sock, endpos)
         mp_mirror_layers_recv(sender, b);
         return;
     }
+    if (type == 91) // the backdrop objects of the cutscene I watch (scr_mp_mirror)
+    {
+        mp_mirror_keep_recv(sender, b);
+        return;
+    }
     if (type == 89) // a shape puzzle piece a friend steers (scr_mp_shape)
     {
         mp_shape_recv(sender, b);

@@ -33,6 +33,8 @@ function mp_mirror_init()
     global.mp_mir_home = -1;                    // [room, x, y, darkzone] I was pulled from
     global.mp_mir_start_room = -1;              // the room the mirrored scene began in
     mp_mirror_info_init();
+    mp_mirror_keep_init();
+    global.mp_mir_klog = 0;
     // Text boxes are opened by the followers themselves; the mod's own objects are never sent.
     var never = ["obj_writer", "obj_dialoguer", "obj_face", "obj_smallface", "obj_choicer_neo", "obj_mp_controller", "obj_mp_ghost", "obj_mp_mirror"];
     for (var i = 0; i < array_length(never); i++)
@@ -115,6 +117,7 @@ function mp_mirror_lead_tick()
     }
     global.mp_mir_seq += 1;
     mp_mirror_layers_send();
+    mp_mirror_keep_send();
     var per = 46;
     var chunks = clamp(ceil(n / per), 1, 6);
     // Past 138 sprites (more than 3 datagrams), a frame goes every other frame (the link sends 4
@@ -264,7 +267,8 @@ function mp_mirror_freeze()
     ds_list_clear(global.mp_mir_list);
     with (all)
     {
-        if (!persistent && string_pos("obj_mp_", object_get_name(object_index)) != 1)
+        // (Not the kept scenery: it draws the leader's backdrop here.)
+        if (!persistent && string_pos("obj_mp_", object_get_name(object_index)) != 1 && !mp_mirror_kept(object_index))
             ds_list_add(global.mp_mir_list, id);
     }
     for (var i = 0; i < ds_list_size(global.mp_mir_list); i++)
@@ -784,4 +788,141 @@ function mp_mirror_layers_recv(from, b)
         global.mp_mir_laylog = 0;
     if (moved > 0 && (global.mp_mir_laylog++ mod 30) == 0)
         mp_log("mirror: " + string(moved) + " of the room's layers set as in the leader's game");
+}
+
+// ---------------------------------------------------------------- kept scenery
+// Some story backdrops are objects that draw the scene's background themselves, with masks and
+// blend modes the sprite list can't carry (the city behind the top of the Chapter 2 mansion). For
+// the followers they stay on when their room is switched off: they draw in their game as in the
+// leader's, their Step (which makes the scene's other objects) doesn't run there, and the leader
+// sends their variables (message 91) so they show what the leader's show.
+function mp_mirror_keep_init()
+{
+    global.mp_mir_keep = [];
+    var names = ["obj_ch2_scene26_cityscape"];
+    for (var i = 0; i < array_length(names); i++)
+    {
+        var o = asset_get_index(names[i]);
+        if (o >= 0)
+            array_push(global.mp_mir_keep, o);
+    }
+    global.mp_mir_ksent = ds_map_create();
+    global.mp_mir_kroom = -1;
+    global.mp_mir_koff = 0;
+}
+
+function mp_mirror_kept(obj)
+{
+    if (!variable_global_exists("mp_mir_keep"))
+        return false;
+    for (var i = 0; i < array_length(global.mp_mir_keep); i++)
+    {
+        if (global.mp_mir_keep[i] == obj)
+            return true;
+    }
+    return false;
+}
+
+// Prepended to a kept object's Step: not while I watch (the leader's game runs it).
+function mp_mirror_kept_paused()
+{
+    return variable_global_exists("mp_inited") && mp_on() && global.mp_sstate == 5;
+}
+
+// In snd_play: a kept object's sounds come from the leader's game while I watch (message 76).
+function mp_mirror_kept_quiet()
+{
+    return variable_global_exists("mp_mir_keep") && mp_on() && global.mp_sstate == 5 && mp_mirror_kept(object_index);
+}
+
+// mp_mirror_lead_tick: the kept objects' variables, the changed ones and a rotating share.
+function mp_mirror_keep_send()
+{
+    if ((global.mp_mir_seq mod 3) != 0 || array_length(global.mp_mir_keep) == 0)
+        return;
+    if (global.mp_mir_kroom != room)
+    {
+        ds_map_clear(global.mp_mir_ksent);
+        global.mp_mir_kroom = room;
+    }
+    var m = global.mp_mir_ksent;
+    var chg = [], rest = [];
+    for (var oi = 0; oi < array_length(global.mp_mir_keep); oi++)
+    {
+        var obj = global.mp_mir_keep[oi];
+        for (var k = 0; k < instance_number(obj) && k < 8; k++)
+        {
+            var inst = instance_find(obj, k);
+            var nms = variable_instance_get_names(inst);
+            for (var v = 0; v < array_length(nms); v++)
+            {
+                var val = variable_instance_get(inst, nms[v]);
+                if (!(is_real(val) || is_bool(val) || is_int32(val) || is_int64(val)))
+                    continue;
+                val = real(val);
+                // (Not the ids of objects it made: those are the leader's own.)
+                if (val >= 100000 && instance_exists(val))
+                    continue;
+                var e = [obj, k, nms[v], val];
+                var key = string(obj) + ":" + string(k) + ":" + nms[v];
+                if (ds_map_find_value(m, key) != val)
+                    array_push(chg, e);
+                else
+                    array_push(rest, e);
+            }
+        }
+    }
+    // (The unchanged ones a few at a time, twice a second: for a datagram that got lost.)
+    var out = chg;
+    var nr = array_length(rest);
+    if ((global.mp_mir_seq mod 15) == 0)
+    {
+        for (var j = 0; j < nr && j < 12; j++)
+            array_push(out, rest[(global.mp_mir_koff + j) mod nr]);
+        global.mp_mir_koff += 12;
+    }
+    var cnt = min(40, array_length(out));
+    if (cnt == 0)
+        return;
+    mp_begin(91);
+    mp_wu16(room);
+    mp_wu8(cnt);
+    for (var c = 0; c < cnt; c++)
+    {
+        var a = out[c];
+        ds_map_set(m, string(a[0]) + ":" + string(a[1]) + ":" + a[2], a[3]);
+        mp_wu16(a[0]);
+        mp_wu8(a[1]);
+        mp_wstr(a[2]);
+        buffer_write(global.mp_msg, buffer_f64, a[3]);
+    }
+    mp_send();
+}
+
+function mp_mirror_keep_recv(from, b)
+{
+    var rm = buffer_read(b, buffer_u16);
+    var n = buffer_read(b, buffer_u8);
+    var use = global.mp_sstate == 5 && from == global.mp_slead && rm == room;
+    var set = 0;
+    for (var i = 0; i < n; i++)
+    {
+        var obj = buffer_read(b, buffer_u16);
+        var k = buffer_read(b, buffer_u8);
+        var nm = buffer_read(b, buffer_string);
+        var val = buffer_read(b, buffer_f64);
+        if (!use || !mp_mirror_kept(obj) || k >= instance_number(obj))
+            continue;
+        var inst = instance_find(obj, k);
+        if (variable_instance_get(inst, nm) != val)
+        {
+            variable_instance_set(inst, nm, val);
+            set++;
+        }
+    }
+    if (set > 0 && global.mp_frame >= global.mp_mir_klog)
+    {
+        global.mp_mir_klog = global.mp_frame + 120;
+        mp_log("mirror: " + string(set) + " values of the scene's backdrop set as in the leader's game");
+    }
 }
