@@ -732,7 +732,24 @@ function mp_mirror_layer_state(l)
         px = (global.mp_mir_seq mod 30) == 0 ? px : -1;
         py = (global.mp_mir_seq mod 30) == 0 ? py : -1;
     }
-    return [px, py, layer_get_visible(l), has, has ? tilemap_get_x(tm) : 0, has ? tilemap_get_y(tm) : 0, hs, vs];
+    return [px, py, layer_get_visible(l), has, has ? tilemap_get_x(tm) : 0, has ? tilemap_get_y(tm) : 0, hs, vs, mp_mirror_old_tiles(l)];
+}
+
+// A layer's old-style tiles (tile_layer_hide hides them one by one, not the layer: Chapter 1's
+// closet wall as Kris and Susie fall): -1 none, 0 all hidden, 1 some shown.
+function mp_mirror_old_tiles(l)
+{
+    var els = layer_get_all_elements(l);
+    var st = -1;
+    for (var i = 0; i < array_length(els); i++)
+    {
+        if (layer_get_element_type(els[i]) != 7)
+            continue;
+        if (layer_tile_get_visible(els[i]))
+            return 1;
+        st = 0;
+    }
+    return st;
 }
 
 function mp_mirror_layers_send()
@@ -793,7 +810,7 @@ function mp_mirror_layers_send()
         buffer_write(global.mp_msg, buffer_f32, layer_get_y(ls[li]));
         buffer_write(global.mp_msg, buffer_f32, a[6]);
         buffer_write(global.mp_msg, buffer_f32, a[7]);
-        mp_wu8((a[2] ? 1 : 0) | (a[3] ? 2 : 0));
+        mp_wu8((a[2] ? 1 : 0) | (a[3] ? 2 : 0) | (a[8] >= 0 ? 4 : 0) | (a[8] == 0 ? 8 : 0));
         if (a[3])
         {
             buffer_write(global.mp_msg, buffer_f32, a[4]);
@@ -846,6 +863,16 @@ function mp_mirror_layers_recv(from, b)
         if (layer_get_visible(l) != vis)
         {
             layer_set_visible(l, vis);
+            moved++;
+        }
+        if ((fl & 4) && mp_mirror_old_tiles(l) != ((fl & 8) ? 0 : 1))
+        {
+            var els = layer_get_all_elements(l);
+            for (var e = 0; e < array_length(els); e++)
+            {
+                if (layer_get_element_type(els[e]) == 7)
+                    layer_tile_visible(els[e], (fl & 8) == 0);
+            }
             moved++;
         }
         if (fl & 2)

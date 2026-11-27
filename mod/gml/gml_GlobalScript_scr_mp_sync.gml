@@ -107,6 +107,8 @@ function mp_sync_init()
     global.mp_last_cs_room = -1;  // the last cutscene that played in my game: room,
     global.mp_last_cs_plot = -1;  // story progress when it started,
     global.mp_last_cs_end = -100000;  // and when it was last running
+    global.mp_last_cs_x = -99999;     // (and where it started)
+    global.mp_last_cs_y = -99999;
     global.mp_pre_vis = 1;
     global.mp_pre_mx = 0;
     global.mp_pre_my = 0;
@@ -711,9 +713,12 @@ function mp_sync_try_pull()
         global.mp_pull = -1;
         return;
     }
-    if (kind == 2 && global.interact == 0 && p[2] == global.mp_last_cs_room && p[6] <= global.mp_last_cs_plot && (current_time - global.mp_last_cs_end) < 60000)
+    if (kind == 2 && global.interact == 0 && p[2] == global.mp_last_cs_room && p[6] <= global.mp_last_cs_plot && (current_time - global.mp_last_cs_end) < 60000
+        && (p[8] || point_distance(p[3], p[4], global.mp_last_cs_x, global.mp_last_cs_y) < 80))
     {
-        // The same cutscene just played in my own game (e.g. they arrived while it was on).
+        // The same cutscene just played in my own game (e.g. they arrived while it was on). (One
+        // started further on in the room is the scene's next part: Chapter 1's closet, whose end
+        // takes everyone into the Dark World.)
         mp_log("pull dropped: just had that cutscene here");
         global.mp_pull = -1;
         return;
@@ -1297,6 +1302,8 @@ function mp_story_rise(ia, battle)
     global.mp_pre_actors = mp_actor_count();
     global.mp_last_cs_room = room;
     global.mp_last_cs_plot = global.mp_pre_plot;
+    global.mp_last_cs_x = global.mp_pre_x;
+    global.mp_last_cs_y = global.mp_pre_y;
     // Started with Z (talking, a save point, a shop): only mine, unless it turns out to be a story
     // scene (mp_classify_step: Chapter 2's Queen arcade starts the whole boxing scene from a Z).
     global.mp_pre_z = talked;

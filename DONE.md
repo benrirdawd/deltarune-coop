@@ -2453,3 +2453,19 @@ out. Run the script again after decompiling a new game version.
 `chaos:10:120:60`, 170 s): the watcher's screen as before (floor, head, city, coaster), the white
 power-up screen at 155 s, the scene ends in the GigaQueen fight; no crash. Chapter 1's castle
 front with plot 160 (its scene didn't start by entering the room): no crash, same screens.
+
+## Chapter 1's closet: the whole way down, for everyone (2026-11-27)
+Checked live the first scene with the new hand-drawn hooks. Two gaps found and fixed:
+- The closet is one scene in parts (Susie walks ahead, waits, talks, walks on). The part at the end,
+  where the floor gives way, reached the others as a pull they dropped as "just had that cutscene
+  here" (same room, same story progress, under a minute). Now that rule only holds for a scene that
+  starts on entering the room or near where my last one started (within 80 px); a part further on
+  in the room is shared, and everyone falls into the Dark World with the one who walked there.
+- The closet wall is made of old-style tiles that the scene hides one by one (`tile_layer_hide`),
+  which the layer mirror didn't carry: the watchers kept seeing the wall as everything went black.
+  The layer state now also says whether a layer's old-style tiles are all hidden or some shown.
+**Tested:** all 5 chapters build; Chapter 1 `room_insidecloset`, plot 5 (host Kris teleported to the
+end of the closet, client Susie at the start, `chaos:10:120:60`, 64 s): the client watches the first
+part, then the end part; the wall goes at the same time as in the host's game, the hand-drawn
+sprite of Kris and Susie falling shows on the client, and the scene takes the client to
+`room_dark1` with the host (plot 11); no errors in either log.
