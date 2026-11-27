@@ -36,6 +36,7 @@ function mp_mirror_init()
     mp_mirror_info_init();
     mp_mirror_keep_init();
     global.mp_mir_klog = 0;
+    global.mp_mir_extra = [];                   // sprites drawn by hand in my scene's objects (mp_mir_dse)
     // Text boxes are opened by the followers themselves; the mod's own objects are never sent.
     var never = ["obj_writer", "obj_dialoguer", "obj_face", "obj_smallface", "obj_choicer_neo", "obj_mp_controller", "obj_mp_ghost", "obj_mp_mirror"];
     for (var i = 0; i < array_length(never); i++)
@@ -113,6 +114,25 @@ function mp_mirror_lead_tick()
             }
         }
     }
+    // The sprites a scene's object drew by hand last frame (mp_mir_dse), at that object's depth.
+    var ex = global.mp_mir_extra;
+    for (var e = 0; e < array_length(ex) && n < 300; e++)
+    {
+        var r2 = ex[e];
+        if (!sprite_exists(r2[1]) || r2[9] <= 0)
+            continue;
+        var big2 = max(sprite_get_width(r2[1]) * abs(r2[5]), sprite_get_height(r2[1]) * abs(r2[6]));
+        if ((r2[3] + big2) < vx || (r2[3] - big2) > (vx + vw) || (r2[4] + big2) < vy || (r2[4] - big2) > (vy + vh))
+            continue;
+        var nf2 = sprite_get_number(r2[1]);
+        ds_grid_set(g, 0, n, r2[0]);
+        ds_grid_set(g, 1, n, r2[1]);
+        ds_grid_set(g, 2, n, nf2 > 0 ? (((floor(r2[2]) mod nf2) + nf2) mod nf2) : 0);
+        for (var q = 3; q < 10; q++)
+            ds_grid_set(g, q, n, r2[q]);
+        n += 1;
+    }
+    global.mp_mir_extra = [];
     // Drawing order: deepest first.
     if (n > 1)
     {
@@ -1076,4 +1096,18 @@ function mp_mirror_set_builtin(inst, nm, v)
         }
     }
     return did;
+}
+
+// In place of draw_sprite_ext in the Draw of a scene's object that draws its sprites by hand (the
+// Chapter 2 coaster ride with everyone on it): it draws as before, and in the leader's game the
+// sprite also goes in the list the watchers draw (mp_mirror_lead_tick), at the object's depth.
+function mp_mir_dse(spr, img, xx, yy, xs, ys, ang, col, al)
+{
+    draw_sprite_ext(spr, img, xx, yy, xs, ys, ang, col, al);
+    if (variable_global_exists("mp_mir_extra") && global.mp_sstate == 1 && mp_on())
+    {
+        if (array_length(global.mp_mir_extra) >= 200)
+            global.mp_mir_extra = [];
+        array_push(global.mp_mir_extra, [depth, spr, img, xx, yy, xs, ys, ang, col, al]);
+    }
 }

@@ -154,14 +154,13 @@ for each, the simplest that keeps the original's feel.
 5. **Done:** Chapter 2 keyboard puzzles follow a friend's solve (DONE.md). Simplest choice: the solve
    is shared, not each key. Puzzles 2 and 3 only checked by reading the code (same path as puzzle 1).
 
-8. **Parts 1-3 done (2026-11-27):** a watched cutscene's backdrop drawn by an object shows for the
-   watchers (kept scenery: the city, the giant Queen's head, the walls of the fall, the anime
-   power-up's background and figure, which the watcher copies when the leader's scene makes it),
-   and the leader's sprites behind the room's tiles are drawn behind them (DONE.md).
-   **Open, part 4:** the coaster ride right after (`obj_berdlycoaster_event`): it draws the coaster
-   and everyone riding it itself, from arrays (positions per rider) and markers it makes, so the
-   watcher sees only the walls. Needs arrays in message 91, or the object's own drawing replaced by
-   sprites in the leader's list. Then compare other chapters' big scenes the same way (SHOTS).
+8. **Done for Chapter 2's scene 26 (2026-11-27, 4 parts):** backdrops a watched scene draws
+   itself show for the watchers (kept scenery, copies of the ones the scene makes, sprites behind
+   the tiles drawn behind them, and the sprites an object draws by hand sent through `mp_mir_dse`).
+   **Open:** compare other big scenes the same way (host/client `SHOTS` at the same moments), one per
+   cycle: Chapter 1's ending (King's fall), Chapter 3's board intro, Chapter 4's church scenes,
+   Chapter 5's castle scenes. An object found drawing by hand gets the `mp_mir_dse` hook or kept
+   scenery.
 
 ## Next puzzles to look at (found 2026-11-24, from MINIGAMES.md), one per cycle
 

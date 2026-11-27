@@ -268,6 +268,13 @@ if (mp_mirror_kept_paused())
 @prepend gml_Object_obj_ch2_scene26_gigaqueen_Step_0
 if (mp_mirror_kept_paused())
     exit;
+;; The coaster ride after it draws everyone riding by hand: those sprites go to the watchers too.
+@regex gml_Object_obj_berdlycoaster_event_Draw_0
+\bdraw_sprite_ext\(
+@with
+mp_mir_dse(
+@end
+
 ;; The anime power-up's backdrop and figure too; their sparkles and streaks are made only in the
 ;; leader's game (they come in its sprite list), and the backdrop's drone too.
 @prepend gml_Object_obj_ch2_scene26_powers_combined_Step_0

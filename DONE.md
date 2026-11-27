@@ -2402,3 +2402,16 @@ whole screen and the power-up figure as the host does (before: walls under half 
 the scene ended and the fight began in both games; no crash. Left (TODO.md, part 4): the coaster
 ride, which draws its riders itself.
 README: watched scenes show the backdrops a scene draws itself.
+
+## Watched cutscenes: the coaster ride with everyone on it (2026-11-27)
+
+Part 4 of Chapter 2's scene 26: the coaster ride (`obj_berdlycoaster_event`, made only in the
+leader's game) draws the coaster cars and everyone riding them by hand, from arrays, so the
+watcher saw only the walls. Its Draw now calls `mp_mir_dse` in place of `draw_sprite_ext`: it
+draws as before, and in the leader's game each of those sprites also goes in the mirror's sprite
+list at the object's depth (the watchers draw them like any other). A general tool for any object
+found drawing its sprites by hand.
+**Tested** (Chapter 2, `room_dw_mansion_top`, plot 165, host Kris + client Susie,
+`chaos:10:120:60`): at 138-142 s the client shows the cars with Kris, Susie, Ralsei, Berdly and the
+recruits riding them, as the host does (before: walls only); the host's traffic peaked at 17 KB/s
+during the ride (many sprites); no crash.
