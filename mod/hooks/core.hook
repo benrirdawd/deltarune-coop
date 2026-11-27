@@ -820,6 +820,19 @@ if (instance_exists(parentid) && mp_coaster_absent(parentid.HeroID))
     questionmercy[0] = 1;
     mp_one_hero_fight_party();
 @end
+;; (The Sound of Justice's second phase, encounter 186: the game's Kris and Susie, and the others.)
+@find gml_Object_obj_battlecontroller_Create_0
+    global.char[0] = 1;
+    global.char[1] = 2;
+    global.char[2] = 0;
+    questionmercy[0] = 1;
+@with
+    global.char[0] = 1;
+    global.char[1] = 2;
+    global.char[2] = 0;
+    questionmercy[0] = 1;
+    mp_one_hero_fight_party();
+@end
 #chapters all
 
 ;; Chapter 4's Hammer of Justice: Susie falling ends the fight with Gerson's loss scene, not a

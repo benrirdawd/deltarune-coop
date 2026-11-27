@@ -361,6 +361,14 @@ function mp_sync_recv(type, from, b)
                 else
                     mp_send_tdone(0, 0);
             }
+            else if (pgid != global.mp_gid && mp_battle_ending())
+            {
+                // My fight is over, its last moments still on: a story that starts its next
+                // fight right away (the Sound of Justice's two phases). Join it once mine ends.
+                mp_log("called to fight " + string(pgid) + " as mine ends: joining after it");
+                global.mp_pull = [kind, from, rm, px, py, enc, plot, 0, entry, party, pdz, pgid, pmask, pstory, plead, current_time];
+                return;
+            }
             else if (pgid != global.mp_gid && !(same_enc && pgid > global.mp_gid))
             {
                 // Busy with a fight of my own (a story battle calls everyone): its leader needn't
@@ -661,6 +669,14 @@ function mp_sync_try_pull()
             global.mp_pull = -1;
         return;
     }
+    // (Called to the next fight while mine was ending, see above: wait for mine to be gone.)
+    if (kind == 1 && mp_in_battle_scene() && p[11] != global.mp_gid && global.mp_gid != 0 && mp_battle_ending())
+    {
+        global.mp_pull[7] += 1;
+        if (global.mp_pull[7] > 600)
+            global.mp_pull = -1;
+        return;
+    }
     if (mp_in_battle_scene() || global.mp_battle_pulled)
     {
         global.mp_pull = -1;
@@ -744,8 +760,12 @@ function mp_sync_try_pull()
             global.mp_pull = -1;
         return;
     }
-    // A battle that already finished (or whose last enemy just went) is not worth joining.
-    if (kind == 1 && (global.mp_pstate[from] & 128) != 0)
+    // A battle that already finished (or whose last enemy just went) is not worth joining. (Not
+    // for a fresh pull: a fight is just starting then. A story that starts its next fight right
+    // after the last one, like the Sound of Justice's two phases, sends the pull while the state I
+    // have from that player is still the last fight's ending; its fight start waits for us without
+    // sending new state.)
+    if (kind == 1 && (global.mp_pstate[from] & 128) != 0 && current_time - p[15] > 3000)
     {
         mp_log("pull dropped: " + string(from) + "'s fight is ending");
         global.mp_pull = -1;

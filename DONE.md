@@ -4,6 +4,21 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Sound of Justice, phase 2: the players' heroes join Kris and Susie (2026-11-26)
+
+Phase 2 (encounter 186) is started by the room's own story right after phase 1, and the game sets
+its party to Kris + Susie (+ Ralsei) in the battle's Create. The players' heroes now join there
+too (no entry lines: the game's own scene leads into it), and Gerson's HP grows by the heroes added
+(3 story heroes + 1 joined = x1.33; 2 + 1 = x1.50). Two fixes in calling everyone into the second
+of two chained fights: a player whose own fight is ending now keeps the call and joins once it
+ends (was: "busy", dropped), and a new call ignores the "fight ending" mark for its first 3 seconds
+(the mark from phase 1 was still up when phase 2's call came).
+**Tested** (Chapter 4, `room_dw_churchb_nongerson`, story, Kris host + Ralsei client with
+`chaos:10:120:60`, bots, 20x, 3 runs): phase 1's four turns the same in both games, then phase 2 in
+both with party 120 -> 123 and "enemy 0 HP x1.50 = 2025"; turn 1 the same HP, TP (92.25) and
+Gerson HP (1951) in both. `mpcheck`: all PASS except "battle": phase 2's turn 0 TP (host 79.25,
+client 0; TODO).
+
 ## Sound of Justice, phase 1: a one-hero fight with everyone (2026-11-26)
 
 Chapter 4's Sound of Justice (encounter 176, Susie alone in the dark) was a "special" fight (the

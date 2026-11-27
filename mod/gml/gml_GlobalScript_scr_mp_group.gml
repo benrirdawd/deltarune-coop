@@ -758,12 +758,14 @@ function mp_noai_party()
 // Some story fights are made for one hero (Chapter 4's Hammer of Justice: Susie alone). In a session
 // the others play too (user's rule, TODO "Special fights"): the story's hero plus every player's
 // hero, the story's hero first. The pulled players take this party from the leader's pull.
-function mp_one_hero_fight()
+// (atcreate: from the battle's Create, where the encounter has set the enemy's type but not yet
+// global.monster: the Sound of Justice's second phase still has the first one's 0 there.)
+function mp_one_hero_fight(atcreate = false)
 {
     var names = ["obj_hammer_of_justice_enemy", "obj_sound_of_justice_enemy"];
     for (var m = 0; m < 3; m++)
     {
-        if (!global.monster[m])
+        if (atcreate ? m > 0 : !global.monster[m])
             continue;
         for (var i = 0; i < array_length(names); i++)
         {
@@ -777,7 +779,7 @@ function mp_one_hero_fight()
 
 function mp_one_hero_fight_party()
 {
-    if (!variable_global_exists("mp_inited") || !mp_on() || !variable_global_exists("monster") || !mp_one_hero_fight())
+    if (!variable_global_exists("mp_inited") || !mp_on() || !variable_global_exists("monster") || !mp_one_hero_fight(true))
         return;
     var party = [0, 0, 0];
     var n = 0;
@@ -789,6 +791,7 @@ function mp_one_hero_fight_party()
             n += 1;
         }
     }
+    var n0 = max(1, n); // the heroes the game made this fight for
     var others = mp_party_of(255);
     for (var k = 0; k < 3; k++)
     {
@@ -809,10 +812,13 @@ function mp_one_hero_fight_party()
         if (jc != 0 && jc != global.char[0] && jc != global.char[1] && jc != global.char[2])
             array_push(global.mp_ohf_join, jc);
     }
+    // (The Sound of Justice's second phase: they joined in the first, no entry lines again.)
+    if (global.chapter == 4 && global.encounterno == 186)
+        global.mp_ohf_join = [];
     global.mp_ohf_i = 0;
     global.mp_ohf_t = 0;
     global.mp_ohf_bl = noone;
-    global.mp_ohf_scale = n; // the enemy's HP, times the heroes (mp_ohf_entry_step)
+    global.mp_ohf_scale = n / n0; // the enemy's HP, times the heroes per hero it was made for (mp_ohf_entry_step)
     // Where the joining heroes stand: the encounter only placed the story's hero (the Hammer of
     // Justice puts Susie at x 629 for its camera at 520; the other slots keep 108, off screen), so
     // they stand above and below that hero, as in the game's own three-hero layout.
@@ -936,8 +942,8 @@ function mp_ohf_entry_step()
         {
             if (global.monster[m])
             {
-                global.monstermaxhp[m] *= global.mp_ohf_scale;
-                global.monsterhp[m] *= global.mp_ohf_scale;
+                global.monstermaxhp[m] = round(global.monstermaxhp[m] * global.mp_ohf_scale);
+                global.monsterhp[m] = round(global.monsterhp[m] * global.mp_ohf_scale);
                 mp_log("one-hero fight: enemy " + string(m) + " HP x" + string(global.mp_ohf_scale) + " = " + string(global.monsterhp[m]));
             }
         }

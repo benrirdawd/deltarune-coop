@@ -444,6 +444,10 @@ function mp_battle_ending()
 {
     if (!variable_global_exists("monster"))
         return false;
+    // (A fight still waiting for its first turn isn't ending: its enemies may not be counted yet,
+    // global.monster still holding the last fight's zeros, as in the Sound of Justice's phase 2.)
+    if (mp_battle_on() && global.mp_bwait && global.mp_bturn == 0)
+        return false;
     for (var i = 0; i < 3; i++)
     {
         if (global.monster[i] != 0)

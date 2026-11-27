@@ -627,9 +627,11 @@ function mp_apply_tgo(st)
     var late = global.mp_bwait_turn == 0 && turn > 0;
     if (late)
         mp_log("joined the fight at turn " + string(turn) + ": taking its HP for my heroes too");
+    // TP is the fight's, the leader's word, from the first turn on (a fight can start with TP the
+    // story kept: the Sound of Justice's second phase takes the first's, in the leader's game).
+    global.tension = st[2];
     if (turn > 0)
     {
-        global.tension = st[2];
         for (var s2 = 0; s2 < 3; s2++)
         {
             var c = global.char[s2];
