@@ -1264,3 +1264,15 @@ mp_mir_dse(message_sprite,
 mp_mir_dline(
 @end
 #chapters all
+
+#chapters 5
+;; The scene after the Flowery fight (DW30) is kept scenery while a friend watches it: its blur over
+;; the screen (Draw, from its bluramt) shows in their game; its Step and alarm only run in the
+;; leader's game (the leader sends its variables).
+@prepend gml_Object_obj_ch5_DW30_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_ch5_DW30_Alarm_0
+if (mp_mirror_kept_paused())
+    exit;
+#chapters all

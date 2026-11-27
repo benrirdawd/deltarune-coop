@@ -2663,3 +2663,14 @@ lone writers sent (pages 26-39), the client shows "* Kris.", "* Was to prove it 
 (dark letters on the red flash), "* I thought if I could just prove..." at the host's place and
 colour, its page count following the host's; the scene's text box after it is still sent as a box;
 no errors.
+
+## After the Flowery fight (DW30), part 3: the blur over the screen (2026-11-27)
+`obj_ch5_DW30` blurs the whole screen while its `bluramt` is up (the flashback): it copies the
+screen and draws it again through the game's blur shader, wobbling. It is now kept scenery while a
+friend watches (its Step and alarm paused there, the leader sending `bluramt` and the rest), so the
+watcher's game draws the same blur over what it shows, between the mirrored sprites at its depth.
+README updated (5 commits): scene backdrops and effects in Chapter 5.
+**Tested:** all 5 chapters build; Chapter 5 `room_dw_post_flowery_battle`, plot 490 (host Kris
+with `mash` + client Susie, `chaos:10:120:60`, 140 s, shots from 30 to 110 s): the client's flashback
+is blurred like the host's (silhouettes, papers and red threads soft and doubled); the sunset and the
+text boxes as before; no errors.

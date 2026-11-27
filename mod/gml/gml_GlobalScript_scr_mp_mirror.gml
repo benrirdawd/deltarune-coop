@@ -1132,7 +1132,7 @@ function mp_mirror_layers_recv(from, b)
 function mp_mirror_keep_init()
 {
     global.mp_mir_keep = [];
-    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight", "obj_dw_gameshow_stage_overlay", "obj_dw_tv_funometer", "obj_darkness_overlay", "obj_lightbeamfx", "obj_light_area_mask", "obj_light_following", "obj_lutshader", "obj_bg_palette_swap", "obj_fcastle_light", "obj_leafpetals", "obj_parallax_cliffs", "obj_parallax_cliffs_moving_layers", "obj_parallax_cliffs_moving_layers_back", "obj_parallax_cliffs_sunlayer", "obj_parallax_cliffs_simple"];
+    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight", "obj_dw_gameshow_stage_overlay", "obj_dw_tv_funometer", "obj_darkness_overlay", "obj_lightbeamfx", "obj_light_area_mask", "obj_light_following", "obj_lutshader", "obj_bg_palette_swap", "obj_fcastle_light", "obj_leafpetals", "obj_parallax_cliffs", "obj_parallax_cliffs_moving_layers", "obj_parallax_cliffs_moving_layers_back", "obj_parallax_cliffs_sunlayer", "obj_parallax_cliffs_simple", "obj_ch5_DW30"];
     for (var i = 0; i < array_length(names); i++)
     {
         var o = asset_get_index(names[i]);

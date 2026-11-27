@@ -174,8 +174,7 @@ for each, the simplest that keeps the original's feel.
    done (DONE.md). The top staircase (DW25) done:
    the castle's light shafts and petals (DONE.md). The second staircase (DW27) done: hit words and
    coloured afterimages (DONE.md). After the Flowery fight (DW30) part 1 done: sunset sky, silhouettes, red threads (DONE.md).
-   The flashback's narration (a writer with no box) done (DONE.md). DW30 still open: the scene's wobbling blur (`obj_ch5_DW30` Draw blurs
-   the screen while `bluramt` > 0) is missing for the watcher. Other Chapter 5 castle scenes open
+   The flashback's narration (a writer with no box) done (DONE.md). DW30 done (blur too). Other Chapter 5 castle scenes open
    (DW40, the fountain DW45). An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
 
