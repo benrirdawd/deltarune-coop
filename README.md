@@ -87,7 +87,9 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   but pressing Z on something that starts a story scene (Chapter 2's arcade machine) brings
   everyone in like any other story cutscene. When a cutscene you were
   pulled into ends where it began, you go back to where you were; one that moves the story
-  somewhere else (another room, the other world) takes everyone along.
+  somewhere else (another room, the other world, or far along the same room, like Chapter 2's
+  ride beside Queen's car) takes everyone along. Scenes that scroll the room itself (that ride's
+  road and traffic) scroll it on every screen too.
 * **Joining mid-story.** Someone who joins (or comes back after a crash) while a cutscene is on
   watches it with the others. In Chapter 1's opening the vessel is the host's: a client skips
   its own (or waits on a "the host is creating the vessel" screen) and goes to the host.
@@ -95,7 +97,8 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   someone who joins later finds the blocks where they were left), switches and buttons are
   pressed for everyone (Chapter 1's eye switches and suits puzzles, Chapter 2's traffic lights,
   the glowing tiles' hourglass, Kris's switch at Chapter 3's eye puzzle), and a friend standing on a glowing tile or a floor switch
-  counts in your game (so two players can hold two switches). Eye switches and suits buttons pressed
+  counts in your game (so two players can hold two switches). The piece a friend steers in
+  Chapter 2's shape puzzles moves in your game too, and lights up with theirs when it fits. Eye switches and suits buttons pressed
   before you came into the room (or joined) are played back for you. A puzzle someone solves is
   solved for everyone: Chapter 2's keyboard puzzles, mice rooms and mouse tower, the switch and
   teacup after the baseball game, the second virus maze, and the mansion's saucer doors, secret
