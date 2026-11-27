@@ -812,6 +812,7 @@ function mp_one_hero_fight_party()
     global.mp_ohf_i = 0;
     global.mp_ohf_t = 0;
     global.mp_ohf_bl = noone;
+    global.mp_ohf_scale = n; // the enemy's HP, times the heroes (mp_ohf_entry_step)
     // Where the joining heroes stand: the encounter only placed the story's hero (the Hammer of
     // Justice puts Susie at x 629 for its camera at 520; the other slots keep 108, off screen), so
     // they stand above and below that hero, as in the game's own three-hero layout.
@@ -927,6 +928,21 @@ function mp_ohf_typer(c)
 // writers need it.)
 function mp_ohf_entry_step()
 {
+    // The enemy was made for one hero: more heroes hit it more, so it has their number times its
+    // HP (user's rule for these fights). Done once, the first frame, the same in every game.
+    if (variable_global_exists("mp_ohf_scale") && global.mp_ohf_scale > 1)
+    {
+        for (var m = 0; m < 3; m++)
+        {
+            if (global.monster[m])
+            {
+                global.monstermaxhp[m] *= global.mp_ohf_scale;
+                global.monsterhp[m] *= global.mp_ohf_scale;
+                mp_log("one-hero fight: enemy " + string(m) + " HP x" + string(global.mp_ohf_scale) + " = " + string(global.monsterhp[m]));
+            }
+        }
+        global.mp_ohf_scale = 1;
+    }
     if (!variable_global_exists("mp_ohf_join") || global.mp_ohf_i >= array_length(global.mp_ohf_join))
         return;
     if (global.myfight != 0 || global.mnfight != 0)

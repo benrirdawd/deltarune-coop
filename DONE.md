@@ -4,6 +4,16 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Fights made for one hero: the enemy's HP times the heroes (2026-11-26, Hammer of Justice part 4)
+
+The user's rule for these fights: the enemy has more HP for more players. On the battle's first
+frame (`mp_ohf_entry_step`) every enemy's HP and max HP are multiplied by the number of heroes in
+the fight, once, the same in every game (Gerson: 1350, x3 = 4050 with three heroes).
+**Tested** (Chapter 4, encounter 160, `camx:520`, Kris host + Ralsei client with `chaos:10:120:60`,
+bots, 20x): "enemy 0 HP x3 = 4050" in both games; turns 1-3 with the same Gerson HP in both
+(3888, 3728, 3562) and the same hero HP and TP; then the loss scene in both. `mpcheck`: all PASS
+except "ghost" (the half second after the loss, as in part 3).
+
 ## Fights made for one hero: the joining heroes' entry lines (2026-11-26, Hammer of Justice part 3)
 
 The user's "not canon" look: before the first menu each hero who joined a one-hero fight says an
