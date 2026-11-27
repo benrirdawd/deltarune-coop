@@ -109,6 +109,11 @@ function mp_sync_init()
     global.mp_last_cs_end = -100000;  // and when it was last running
     global.mp_last_cs_x = -99999;     // (and where it started)
     global.mp_last_cs_y = -99999;
+    global.mp_last_cs_t = -100000;    // (and when)
+    global.mp_cs_part_room = -1;      // scenes (mine or watched) since I came into this room:
+    global.mp_cs_part = 0;            // their count,
+    global.mp_last_cs_part = 0;       // and the number of the last one
+    global.mp_pre_part = 0;
     global.mp_pre_vis = 1;
     global.mp_pre_mx = 0;
     global.mp_pre_my = 0;
@@ -204,7 +209,8 @@ function mp_send_pull_to(kind, sock)
         px = global.mp_pre_x;
         py = global.mp_pre_y;
         plot = global.mp_pre_plot;
-        entry = global.mp_pre_entry;
+        // (With the scene's number in the room, for a scene in parts: mp_cs_part_next.)
+        entry = (global.mp_pre_entry ? 1 : 0) | (min(global.mp_pre_part, 127) << 1);
         dz = global.mp_pre_dz;
     }
     global.mp_sseq += 1;
@@ -714,11 +720,14 @@ function mp_sync_try_pull()
         return;
     }
     if (kind == 2 && global.interact == 0 && p[2] == global.mp_last_cs_room && p[6] <= global.mp_last_cs_plot && (current_time - global.mp_last_cs_end) < 60000
-        && (p[8] || point_distance(p[3], p[4], global.mp_last_cs_x, global.mp_last_cs_y) < 80))
+        && ((p[8] & 1) || point_distance(p[3], p[4], global.mp_last_cs_x, global.mp_last_cs_y) < 80)
+        && !(p[2] == global.mp_cs_part_room && (p[8] >> 1) > global.mp_last_cs_part))
     {
         // The same cutscene just played in my own game (e.g. they arrived while it was on). (One
         // started further on in the room is the scene's next part: Chapter 1's closet, whose end
-        // takes everyone into the Dark World.)
+        // takes everyone into the Dark World. So is one that is a later scene in this room than
+        // the last I had, counting the ones I watched: Chapter 5's party jail, whose second part
+        // starts where the first did.)
         mp_log("pull dropped: just had that cutscene here");
         global.mp_pull = -1;
         return;
@@ -1304,6 +1313,9 @@ function mp_story_rise(ia, battle)
     global.mp_last_cs_plot = global.mp_pre_plot;
     global.mp_last_cs_x = global.mp_pre_x;
     global.mp_last_cs_y = global.mp_pre_y;
+    global.mp_last_cs_t = current_time;
+    global.mp_pre_part = mp_cs_part_next(room);
+    global.mp_last_cs_part = global.mp_pre_part;
     // Started with Z (talking, a save point, a shop): only mine, unless it turns out to be a story
     // scene (mp_classify_step: Chapter 2's Queen arcade starts the whole boxing scene from a Z).
     global.mp_pre_z = talked;
@@ -2447,4 +2459,17 @@ function mp_overheard_draw()
         lx += hs;
     }
     draw_set_font(of);
+}
+
+// The number of a scene in room rm (mine or one I watch) since I came into it: a scene in parts
+// sends its next part with a higher number than the friends had (mp_pull_tick).
+function mp_cs_part_next(rm)
+{
+    if (global.mp_cs_part_room != rm)
+    {
+        global.mp_cs_part_room = rm;
+        global.mp_cs_part = 0;
+    }
+    global.mp_cs_part += 1;
+    return global.mp_cs_part;
 }

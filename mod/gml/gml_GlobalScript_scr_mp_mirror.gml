@@ -31,6 +31,7 @@ function mp_mirror_init()
     global.mp_mir_frozen_room = -1;
     global.mp_mir_after_room = -1;              // where a mirrored scene just ended...
     global.mp_mir_after_until = 0;              // ...and until when its own copy mustn't start there
+    global.mp_mir_end_at = -1;                  // [x, y] where the leader was when it ended there
     global.mp_mir_home = -1;                    // [room, x, y, darkzone] I was pulled from
     global.mp_mir_start_room = -1;              // the room the mirrored scene began in
     mp_mirror_info_init();
@@ -283,6 +284,11 @@ function mp_mirror_start(from, rm)
                 global.mp_mir_home = [room, hx, hy, mp_dz()];
         }
         global.mp_mir_start_room = rm;
+        // (A scene I watch counts as one I had in its room, unless it is the one my own game just
+        // started there: mp_cs_part_next.)
+        var prm = rm >= 0 ? rm : room;
+        if (!(global.mp_last_cs_room == prm && global.mp_cs_part_room == prm && (current_time - global.mp_last_cs_t) < 3000))
+            global.mp_last_cs_part = mp_cs_part_next(prm);
     }
     mp_mirror_reset();
     global.mp_slead = from;
@@ -410,6 +416,7 @@ function mp_mirror_end(rm, ex, ey, edz, from)
     global.mp_warp_reenter = 1;
     global.mp_mir_after_room = rm >= 0 ? rm : room;
     global.mp_mir_after_until = current_time + 8000;
+    global.mp_mir_end_at = (rm >= 0 && rm == room && ex > -9999) ? [ex, ey] : -1;
     var home = mp_mirror_home(rm, edz);
     // (A scene that took the party far along this same room, like Chapter 2's ride beside Queen's
     // car: where I was is now behind them, so I go with the leader.)
@@ -620,6 +627,27 @@ function mp_mirror_choice_step()
 
 // mp_sync_tick (free roam): true when the scene that was just mirrored started again here by itself,
 // which is then stopped.
+// A scene in parts with free play in between (Chapter 5's party jail: locked in, then talk to the
+// moss): when I watched a friend play its first part, my own copy starts again as I come back. A
+// hook in that scene asks this first: true means it should set itself up as the first part left it
+// (in its own way) instead of playing it, where the leader stood: mp_mirror_resume_at().
+function mp_mirror_resuming()
+{
+    if (!variable_global_exists("mp_mir_end_at") || global.mp_sstate != 0 || !is_array(global.mp_mir_end_at))
+        return false;
+    if (global.mp_mir_after_room != room || current_time > global.mp_mir_after_until)
+        return false;
+    mp_log("mirror: the scene's first part was played in a friend's game: mine takes it up from there");
+    global.mp_mir_after_until = 0;
+    return true;
+}
+
+// [x, y] of the leader when the part I watched ended (mp_mirror_resuming).
+function mp_mirror_resume_at()
+{
+    return global.mp_mir_end_at;
+}
+
 function mp_mirror_after_check(ia)
 {
     if (global.mp_mir_after_room != room || current_time > global.mp_mir_after_until)

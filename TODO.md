@@ -170,8 +170,8 @@ for each, the simplest that keeps the original's feel.
    the player keeps control, in each game as its player walks by (tested with `trig:gersontrig`,
    plot 126: no scene lock, no errors); nothing to mirror. The same goes for the walk-by prophecies.
    Chapter 5's castle top (Asgore's story, DW22) compared and matching (DONE.md); the castle
-   entrance (DW19, with the town memory) has the town's colours and the exit's light pillar now (DONE.md). Other
-   Chapter 5 castle scenes open. An object found drawing by hand gets the `mp_mir_dse` hook or kept
+   entrance (DW19, with the town memory) has the town's colours and the exit's light pillar now (DONE.md); the party jail's two parts
+   done (DONE.md). Other Chapter 5 castle scenes open (DW20, DW25-DW30, DW40, the fountain DW45). An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
 
 ## Next puzzles to look at (found 2026-11-24, from MINIGAMES.md), one per cycle

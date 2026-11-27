@@ -298,6 +298,23 @@ static class Program
         {
             string t = File.ReadAllText(f);
             if (f.EndsWith(".gml") && !ChapterAllowed(t, chapter)) continue;
+            // (In a hook file only the blocks for this chapter: "#chapters 5" may name Chapter 5's assets.)
+            if (f.EndsWith(".hook"))
+            {
+                var keep = new StringBuilder();
+                bool on = true;
+                foreach (var hl in t.Replace("\r", "").Split('\n'))
+                {
+                    if (hl.StartsWith("#chapters"))
+                    {
+                        var spec = hl.Substring(9).Trim();
+                        on = spec == "all" || spec.Split(',', StringSplitOptions.TrimEntries).Select(int.Parse).Contains(chapter);
+                        continue;
+                    }
+                    if (on) keep.Append(hl).Append('\n');
+                }
+                t = keep.ToString();
+            }
             t = System.Text.RegularExpressions.Regex.Replace(t, @"//[^\n]*|^;;[^\n]*", "", System.Text.RegularExpressions.RegexOptions.Multiline);
             foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(t, @"(?<![\w""])((?:obj|spr|snd|scr|room|fnt)_[A-Za-z0-9_]+)"))
             {

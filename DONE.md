@@ -2577,3 +2577,26 @@ the watchers), for every exit of the kind: `obj_dw_leave` (Chapters 2-5), `obj_d
 (host Kris with `mash` + client Susie, `chaos:10:120:60`, 65 s, shots at 40/50/60 s): the pillar
 looks the same in both games (565 near-white pixels in the right quarter on both, every shot); no
 errors.
+
+## Chapter 5's party jail, a scene in two parts, for everyone (2026-11-27)
+Compared the party jail (`obj_ch5_DW19B`, `room_dw_fcastle_partyjail`, plot 395): its first part
+locks Kris and Susie in a cell and gives control back inside it; talking to the moss starts the
+second part, which ends in `room_dw_fcastle_post_party_jail` (plot 398). The watcher came back from
+the first part to a room with no cell (its own copy of the scene, starting again, was stopped) and
+could walk off. Two changes:
+- A watcher whose own copy of a scene starts again where a friend's part just ended can take it up
+  as that part left it (`mp_mirror_resuming`, `mp_mirror_resume_at`). The jail does so (core.hook):
+  the bars and the switch as the first part leaves them, the moss to talk to, and the player where
+  the friend stood, in the cell.
+- The second part starts where the first did, so a friend's pull for it was dropped as "just had
+  that cutscene here". A pull now carries the scene's number in its room (scenes played or watched
+  there, `mp_cs_part_next`); one with a higher number than the last I had is the scene's next part
+  and is shared. (A friend's own copy of a scene I already had still has the same number and is
+  dropped as before.)
+Also: the patcher's check for assets missing from a chapter now reads only the hook blocks for
+that chapter (`#chapters 5` blocks may name Chapter 5's assets).
+**Tested:** all 5 chapters build; Chapter 5 `room_dw_fcastle_partyjail`, plot 395 (host Kris with
+`mash` + client Susie, `chaos:10:120:60`): the client watches the first part, takes the scene up
+locked in the cell like the host (shots at 50/60/70 s); the client then talks to the moss
+(`useobj:obj_interactable`), the host is pulled into the second part (part 2 > 1), and the scene
+takes both to `room_dw_fcastle_post_party_jail`, plot 398 (260 s run); no errors.

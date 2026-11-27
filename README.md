@@ -92,8 +92,10 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   road and traffic) scroll it on every screen too, and backdrops a scene draws itself (the city,
   the giant Queen and the fall at the top of Chapter 2's mansion, Chapter 1's fountain, Tenna's
   TV screen, podiums, audience and spotlight in Chapter 3, the church's darkness and light beams
-  in Chapter 4) show for everyone watching. A scene told in parts
-  (Chapter 1's closet) is shared part by part, so everyone falls into the Dark World together.
+  in Chapter 4, the town's evening colours and the Dark World's exit glow in Chapter 5) show
+  for everyone watching. A scene told in parts is shared part by part: everyone falls into the
+  Dark World together from Chapter 1's closet, and in Chapter 5's party jail everyone ends up
+  locked in the cell after the first part, and whoever talks to the moss starts the second for all.
 * **Joining mid-story.** Someone who joins (or comes back after a crash) while a cutscene is on
   watches it with the others. In Chapter 1's opening the vessel is the host's: a client skips
   its own (or waits on a "the host is creating the vessel" screen) and goes to the host.

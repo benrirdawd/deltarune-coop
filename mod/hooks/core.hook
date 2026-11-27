@@ -1190,3 +1190,52 @@ mp_mir_dse(sprite_index,
 mp_mir_dse(sprite_index, 
 @end
 #chapters all
+;; Chapter 5's party jail is a scene in two parts with free play in the cell between them. A player
+;; who watched a friend play the first part takes the scene up as that part left it (the bars down,
+;; the switch, the moss to talk to) and stands where the friend did, in the cell, instead of the
+;; scene stopping and the room showing no jail (scr_mp_mirror: mp_mirror_resuming).
+#chapters 5
+@prepend gml_Object_obj_ch5_DW19B_Step_0
+if (con == 0 && mp_mirror_resuming())
+{
+    pos_flowery = findspriteinfo(spr_flowery_walk_downleft, "CUTSCENE_ASSETS", c_white);
+    pos_flowery2 = findspriteinfo(spr_flowery_walk_downleft, "CUTSCENE_ASSETS", c_red);
+    pos_seth = findspriteinfo(spr_seth_walk_right, "CUTSCENE_ASSETS", c_white);
+    pos_seth2 = findspriteinfo(spr_seth_walk_right, "CUTSCENE_ASSETS", c_red);
+    pos_seth3 = findspriteinfo(spr_seth_walk_right, "CUTSCENE_ASSETS", c_lime);
+    pos_aqua = findspriteinfo(spr_enemy_aqua_idle, "CUTSCENE_ASSETS", c_white);
+    pos_aqua2 = findspriteinfo(spr_enemy_aqua_idle, "CUTSCENE_ASSETS", c_red);
+    pos_aqua3 = findspriteinfo(spr_enemy_aqua_idle, "CUTSCENE_ASSETS", c_lime);
+    pos_bars = findspriteinfo(spr_dw_fcastle_jail_bars_fixed, "CUTSCENE_ASSETS");
+    seth_marker = scr_makemarker_fromstruct(pos_seth);
+    aqua_marker = scr_makemarker_fromstruct(pos_aqua, true);
+    aqua_marker.visible = false;
+    aqua_marker.image_speed = 0.25;
+    aqua_marker.sprite_index = spr_enemy_aqua_idle_r;
+    aqua_marker.base_y = aqua_marker.ystart;
+    prison_marker = scr_makemarker_fromstruct(pos_bars);
+    prison_marker.reflect_jump_y = prison_marker.sprite_height;
+    with (obj_castlereflect_manager)
+    {
+        add_sprite_offset(7807, -22, -18);
+        add_sprite_offset(2591, -24, -18);
+        add_sprite_offset(5745, -22, -18);
+        add_sprite_offset(7884, 6, 0);
+        add_reflection(other.aqua_marker);
+        add_reflection(other.seth_marker);
+        add_reflection(other.prison_marker);
+    }
+    prison_marker.depth = 97500;
+    cam_region = findspriteinfo(spr_debug_cameraregionpreview, "CUTSCENE_CAMERAS", c_white);
+    cam_region2 = findspriteinfo(spr_debug_cameraregionpreview, "CUTSCENE_CAMERAS", c_red);
+    cam_region3 = findspriteinfo(spr_debug_cameraregionpreview, "CUTSCENE_CAMERAS", c_lime);
+    layer_sprite_index(wallswitch, 0);
+    var mp_at = mp_mirror_resume_at();
+    with (obj_mainchara)
+    {
+        x = mp_at[0];
+        y = mp_at[1];
+    }
+    con = 2;
+}
+#chapters all
