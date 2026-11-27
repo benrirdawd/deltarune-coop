@@ -4,6 +4,27 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Werewire's ThrowWire: the same throw everywhere, and Susie's Improvise without Kris (2026-11-26)
+
+Chapter 2's Werewire has Kris's ThrowWire: Susie throws Kris at the wire's weak point (aim and
+power swing every frame). Two changes:
+* **The throw is the same in every game:** it read the throw key in each game, so each copy threw
+  at its own angle. Now Susie's player throws and the others' copies throw with the same angle and
+  power when it arrives, as in the Queen fight (`mp_throw_press`).
+* **Without Kris** (stand-in rules in TODO): Susie's ACT list gets Improvise ("Throw#Ralsei", 20%
+  TP). She holds Ralsei (the Queen fight's own pose), throws him with the game's ThrowWire (same aim,
+  weak point and mercy), and he flies curled up as in the Queen fight and runs back to his place.
+  Kris's ThrowWire stays free, so playing with Kris is the better way. Kris alone, Susie alone and
+  Ralsei alone are still open.
+Also fixed: the Sound of Justice hook from phase 1 named a Chapter 4 enemy in plain text, so
+Chapters 1, 2, 3 and 5 didn't build (the build log I read was an old one); it now matches it by pattern.
+New test token: `tp:<n>` (the fight starts with n TP).
+**Tested** (Chapter 2, encounter 74 (Werewire, Tasque), host Susie + client Ralsei with
+`chaos:10:120:60`, `pickact:2:1`, `throwbot`, `tp:100`, 20x): Improvise in both games' lists,
+three throws (angles 14, 26, 10, power 30) sent and played the same, the Werewire's mercy and HP and
+the heroes' HP and TP the same in both on turns 0-5; `mpcheck` all PASS. Screenshots at 1x: Ralsei
+curled up flying at the wire, Susie in her throw pose.
+
 ## Sound of Justice, phase 2: the players' heroes join Kris and Susie (2026-11-26)
 
 Phase 2 (encounter 186) is started by the room's own story right after phase 1, and the game sets

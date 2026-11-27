@@ -6,7 +6,8 @@ fights, this is the list to go through: each ACT may get a version with them (co
 cheapest, then a duo, then a solo stand-in, see TODO.md "Improvise").
 
 Special cases done by hand: Chapter 2 Queen with Berdly plugged in, Throw: without Kris, Susie's
-Improvise throws Ralsei (20% TP). The last game board's Tenna (`obj_tenna_board4_enemy`) works without
+Improvise throws Ralsei (20% TP); Werewire's ThrowWire the same way (the enemy is only met in
+Chapter 2; its rows in the later chapters come from their copy of the enemy list). The last game board's Tenna (`obj_tenna_board4_enemy`) works without
 the helpers.
 
 ## Chapter 1
@@ -92,7 +93,7 @@ the helpers.
 | Virovirokun (`obj_virovirokun_enemy`) | TakeCareX | Noelle | needs a stand-in (Improvise) | | |
 | Werewerewire (`obj_werewerewire_enemy`) | BeTough | Susie | needs a stand-in (Improvise) | | |
 | Werewerewire (`obj_werewerewire_enemy`) | BeSweet | Ralsei | needs a stand-in (Improvise) | | |
-| Werewire (`obj_werewire_enemy`) | ThrowWire | Susie | needs a stand-in (Improvise) | | |
+| Werewire (`obj_werewire_enemy`) | ThrowWire | Susie | done: without Kris, Susie's Improvise throws Ralsei (20% TP); Kris alone, Susie alone, Ralsei alone: to do | | |
 | type 38 (`obj_kk_enemy`) | Dance X | Susie + Ralsei | needs a stand-in (Improvise) | | |
 
 ## Chapter 3

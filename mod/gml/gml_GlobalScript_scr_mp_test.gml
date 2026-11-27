@@ -5,6 +5,7 @@
 //   plot:<n>        story progress to use (with `party`)
 //   battle:<enc>    start encounter <enc> ~4s after arriving (once)
 //   camx:<x>        with battle: put the camera at x first (where a story scene leaves it)
+//   tp:<n>          with battle: the fight starts with n TP
 //   ohfslow         a one-hero fight's entry lines stay up 20 s each (to look at them)
 //   bot             press buttons automatically (menus, attacks, dodging)
 //   log             log battle state every turn
@@ -1155,6 +1156,13 @@ function mp_test_input()
             }
             return;
         }
+        // tp:<n>: the fight starts with n TP (in every game: give every player the token).
+        if (mp_test_arg("tp") != "" && (!variable_global_exists("mp_test_tpbid") || global.mp_test_tpbid != global.mp_bid))
+        {
+            global.mp_test_tpbid = global.mp_bid;
+            global.tension = real(mp_test_arg("tp"));
+            mp_log("test: TP set to " + string(global.tension));
+        }
         // pickact:<char>:<n>: that hero (2 Susie, 3 Ralsei) picks entry n of their MAGIC/ACT list
         // (the bot's Z does the rest). throwbot: press C now and then while a throw is aimed.
         if (mp_test_arg("pickact") != "" && global.myfight == 0 && global.mnfight == 0 && global.charturn < 3 && global.mp_owner[global.charturn] == global.mp_myid)
@@ -1180,7 +1188,8 @@ function mp_test_input()
         if (mp_test_has("throwbot") && (f mod 40) == 0)
         {
             var tk = asset_get_index("obj_queen_throwkris");
-            if (tk >= 0 && instance_exists(tk))
+            var tw = asset_get_index("obj_werewire_throwkris");
+            if ((tk >= 0 && instance_exists(tk)) || (tw >= 0 && instance_exists(tw)))
             {
                 global.input_pressed[6] = 1;
                 return;

@@ -98,7 +98,8 @@ Done (2026-11-26, DONE.md): Queen with Berdly plugged in, no Kris: Susie's Impro
 the wires (20% TP). The throw is sent as angle + power (Susie's player throws), Kris's Throw too.
 Open: once in 6 test runs the client's game refused the host's replayed Z on Susie's MAGIC list at
 turn 1 (stuck on that list; host went on): looks like the menu replay, not the throw; cause not found.
-Open: Werewire's ThrowWire (Chapters 2-4) still has no stand-in.
+Done (2026-11-26, DONE.md): Werewire's ThrowWire without Kris: Susie's Improvise throws Ralsei
+(20% TP); the throw is now the same in every game. Open for it: Kris alone, Susie alone, Ralsei alone.
 Where a stand-in needs a pose the game doesn't have, it goes in SPRITES.md (situation, why, how it
 would look) for the user to look for.
 Go through MINIGAMES.md for every mechanic that needs two specific heroes and pick one stand-in

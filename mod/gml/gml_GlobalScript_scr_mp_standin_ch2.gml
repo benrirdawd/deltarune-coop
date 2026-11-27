@@ -122,3 +122,90 @@ function mp_coaster_absent(heroid)
     }
     return true;
 }
+
+// ---------------------------------------------------------------- Werewire's ThrowWire
+// Kris's ThrowWire is Susie throwing Kris at the wire's weak point. Without Kris, Susie gets the
+// same throw in her own ACT list as Improvise ("Throw#Ralsei"): she throws Ralsei instead, with the
+// game's own throw (aim, weak point, mercy) and Ralsei's own throw sprites from the Queen fight. It
+// costs 20% TP; Kris's ThrowWire is free, so playing with Kris stays the better way.
+
+function mp_ww_standin_ok()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on())
+        return false;
+    var has = [0, 0, 0, 0, 0];
+    for (var s = 0; s < 3; s++)
+    {
+        if (global.char[s] >= 1 && global.char[s] <= 4)
+            has[global.char[s]] = 1;
+    }
+    return !has[1] && has[2] && has[3];
+}
+
+// From scr_monstersetup, at the end of Werewire's (type 33) setup.
+function mp_ww_standin_acts(m)
+{
+    var on = mp_ww_standin_ok();
+    global.canactsus[m][1] = on;
+    global.actnamesus[m][1] = on ? "Improvise" : "";
+    global.actdescsus[m][1] = on ? "Throw#Ralsei" : "";
+    global.actcostsus[m][1] = on ? 50 : 0;
+    global.actsimulsus[m][1] = 0;
+    if (on)
+        mp_log("stand-in: Susie's Improvise (Throw Ralsei) in her ACT list for Werewire " + string(m));
+}
+
+// From the top of obj_werewire_enemy's Step: Susie's Improvise starts the game's own ThrowWire
+// (Kris's ACT, acting 3) with Ralsei as the thrown one.
+function mp_ww_standin_step()
+{
+    if (global.myfight == 3 && actingsus == 2 && actconsus == 1)
+    {
+        actingsus = 0;
+        actconsus = 0;
+        mp_ww_ralthrow = 1;
+        acting = 3;
+        actcon = 0;
+        mp_log("stand-in: Susie throws Ralsei at the wire (Werewire " + string(myself) + ", mercy " + string(global.mercymod[myself]) + ")");
+    }
+}
+
+// Right after the throw is made (obj_werewire_throwkris): Susie holds Ralsei, Ralsei's place is empty.
+function mp_ww_throw_made(t)
+{
+    if (!variable_instance_exists(id, "mp_ww_ralthrow") || !mp_ww_ralthrow)
+        return;
+    mp_ww_ralthrow = 0;
+    t.mp_ral = 1;
+    t.sprite_index = spr_susieb_throwralseiready;
+    t.image_index = 0;
+    t.image_speed = 0;
+    with (obj_heroralsei)
+        visible = 0;
+}
+
+// The thrown one leaves Susie's hands: Ralsei curled up, as he flies in the Queen fight.
+function mp_ww_thrown_made(k)
+{
+    if (!variable_instance_exists(id, "mp_ral"))
+        return;
+    k.mp_ral = 1;
+    k.sprite_index = object_get_sprite(obj_queen_ralseithrown);
+}
+
+// The thrown one runs back to their own place: Kris's, or Ralsei's for Susie's Improvise.
+function mp_ww_back_hero()
+{
+    if (variable_instance_exists(id, "mp_ral") && instance_exists(obj_heroralsei))
+        return obj_heroralsei;
+    if (instance_exists(obj_herokris))
+        return obj_herokris;
+    return obj_herosusie;
+}
+
+function mp_ww_back_sprite()
+{
+    if (variable_instance_exists(id, "mp_ral"))
+        return spr_ralsei_idle;
+    return spr_krisb_idle;
+}
