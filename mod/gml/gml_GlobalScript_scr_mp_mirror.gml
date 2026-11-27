@@ -5,7 +5,8 @@
 //  - their own room is switched off (instances deactivated: nothing in it runs or draws), so the
 //    room's own copy of the cutscene never starts; its background and tiles still show;
 //  - the leader sends, every frame, the camera and the sprites on screen in drawing order
-//    (types 70-75, unreliable, up to 46 sprites each); obj_mp_mirror draws them;
+//    (types 70-75, unreliable, up to 40 sprites each, with their depth); obj_mp_mirror draws
+//    them, a second one those behind the room's tiles;
 //  - text boxes are real ones: the leader sends the box's lines, face and voice when it opens one
 //    (77 lines, 78 show) and the follower opens the same box itself (same font, face, typing
 //    sound); the leader turns its pages for everyone (mp_dlg_input) once it has finished typing
@@ -118,9 +119,9 @@ function mp_mirror_lead_tick()
     global.mp_mir_seq += 1;
     mp_mirror_layers_send();
     mp_mirror_keep_send();
-    var per = 46;
+    var per = 40; // (25 bytes a sprite: a datagram stays near 1 KB)
     var chunks = clamp(ceil(n / per), 1, 6);
-    // Past 138 sprites (more than 3 datagrams), a frame goes every other frame (the link sends 4
+    // Past 120 sprites (more than 3 datagrams), a frame goes every other frame (the link sends 4
     // datagrams a frame). Always all of a frame's parts: the others only draw whole frames.
     if (chunks > 3 && (global.mp_mir_seq mod 2) == 1)
         return;
@@ -150,6 +151,7 @@ function mp_mirror_lead_tick()
             mp_wu8(colour_get_green(col));
             mp_wu8(colour_get_blue(col));
             mp_wu8(ds_grid_get(g, 9, i) * 255);
+            buffer_write(global.mp_msg, buffer_s32, clamp(ds_grid_get(g, 0, i), -2000000000, 2000000000));
         }
         mp_send();
     }
@@ -428,7 +430,8 @@ function mp_mirror_recv(type, from, b)
             var cg = buffer_read(b, buffer_u8);
             var cb = buffer_read(b, buffer_u8);
             var al = buffer_read(b, buffer_u8);
-            items[i] = [spr, fr, xx, yy, xs, ys, ang, make_colour_rgb(cr, cg, cb), al / 255];
+            var dp = buffer_read(b, buffer_s32);
+            items[i] = [spr, fr, xx, yy, xs, ys, ang, make_colour_rgb(cr, cg, cb), al / 255, dp];
         }
         global.mp_mir_chunks[c] = [seq, items];
         var h = global.mp_mir_hdr;
@@ -604,6 +607,27 @@ function mp_mirror_after_check(ia)
 
 function mp_mirror_obj_step()
 {
+    // The second drawer: the leader's sprites that are behind the room's tiles (a black cover
+    // behind the floor) are drawn at the depth of the deepest of them, so the floor, and a kept
+    // backdrop in front of them (scr_mp_mirror: kept scenery), show over them as in the leader's game.
+    if (variable_instance_exists(id, "mp_back"))
+    {
+        var cut = mp_mirror_tile_cut();
+        var bd = cut < 1000000000 ? cut + 1 : 1000000000;
+        var fr = global.mp_mir_frame;
+        if (is_array(fr))
+        {
+            var its = fr[2];
+            for (var i = 0; i < array_length(its); i++)
+            {
+                if (its[i][9] > cut)
+                    bd = max(bd, min(its[i][9], 1999999999));
+            }
+        }
+        if (depth != bd)
+            depth = bd;
+        return;
+    }
     mp_mirror_camera();
     // Under the text box (which the game draws at its own depth), over the room.
     var d = -9000;
@@ -617,7 +641,27 @@ function mp_mirror_obj_step()
         depth = d;
 }
 
-function mp_mirror_draw()
+// The depth of the room's nearest visible tile layer (1000000000 when it has none), once a room
+// and again every second (a scene can show or hide one).
+function mp_mirror_tile_cut()
+{
+    if (!variable_global_exists("mp_mir_cutroom") || global.mp_mir_cutroom != room || (global.mp_frame mod 60) == 0)
+    {
+        var cut = 1000000000;
+        var ls = layer_get_all();
+        for (var i = 0; i < array_length(ls); i++)
+        {
+            if (layer_get_visible(ls[i]) && layer_tilemap_get_id(ls[i]) != -1)
+                cut = min(cut, layer_get_depth(ls[i]));
+        }
+        global.mp_mir_cut = cut;
+        global.mp_mir_cutroom = room;
+    }
+    return global.mp_mir_cut;
+}
+
+// back: the second drawer's pass (the sprites deeper than the room's tiles).
+function mp_mirror_draw(back)
 {
     var h = global.mp_mir_hdr;
     if (global.mp_sstate != 5 || !is_array(h) || h[1] != room)
@@ -628,9 +672,12 @@ function mp_mirror_draw()
         return;
     var items = fr[2];
     var n = array_length(items);
+    var cut = mp_mirror_tile_cut();
     for (var i = 0; i < n; i++)
     {
         var it = items[i];
+        if ((it[9] > cut) != back)
+            continue;
         if (sprite_exists(it[0]))
             draw_sprite_ext(it[0], it[1], it[2], it[3], it[4], it[5], it[6], it[7], it[8]);
     }
@@ -792,14 +839,16 @@ function mp_mirror_layers_recv(from, b)
 
 // ---------------------------------------------------------------- kept scenery
 // Some story backdrops are objects that draw the scene's background themselves, with masks and
-// blend modes the sprite list can't carry (the city behind the top of the Chapter 2 mansion). For
+// blend modes the sprite list can't carry (the city behind the top of the Chapter 2 mansion, the
+// giant Queen's head rising behind it, the walls rushing past as the party falls: a looping tiled
+// area, which only draws). For
 // the followers they stay on when their room is switched off: they draw in their game as in the
 // leader's, their Step (which makes the scene's other objects) doesn't run there, and the leader
 // sends their variables (message 91) so they show what the leader's show.
 function mp_mirror_keep_init()
 {
     global.mp_mir_keep = [];
-    var names = ["obj_ch2_scene26_cityscape"];
+    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area"];
     for (var i = 0; i < array_length(names); i++)
     {
         var o = asset_get_index(names[i]);

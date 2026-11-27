@@ -154,13 +154,15 @@ for each, the simplest that keeps the original's feel.
 5. **Done:** Chapter 2 keyboard puzzles follow a friend's solve (DONE.md). Simplest choice: the solve
    is shared, not each key. Puzzles 2 and 3 only checked by reading the code (same path as puzzle 1).
 
-8. **Part 1 done (2026-11-27):** a watched cutscene's backdrop drawn by an object (the city behind the
-   top of the Chapter 2 mansion) shows for the watchers (kept scenery, DONE.md). **Open, part 2:** in
-   the same scene (`room_dw_mansion_top`, scene 26) the watcher still misses what the scene *creates*
-   with its own drawing: the GigaQueen background (`obj_anime_bg_controller`) and the floor (the `TILES`
-   layer, or the black `bg_cover`), found by comparing host/client screenshots (work/fol/cmp3,
-   100 s). Idea: the watcher makes its own copy of a kept object the leader's scene made, at the
-   leader's place, and syncs its variables the same way. Then compare other scenes' screenshots.
+8. **Parts 1-2 done (2026-11-27):** a watched cutscene's backdrop drawn by an object shows for the
+   watchers (kept scenery: the city, the giant Queen's head, the walls of the fall), and the leader's
+   sprites behind the room's tiles (a black cover behind the floor) are drawn behind them (DONE.md).
+   **Open, part 3:** what the scene *creates* only in the leader's game and draws itself: in
+   `room_dw_mansion_top` (scene 26) the power-up figure (`obj_ch2_scene26_powers_combined`) shows only
+   as a black outline for the watcher, the anime background (`obj_anime_bg_controller`) only its upper
+   copy (it draws its sprite twice), so the walls show through below. Idea: the watcher makes its own
+   copy of such a kept object when the leader's game has one (message 91 carrying where it is), and
+   removes it when the leader's is gone. Found with host/client screenshots (work/fol/cmp7, 140 s).
 
 ## Next puzzles to look at (found 2026-11-24, from MINIGAMES.md), one per cycle
 

@@ -2366,3 +2366,19 @@ where those screens exist.
 5 KB/s as before (a first version sending more rotating values doubled it to 14 KB/s, cut down);
 no crash through the 150 s run. Part 2 (what the scene creates: the GigaQueen background, the
 floor) is in TODO.md.
+
+## Watched cutscenes: the floor, the giant Queen's head and the falling walls (2026-11-27)
+
+Part 2 of the backdrops in Chapter 2's scene at the top of the mansion, found the same way
+(host/client screenshots at the same moments):
+- The watcher's floor was black: the leader's scene puts a black cover behind the floor (a
+  sprite at depth 1000350), and the watcher drew every mirrored sprite in one place, over the room.
+  Now the leader sends each sprite's depth (4 more bytes; 40 sprites a datagram instead of 46, so
+  it stays near 1 KB) and a second drawer draws the ones behind the room's nearest tile layer at the
+  depth of the deepest of them: the floor (tiles) and the kept backdrops show over them.
+- The giant Queen's head (`obj_ch2_scene26_gigaqueen`, masks and blend modes) and the walls rushing
+  past as the party falls (`obj_looping_tiled_area`, which only draws) are kept scenery too.
+**Tested** (Chapter 2, `room_dw_mansion_top`, plot 165, host Kris + client Susie,
+`chaos:10:120:60`, 150 s): at 100 s the client shows the floor and the giant Queen's head as the host
+does (before: black, no head); at 120 s the walls of the fall behind the party (before: black); no
+crash. Left (TODO.md, part 3): the anime power-up part, made only in the leader's game.

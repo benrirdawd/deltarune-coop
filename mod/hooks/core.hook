@@ -259,10 +259,13 @@ mp_puz_switch_used();
 @prepend gml_Object_obj_shapepuzzlebutton_Step_0
 mp_shape_step();
 
-;; The city behind the top of the mansion stays on for a friend watching the scene (kept scenery,
+;; The city (and the giant Queen's head) behind the top of the mansion stays on for a friend watching the scene (kept scenery,
 ;; scr_mp_mirror): its Step runs only in the leader's game, and the beams between the leader's
 ;; screens are drawn only where those screens exist.
 @prepend gml_Object_obj_ch2_scene26_cityscape_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_ch2_scene26_gigaqueen_Step_0
 if (mp_mirror_kept_paused())
     exit;
 @prepend gml_Object_obj_ch2_scene26_cityscape_Draw_0

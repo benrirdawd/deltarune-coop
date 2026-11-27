@@ -1,5 +1,7 @@
 if (variable_global_exists("mp_inited"))
 {
-    mp_mirror_draw();
-    mp_overheard_draw();
+    var bk = variable_instance_exists(id, "mp_back");
+    mp_mirror_draw(bk);
+    if (!bk)
+        mp_overheard_draw();
 }
