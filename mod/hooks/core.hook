@@ -821,3 +821,16 @@ if (instance_exists(parentid) && mp_coaster_absent(parentid.HeroID))
     mp_one_hero_fight_party();
 @end
 #chapters all
+
+;; Chapter 4's Hammer of Justice: Susie falling ends the fight with Gerson's loss scene, not a
+;; Game Over. The game where that happened tells the fight's other players (scr_mp_group).
+#chapters 4
+@find gml_GlobalScript_scr_damage
+                            obj_battlecontroller.noreturn = 1;
+                            obj_battlecontroller.intro = 2;
+@with
+                            obj_battlecontroller.noreturn = 1;
+                            obj_battlecontroller.intro = 2;
+                            mp_hoj_lost_send();
+@end
+#chapters all

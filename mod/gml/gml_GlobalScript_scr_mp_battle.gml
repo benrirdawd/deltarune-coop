@@ -415,6 +415,11 @@ function mp_battle_recv(type, from, b)
         mp_timing_recv(type, from, b);
         return;
     }
+    if (type == 56) // the Hammer of Justice was lost in someone's game: its loss scene here too
+    {
+        mp_hoj_lost_recv(from, b);
+        return;
+    }
     if (type == 55) // how far a player has read this phase's battle text
     {
         var tbid = buffer_read(b, buffer_u16);

@@ -4,6 +4,21 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Hammer of Justice: a loss is everyone's (2026-11-26, part 2)
+
+This fight has no Game Over: when Susie falls, `scr_damage` starts Gerson's loss scene (Susie back
+to full HP, `endcon` 1, flag 36, his `event_user(14)`). Only the game where Susie's SOUL took the
+hit ran it, so the others fought on and then got her reset HP. Now that game tells the fight
+(message 56, `mp_hoj_lost_send`, hooked right after the game's own lines) and the others' games run
+the same loss at once (`mp_hoj_lost_recv`, unless their own fight already ended).
+**Tested** (Chapter 4, `room_dw_church_arena`, encounter 160, Kris host + Susie client with
+`chaos:10:120:60`, bots taking every hit with `nododge`, 20x): Susie fell in the client's game;
+"lost here" in the client and "lost in 1's game: playing the loss scene too" in the host 2 ms later;
+both fights ended, both games with the same HP after (25/230/180). `mpcheck`: all PASS. Before the
+change the same test ended the client's fight only (Susie 2 -> 230) while the host's went on.
+Not checked: the story after the loss (the test starts the fight on its own, so the scene's white
+fade stays on the host's screen).
+
 ## Hammer of Justice: the other players' heroes join Susie (2026-11-26, part 1)
 
 Chapter 4's Hammer of Justice (encounter 160) is made for Susie alone: the battle's Create sets the

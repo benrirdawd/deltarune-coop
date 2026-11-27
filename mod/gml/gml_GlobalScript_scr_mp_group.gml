@@ -803,3 +803,62 @@ function mp_one_hero_fight_party()
     mp_log("one-hero fight: the players' heroes join, party " + string(global.char[0]) + string(global.char[1]) + string(global.char[2]) + " -> " + string(party[0]) + string(party[1]) + string(party[2]));
     mp_party_set_local(party);
 }
+
+// The Hammer of Justice has no Game Over: when Susie falls, Gerson's fight ends with its own loss
+// scene (scr_damage: Susie back to full HP, endcon 1, flag 36). Only the game where Susie's SOUL
+// took the hit runs that, so it tells the fight (message 56) and the others' games play the same
+// loss at once instead of fighting on.
+function mp_hoj_lost_send()
+{
+    if (!variable_global_exists("mp_inited") || !mp_battle_on())
+        return;
+    mp_log("Hammer of Justice lost here: the fight's loss scene for everyone");
+    mp_hold_end();
+    mp_begin_b(56);
+    mp_wu16(global.mp_bid);
+    mp_send();
+    mp_flush();
+}
+
+function mp_hoj_lost_recv(from, b)
+{
+    var bid = buffer_read(b, buffer_u16);
+    var hoj = asset_get_index("obj_hammer_of_justice_enemy");
+    if (hoj < 0 || !mp_battle_on() || bid != global.mp_bid || !instance_exists(hoj))
+        return;
+    if (hoj.endcon != 0)
+        return;
+    mp_log("Hammer of Justice lost in " + string(from) + "'s game: playing the loss scene too");
+    mp_hold_end();
+    // The same as scr_damage's own loss (chapter 4), run here without the hit.
+    global.hp[2] = global.maxhp[2];
+    var setspr = asset_get_index("scr_battle_sprite_set");
+    var landed = asset_get_index("spr_susie_dw_landed");
+    if (setspr >= 0 && landed >= 0)
+        script_execute(setspr, "susie", landed, 0, true);
+    with (hoj)
+    {
+        attackcon = 0;
+        talked = -1;
+        endcon = 1;
+        global.flag[36] = 1;
+        mus_volume(global.batmusic[1], 0, 90);
+        event_user(14);
+    }
+    global.turntimer = 0;
+    with (obj_battlecontroller)
+    {
+        noreturn = 1;
+        intro = 2;
+    }
+    var tb = asset_get_index("obj_tensionbar");
+    if (tb >= 0)
+    {
+        with (tb)
+        {
+            alarm[5] = 15;
+            hspeed = -10;
+            friction = -0.4;
+        }
+    }
+}
