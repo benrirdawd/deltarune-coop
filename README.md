@@ -105,8 +105,9 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   timed glowing tiles (a run of yours going at that moment ends with its spikes down). In
   Chapter 4's dark church rooms, a friend's steps light the floor with ripples in your game too.
   A chest a friend opened looks open in your room too, a force field their switch turned off goes,
-  and in Chapter 5's platforming the coins, bells, leaf piles and paper grass they took are gone
-  for you (no counting twice). Hazards like the checker paths stay each player's own. The full list is in
+  and in Chapter 5's platforming the coins, bells, leaf piles, paper grass, paper lanterns and
+  orange walls they broke are gone for you (no counting twice), a handle they pulled down comes down,
+  and an enemy fight they won ends for you too, even if you're in the middle of it. Hazards like the checker paths stay each player's own. The full list is in
   [`MINIGAMES.md`](MINIGAMES.md).
 * **Shared progress.** Story flags, items, gold, equipment and HP are kept in sync. The host's
   world is the shared one. Counters (enemies defeated, people talked to) add up when two

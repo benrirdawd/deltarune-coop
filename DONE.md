@@ -736,6 +736,18 @@ and `chat`: 3 turns, identical state in both games; the log has "ping sent", "sa
   host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
   checks pass except `moved` (nobody walks).
 
+## Five players in one session, one fight (2026-11-27)
+
+* Up to 8 players could already join. Tested with 5 for the first time: Chapter 1 `room_field1`
+  (plot 100, fight party Kris and Susie), encounter 13. The host is Kris, the clients are Susie,
+  Ralsei, Kris and Susie (two of them on a taken hero). The host has `chaos:10:120:60`, runs at
+  `MP_SPEED=5`, and all the bots pick random menus (`work/fol/five2`). The three games in the fight
+  (host, the first Susie, the second Kris watching his SOUL) logged the same 7 turns (HP, TP and the
+  enemies' HP and mercy). The two left out (Ralsei, not in that fight's party, and the second Susie)
+  stayed on the map. Nobody crashed. (At `MP_SPEED=20` two of the five games stopped logging on
+  this PC: five games at 20x is too much load here.)
+* What a "proper spectator role" should be is a question for the user, now in TODO.md.
+
 ## Chapter 5 platformer: a paper wall's handle a friend pulled down comes down for me too (2026-11-27)
 
 * The paper wall's handle in `room_dw_fcastle_obscured_bullets`, once pulled all the way down, stays
