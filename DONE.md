@@ -736,6 +736,22 @@ and `chat`: 3 turns, identical state in both games; the log has "ping sent", "sa
   host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
   checks pass except `moved` (nobody walks).
 
+## Two players opening the same chest at the same moment: one item; NPC talk stays local (2026-11-27)
+
+* The host-as-referee item's last step, NPC talk. Talking is each player's own: the others in the
+  room only see the text (DONE.md 2026-11-26). The only place two talks at once could go wrong is a
+  one-time gift, such as a chest or an NPC who gives an item: both games run it.
+* New test token `touchsyncz:<obj>`: as `touch` (stand below it, face it, press Z), at the same
+  10 s mark of the shared clock as the others. It logs the items every 2 s.
+* Test, Chapter 1 `room_forest_dancers1`, plot 150, both with `chaos:10:120:60` (`work/fol/chz1`).
+  Both opened the chest 0.01 s apart, and both games showed its text. The client briefly had the
+  item twice. Within 4 s the host's inventory (host-authoritative, `mp_inv`) settled on one copy in
+  both games, and it stayed so. No crash.
+* Choice (simplest): no host request before talking. The shared stores (flags, items, money)
+  already settle a race. Asking the host first would add a network round trip before every text box
+  opens. The referee item is closed: cutscene start (scene lock), battle start (lower number wins a
+  tie) and talk (stores) are all covered.
+
 ## Two players touching the same enemy at the same moment: one fight, tested (2026-11-27)
 
 * The host-as-referee item's battle-start step. A tie-break already existed: when another player's

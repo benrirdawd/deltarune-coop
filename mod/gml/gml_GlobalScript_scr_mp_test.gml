@@ -39,6 +39,7 @@
 //   halfhp          enemies start fights at 45% HP (e.g. Tenna's minigame turns)
 //   tennascore      each Tenna minigame I play scores 10 more
 //   touchsync:<obj> step onto the newest <obj> at the same shared-clock moment as the others
+//   touchsyncz:<obj> as touch, at the same shared-clock moment as the others
 //   platfight       (Ch5) a platformer enemy fight starts at once, wherever my figure is
 //   sturdy          heroes have 10 times their HP in fights (long fights)
 //   dbgchar         log every party change made by the shared state, with the call stack
@@ -266,6 +267,30 @@ function mp_test_tick()
             obj_mainchara.y += round(((tsi.bbox_top + tsi.bbox_bottom) - (obj_mainchara.bbox_top + obj_mainchara.bbox_bottom)) / 2);
             mp_log("[test] touchsync " + tsv + " at clock " + string(floor(mp_clock_now())));
         }
+    }
+    // touchsyncz:<object>: as touch (stand just below it, facing it, press Z), but at the same
+    // 10 s mark of the shared clock as the others: two players opening a chest at once.
+    var tzv = mp_test_arg("touchsyncz");
+    if (tzv != "" && !variable_global_exists("mp_test_tzdone") && instance_exists(obj_mainchara) && global.mp_room_frames > 200 && mp_player_count() > 1 && global.interact == 0 && (floor(mp_clock_now()) mod 10000) < 150)
+    {
+        var tzo = asset_get_index(tzv);
+        if (tzo >= 0 && instance_exists(tzo))
+        {
+            global.mp_test_tzdone = 1;
+            var tzi = instance_find(tzo, instance_number(tzo) - 1);
+            obj_mainchara.x += round(((tzi.bbox_left + tzi.bbox_right) - (obj_mainchara.bbox_left + obj_mainchara.bbox_right)) / 2);
+            obj_mainchara.y += (tzi.bbox_bottom + 2) - obj_mainchara.bbox_top;
+            obj_mainchara.facing = 2;
+            global.facing = 2;
+            global.mp_test_touchz = global.mp_frame + 1;
+            mp_log("[test] touchsyncz " + tzv + " at clock " + string(floor(mp_clock_now())) + " items " + string(global.item));
+        }
+    }
+    if (tzv != "" && variable_global_exists("mp_test_tzdone") && global.mp_test_tzdone > 0 && (global.mp_frame mod 120) == 0)
+    {
+        global.mp_test_tzdone++;
+        if (global.mp_test_tzdone <= 8)
+            mp_log("[test] touchsyncz items " + string(global.item) + " interact " + string(global.interact));
     }
     // bumpflag:<n>:<count>: count story flag n up, count times, every 2 frames (in the same moments of the shared clock) from 300 frames into the
     // room once someone else is here (two games doing it at once: the counts must add up); logs the end.
