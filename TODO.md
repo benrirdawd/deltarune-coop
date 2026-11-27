@@ -91,6 +91,11 @@ Rules:
 Done (2026-11-26, DONE.md): team ACTs that only need the others' turns work without them, in every
 chapter (`tools/actsolo.py`: 22 found, plus the last board's). Open: the ~190 team ACTs whose code
 uses the helper (e.g. Sharpshoot, Rabbick's Warning): each needs its own stand-in, per the rules above.
+**Question for the user (2026-11-26):** today the game itself greys these ACTs out when their helper
+is missing (its own rule, nothing breaks). For the ~184, a stand-in each by hand is a lot of new
+text and poses. Simplest general idea: "Improvise" in place of the greyed ACT, the same mercy as the
+original, the duo/solo TP cost, and one line like "* Kris improvised a Compliment!". OK as the
+general rule (then a few special ones by hand), or one written stand-in per ACT?
 Name (user idea, 2026-11-26): every stand-in ACT is called **Improvise** in the hero's own ACT list;
 its menu description says what it does (e.g. "Throw#Ralsei"). One word players learn: "this is the
 stand-in because someone is missing".
