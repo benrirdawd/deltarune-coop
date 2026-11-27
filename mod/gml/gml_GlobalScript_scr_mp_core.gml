@@ -738,6 +738,11 @@ function mp_after_input()
     }
     if (mp_join_input())
         mp_ui_block();
+    if (mp_ohf_holding()) // (a one-hero fight's entry lines)
+    {
+        mp_ui_block();
+        return;
+    }
     mp_sync_input();
     mp_dlg_input();
     mp_battle_input();

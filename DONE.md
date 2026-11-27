@@ -4,6 +4,26 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Fights made for one hero: the joining heroes' entry lines (2026-11-26, Hammer of Justice part 3)
+
+The user's "not canon" look: before the first menu each hero who joined a one-hero fight says an
+entry line in a battle balloon (`scr_heroblcon`, their own text sound) drawn in their hero's colour
+instead of white (`obj_battleblcon`'s Draw: `mp_blcon_tint`). Each balloon is up a fixed two seconds,
+the same in every game; meanwhile no keys reach the menu or the shared menu (`mp_ohf_holding`), so
+nobody chooses ahead of the others. The lines are placeholders (TODO asks the user). Also fixed: the
+joining heroes stood at the encounter's x 108, off screen with the story's camera at 520; they now
+stand above and below Susie, as in the game's three-hero layout. Test token `camx:<x>` (the camera
+where the story leaves it) and `ohfslow` (the lines stay up 20 s, to look at them).
+Tried first and dropped: pausing `obj_battlecontroller` for the lines (its balloons were not drawn),
+and Z to turn them (the battle-text sync doesn't cover them: one game moved on, the other waited).
+**Tested** (Chapter 4, `room_dw_church_arena`, encounter 160, `camx:520`, Kris host + Ralsei client
+with `chaos:10:120:60`): at 1x with `ohfslow`, Kris's "...!" in a light-blue balloon and Ralsei's
+"We'll face this together!" in a light-green one, in both games (screenshots). At 20x with bots: both
+lines 60 frames each in both games, the first menu key only after them, four turns with the same HP,
+TP and Gerson HP in both games, then Susie fell in the host's game and both played the loss scene.
+`mpcheck`: all PASS except "ghost": the client didn't show the host for half a second after that loss,
+while it rebuilt the room (the test starts the fight on its own, without the story's scene).
+
 ## Hammer of Justice: a loss is everyone's (2026-11-26, part 2)
 
 This fight has no Game Over: when Susie falls, `scr_damage` starts Gerson's loss scene (Susie back

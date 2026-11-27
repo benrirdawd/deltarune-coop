@@ -801,6 +801,34 @@ function mp_one_hero_fight_party()
     if (party[0] == global.char[0] && party[1] == global.char[1] && party[2] == global.char[2])
         return;
     mp_log("one-hero fight: the players' heroes join, party " + string(global.char[0]) + string(global.char[1]) + string(global.char[2]) + " -> " + string(party[0]) + string(party[1]) + string(party[2]));
+    // The heroes who joined say their entry line before the first menu (mp_ohf_entry_step).
+    global.mp_ohf_join = [];
+    for (var j = 0; j < 3; j++)
+    {
+        var jc = party[j];
+        if (jc != 0 && jc != global.char[0] && jc != global.char[1] && jc != global.char[2])
+            array_push(global.mp_ohf_join, jc);
+    }
+    global.mp_ohf_i = 0;
+    global.mp_ohf_t = 0;
+    global.mp_ohf_bl = noone;
+    // Where the joining heroes stand: the encounter only placed the story's hero (the Hammer of
+    // Justice puts Susie at x 629 for its camera at 520; the other slots keep 108, off screen), so
+    // they stand above and below that hero, as in the game's own three-hero layout.
+    var sx = global.heromakex[0];
+    var sy = global.heromakey[0];
+    if (n == 2)
+    {
+        global.heromakex[1] = sx + 10;
+        global.heromakey[1] = sy - 78;
+    }
+    else if (n == 3)
+    {
+        global.heromakex[1] = sx + 12;
+        global.heromakey[1] = sy - 80;
+        global.heromakex[2] = sx - 12;
+        global.heromakey[2] = sy + 70;
+    }
     mp_party_set_local(party);
 }
 
@@ -861,4 +889,113 @@ function mp_hoj_lost_recv(from, b)
             friction = -0.4;
         }
     }
+}
+
+// ---------------------------------------------------------------- one-hero fights: the joining heroes
+//
+// A fight made for one hero (the Hammer of Justice is Susie's) is not canon with more heroes, and
+// it shows (user's design): each hero who joined says an entry line in a battle balloon drawn in
+// their hero's colour instead of white, before the first menu opens (no keys reach it meanwhile);
+// each balloon stays up a fixed time, the same in every game. The lines are the simplest in-character
+// choice (TODO: the user may want other words).
+
+function mp_ohf_line(c)
+{
+    switch (c)
+    {
+        case 1: return "...!/%";
+        case 2: return "Look who showed&up to help!/%";
+        case 3: return "We'll face this&together!/%";
+        case 4: return "I-I'm here too!&...Let's do this!/%";
+    }
+    return "/%";
+}
+
+function mp_ohf_typer(c)
+{
+    switch (c)
+    {
+        case 2: return 75;
+        case 3: return 74;
+        case 4: return 76;
+    }
+    return 50;
+}
+
+// Prepended to obj_battlecontroller's Step: the joining heroes' entry lines, one after the other.
+// (The menu waits through the keys, mp_ohf_holding; the battle itself goes on, its balloons and
+// writers need it.)
+function mp_ohf_entry_step()
+{
+    if (!variable_global_exists("mp_ohf_join") || global.mp_ohf_i >= array_length(global.mp_ohf_join))
+        return;
+    if (global.myfight != 0 || global.mnfight != 0)
+        return;
+    global.mp_ohf_t += 1;
+    if (global.mp_ohf_t < 15) // the heroes come in first
+        return;
+    if (global.mp_ohf_bl != noone)
+    {
+        if (instance_exists(global.mp_ohf_bl))
+        {
+            // Up for a fixed time in every game (two seconds), like the game's own timed
+            // balloons (the keys wait meanwhile: mp_ohf_holding).
+            global.mp_ohf_up += 1;
+            var w = global.mp_ohf_bl.mywriter;
+            if (global.mp_ohf_up >= (mp_test_has("ohfslow") ? 600 : 60))
+            {
+                if (instance_exists(w))
+                    instance_destroy(w);
+                instance_destroy(global.mp_ohf_bl);
+                global.mp_ohf_bl = noone;
+                global.mp_ohf_i += 1;
+            }
+            return;
+        }
+        // (closed by its own writer, Z at its end)
+        global.mp_ohf_bl = noone;
+        global.mp_ohf_i += 1;
+        return;
+    }
+    var c = global.mp_ohf_join[global.mp_ohf_i];
+    var names = ["", "kris", "susie", "ralsei", "noelle"];
+    if (c < 1 || c > 4)
+    {
+        global.mp_ohf_i += 1;
+        return;
+    }
+    var hb = asset_get_index("scr_heroblcon"); // (not in Chapter 1)
+    if (hb < 0)
+    {
+        global.mp_ohf_i = array_length(global.mp_ohf_join);
+        return;
+    }
+    global.msgno = 0;
+    global.msg[0] = mp_ohf_line(c);
+    global.typer = mp_ohf_typer(c);
+    var bl = script_execute(hb, names[c]);
+    if (!is_numeric(bl) || bl == 0 || !instance_exists(bl))
+    {
+        global.mp_ohf_i += 1;
+        return;
+    }
+    bl.mp_tint = merge_color(mp_char_color(c), c_white, 0.35);
+    bl.image_blend = bl.mp_tint;
+    global.mp_ohf_bl = bl;
+    global.mp_ohf_up = 0;
+    mp_log("one-hero fight: " + names[c] + "'s entry line");
+    return;
+}
+
+// obj_battleblcon's colour: white, or the joining hero's.
+function mp_blcon_tint()
+{
+    return variable_instance_exists(id, "mp_tint") ? mp_tint : c_white;
+}
+
+// While the entry lines are up the menu isn't open yet: no keys reach the game or the shared menu.
+function mp_ohf_holding()
+{
+    return variable_global_exists("mp_ohf_join") && global.mp_ohf_i < array_length(global.mp_ohf_join)
+        && instance_exists(obj_battlecontroller) && global.myfight == 0 && global.mnfight == 0;
 }

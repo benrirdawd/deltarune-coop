@@ -834,3 +834,23 @@ if (instance_exists(parentid) && mp_coaster_absent(parentid.HeroID))
                             mp_hoj_lost_send();
 @end
 #chapters all
+
+;; Fights made for one hero: the joining heroes' entry lines before the first menu
+;; (scr_mp_group, mp_ohf_entry_step), in balloons drawn in their hero's colour (mp_blcon_tint).
+#chapters 4
+@prepend gml_Object_obj_battlecontroller_Step_0
+mp_ohf_entry_step();
+
+@regex gml_Object_obj_battleblcon_Draw_0
+blconscale, 0, c_white, 1\)
+@with
+blconscale, 0, mp_blcon_tint(), 1)
+@end
+@find gml_Object_obj_battleblcon_Draw_0
+        draw_set_color(c_white);
+        var _y = 0;
+@with
+        draw_set_color(mp_blcon_tint());
+        var _y = 0;
+@end
+#chapters all

@@ -4,6 +4,8 @@
 //   room:<name>     room to start in (with `party`)
 //   plot:<n>        story progress to use (with `party`)
 //   battle:<enc>    start encounter <enc> ~4s after arriving (once)
+//   camx:<x>        with battle: put the camera at x first (where a story scene leaves it)
+//   ohfslow         a one-hero fight's entry lines stay up 20 s each (to look at them)
 //   bot             press buttons automatically (menus, attacks, dodging)
 //   log             log battle state every turn
 //   check           log a self-check line twice a second (character drawn, followers drawn,
@@ -527,6 +529,10 @@ function mp_test_tick()
     var battle_delay = mp_test_arg("battleat") != "" ? real(mp_test_arg("battleat")) : 120;
     // battleclk:<ms>: start the battle at this moment of the shared clock (two players at once)
     var clk_ok = mp_test_arg("battleclk") == "" || (mp_on() && mp_clock_now() >= real(mp_test_arg("battleclk")));
+    // camx:<x>: the camera where the story's own scene leaves it (the Hammer of Justice: 520), by
+    // walking me there before the battle (the camera follows me).
+    if (mp_test_arg("camx") != "" && !global.mp_test_battled && instance_exists(obj_mainchara) && global.mp_test_timer > 30)
+        obj_mainchara.x = real(mp_test_arg("camx")) + 320 - (obj_mainchara.sprite_width / 2);
     if (mp_test_has("battle") && clk_ok && !global.mp_test_battled && instance_exists(obj_mainchara) && global.mp_test_timer > battle_delay && global.interact == 0 && (mp_on() || global.mp_role == 0 || mp_test_has("battlesolo")))
     {
         var other_ready = true;
