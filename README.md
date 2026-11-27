@@ -62,8 +62,10 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   for all (a friend's hit can be the one that beats him; the copies keep the same HP; each player
   plays their own outro and their own retries). On Chapter 3's sword route the players' heroes stand
   at the TV beside Kris.
-* **Fights made for one hero.** Chapter 4's Hammer of Justice is Susie's fight alone in the story:
-  in a session the other players' heroes join her and everyone plays their own hero.
+* **Fights made for one hero.** Chapter 4's Hammer of Justice and Gerson's hidden fight (the Sound
+  of Justice, both phases) are Susie's fights in the story: in a session the other players' heroes
+  join her, each says a line in their colour as they arrive, everyone plays their own hero, and the
+  enemy has more HP for more heroes. When Susie falls, Gerson's scene plays in every game.
 * **Nothing left of a missing hero.** A hero nobody plays leaves nothing behind in a fight: e.g. no
   empty car in Berdly's roller coaster.
 * **Explore independently.** Walk and talk to NPCs on your own, even in different rooms.
@@ -242,9 +244,8 @@ Ralsei; Kris and Noelle use Kris's figure), and the game's own Susie or Ralsei f
 while a friend plays that character there, so there aren't two of them.
 Every minigame, puzzle and ACT with its own game, and what multiplayer does with each one so far,
 is listed in [`MINIGAMES.md`](MINIGAMES.md).
-A few fights still have their own rules (Giga Queen, Chapter 4's Hammer of Justice and Gerson's
-hidden fight): there the fight's leader plays every hero and the others watch; everyone is told who
-plays.
+One fight still has its own rules (Giga Queen): there the fight's leader plays every hero and the
+others watch; everyone is told who plays.
 If the host leaves, the next player can take over from F9 ("Become the host"); a session with
 Steam and IP players carries on for both.
 Every 5 s the host's story state is compared with yours; a difference that stays is fixed from
