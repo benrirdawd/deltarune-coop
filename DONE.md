@@ -4,6 +4,17 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## NPC talk for the others: the typing voice (2026-11-26)
+
+The box the others in the room see now also types with its voice: the reader's game sends its
+writer's text sound (after the face, message 66), and the others' game plays it a letter at a time
+as their copy types, skipping spaces and punctuation like the game's `scr_textsound` (the sound cut
+and played again, at the game's own volume).
+**Tested** (Chapter 1 `room_cc_throneroom`, plot 242, host Kris talks to Lancer, client Susie in the
+room with `chaos:10:120:60`, 1x): the client's log shows each box with its speaker's voice and face:
+Lancer's (`snd_txtlan`, face 5) and Susie's (`snd_txtsus`, face 1) in turn, as in the host's game.
+`mpcheck` all PASS.
+
 ## NPC talk for the others: the speaker's portrait, and the game's letter spacing (2026-11-26)
 
 Follow-up of the text box shown to everyone in the room: the face in the reader's box now shows in

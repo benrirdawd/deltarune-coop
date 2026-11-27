@@ -433,13 +433,17 @@ function mp_sync_recv(type, from, b, endpos = -1)
             {
                 global.mp_ptalk_fc = array_create(8, 0);
                 global.mp_ptalk_fe = array_create(8, 0);
+                global.mp_ptalk_snd = array_create(8, -1);
             }
             global.mp_ptalk_fc[from] = 0;
             global.mp_ptalk_fe[from] = 0;
+            global.mp_ptalk_snd[from] = -1;
             if (endpos > 0 && buffer_tell(b) + 2 <= endpos)
             {
                 global.mp_ptalk_fc[from] = buffer_read(b, buffer_u8);
                 global.mp_ptalk_fe[from] = buffer_read(b, buffer_u8);
+                if (buffer_tell(b) + 2 <= endpos)
+                    global.mp_ptalk_snd[from] = buffer_read(b, buffer_s16);
             }
         }
         return;
@@ -1968,7 +1972,17 @@ function mp_talk_tick()
         t = mp_dialogue_text();
     var fc = (t != "" && instance_exists(obj_face)) ? clamp(global.fc, 0, 255) : 0;
     var fe = clamp(global.fe, 0, 255);
-    var sig = t + "|" + string(fc) + "," + string(fe);
+    // (And the box's typing voice: the writer's text sound.)
+    var ts = -1;
+    if (t != "")
+    {
+        with (obj_writer)
+        {
+            if (variable_instance_exists(id, "textsound"))
+                ts = textsound;
+        }
+    }
+    var sig = t + "|" + string(fc) + "," + string(fe) + "," + string(ts);
     if (sig != global.mp_talk_sent || (t != "" && (current_time - global.mp_talk_sent_t) > 1000))
     {
         global.mp_talk_sent = sig;
@@ -1977,6 +1991,7 @@ function mp_talk_tick()
         mp_wstr(t);
         mp_wu8(fc);
         mp_wu8(fe);
+        mp_ws16(ts);
         mp_send();
     }
 }
@@ -2370,6 +2385,26 @@ function mp_overheard_draw()
     else if (variable_global_exists("mp_ovh_face") && instance_exists(global.mp_ovh_face))
         instance_destroy(global.mp_ovh_face);
     var n = min(string_length(t), floor((current_time - global.mp_ovh_t0) / 33) + 1);
+    // The typing voice, as the writer plays it: a letter at a time (not for spaces and punctuation),
+    // the sound cut and played again.
+    if (!variable_global_exists("mp_ovh_n") || global.mp_ovh_t0 != global.mp_ovh_nt)
+    {
+        global.mp_ovh_n = 0;
+        global.mp_ovh_nt = global.mp_ovh_t0;
+    }
+    var snd = (variable_global_exists("mp_ptalk_snd")) ? global.mp_ptalk_snd[p] : -1;
+    if (n > global.mp_ovh_n)
+    {
+        var c = string_char_at(t, n);
+        if (snd >= 0 && audio_exists(snd) && string_pos(c, " \n^!.?,:/|*") == 0)
+        {
+            audio_stop_sound(snd);
+            snd_play(snd);
+            if (global.mp_ovh_n == 0 || n <= 3)
+                mp_log("overheard box: " + global.mp_pname[p] + "'s, voice " + audio_get_name(snd) + ", face " + string(global.mp_ptalk_fc[p]));
+        }
+        global.mp_ovh_n = n;
+    }
     var of = draw_get_font();
     scr_84_set_draw_font((f == 2) ? "mainbig" : "main");
     draw_set_color(c_white);
