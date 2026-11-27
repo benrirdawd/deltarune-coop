@@ -167,7 +167,10 @@ for each, the simplest that keeps the original's feel.
    star background (yellow dots, `spr_dw_tv_starbgtile`, drawn by `obj_dw_gameshow_screen` down to the
    room's bottom) shows through the gradient's light rows for the watcher only; the layers are the same
    in both games (`mirdumpall`), the cause is not found yet. Chapter 4's church lighting done
-   (2026-11-27, DONE.md: the arrival scene); other church scenes (Gerson's intro, the prophecies);
+   (2026-11-27, DONE.md: the arrival scene). Gerson's intro (`obj_dw_church_intro_gerson`) is not a
+   shared scene: its trigger only sets flag 874 and sends Gerson running in the background while
+   the player keeps control, in each game as its player walks by (tested with `trig:gersontrig`,
+   plot 126: no scene lock, no errors); nothing to mirror. The same goes for the walk-by prophecies.
    Chapter 5's castle top (Asgore's story, DW22) compared and matching (DONE.md), other castle scenes,
    Chapter 5's castle scenes. An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
