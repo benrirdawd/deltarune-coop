@@ -332,7 +332,7 @@ function mp_test_tick()
         // setflag:<n>:<v>: a story flag as it would be by then (e.g. setflag:34:0, Chapter 2's
         // "Susie and Ralsei can ACT", turned on by the story long before Queen).
         var sf = mp_test_arg("setflag");
-        if (sf != "")
+        if (sf != "" && string_pos("=", sf) == 0)
         {
             var sfv = string_split(sf, ":");
             global.flag[real(sfv[0])] = real(sfv[1]);

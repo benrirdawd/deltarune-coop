@@ -189,3 +189,41 @@ function mp_remembered_follow()
     instance_destroy();
     exit;
 }
+
+// Paper lanterns (broken: coins, a chest, an NPC or a pink coin inside) and the orange walls that
+// break open are remembered by a flag bit too. When a friend's bit arrives while mine is still
+// whole, it goes the way the room has it when you come back: the lantern is gone (an NPC that was
+// inside stands there, as the room puts it), the wall is broken open with nothing to break.
+// Prepended to the lantern's Step and the wall's End Step.
+function mp_plat_lantern_follow()
+{
+    if (flag <= 0 || !variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (!mp_friend_set_bit(flag, flagbit))
+        return;
+    mp_log("[MPCOIN] a friend broke a lantern flag" + string(flag) + " bit " + string(flagbit) + ": gone here too");
+    if (content_type == 4)
+    {
+        var w = content_modifier + 1;
+        with (instance_create_depth(x, y, depth, asset_get_index("obj_plat_npc")))
+            waiting_initialization = w;
+    }
+    instance_destroy();
+    exit;
+}
+
+function mp_plat_wall_follow()
+{
+    // (A wall with no bit, -1, is not remembered by the game either.)
+    if (disappearflag <= 0 || disappearflagbit < 0 || is_broken || !variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (!mp_friend_set_bit(disappearflag, disappearflagbit))
+        return;
+    mp_log("[MPCOIN] a friend broke an orange wall flag" + string(disappearflag) + " bit " + string(disappearflagbit) + ": open here too");
+    is_broken = true;
+    break_timer = 6;
+    with (barrier_ow)
+        instance_destroy();
+    with (barrier_plat)
+        instance_destroy();
+}

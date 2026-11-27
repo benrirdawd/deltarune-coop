@@ -736,6 +736,21 @@ and `chat`: 3 turns, identical state in both games; the log has "ping sent", "sa
   host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
   checks pass except `moved` (nobody walks).
 
+## Chapter 5: paper lanterns and orange walls a friend broke are broken for me too (2026-11-27)
+
+* Paper lanterns (coins, a pinata, an NPC or more lanterns inside) and orange walls are remembered
+  by a bit of a story flag too. When a friend's bit arrives while mine is still whole, the lantern
+  goes the way the room removes it on return (its NPC, if any, is put back as the room does). The
+  wall breaks open with its own break animation and its two barriers go. Only bits a friend's game
+  set count (`mp_friend_set_bit`). A wall with no bit (-1) is not remembered by the game either.
+  `mp_plat_lantern_follow` is prepended to the lantern's Step, `mp_plat_wall_follow` to the wall's
+  End Step.
+* Test fix: the early `setflag:<n>:<v>` token parser crashed on the late form `setflag:<n>=<v>@<f>`.
+  It now skips a value that has "=".
+* Test, `room_dw_fcastle_gloves_tower`, both with `chaos:10:120:60` (`work/fol/lant2`): the client
+  set 1320 to 768 (wall bit 8 and lantern bit 9). The host's game logged the lantern gone and the
+  wall open. No crash.
+
 ## Chapter 5: leaf piles and paper grass a friend broke are gone for me too; only a friend's bits count (2026-11-25)
 
 * Leaf piles (dashed through: coins, a chest or an NPC inside) and paper grass (cut: coins) are

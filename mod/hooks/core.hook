@@ -435,6 +435,13 @@ mp_remembered_follow();
 
 @prepend gml_Object_obj_papergrass_Step_2
 mp_remembered_follow();
+
+;; ... and a remembered paper lantern, or an orange wall broken open.
+@prepend gml_Object_obj_plat_lantern_Step_0
+mp_plat_lantern_follow();
+
+@prepend gml_Object_obj_plat_orangewall_Step_2
+mp_plat_wall_follow();
 #chapters 1
 
 ;; The suits puzzles' buttons (spade, diamond, swap: room_field_secret1, the forest's clover and suits
