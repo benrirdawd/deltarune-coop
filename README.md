@@ -59,8 +59,11 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
 * **Spamton NEO and Shadow Mantle together.** In Spamton NEO everyone plays their own hero and
   shoots with the yellow SOUL; the mercy each player's shooting earns adds up. Shadow Mantle on the
   game board: everyone fights their own copy, and his HP grows with the players, every hit counting
-  for all (a friend's hit can be the one that beats him). On Chapter 3's sword route the players'
-  heroes stand at the TV beside Kris.
+  for all (a friend's hit can be the one that beats him; the copies keep the same HP; each player
+  plays their own outro and their own retries). On Chapter 3's sword route the players' heroes stand
+  at the TV beside Kris.
+* **Fights made for one hero.** Chapter 4's Hammer of Justice is Susie's fight alone in the story:
+  in a session the other players' heroes join her and everyone plays their own hero.
 * **Nothing left of a missing hero.** A hero nobody plays leaves nothing behind in a fight: e.g. no
   empty car in Berdly's roller coaster.
 * **Explore independently.** Walk and talk to NPCs on your own, even in different rooms.
