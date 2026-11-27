@@ -736,6 +736,18 @@ and `chat`: 3 turns, identical state in both games; the log has "ping sent", "sa
   host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
   checks pass except `moved` (nobody walks).
 
+## Chapter 5 platformer: a paper wall's handle a friend pulled down comes down for me too (2026-11-27)
+
+* The paper wall's handle in `room_dw_fcastle_obscured_bullets`, once pulled all the way down, stays
+  down for good by a bit of a story flag (1316 bit 0). The game checks that bit only when the room is
+  built. Now, when a friend's game sets it, my wall's handle slides down the game's own way and
+  stays. Only a bit a friend's game set counts. `mp_plat_fusuma_follow` is prepended to the wall's
+  Step.
+* Test tool: `mptest.sh` stopped at a failed final screenshot and left the games running. It now
+  goes on and closes them.
+* Test, both with `chaos:10:120:60` (`work/fol/fus1`): the client set 1316 to 1. The host's game
+  logged its handle down and ran on without a crash.
+
 ## Chapter 5 platformer: an enemy fight a friend won ends in my game too (2026-11-27)
 
 * The platformer's enemy fights (`obj_plat_combatstarter`: the battle background and waves of flower

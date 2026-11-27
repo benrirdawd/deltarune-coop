@@ -273,3 +273,16 @@ function mp_plat_combat_follow()
     }
     endcombat();
 }
+
+// A paper wall's handle (obj_plat_fusumawall with a remembered hook) a friend pulled all the way
+// down: the game keeps it down for good by a bit of a story flag, but only checks it when the room
+// is built. Now mine slides down and stays, as theirs did. Prepended to its Step.
+function mp_plat_fusuma_follow()
+{
+    if (!has_hook || permastuck || perma_hook_flag <= 0 || !variable_global_exists("mp_inited") || !mp_on())
+        return;
+    if (!mp_friend_set_bit(perma_hook_flag, perma_hook_flagbit))
+        return;
+    mp_log("[MPCOIN] a friend pulled a paper wall's handle down flag" + string(perma_hook_flag) + " bit " + string(perma_hook_flagbit) + ": down here too");
+    permastuck = true;
+}

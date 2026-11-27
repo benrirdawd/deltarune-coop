@@ -88,8 +88,8 @@ for k,f in enumerate(fs):
 im.save('$OUT/all_$t.png')" 2>/dev/null || true
 done
 sleep $((SECS > T ? SECS - T : 0))
-shot host 91 "$OUT/host.png"
-for i in $(seq 1 $NC); do shot client$i $((91+i)) "$OUT/client$i.png"; done
+shot host 91 "$OUT/host.png" || true
+for i in $(seq 1 $NC); do shot client$i $((91+i)) "$OUT/client$i.png" || true; done
 # Don't leave the games running (each one uses several CPU cores); KEEP=1 to keep them.
 [ -z "$KEEP" ] && mp_killall "$ROOT/build/game"
 echo "screens in $OUT"
