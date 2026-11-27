@@ -56,7 +56,7 @@ each real one).
 | 2 | Car adventure | `obj_caradventure_*` | Local | One drives and the others watch. |
 | 2 | Berdly's coaster | `obj_berdlycoaster_event`, `obj_coaster` | Cutscene: one game plays it and the others mirror it | — |
 | 3 | The board game | `obj_board_*`, `gml/ch3/scr_mp_board` | Own copy, with board pieces drawn as each player's character and other players' pieces shown on the same board screen | Shared board: one board, each player moves their own piece, with shared items and points. L. |
-| 3 | Rhythm game | `obj_rhythmgame` (also in Chapters 4-5) | Own copy | Each player plays their character's chart (the game has three: Kris guitar, Susie drums, Ralsei vocals). Hits are sent and the score is added up. L. |
+| 3 | Rhythm game | `obj_rhythmgame` (also in Chapters 4-5) | Own copy | Each player plays their character's chart (the game has three: Kris guitar, Susie drums, Ralsei vocals). Hits are sent and the score is added up. L. **Part 1 done:** the band song starts in everyone's own game after the intro; Ralsei's player sings the vocals (Kris's guitar plays itself in that copy). |
 | 3 | Cooking game (chefs) | `obj_chefs_game`, `obj_chefs_kris/susie/ralsei` | Own copy | Each player is their character in the kitchen, with orders shared. L. |
 | 3 | Quiz / game show (with its shooter) | `obj_quizsequence`, `obj_dw_ch3_teevie_quiz_controller`, `obj_dw_ch3_teevie_shooter` | Own copy | Each player buzzes in for their character, and the first one right scores. |
 | 3 | Green room race | `obj_ch3_green_room_racing_game` | Own copy | Idea: a real race, with the others drawn as racers. |

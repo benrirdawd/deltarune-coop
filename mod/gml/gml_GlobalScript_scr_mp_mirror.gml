@@ -559,6 +559,15 @@ function mp_mirror_after_check(ia)
     // still up from mirroring, so it never visibly rises.)
     if (!mp_cutscene_running() && ia != 1)
         return false;
+    // (Chapter 3's rhythm game: after the intro, the room's scene starts the song in my own copy,
+    // as on a retry. That is the minigame, played by everyone in their own game: keep it.)
+    var rg = asset_get_index("obj_rhythmgame");
+    if (rg >= 0 && instance_exists(rg))
+    {
+        global.mp_mir_after_until = 0;
+        mp_log("mirror: the room's scene starts my own copy of the rhythm game: kept");
+        return false;
+    }
     mp_log("mirror: the scene started again here after it ended: stopped");
     global.mp_mir_after_until = 0;
     mp_kill_scenes(true);

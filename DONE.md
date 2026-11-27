@@ -2112,3 +2112,26 @@ both fights start at 30 HP; each player's hits count half in both games ("my hit
 1 / 2"); both reach the same HP (25). Only the very first hit, before the other's count arrived,
 counted whole. `mpcheck`: all PASS except "moved" (both pieces put on the same trigger by the test).
 Not seen yet: the end of the fight with 2 players.
+
+## Rhythm game together, part 1: everyone plays the band song, Ralsei's player sings (2026-11-26)
+
+Chapter 3's band song (`room_dw_rhythm`). Before, a client watched the leader's intro, and then:
+with a leader who kept playing, the client kept watching the leader's scene (the song never started
+in the client's game); with a leader who failed, the client went back to the room, the mod stopped
+the room's scene as "started again" and destroyed the song's music event manager with it, and the
+client crashed (`obj_rhythmgame` Step, "Unable to find any instance"; also seen with the client as
+Susie, so it was there before).
+Now:
+* The band song (not the sound check) is not a shared scene (`mp_rhythm_song_on`): the leader's
+  scene ends when the song starts, the others go back to the room, and the room's own scene starts
+  the song in their game the way a retry does (its curtain wipe), which the mod keeps. The band
+  stands where a retry puts it.
+* Ralsei's player sings the vocal chart (Left/Z, Down or Up, Right/X; held notes held), scored
+  by the chart's own rules; Ralsei sings on each hit as on autoplay. In that copy Kris's guitar
+  plays itself, as the vocals do in the solo game. Kris's player plays as before.
+Choice (simplest): each copy keeps its own score and ending for now (parts 2-5 in the TODO).
+Test token `rhythmbot` (the vocals hit on time; Kris's player's guitar plays itself).
+**Tested** (Chapter 3, `room_dw_rhythm` plot 130, host Kris + client Ralsei, client with
+`chaos:10:120:60`, 5x): the intro is watched together, then both play the song in their own game
+(both shown `[rhythm game]`); the client sang 141 vocal notes, score 48,760, band on the stage
+(screenshots); no crash.

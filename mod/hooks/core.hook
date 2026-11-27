@@ -941,3 +941,43 @@ if \(button3_p\(\)\)
 if (mp_basket_press(id))
 @end
 #chapters all
+
+;; Chapter 3's rhythm game: Ralsei's player sings the vocal chart with their keys (scr_mp_rhythm).
+#chapters 3
+@prepend gml_Object_obj_rhythmgame_Step_0
+mp_rhythm_step();
+
+;; (A player who joins the song after the intro gets the game's retry start: the band stands
+;; where a retry puts it.)
+@find gml_Object_obj_ch3_GSB02_Create_0
+    con = 31;
+    game_retry = true;
+@with
+    con = 31;
+    game_retry = true;
+    mp_rh_join = 1;
+@end
+@find gml_Object_obj_ch3_GSB02_Create_0
+    var y_offset = _retry ? 0 : 100;
+@with
+    var y_offset = (_retry || variable_instance_exists(id, "mp_rh_join")) ? 0 : 100;
+@end
+@find gml_Object_obj_rhythmgame_chart_Step_0
+        var checkpress = false;
+        var holdpress = false;
+@with
+        var checkpress = false;
+        var holdpress = false;
+        if (mp_rhythm_mine(id))
+        {
+            checkpress = mp_rhythm_key(i, false);
+            holdpress = mp_rhythm_key(i, true);
+        }
+@end
+@find gml_Object_obj_rhythmgame_chart_Step_0
+                    notealive[targetnote[notei]] = 0;
+@with
+                    notealive[targetnote[notei]] = 0;
+                    mp_rhythm_hit(id);
+@end
+#chapters all

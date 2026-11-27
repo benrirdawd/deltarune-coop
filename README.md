@@ -81,7 +81,8 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   the text pages for everyone once they've finished typing on every screen. One shared
   cutscene at a time: the host gives the go, and a cutscene waits while someone is in a fight.
   When the host is in the cutscene, the host answers its questions. Talking to an NPC on your
-  own shows the text in a bubble over you on everyone's screen; save points and shops stay yours,
+  own shows the talk to the others in the room in the game's own text box, with the speaker's
+  portrait and voice (a bubble over you while their own box is busy); save points and shops stay yours,
   but pressing Z on something that starts a story scene (Chapter 2's arcade machine) brings
   everyone in like any other story cutscene. When a cutscene you were
   pulled into ends where it began, you go back to where you were; one that moves the story
@@ -241,6 +242,9 @@ host) everyone in the scene votes with Z, the status line shows the votes, the m
 a tie goes to the host.
 While you play a minigame (the rhythm game, the chefs, a quiz, a race, climbing...) the other
 players aren't drawn over it, and they see "Playing the rhythm game..." over where you stand.
+In Chapter 3's band song everyone plays the song in their own game; if you play Ralsei you sing:
+the vocal chart's three columns are Left/Z, Down (or Up) and Right/X, and Kris's guitar plays
+itself in your game.
 Climbing walls (Chapters 4-5), you see the other climbers on the wall, each as their own character.
 In Chapter 5's platforming sections the others are shown as their own character too (Susie,
 Ralsei; Kris and Noelle use Kris's figure), and the game's own Susie or Ralsei follower is hidden

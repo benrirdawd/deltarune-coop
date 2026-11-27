@@ -885,6 +885,8 @@ function mp_sync_try_pull()
 // Something that is (or may become) a story cutscene is playing in my own game.
 function mp_cutscene_running()
 {
+    if (mp_rhythm_song_on())
+        return false;
     if (global.mp_classify > 0 && !global.mp_pre_z)
         return true;
     var cm = asset_get_index("obj_cutscene_master");
@@ -1004,6 +1006,9 @@ function mp_sync_tick()
     mp_talk_tick();
     mp_minigame_tick();
     var ia = global.interact;
+    // (Chapter 3's band song is not a shared scene: everyone plays it in their own game.)
+    if (ia != 0 && mp_rhythm_song_on())
+        ia = 0;
     var battle = mp_in_battle_scene();
     if (instance_exists(obj_mainchara))
     {
