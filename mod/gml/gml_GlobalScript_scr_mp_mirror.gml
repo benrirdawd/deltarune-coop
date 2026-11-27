@@ -75,6 +75,7 @@ function mp_mirror_lead_tick()
     var vy = camera_get_view_y(cam);
     var vw = camera_get_view_width(cam);
     var vh = camera_get_view_height(cam);
+    mp_mirror_lone_writers();
     var g = global.mp_mir_grid;
     if (ds_grid_height(g) < 300)
         ds_grid_resize(g, 10, 300);
@@ -226,6 +227,39 @@ function mp_mirror_dialoguer_made()
         mp_mirror_send_dialogue(writer, side);
 }
 
+// A writer the scene made by itself, with no text box around it (Chapter 5's narration in Asgore's
+// flashback, white letters on black): the followers get it too, once, where it is on the screen.
+function mp_mirror_lone_writers()
+{
+    with (obj_writer)
+    {
+        if (!variable_instance_exists(id, "mp_lone_seen"))
+        {
+            mp_lone_seen = true;
+            if (mp_mirror_writer_lone(id))
+                mp_mirror_send_dialogue(id, 1);
+        }
+    }
+}
+
+// Whether writer w is the only one on screen and has no text box (obj_dialoguer) of its own. Not
+// while something else that makes writers is around (a platform-style box, a shop, the legend,
+// the fountain's kept Kris, which the watchers' games make themselves), nor for several writers at
+// once (scr_simultext).
+function mp_mirror_writer_lone(w)
+{
+    if (instance_exists(obj_dialoguer) || instance_number(obj_writer) != 1)
+        return false;
+    var others = ["obj_dialoguer_plat", "obj_fountainkris", "obj_legend", "obj_legend_neo", "obj_plat_foreground_writer", "obj_shop1", "obj_shop2", "obj_shop_ch5", "obj_shop_music", "obj_shop_vending", "obj_battleblcon", "obj_ch5_LW07_thrashfit_menu"];
+    for (var i = 0; i < array_length(others); i++)
+    {
+        var o = asset_get_index(others[i]);
+        if (o >= 0 && instance_exists(o))
+            return false;
+    }
+    return true;
+}
+
 // Sends the text box writer w is showing (from the page it's on) to the followers.
 function mp_mirror_send_dialogue(w, sd)
 {
@@ -253,8 +287,17 @@ function mp_mirror_send_dialogue(w, sd)
     mp_wval(global.fe);
     mp_wval(global.typer);
     mp_wu8(lines);
+    // (A writer with no box: where it is on the screen and its colour.)
+    var lone = mp_mirror_writer_lone(w);
+    mp_wu8(lone ? 1 : 0);
+    if (lone)
+    {
+        mp_wval(w.x - camera_get_view_x(view_camera[0]));
+        mp_wval(w.y - camera_get_view_y(view_camera[0]));
+        mp_wval(w.mycolor);
+    }
     mp_send();
-    mp_log("mirror: sent a text box, " + string(lines) + " pages from page " + string(global.mp_dlg_n));
+    mp_log("mirror: sent a " + (lone ? "lone writer" : "text box") + ", " + string(lines) + " pages from page " + string(global.mp_dlg_n));
 }
 
 // Prepended to snd_play: sounds of my cutscene play for the followers too (not the text box's
@@ -564,8 +607,15 @@ function mp_mirror_recv(type, from, b)
         var fe = mp_rval(b);
         var typer = mp_rval(b);
         var nl = buffer_read(b, buffer_u8);
+        var lone = -1;
+        if (buffer_read(b, buffer_u8) == 1)
+        {
+            var lx = mp_rval(b);
+            var ly = mp_rval(b);
+            lone = [lx, ly, mp_rval(b)];
+        }
         if (global.mp_sstate == 5 && from == global.mp_slead)
-            mp_mirror_show_dialogue(base, sd, fc, fe, typer, nl);
+            mp_mirror_show_dialogue(base, sd, fc, fe, typer, nl, lone);
         return;
     }
     if (type == 79) // a follower wants the text box that's open
@@ -584,6 +634,14 @@ function mp_mirror_recv(type, from, b)
                 sd2 = side;
             }
         }
+        if (w == -1)
+        {
+            with (obj_writer)
+            {
+                if (mp_mirror_writer_lone(id))
+                    w = id;
+            }
+        }
         if (w != -1)
             mp_mirror_send_dialogue(w, sd2);
         return;
@@ -591,7 +649,8 @@ function mp_mirror_recv(type, from, b)
 }
 
 // Opens the leader's text box in my game (the leader turns its pages: mp_dlg_input).
-function mp_mirror_show_dialogue(base, sd, fc, fe, typer, nl)
+// lone: [x, y, colour] for a writer with no box (on the screen), else -1.
+function mp_mirror_show_dialogue(base, sd, fc, fe, typer, nl, lone)
 {
     with (obj_choicer_neo)
         instance_destroy();
@@ -612,8 +671,17 @@ function mp_mirror_show_dialogue(base, sd, fc, fe, typer, nl)
     global.fc = fc;
     global.fe = fe;
     global.typer = typer;
-    var d = instance_create(0, 0, obj_dialoguer);
-    d.side = sd;
+    if (is_array(lone))
+    {
+        var lw = instance_create(camera_get_view_x(view_camera[0]) + lone[0], camera_get_view_y(view_camera[0]) + lone[1], obj_writer);
+        lw.mycolor = lone[2];
+        lw.mp_lone_seen = true;
+    }
+    else
+    {
+        var d = instance_create(0, 0, obj_dialoguer);
+        d.side = sd;
+    }
     global.mp_dlg_key = global.mp_slead;
     global.mp_dlg_n = base;
     global.mp_dlg_sent = -1;

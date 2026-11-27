@@ -2647,3 +2647,19 @@ Still open (TODO): the flashback's narration (a writer made without a text box) 
 with `mash` + client Susie, `chaos:10:120:60`, 100-112 s, shots from 20 to 108 s): the client shows
 the sunset, the coloured silhouettes (yellow, aqua, green, lilac, then red Asgore) and the threads
 as in the host's game; no errors.
+
+## Text a scene writes without a text box reaches the watchers (2026-11-27, DW30 part 2)
+Asgore's flashback after the Flowery fight (`obj_ch5_DW30_flashback`) tells its story in white
+letters on black: an `obj_writer` the scene makes by itself, with no text box. The mirror only sent
+a text box's writer, so the watcher saw the silhouettes with no words. Now the leader's game also
+sends a writer that is the only one on screen and has no box (`mp_mirror_lone_writers`), with its
+place on the screen and its colour (message 78 gets a "lone" part); the watcher's game makes the
+same writer there, and its pages turn with the leader's like a text box's. Left out: writers that
+other things make while they're around (a platform-style box, shops, the legend, the fountain's
+kept Kris, enemy speech bubbles) and several writers at once (`scr_simultext`).
+**Tested:** all 5 chapters build; Chapter 5 `room_dw_post_flowery_battle`, plot 490 (host Kris
+with `mash` + client Susie, `chaos:10:120:60`, 108 s, shots from 66 to 102 s): the host logs 11
+lone writers sent (pages 26-39), the client shows "* Kris.", "* Was to prove it wasn't my fault."
+(dark letters on the red flash), "* I thought if I could just prove..." at the host's place and
+colour, its page count following the host's; the scene's text box after it is still sent as a box;
+no errors.
