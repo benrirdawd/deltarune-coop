@@ -656,6 +656,15 @@ function mp_mirror_obj_step()
             depth = bd;
         return;
     }
+    // The middle drawers: each just behind a kept object in front of the tiles (Chapter 3's
+    // spotlight, between the scene's black cover and Tenna).
+    if (variable_instance_exists(id, "mp_mid"))
+    {
+        var sp = mp_mirror_splits();
+        if (mp_mid < array_length(sp) && depth != sp[mp_mid] + 1)
+            depth = sp[mp_mid] + 1;
+        return;
+    }
     mp_mirror_camera();
     // Under the text box (which the game draws at its own depth), over the room.
     var d = -9000;
@@ -688,8 +697,43 @@ function mp_mirror_tile_cut()
     return global.mp_mir_cut;
 }
 
-// back: the second drawer's pass (the sprites deeper than the room's tiles).
-function mp_mirror_draw(back)
+// The depths of the kept scenery showing in front of the room's tiles, deepest first (at most
+// the 3 nearest, once a frame): the mirrored sprites are drawn in parts between them, so a kept
+// object shows between the leader's sprites as in the leader's game, not under them all.
+function mp_mirror_splits()
+{
+    if (variable_global_exists("mp_mir_spf") && global.mp_mir_spf == global.mp_frame)
+        return global.mp_mir_sp;
+    var cut = mp_mirror_tile_cut();
+    var ds = [];
+    if (global.mp_sstate == 5)
+    {
+        for (var oi = 0; oi < array_length(global.mp_mir_keep); oi++)
+        {
+            with (global.mp_mir_keep[oi])
+            {
+                if (visible && depth <= cut)
+                    array_push(ds, depth);
+            }
+        }
+    }
+    array_sort(ds, false);
+    var sp = [];
+    for (var i = 0; i < array_length(ds); i++)
+    {
+        if (array_length(sp) == 0 || sp[array_length(sp) - 1] != ds[i])
+            array_push(sp, ds[i]);
+    }
+    if (array_length(sp) > 3)
+        array_delete(sp, 0, array_length(sp) - 3);
+    global.mp_mir_sp = sp;
+    global.mp_mir_spf = global.mp_frame;
+    return sp;
+}
+
+// kind: -1 the second drawer's pass (the sprites deeper than the room's tiles), 0-2 a middle
+// drawer's (those between kept scenery), 99 the front one's (the rest).
+function mp_mirror_draw(kind)
 {
     var h = global.mp_mir_hdr;
     if (global.mp_sstate != 5 || !is_array(h) || h[1] != room)
@@ -701,10 +745,31 @@ function mp_mirror_draw(back)
     var items = fr[2];
     var n = array_length(items);
     var cut = mp_mirror_tile_cut();
+    var sp = mp_mirror_splits();
+    var m = array_length(sp);
+    // (The depths this drawer has: deeper than lo, up to hi.)
+    var lo, hi;
+    if (kind == -1)
+    {
+        lo = cut;
+        hi = infinity;
+    }
+    else if (kind == 99)
+    {
+        lo = -infinity;
+        hi = m > 0 ? sp[m - 1] : cut;
+    }
+    else
+    {
+        if (kind >= m)
+            return;
+        lo = sp[kind];
+        hi = kind == 0 ? cut : sp[kind - 1];
+    }
     for (var i = 0; i < n; i++)
     {
         var it = items[i];
-        if ((it[9] > cut) != back)
+        if (it[9] <= lo || it[9] > hi)
             continue;
         if (sprite_exists(it[0]))
             draw_sprite_ext(it[0], it[1], it[2], it[3], it[4], it[5], it[6], it[7], it[8]);

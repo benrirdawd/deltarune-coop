@@ -59,6 +59,10 @@ watch. Each needs its own design. Rules from the user:
 * **Queen, Berdly's plug, the Knight:** done 2026-11-26, now normal fights (DONE.md). Berdly's plug
   (scene 25 inside the Queen fight) is still to see in play.
 * **GigaQueen:** no good idea yet for making it fun with several players. Open.
+  **Bug seen (2026-11-27):** with 2 players, at the end of the fight (Thrash's transformation)
+  both games log a caught error: `obj_thrash_intro` Create finds no `obj_3d_bg_effect` (made by
+  `obj_gigaqueen_enemy`'s Create). Seen in the scene-26 tests (work/fol/cmp10, cmp14); not looked
+  into, as the fight itself waits for a design.
 * The rest: one design per fight, simplest that keeps the original's feel.
 
 | Ch | Fight (enemy object) | Kind | Plan |
@@ -158,9 +162,9 @@ for each, the simplest that keeps the original's feel.
    itself show for the watchers (kept scenery, copies of the ones the scene makes, sprites behind
    the tiles drawn behind them, and the sprites an object draws by hand sent through `mp_mir_dse`).
    **Open:** compare other big scenes the same way (host/client `SHOTS` at the same moments), one per
-   cycle: Chapter 1's fountain and closet, Chapter 3's show intro done (2026-11-27, DONE.md); open there:
-   Tenna's spotlight (kept scenery between mirrored sprites needs the mirror's drawer split at the
-   kept objects' depths, as the back drawer is split at the tiles); Chapter 4's church scenes,
+   cycle: Chapter 1's fountain and closet, Chapter 3's show intro and Tenna's spotlight done
+   (2026-11-27, DONE.md); open there: the stage floor under the podiums looks lit for the watcher
+   (dark in the leader's game); Chapter 4's church scenes,
    Chapter 5's castle scenes. An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
 

@@ -2483,3 +2483,17 @@ the host, the podiums show "???" and then the names, the audience rises at the f
 **Still open:** Tenna's spotlight at the start stays dark for the watcher: the mirror draws all the
 leader's sprites at one depth in front, so the scene's black cover is drawn over the kept spotlight
 (TODO item 8).
+
+## Kept scenery between the leader's sprites: Tenna's spotlight (2026-11-27)
+The mirror drew all the leader's sprites at one depth in front of the room (and the ones behind the
+tiles at another), so kept scenery in front of the tiles was always under them: Tenna's spotlight
+(kept, drawn with its own blend tricks) was covered by the scene's black cover. Now three more
+drawers sit each just behind a visible kept object in front of the tiles (the 3 nearest), and the
+leader's sprites are drawn in parts between them (`mp_mirror_splits`, `mp_mirror_draw(kind)`):
+the black cover, then the spotlight, then Tenna, as in the leader's game.
+**Tested:** all 5 chapters build. Chapter 3 `room_ch3_gameshowroom`, plot 70 (host Kris + client
+Susie, `chaos:10:120:60`, 52 s): the client shows the spotlight's cone and the lit floor ellipse
+with Tenna in front, as the host. Chapter 2's scene 26 again (`pos:1080:240,walkto:1200:240,bot`,
+165 s): city, Queen's head, the fall, the coaster, the power-up and the GigaQueen fight as before.
+Seen there, already in the earlier run: a caught error at the end of the GigaQueen fight
+(`obj_thrash_intro`, noted under GigaQueen in the TODO). (Test note: `walkto` only acts with `bot`.)
