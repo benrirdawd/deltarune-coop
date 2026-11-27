@@ -249,7 +249,7 @@ function mp_send_cend()
     mp_send();
 }
 
-function mp_sync_recv(type, from, b)
+function mp_sync_recv(type, from, b, endpos = -1)
 {
     if (type == 35) // who the host's turn barrier waits for
     {
@@ -428,6 +428,19 @@ function mp_sync_recv(type, from, b)
         {
             global.mp_ptalk[from] = tt;
             global.mp_ptalk_t[from] = current_time;
+            // (Since build 21: the face in their box, global.fc / global.fe; 0 = none.)
+            if (!variable_global_exists("mp_ptalk_fc"))
+            {
+                global.mp_ptalk_fc = array_create(8, 0);
+                global.mp_ptalk_fe = array_create(8, 0);
+            }
+            global.mp_ptalk_fc[from] = 0;
+            global.mp_ptalk_fe[from] = 0;
+            if (endpos > 0 && buffer_tell(b) + 2 <= endpos)
+            {
+                global.mp_ptalk_fc[from] = buffer_read(b, buffer_u8);
+                global.mp_ptalk_fe[from] = buffer_read(b, buffer_u8);
+            }
         }
         return;
     }
@@ -1953,12 +1966,17 @@ function mp_talk_tick()
     var t = "";
     if (global.mp_sstate == 0 && global.interact == 1 && !mp_in_battle_scene() && instance_exists(obj_writer))
         t = mp_dialogue_text();
-    if (t != global.mp_talk_sent || (t != "" && (current_time - global.mp_talk_sent_t) > 1000))
+    var fc = (t != "" && instance_exists(obj_face)) ? clamp(global.fc, 0, 255) : 0;
+    var fe = clamp(global.fe, 0, 255);
+    var sig = t + "|" + string(fc) + "," + string(fe);
+    if (sig != global.mp_talk_sent || (t != "" && (current_time - global.mp_talk_sent_t) > 1000))
     {
-        global.mp_talk_sent = t;
+        global.mp_talk_sent = sig;
         global.mp_talk_sent_t = current_time;
         mp_begin(66);
         mp_wstr(t);
+        mp_wu8(fc);
+        mp_wu8(fe);
         mp_send();
     }
 }
@@ -2295,6 +2313,8 @@ function mp_overheard_draw()
     {
         global.mp_ovh_pid = -1;
         global.mp_ovh_text = "";
+        if (variable_global_exists("mp_ovh_face") && instance_exists(global.mp_ovh_face))
+            instance_destroy(global.mp_ovh_face);
         return;
     }
     var t = global.mp_ptalk[p];
@@ -2321,12 +2341,63 @@ function mp_overheard_draw()
     var cy = camera_get_view_y(view_camera[0]);
     var tx = cx + (29 * f);
     var ty = cy + ((side == 0) ? (15 * f) : (170 * f));
+    // Their face, as the game's own obj_face draws it (its Draw reads global.fc / global.fe: theirs
+    // for the moment it draws), and the text after it, as the writer places it.
+    var fc = variable_global_exists("mp_ptalk_fc") ? global.mp_ptalk_fc[p] : 0;
+    if (fc != 0)
+    {
+        if (!variable_global_exists("mp_ovh_face") || !instance_exists(global.mp_ovh_face))
+        {
+            var ofc0 = global.fc;
+            global.fc = fc;
+            global.mp_ovh_face = instance_create_depth(tx + (8 * f), ty + (5 * f), depth, obj_face);
+            global.fc = ofc0;
+            global.mp_ovh_face.visible = 0;
+        }
+        var fo = global.mp_ovh_face;
+        fo.x = tx + (8 * f);
+        fo.y = ty + (5 * f);
+        var ofc = global.fc;
+        var ofe = global.fe;
+        global.fc = fc;
+        global.fe = global.mp_ptalk_fe[p];
+        with (fo)
+            event_perform(ev_draw, 0);
+        global.fc = ofc;
+        global.fe = ofe;
+        tx += 58 * f;
+    }
+    else if (variable_global_exists("mp_ovh_face") && instance_exists(global.mp_ovh_face))
+        instance_destroy(global.mp_ovh_face);
     var n = min(string_length(t), floor((current_time - global.mp_ovh_t0) / 33) + 1);
     var of = draw_get_font();
     scr_84_set_draw_font((f == 2) ? "mainbig" : "main");
     draw_set_color(c_white);
     draw_set_halign(fa_left);
     draw_set_valign(fa_top);
-    draw_text_ext(tx, ty, string_copy(t, 1, n), (f == 2) ? 36 : 18, (f == 2) ? 540 : 270);
+    // Letter by letter on the writer's grid (16 px a letter and 36 a line in the Dark World, 8
+    // and 18 in the Light World), wrapping where the box ends as the writer does.
+    var hs = 8 * f;
+    var vs = (f == 2) ? 36 : 18;
+    var maxx = cx + ((f == 2) ? 590 : 300);
+    var lx = tx;
+    var ly = ty;
+    for (var i = 1; i <= n; i++)
+    {
+        var ch = string_char_at(t, i);
+        if (ch == "\n")
+        {
+            lx = tx;
+            ly += vs;
+            continue;
+        }
+        if (lx + hs > maxx)
+        {
+            lx = tx + (2 * hs);
+            ly += vs;
+        }
+        draw_text(lx, ly, ch);
+        lx += hs;
+    }
     draw_set_font(of);
 }

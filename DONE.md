@@ -4,6 +4,20 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## NPC talk for the others: the speaker's portrait, and the game's letter spacing (2026-11-26)
+
+Follow-up of the text box shown to everyone in the room: the face in the reader's box now shows in
+the others' box too. The reader's game sends which face and expression its box has (global.fc /
+global.fe, two bytes after the text in message 66; older builds read the text and ignore them). The
+others' game draws it with the game's own `obj_face` (a hidden copy, its Draw run with the reader's
+fc/fe for that moment), and the text starts after it, 58 px further, as the writer places it. The
+text is now drawn letter by letter on the writer's grid (16 px a letter, 36 a line in the Dark
+World; 8 and 18 in the Light World), wrapping at the box's edge; it looked narrower before.
+**Tested** (Chapter 1 `room_cc_throneroom`, plot 242, host Kris talks to Lancer, client Susie in the
+room with `chaos:10:120:60`, 1x, side-by-side screenshots): Susie's face with her lines, then
+Lancer's face with his, in both games, the same spacing as the host's own box; the client's box is a
+page behind at times on the bad network. `mpcheck` all PASS.
+
 ## Talking to an NPC: everyone in the room sees the game's own text box (2026-11-26)
 
 User's design (2026-11-25): when a player talks to an NPC with others in the room, everyone in the

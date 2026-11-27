@@ -624,7 +624,7 @@ function mp_handle(type, sender, b, sock, endpos)
     }
     if ((type >= 30 && type < 40) || type == 65 || type == 66) // (65: the host's answer to a choice; 66: NPC talk)
     {
-        mp_sync_recv(type, sender, b);
+        mp_sync_recv(type, sender, b, endpos);
         return;
     }
     if (type >= 70 && type < 80) // cutscene mirror
