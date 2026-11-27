@@ -1118,3 +1118,30 @@ if (mp_mirror_kept_paused())
 if (mp_mirror_kept_paused())
     exit;
 #chapters all
+;; Chapter 4's church lighting (the darkness with its lights, the light beams, the lit areas) is kept
+;; scenery: it draws itself in the watchers' games, its Steps paused while they watch.
+#chapters 4
+@prepend gml_Object_obj_darkness_overlay_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_light_area_mask_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_light_area_mask_Step_2
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_light_following_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_light_following_Step_2
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_lightbeamfx_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+#chapters all
+#chapters 5
+@prepend gml_Object_obj_darkness_overlay_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+#chapters all

@@ -2512,3 +2512,15 @@ room's layers; on the watcher too).
 Susie, `chaos:10:120:60`, 78 s): the floor's dark gradient shows on the client as on the host, the
 scene plays to the desert board screen; no errors. Still open: the TV's star dots through the
 gradient (TODO item 8).
+
+## Chapter 4's church lighting for the watchers (2026-11-27)
+Compared the church's arrival scene (`room_dw_church_intro1`, plot 105) host vs client: the watcher
+had no darkness and no light beams through the windows. The church's light is drawn by objects of
+its own with surfaces (`obj_darkness_overlay`, `obj_lightbeamfx`, `obj_light_area_mask`,
+`obj_light_following`); the mirror only sent their plain sprite. They are now kept scenery (Steps
+paused while watching; the darkness in Chapter 5 too). Kept objects' variables that hold a resource
+of the game's own (names with surf, _list, _map, grid, buffer, part_, shader) are never sent: the
+leader's surface id means nothing (or something else) in the watcher's game.
+**Tested:** all 5 chapters build; Chapter 4 `room_dw_church_intro1`, plot 105 (host Kris + client
+Susie, `chaos:10:120:60`, 32 s, shots during Susie's "What's with this place?"): the client shows the
+same darkness and light beams as the host; no errors.

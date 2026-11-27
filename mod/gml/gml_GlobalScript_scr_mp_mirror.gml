@@ -1014,7 +1014,7 @@ function mp_mirror_layers_recv(from, b)
 function mp_mirror_keep_init()
 {
     global.mp_mir_keep = [];
-    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight", "obj_dw_gameshow_stage_overlay", "obj_dw_tv_funometer"];
+    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight", "obj_dw_gameshow_stage_overlay", "obj_dw_tv_funometer", "obj_darkness_overlay", "obj_lightbeamfx", "obj_light_area_mask", "obj_light_following"];
     for (var i = 0; i < array_length(names); i++)
     {
         var o = asset_get_index(names[i]);
@@ -1081,6 +1081,13 @@ function mp_mirror_kept_quiet()
     return variable_global_exists("mp_mir_keep") && mp_on() && global.mp_sstate == 5 && mp_mirror_kept(object_index);
 }
 
+// Whether a variable's name says it holds a resource of the game's own (a surface, a list...).
+function mp_mirror_own_res(nm)
+{
+    var l = string_lower(nm);
+    return string_pos("surf", l) > 0 || string_pos("_list", l) > 0 || string_pos("_map", l) > 0 || string_pos("grid", l) > 0 || string_pos("buffer", l) > 0 || string_pos("part_", l) > 0 || string_pos("shader", l) > 0;
+}
+
 // mp_mirror_lead_tick: the kept objects' variables, the changed ones and a rotating share.
 function mp_mirror_keep_send()
 {
@@ -1123,6 +1130,10 @@ function mp_mirror_keep_send()
             }
             for (var v = 0; v < array_length(nms); v++)
             {
+                // (Not a surface or a data structure of its own: each game keeps its own, and the
+                // leader's id means something else here. Chapter 4's darkness keeps its surfaces.)
+                if (mp_mirror_own_res(nms[v]))
+                    continue;
                 var val = variable_instance_get(inst, nms[v]);
                 // (Small arrays element by element, as "name[i]": Chapter 3's podium letters.)
                 var vals = [val], vn = [nms[v]];

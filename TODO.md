@@ -166,7 +166,8 @@ for each, the simplest that keeps the original's feel.
    (2026-11-27, DONE.md); open there: the stage floor's dark gradient is done, but the TV screen's
    star background (yellow dots, `spr_dw_tv_starbgtile`, drawn by `obj_dw_gameshow_screen` down to the
    room's bottom) shows through the gradient's light rows for the watcher only; the layers are the same
-   in both games (`mirdumpall`), the cause is not found yet. Chapter 4's church scenes,
+   in both games (`mirdumpall`), the cause is not found yet. Chapter 4's church lighting done
+   (2026-11-27, DONE.md: the arrival scene); other church scenes (Gerson's intro, the prophecies),
    Chapter 5's castle scenes. An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
 
