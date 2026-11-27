@@ -2167,3 +2167,14 @@ with `chaos:10:120:60`, 5x, `rhythmbot`): every game shows the band's score, e.g
 23,780 + 27,770 = 77,100 while the clients showed 77,280 and 77,440 at about the same moment
 (screenshot: SCORE 075606 in Susie's game); no crash. Not seen in this test: a lost song (the
 bots don't miss) and the song's end.
+
+## Rhythm game together: the song's end checked, a log flood fixed (2026-11-27)
+
+Played the band song through to its end with two games (host Kris, client Ralsei with
+`chaos:10:120:60`, `rhythmbot`): the client's song ended first; its ending scene (victory, the
+evaluation in the game show room, then the green room) became the shared scene, the host was
+pulled into it, and both games went on together in `room_dw_green_room` at plot 160; no crash.
+Fixed on the way: while the song played, the host's log got an "interact 1->0" line every frame
+(18,662 in one song), because the song counts as free time for the sync but the previous value
+was taken from the game's own `interact`. **Tested** again (same setup, 450 s): 1 such line on
+the host, 0 on the client; 112 vocal hits, band score 40,070 in the host's game.

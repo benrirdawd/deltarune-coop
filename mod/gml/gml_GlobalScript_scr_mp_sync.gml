@@ -1217,7 +1217,7 @@ function mp_sync_tick()
             }
             break;
     }
-    global.mp_prev_interact = global.interact;
+    global.mp_prev_interact = (global.interact != 0 && mp_rhythm_song_on()) ? 0 : global.interact;
     if (global.interact == 0 && global.mp_sstate <= 1)
     {
         global.mp_calm_plot = global.plot;
