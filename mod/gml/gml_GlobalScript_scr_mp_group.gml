@@ -753,3 +753,53 @@ function mp_noai_party()
     mp_log("players' heroes only: party " + string(global.char[0]) + string(global.char[1]) + string(global.char[2]) + " -> " + string(party[0]) + string(party[1]) + string(party[2]));
     mp_party_set_local(party);
 }
+
+// ---------------------------------------------------------------- fights meant for one hero
+// Some story fights are made for one hero (Chapter 4's Hammer of Justice: Susie alone). In a session
+// the others play too (user's rule, TODO "Special fights"): the story's hero plus every player's
+// hero, the story's hero first. The pulled players take this party from the leader's pull.
+function mp_one_hero_fight()
+{
+    var names = ["obj_hammer_of_justice_enemy"];
+    for (var m = 0; m < 3; m++)
+    {
+        if (!global.monster[m])
+            continue;
+        for (var i = 0; i < array_length(names); i++)
+        {
+            var o = asset_get_index(names[i]);
+            if (o >= 0 && global.monsterinstancetype[m] == o)
+                return true;
+        }
+    }
+    return false;
+}
+
+function mp_one_hero_fight_party()
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || !variable_global_exists("monster") || !mp_one_hero_fight())
+        return;
+    var party = [0, 0, 0];
+    var n = 0;
+    for (var s = 0; s < 3; s++)
+    {
+        if (global.char[s] != 0 && n < 3)
+        {
+            party[n] = global.char[s];
+            n += 1;
+        }
+    }
+    var others = mp_party_of(255);
+    for (var k = 0; k < 3; k++)
+    {
+        var c = others[k];
+        if (c == 0 || n >= 3 || c == party[0] || c == party[1] || c == party[2])
+            continue;
+        party[n] = c;
+        n += 1;
+    }
+    if (party[0] == global.char[0] && party[1] == global.char[1] && party[2] == global.char[2])
+        return;
+    mp_log("one-hero fight: the players' heroes join, party " + string(global.char[0]) + string(global.char[1]) + string(global.char[2]) + " -> " + string(party[0]) + string(party[1]) + string(party[2]));
+    mp_party_set_local(party);
+}

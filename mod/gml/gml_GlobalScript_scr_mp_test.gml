@@ -1079,6 +1079,12 @@ function mp_test_input()
     {
         if (global.mnfight == 2 && instance_exists(obj_heart))
         {
+            // A box waiting during the attack (Gerson talks between his spear throws): Z, as a player would.
+            if (instance_exists(obj_writer) && mp_dlg_box_waiting() && (f mod 20) == 0)
+            {
+                global.input_pressed[4] = 1;
+                return;
+            }
             // nododge: stand still and take the hits (to test downed players and Game Over)
             if (!mp_test_has("nododge"))
             {

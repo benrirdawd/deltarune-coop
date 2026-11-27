@@ -4,6 +4,21 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Hammer of Justice: the other players' heroes join Susie (2026-11-26, part 1)
+
+Chapter 4's Hammer of Justice (encounter 160) is made for Susie alone: the battle's Create sets the
+party to her. In a session the other players' heroes now join her right after that line
+(`mp_one_hero_fight_party` in `scr_mp_group`, the story's hero first), and it is a normal fight:
+it left the "special" list (each player plays their own hero, the same-time menu, each dodges with
+their own green SOUL). The fight looked stuck in its first attack before: Gerson talks between his
+spear throws and waits for Z, which the test bot never pressed in the attack phase; the bot now
+presses Z on a waiting box there (as a player would). Not a mod bug.
+**Tested** (Chapter 4, `room_dw_church_arena`, encounter 160, Kris host + Susie client with
+`chaos:10:120:60`, bots, 20x): "party 200 -> 210" in both games, KRIS and SUSIE panels; five turns
+with the same HP, TP and Gerson HP in both games (1350, 1258, 1175, 1090, 1000). `mpcheck`: all PASS.
+Seen, open (TODO): a loss isn't shared yet (the client's heroes fell first: its Game Over, the host's
+fight went on).
+
 ## Shadow Mantle: retries with 2 players (2026-11-26)
 
 After a loss each player walks back to the console and plays again on their own: the sword intro,

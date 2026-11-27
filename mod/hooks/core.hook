@@ -804,3 +804,20 @@ if (instance_exists(parentid) && mp_coaster_absent(parentid.HeroID))
     exit;
 
 #chapters all
+
+;; Chapter 4's Hammer of Justice is made for Susie alone (the game sets the party to her right here):
+;; in a session the other players' heroes join her (scr_mp_group, mp_one_hero_fight_party).
+#chapters 4
+@find gml_Object_obj_battlecontroller_Create_0
+    global.char[0] = 2;
+    global.char[1] = 0;
+    global.char[2] = 0;
+    questionmercy[0] = 1;
+@with
+    global.char[0] = 2;
+    global.char[1] = 0;
+    global.char[2] = 0;
+    questionmercy[0] = 1;
+    mp_one_hero_fight_party();
+@end
+#chapters all
