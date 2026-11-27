@@ -54,22 +54,24 @@ function mp_rhythm_step()
 // Is this chart played by my keys?
 function mp_rhythm_mine(ch)
 {
+    var rg = asset_get_index("obj_rhythmgame"); // (by name: only Chapter 3 has it)
     if (ch.auto_play || ch.instrument == 0)
         return false;
-    if (!instance_exists(obj_rhythmgame) || obj_rhythmgame.tenna_boss)
+    if (!instance_exists(rg) || rg.tenna_boss)
         return false;
     return mp_rhythm_my_part() == ch.instrument;
 }
 
 function mp_rhythm_key(lane, held)
 {
+    var rg = asset_get_index("obj_rhythmgame"); // (by name: only Chapter 3 has it)
     var r = false;
     // (Test token rhythmbot: press each vocal note on time, hold the long ones.)
-    if (mp_test_has("rhythmbot") && instance_exists(obj_rhythmgame))
+    if (mp_test_has("rhythmbot") && instance_exists(rg))
     {
-        var tp = obj_rhythmgame.trackpos;
+        var tp = rg.trackpos;
         var mine = mp_rhythm_my_part();
-        with (obj_rhythmgame_chart)
+        with (asset_get_index("obj_rhythmgame_chart"))
         {
             if (instrument != mine)
                 continue;
@@ -88,7 +90,7 @@ function mp_rhythm_key(lane, held)
         return r;
     }
     var drum = mp_rhythm_my_part() == 1;
-    with (obj_rhythmgame)
+    with (rg)
     {
         // (Drums: the two pads Left/Z and Right/X, the bass bar across them Down or Up.)
         if (drum && lane == 1)
@@ -111,6 +113,7 @@ function mp_rhythm_key(lane, held)
 // with the game's own snare.
 function mp_rhythm_hit(ch, lane)
 {
+    var rg = asset_get_index("obj_rhythmgame"); // (by name: only Chapter 3 has it)
     if (!mp_rhythm_mine(ch))
         return;
     if (instance_exists(ch.performer))
@@ -126,11 +129,11 @@ function mp_rhythm_hit(ch, lane)
                 event_user(0);
             var sn = asset_get_index("rhythm_battle_snare");
             if (sn >= 0)
-                snd_play_x(sn, 0.8, obj_rhythmgame.pitch);
+                script_execute(asset_get_index("snd_play_x"), sn, 0.8, rg.pitch);
         }
     }
     global.mp_rh_hits = (variable_global_exists("mp_rh_hits") ? global.mp_rh_hits : 0) + 1;
-    mp_log("rhythm: " + (ch.instrument == 2 ? "vocal" : "drum") + " hit " + string(global.mp_rh_hits) + " score " + string(obj_rhythmgame.total_score));
+    mp_log("rhythm: " + (ch.instrument == 2 ? "vocal" : "drum") + " hit " + string(global.mp_rh_hits) + " score " + string(rg.total_score));
 }
 
 // Chapter 3's band song (not the sound check before it) is playing here. It is not a shared
@@ -173,14 +176,16 @@ function mp_rhythm_remote(part)
 // obj_rhythmgame_chart Step (prepended) and just before its end.
 function mp_rhythm_chart_pre()
 {
-    mp_rh_pre = instance_exists(obj_rhythmgame) ? obj_rhythmgame.total_score : 0;
+    var rg = asset_get_index("obj_rhythmgame"); // (by name: only Chapter 3 has it)
+    mp_rh_pre = instance_exists(rg) ? rg.total_score : 0;
 }
 
 function mp_rhythm_chart_post(ch)
 {
+    var rg = asset_get_index("obj_rhythmgame"); // (by name: only Chapter 3 has it)
     if (!variable_instance_exists(ch, "mp_rh_gain"))
         ch.mp_rh_gain = 0;
-    ch.mp_rh_gain += obj_rhythmgame.total_score - ch.mp_rh_pre;
+    ch.mp_rh_gain += rg.total_score - ch.mp_rh_pre;
 }
 
 function mp_rhythm_recv(from, b)

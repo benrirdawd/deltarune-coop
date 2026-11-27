@@ -453,7 +453,7 @@ function mp_test_tick()
         global.mp_test_trigdone = 1;
         var tn = mp_test_arg("trig");
         var found = noone;
-        with (obj_trigger)
+        with (asset_get_index("obj_trigger"))
         {
             if (variable_instance_exists(id, "extflag") && extflag == tn)
                 found = id;

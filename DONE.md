@@ -2674,3 +2674,16 @@ README updated (5 commits): scene backdrops and effects in Chapter 5.
 with `mash` + client Susie, `chaos:10:120:60`, 140 s, shots from 30 to 110 s): the client's flashback
 is blurred like the host's (silhouettes, papers and red threads soft and doubled); the sunset and the
 text boxes as before; no errors.
+
+## Release check: every chapter patches with the launcher's paths (2026-11-27)
+Packing v21, the packaged patcher (called by the launcher with Windows paths) refused Chapters 1
+and 2: the rhythm game's script named Chapter 3's `obj_rhythmgame`, `obj_rhythmgame_chart` and
+`snd_play_x`, and the test script `obj_trigger`. `tools/build.sh` never saw it: with Git Bash's
+"/" paths the patcher's asset check compared two spellings of the same folder and skipped every
+top-level script. Fixed both: those names are now looked up by name (`asset_get_index`), and the
+patcher compares full paths, so build.sh checks what the launcher checks.
+**Tested:** all 5 chapters build with build.sh, and the self-contained patcher patches all 5 with
+Windows paths; Chapter 3 rhythm game (`room_dw_rhythm` plot 130, host Kris with `mash` + client
+Susie with `chaos:10:120:60`, `rhythmbot`, 210 s): the client drums (320 hits, score 55,800), the
+host's band score adds the client's part (40,560: mine 14,080 + others 26,480); text boxes within
+about 1 s of each other; no errors.
