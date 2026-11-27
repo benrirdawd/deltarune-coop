@@ -7,7 +7,8 @@
 //   kind 1  its Draw event draws its own sprite: same as 0, or, when the drawing call's arguments
 //           only use things that always exist on the instance, those exact arguments (a generated
 //           function per object, mp_mie_<object>, returning [sprite, frame, x, y, xscale, yscale,
-//           angle, colour, alpha]; kind 3) - e.g. a fade stretched over the screen, a shake offset
+//           angle, colour, alpha], or -1 when an early "if (...) exit;" before the call says it
+//           draws nothing now; kind 3) - e.g. a fade stretched over the screen, a shake offset
 //   kind 2  its Draw event draws something else (text, shapes, nothing): not sent
 // The result is a generated script, scr_mp_mirrorinfo, with mp_mirror_info_init().
 using System.Text;
@@ -20,6 +21,10 @@ static class MirrorInfo
     static readonly Regex DrawCall = new(@"\b(draw_self|draw_sprite_ext|draw_sprite)\s*\(", RegexOptions.Compiled);
     static readonly Regex Ident = new(@"(?<![\w.""])([A-Za-z_]\w*)(\s*\()?", RegexOptions.Compiled);
     static readonly Regex VarDecl = new(@"\bvar\s+([^;]+);", RegexOptions.Compiled);
+    // An early way out before the drawing call: "if (cond) { exit; }" or "if (cond) exit;".
+    static readonly Regex ExitGuard = new(@"(?m)^if \((.*)\)\s*(?:\{\s*exit;\s*\}|exit;)", RegexOptions.Compiled);
+    // Functions a guard may call (they only look, they change nothing).
+    static readonly HashSet<string> PureCalls = new() { "i_ex", "instance_exists", "variable_instance_exists", "is_undefined", "sprite_exists" };
     static readonly Regex Assign = new(@"(?m)^\s*(?:self\.)?([A-Za-z_]\w*)\s*(?:\[[^\]]*\])?\s*(?:=|\+=|-=|\*=|/=)", RegexOptions.Compiled);
 
     static readonly HashSet<string> Builtins = new()
@@ -111,7 +116,15 @@ static class MirrorInfo
             }
             string fn = m.Groups[1].Value;
             string[] full = null;
-            if (fn == "draw_sprite_ext" && args.Count == 9)
+            // The ways out before the call (an object switched off draws nothing).
+            var guards = new List<string>();
+            var before = draw.Substring(0, m.Index);
+            foreach (Match gm in ExitGuard.Matches(before))
+                if (Depth(draw, gm.Index) == 0)
+                    guards.Add(gm.Groups[1].Value.Trim());
+            if (fn == "draw_self" && guards.Count > 0)
+                full = new[] { "sprite_index", "image_index", "x", "y", "image_xscale", "image_yscale", "image_angle", "image_blend", "image_alpha" };
+            else if (fn == "draw_sprite_ext" && args.Count == 9)
                 full = args.Select(a => a.Trim()).ToArray();
             else if (fn == "draw_sprite" && args.Count == 4)
                 full = new[] { args[0].Trim(), args[1].Trim(), args[2].Trim(), args[3].Trim(), "1", "1", "0", "c_white", "1" };
@@ -148,26 +161,32 @@ static class MirrorInfo
                 if (!ct.Contains("event_inherited"))
                     break;
             }
-            bool ok = true;
-            foreach (var a in full)
+            bool Sure(string a, bool guard)
             {
-                if (a.Contains("other.") || a.Contains("e__") || a.Contains("argument") || a.Contains("\"")) { ok = false; break; }
+                if (a.Contains("other.") || a.Contains("e__") || a.Contains("argument") || a.Contains("\"")) return false;
                 foreach (Match im in Ident.Matches(a))
                 {
                     string id = im.Groups[1].Value;
-                    if (im.Groups[2].Success) continue; // a function call
+                    if (im.Groups[2].Success)
+                    {
+                        // A function call: in a guard only one that just looks.
+                        if (guard && !PureCalls.Contains(id)) return false;
+                        continue;
+                    }
                     if (a.Length > im.Index && im.Index > 0 && a[im.Index - 1] == '.') continue;
-                    if (locals.Contains(id)) { ok = false; break; }
+                    if (locals.Contains(id)) return false;
                     if (known.Contains(id) || assets.Contains(id) || id.StartsWith("c_") || id.StartsWith("bm_") || id.StartsWith("fa_")) continue;
-                    ok = false;
-                    break;
+                    return false;
                 }
-                if (!ok) break;
+                return true;
             }
-            if (!ok) continue;
+            if (!full.All(a => Sure(a, false)) || !guards.All(g => Sure(g, true)))
+                continue;
             // global.* is fine only when it's a whole name (global.darkzone), which Ident skips.
             funcs.AppendLine($"function mp_mie_{name}()");
             funcs.AppendLine("{");
+            foreach (var g in guards)
+                funcs.AppendLine($"    if ({g}) return -1;");
             funcs.AppendLine($"    return [{string.Join(", ", full)}];");
             funcs.AppendLine("}");
             funcs.AppendLine();

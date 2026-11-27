@@ -2535,3 +2535,18 @@ start when the player walks into a spot the room's layout makes hard to reach wi
 **Tested:** all 5 chapters build; Chapter 5 `room_dw_fcastle_top_intro`, plot 435,
 `climb:200,trig:enter_trigger` (host Kris + client Susie, `chaos:10:120:60`, 80 s): the scene starts,
 the client watches it to the end; no errors.
+
+## Chapter 3's show: no stray yellow dots over the audience for the watchers (2026-11-27)
+The yellow dots over the audience in the watcher's game were not the TV's star background: they
+were the "TV TIME" lights (`obj_tenna_tv_time`, `spr_dw_tv_time_lights`). That object waits switched
+off (`if (!is_active) exit;` at the top of its Draw) and draws nothing in the leader's game, but the
+mirror's generated guess for it (MirrorInfo.cs, kind 3) only read the drawing call and sent the
+lights every frame. The patcher now also reads the early ways out before the call
+(`if (cond) exit;` at the top level, when the condition only uses the instance's own variables,
+assets and look-only functions such as `i_ex`) and puts them in the generated function, which then
+sends nothing while the object is off (18 objects in Chapter 3; also objects that only `draw_self`
+after such a check get one).
+**Tested:** all 5 chapters build; Chapter 3 `room_ch3_gameshowroom`, plot 70 (host Kris with `mash`
++ client Susie, `chaos:10:120:60`, 60 s, shots at 48/51/54/57 s): at the audience moment the
+client shows the stage, the floor's gradient and the audience as the host, 0 yellow pixels in the
+lower third (841 in the earlier run); no errors.
