@@ -903,7 +903,7 @@ function mp_mirror_layers_recv(from, b)
 function mp_mirror_keep_init()
 {
     global.mp_mir_keep = [];
-    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris"];
+    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight"];
     for (var i = 0; i < array_length(names); i++)
     {
         var o = asset_get_index(names[i]);
@@ -1002,18 +1002,44 @@ function mp_mirror_keep_send()
             for (var v = 0; v < array_length(nms); v++)
             {
                 var val = variable_instance_get(inst, nms[v]);
-                if (!(is_real(val) || is_bool(val) || is_int32(val) || is_int64(val)))
-                    continue;
-                val = real(val);
-                // (Not the ids of objects it made, which are the leader's own: "none" there.)
-                if (val >= 100000 && instance_exists(val))
-                    val = noone;
-                var e = [obj, k, nms[v], val];
-                var key = string(obj) + ":" + string(k) + ":" + nms[v];
-                if (ds_map_find_value(m, key) != val)
-                    array_push(chg, e);
-                else
-                    array_push(rest, e);
+                // (Small arrays element by element, as "name[i]": Chapter 3's podium letters.)
+                var vals = [val], vn = [nms[v]];
+                if (is_array(val))
+                {
+                    if (array_length(val) > 8)
+                        continue;
+                    vals = val;
+                    vn = [];
+                    for (var ai = 0; ai < array_length(val); ai++)
+                        vn[ai] = nms[v] + "[" + string(ai) + "]";
+                }
+                for (var ai = 0; ai < array_length(vals); ai++)
+                {
+                    var one = vals[ai];
+                    var nm1 = vn[ai];
+                    // (Text as "$" names: Chapter 3's TV screen shows what its screen_state says.)
+                    if (is_string(one))
+                    {
+                        if (string_length(one) > 60)
+                            continue;
+                        nm1 = "$" + nm1;
+                    }
+                    else if (is_real(one) || is_bool(one) || is_int32(one) || is_int64(one))
+                    {
+                        one = real(one);
+                        // (Not the ids of objects it made, which are the leader's own: "none" there.)
+                        if (one >= 100000 && instance_exists(one))
+                            one = noone;
+                    }
+                    else
+                        continue;
+                    var e = [obj, k, nm1, one];
+                    var key = string(obj) + ":" + string(k) + ":" + nm1;
+                    if (ds_map_find_value(m, key) != one)
+                        array_push(chg, e);
+                    else
+                        array_push(rest, e);
+                }
             }
         }
     }
@@ -1039,7 +1065,10 @@ function mp_mirror_keep_send()
         mp_wu16(a[0]);
         mp_wu8(a[1]);
         mp_wstr(a[2]);
-        buffer_write(global.mp_msg, buffer_f64, a[3]);
+        if (string_char_at(a[2], 1) == "$")
+            mp_wstr(a[3]);
+        else
+            buffer_write(global.mp_msg, buffer_f64, a[3]);
     }
     mp_send();
 }
@@ -1055,7 +1084,14 @@ function mp_mirror_keep_recv(from, b)
         var obj = buffer_read(b, buffer_u16);
         var k = buffer_read(b, buffer_u8);
         var nm = buffer_read(b, buffer_string);
-        var val = buffer_read(b, buffer_f64);
+        var val;
+        if (string_char_at(nm, 1) == "$")
+        {
+            val = buffer_read(b, buffer_string);
+            nm = string_delete(nm, 1, 1);
+        }
+        else
+            val = buffer_read(b, buffer_f64);
         if (!use || !mp_mirror_kept(obj))
             continue;
         if (nm == "#n")
@@ -1072,7 +1108,21 @@ function mp_mirror_keep_recv(from, b)
             set += mp_mirror_set_builtin(inst, nm, val);
             continue;
         }
-        if (variable_instance_get(inst, nm) != val)
+        var bp = string_pos("[", nm);
+        if (bp > 0)
+        {
+            // (An element of one of its arrays: only into an array it has.)
+            var arr = variable_instance_get(inst, string_copy(nm, 1, bp - 1));
+            var ai = real(string_copy(nm, bp + 1, string_length(nm) - bp - 1));
+            if (is_array(arr) && ai < array_length(arr) && (is_string(arr[ai]) != is_string(val) || arr[ai] != val))
+            {
+                arr[@ ai] = val;
+                set++;
+            }
+            continue;
+        }
+        var cur = variable_instance_get(inst, nm);
+        if (is_string(cur) != is_string(val) || cur != val)
         {
             variable_instance_set(inst, nm, val);
             set++;

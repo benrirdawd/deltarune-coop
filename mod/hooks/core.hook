@@ -1104,3 +1104,17 @@ $1mp_tenna_mg_done($3.myscore);
 $1$2
 @end
 #chapters all
+;; Chapter 3: the show's TV screen (its CRT shader), the contestants' podiums (their names as
+;; text), the audience in front and Tenna's spotlight are kept scenery: they draw themselves in the
+;; watchers' games with the leader's state and names, their own Step paused while they watch.
+#chapters 3
+@prepend gml_Object_obj_dw_gameshow_screen_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_quiz_podium_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_ch3_audience_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+#chapters all

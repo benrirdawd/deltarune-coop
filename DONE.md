@@ -2469,3 +2469,17 @@ end of the closet, client Susie at the start, `chaos:10:120:60`, 64 s): the clie
 part, then the end part; the wall goes at the same time as in the host's game, the hand-drawn
 sprite of Kris and Susie falling shows on the client, and the scene takes the client to
 `room_dark1` with the host (plot 11); no errors in either log.
+
+## Chapter 3's show intro: Tenna's TV, podiums and audience for the watchers (2026-11-27)
+Compared the show's opening (`obj_ch3_GSA02`, `room_ch3_gameshowroom`, plot 70) host vs client.
+The watcher saw a black TV in the back, blank podiums and no audience. Those objects draw
+themselves (the TV with the CRT shader, the names as text, the crowd by hand), so they are now kept
+scenery: `obj_dw_gameshow_screen`, `obj_quiz_podium`, `obj_ch3_audience` (Steps paused while
+watching), and `obj_ch3_GSA02_spotlight`. The kept variables now also carry text (as "$" names:
+the screen's `screen_state`, the podium's `mystring`) and small arrays element by element.
+**Tested:** all 5 chapters build; Chapter 3 `room_ch3_gameshowroom`, plot 70 (host Kris + client
+Susie, `chaos:10:120:60`, 82 s): on the client the TV shows "TV TIME" and then the pyramid as on
+the host, the podiums show "???" and then the names, the audience rises at the front; no errors.
+**Still open:** Tenna's spotlight at the start stays dark for the watcher: the mirror draws all the
+leader's sprites at one depth in front, so the scene's black cover is drawn over the kept spotlight
+(TODO item 8).

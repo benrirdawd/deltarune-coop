@@ -158,7 +158,9 @@ for each, the simplest that keeps the original's feel.
    itself show for the watchers (kept scenery, copies of the ones the scene makes, sprites behind
    the tiles drawn behind them, and the sprites an object draws by hand sent through `mp_mir_dse`).
    **Open:** compare other big scenes the same way (host/client `SHOTS` at the same moments), one per
-   cycle: Chapter 1's fountain and closet done (2026-11-27, DONE.md); Chapter 3's board intro, Chapter 4's church scenes,
+   cycle: Chapter 1's fountain and closet, Chapter 3's show intro done (2026-11-27, DONE.md); open there:
+   Tenna's spotlight (kept scenery between mirrored sprites needs the mirror's drawer split at the
+   kept objects' depths, as the back drawer is split at the tiles); Chapter 4's church scenes,
    Chapter 5's castle scenes. An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
 
