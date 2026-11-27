@@ -1582,6 +1582,9 @@ function mp_dialogue_text()
         {
             if (ch == "&" || ch == "#")
                 out += "\n";
+            // (The writer indents a wrapped line under "* " with "||".)
+            else if (ch == "|")
+                out += " ";
             else if (ch != "/" && ch != "%")
                 out += ch;
             i += 1;
@@ -1966,6 +1969,9 @@ function mp_draw_talk_bubble(pid, cx, ty)
     var t = global.mp_ptalk[pid];
     if ((current_time - global.mp_ptalk_t[pid]) > 2500)
         t = "";
+    // (Shown in the game's own text box instead: mp_overheard_draw.)
+    if (variable_global_exists("mp_ovh_pid") && global.mp_ovh_pid == pid)
+        t = "";
     // A quick message (F9 "Say") for 4 s.
     if (t == "" && (current_time - global.mp_pchat_t[pid]) < 4000)
         t = global.mp_pchat[pid];
@@ -2248,4 +2254,79 @@ function mp_vote_status()
         t += (k > 0 ? ", " : "") + global.mp_pname[p] + ": " + nm + (voted ? " (voted)" : "");
     }
     return t;
+}
+
+// Someone in my room is talking to an NPC on their own: I hear it too. Their text shows in the
+// game's own text box (scr_dbox, its font, placed as the game places it for me), typing out as it
+// does, while I keep walking. Not over my own text box, menu, fight, scene or minigame.
+// (Called from obj_mp_mirror's Draw, in front of the room.)
+function mp_overheard_pick()
+{
+    var best = -1;
+    var bt = 0;
+    if (!mp_on() || global.mp_sstate != 0 || mp_in_battle_scene() || global.interact != 0 || instance_exists(obj_writer) || global.mp_mg != "" || !instance_exists(obj_mainchara))
+        return -1;
+    for (var i = 0; i < 8; i++)
+    {
+        if (i == global.mp_myid || !global.mp_pconn[i] || global.mp_proom[i] != room || global.mp_ptalk[i] == "")
+            continue;
+        if ((current_time - global.mp_ptalk_t[i]) > 2500)
+            continue;
+        if (global.mp_ptalk_t[i] > bt)
+        {
+            bt = global.mp_ptalk_t[i];
+            best = i;
+        }
+    }
+    return best;
+}
+
+function mp_overheard_draw()
+{
+    if (!variable_global_exists("mp_ovh_pid"))
+    {
+        global.mp_ovh_pid = -1;
+        global.mp_ovh_text = "";
+        global.mp_ovh_t0 = 0;
+        global.mp_ovh_side = 1;
+    }
+    var p = mp_overheard_pick();
+    if (p < 0)
+    {
+        global.mp_ovh_pid = -1;
+        global.mp_ovh_text = "";
+        return;
+    }
+    var t = global.mp_ptalk[p];
+    if (p != global.mp_ovh_pid || t != global.mp_ovh_text)
+    {
+        // A new box: typed out again; the side is picked as the game picks it, when the box opens.
+        if (p != global.mp_ovh_pid || global.mp_ovh_text == "")
+        {
+            var lim = (global.darkzone == 1) ? 250 : 130;
+            global.mp_ovh_side = (obj_mainchara.y > (camera_get_view_y(view_camera[0]) + lim)) ? 0 : 1;
+        }
+        global.mp_ovh_pid = p;
+        global.mp_ovh_text = t;
+        global.mp_ovh_t0 = current_time;
+    }
+    var f = (global.darkzone == 1) ? 2 : 1;
+    // scr_dbox reads the caller's `side` (0 top, 1 bottom); scr_darkbox animates the caller's
+    // `cur_jewel` (the corner gems), as on the game's own box.
+    side = global.mp_ovh_side;
+    if (!variable_instance_exists(id, "cur_jewel"))
+        cur_jewel = 0;
+    scr_dbox();
+    var cx = camera_get_view_x(view_camera[0]);
+    var cy = camera_get_view_y(view_camera[0]);
+    var tx = cx + (29 * f);
+    var ty = cy + ((side == 0) ? (15 * f) : (170 * f));
+    var n = min(string_length(t), floor((current_time - global.mp_ovh_t0) / 33) + 1);
+    var of = draw_get_font();
+    scr_84_set_draw_font((f == 2) ? "mainbig" : "main");
+    draw_set_color(c_white);
+    draw_set_halign(fa_left);
+    draw_set_valign(fa_top);
+    draw_text_ext(tx, ty, string_copy(t, 1, n), (f == 2) ? 36 : 18, (f == 2) ? 540 : 270);
+    draw_set_font(of);
 }

@@ -300,7 +300,7 @@ choice and real players to judge it; the platformer figure and the special-fight
 | Separate fights: players left out of a fight (hero not in the story party, taken, or a 4th+ player) only watch. | Support for up to 5 players and a proper spectator role. | L |
 | **Done (2026-11-26, DONE.md):** a player in a fight, seen from the map: their hero's battle stance with the fight's enemies standing in front of them. | User (2026-11-25): no need to show choosing and dodging. | done |
 | The host as referee, next steps: NPC talk and battle start through the host (cutscene start already is: the scene lock). | See "The server layer idea" in DONE.md (report 7). | M |
-|  | User (2026-11-25): when a player talks to an NPC with other players in the room, everyone in the room hears the NPC (the text box shows for all, not only a bubble). | M |
+|  | **Done (2026-11-26, DONE.md):** a player talking to an NPC: everyone in the room sees the text in the game's own text box. Open: the speaker's portrait and the typing voice aren't shown/played for the others yet. | done |
 
 ## Not looked at yet
 

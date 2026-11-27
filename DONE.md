@@ -4,6 +4,21 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Talking to an NPC: everyone in the room sees the game's own text box (2026-11-26)
+
+User's design (2026-11-25): when a player talks to an NPC with others in the room, everyone in the
+room hears it, in the text box, not only a bubble. The text a player reads on their own was already
+sent (message 66, for the bubble over them). Now the others in the same room see it in the game's own
+text box (`scr_dbox`, its font, top or bottom picked the way the game picks it for them), typing out,
+while they keep walking; the bubble isn't shown then. Not over their own text box, menu, fight,
+scene or minigame. Also fixed in that text: the writer's "||" indent of a wrapped line showed as
+"ll" (now spaces). Simplest choices: no portrait and no typing voice for the others yet (TODO).
+**Tested** (Chapter 1 `room_cc_throneroom`, plot 242, host Kris talks to Lancer with
+`touch:obj_npc_facing@300`, client Susie in the room with `chaos:10:120:60`, 1x, screenshots): the
+client's screen shows the dark world box with "* Hey, your dad was, uh, protecting the fountain"
+and then "* Yeah, guess..." as Kris reads them, and stays free. The first run crashed (`scr_darkbox`
+counts the box's corner gems on its caller): fixed. `mpcheck` all PASS.
+
 ## A player in a fight, seen from the map: their enemies stand in front of them (2026-11-26)
 
 User's design (2026-11-25): no need to show choosing and dodging; the hero in their battle idle pose
