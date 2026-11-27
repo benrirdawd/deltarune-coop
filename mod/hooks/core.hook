@@ -1145,3 +1145,11 @@ if (mp_mirror_kept_paused())
 if (mp_mirror_kept_paused())
     exit;
 #chapters all
+;; Chapter 5's town colours (the sunset's colour grading, obj_lutshader, and the palette swap) are
+;; kept scenery: the watchers' games grade what they draw as the leader's does. The grading's
+;; texture is the game's own: made again from the slot the leader's game sent.
+#chapters 5
+@prepend gml_Object_obj_lutshader_Draw_0
+if (mp_mirror_kept_paused())
+    lut_texture = sprite_get_texture(asset_get_index("spr_luts"), lut_slot);
+#chapters all

@@ -361,6 +361,10 @@ function mp_mirror_follow_tick()
     }
     if (global.mp_warp_pending)
         return;
+    // The leader's Light/Dark World (a scene that goes from the castle to the town): what the
+    // room's own objects draw depends on it, such as Chapter 5's town colours (drawn at half size
+    // in the Light World). My own comes back when the scene is over (mp_mir_home).
+    mp_dz_take((global.mp_pstate[ld] & 64) != 0 ? 1 : 0);
     // A room the leader's scene moved to.
     var h = global.mp_mir_hdr;
     if (is_array(h) && h[1] != room && global.mp_warp_delay <= 0 && mp_room_ok(h[1]))
@@ -1014,7 +1018,7 @@ function mp_mirror_layers_recv(from, b)
 function mp_mirror_keep_init()
 {
     global.mp_mir_keep = [];
-    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight", "obj_dw_gameshow_stage_overlay", "obj_dw_tv_funometer", "obj_darkness_overlay", "obj_lightbeamfx", "obj_light_area_mask", "obj_light_following"];
+    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight", "obj_dw_gameshow_stage_overlay", "obj_dw_tv_funometer", "obj_darkness_overlay", "obj_lightbeamfx", "obj_light_area_mask", "obj_light_following", "obj_lutshader", "obj_bg_palette_swap"];
     for (var i = 0; i < array_length(names); i++)
     {
         var o = asset_get_index(names[i]);

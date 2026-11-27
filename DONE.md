@@ -2550,3 +2550,18 @@ after such a check get one).
 + client Susie, `chaos:10:120:60`, 60 s, shots at 48/51/54/57 s): at the audience moment the
 client shows the stage, the floor's gradient and the audience as the host, 0 yellow pixels in the
 lower third (841 in the earlier run); no errors.
+
+## Chapter 5's town colours in a watched scene (2026-11-27)
+Compared the castle entrance scene (`obj_ch5_DW19`, `room_dw_fcastle_entrance`, plot 385), which
+goes to a memory of the town (`room_town_north`, `obj_ch5_DW19A`). In the town the leader's game
+has the warm evening colours, the watcher's had the plain ones: the colour grading
+(`obj_lutshader`, made by the room's own controller through `scr_manage_sunstate`) was switched
+off with the rest of the watcher's room. It and the palette swap (`obj_bg_palette_swap`) are now
+kept scenery (the grading's texture made again in the watcher's game from the slot the leader's
+sent). The grading draws at half size in the Light World, and the watcher was still in the Dark
+World from the castle: a watcher now takes the leader's Light/Dark World while watching (its own
+comes back with its room when the scene is over, as before).
+**Tested:** all 5 chapters build; Chapter 5 `room_dw_fcastle_entrance`, plot 385, `trig:dw19`
+(host Kris with `mash` + client Susie, `chaos:10:120:60`, 120 s, shots from 70 to 110 s): the
+scene plays, moves to the town, and the client shows the town in the same evening colours and size
+as the host; no errors.
