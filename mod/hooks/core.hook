@@ -1000,3 +1000,13 @@ mp_rhythm_chart_pre();
                     mp_rhythm_hit(id, i);
 @end
 #chapters all
+
+;; Chapter 3, Tenna's fight: every player's minigame score counts (scr_mp_battle: mp_tenna_mg_done).
+#chapters 3
+@regex gml_Object_obj_tenna_zoom_Step_0
+( *)(o[b]j_tenna_enemy_bg\.addscore \+= (o[b]j_tenna_minigame_ui)\.myscore;)
+@with
+$1mp_tenna_mg_done($3.myscore);
+$1$2
+@end
+#chapters all

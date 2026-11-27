@@ -64,7 +64,8 @@ Online (network) co-op multiplayer for DELTARUNE Chapters 1–5, each player on 
   game board: everyone fights their own copy, and his HP grows with the players, every hit counting
   for all (a friend's hit can be the one that beats him; the copies keep the same HP; each player
   plays their own outro and their own retries). On Chapter 3's sword route the players' heroes stand
-  at the TV beside Kris.
+  at the TV beside Kris. In Tenna's fight everyone plays his minigames in their own game and every
+  player's score adds to the show's score.
 * **Fights made for one hero.** Chapter 4's Hammer of Justice and Gerson's hidden fight (the Sound
   of Justice, both phases) are Susie's fights in the story: in a session the other players' heroes
   join her, each says a line in their colour as they arrive, everyone plays their own hero, and the

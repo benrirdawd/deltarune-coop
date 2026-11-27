@@ -25,6 +25,8 @@ function mp_battle_init()
     for (var mi = 0; mi < 8; mi++)
         global.mp_tdone_mercy[mi] = [0, 0, 0];
     global.mp_ph_mercy = [0, 0, 0];
+    global.mp_tdone_tscore = array_create(8, 0);
+    global.mp_ph_tscore = 0;
     global.mp_tdone_late = array_create(8, 0);
     global.mp_tgo_sent = -1;
     global.mp_tgo_stash = -1;
@@ -361,6 +363,9 @@ function mp_send_tdone(turn, gain)
     for (var m = 0; m < 3; m++)
         mp_wf64(global.mp_ph_mercy[m]);
     global.mp_ph_mercy = [0, 0, 0];
+    // The score my own Tenna minigame earned this phase (mp_tenna_mg_done): the leader adds everyone's.
+    mp_wf64(global.mp_ph_tscore);
+    global.mp_ph_tscore = 0;
     mp_send();
 }
 
@@ -538,6 +543,7 @@ function mp_battle_recv(type, from, b)
         var pm = [0, 0, 0];
         for (var pmi = 0; pmi < 3; pmi++)
             pm[pmi] = buffer_read(b, buffer_f64);
+        var tsc = buffer_read(b, buffer_f64);
         // (Same as an HP report, message 43, for this fight's heroes the sender plays.)
         if (bid3 == global.mp_bid && mp_hp_newer(from, hq2))
         {
@@ -556,6 +562,7 @@ function mp_battle_recv(type, from, b)
         global.mp_tdone_turn[from] = turn3;
         global.mp_tdone_gain[from] = gain;
         global.mp_tdone_mercy[from] = pm;
+        global.mp_tdone_tscore[from] = tsc;
         global.mp_b_mask |= (1 << from);
         // Ready for a turn that was already released: a late joiner. They'll enter at
         // the next TURN_GO, so nobody waits for them until then.
@@ -593,6 +600,7 @@ function mp_battle_recv(type, from, b)
         for (var s3 = 0; s3 < 3; s3++)
             st[19 + s3] = buffer_read(b, buffer_u8);
         st[22] = buffer_read(b, buffer_u8);
+        st[23] = buffer_read(b, buffer_f64);
         if (mp_battle_on() && st[0] == global.mp_bid)
         {
             global.mp_tgo_pending = st;
@@ -652,6 +660,7 @@ function mp_apply_tgo(st)
             }
         }
         mp_battle_apply_hp();
+        mp_tenna_apply_total(st);
     }
     global.mp_bturn = turn;
     global.mp_bgo = turn;
@@ -737,6 +746,7 @@ function mp_host_turn_check()
                 tension += global.mp_tdone_gain[j];
         }
         tension = clamp(tension, 0, global.maxtension);
+        mp_tenna_add_others(t);
         // Mercy each player's own dodging earned (Spamton NEO's BIG SHOTs and string cuts): mine
         // is in my game already; the others' is added, so an ally who does well helps everyone.
         for (var ms = 0; ms < 3; ms++)
@@ -790,6 +800,8 @@ function mp_host_turn_check()
     }
     st[22] = global.mp_b_mask;
     mp_wu8(global.mp_b_mask);
+    st[23] = mp_tenna_total();
+    mp_wf64(st[23]);
     mp_send();
     global.mp_tgo_sent = t;
     for (var k = 0; k < 8; k++)
@@ -1761,6 +1773,7 @@ function mp_tp_bar_fx()
 function mp_tp_phase_start()
 {
     global.mp_ph_mercy = [0, 0, 0];
+    global.mp_ph_tscore = 0;
     global.mp_t_mine = 0;
     global.mp_t_shown = global.tension;
     global.mp_t_sent = -99999;
@@ -3068,5 +3081,73 @@ function mp_foes_draw(pid, fx, fy, a)
         draw_sprite_ext(sp, img, dx, dy, xs, ys, 0, c_white, a * (0.25 + (0.2 * sin(current_time / 250))));
         gpu_set_fog(false, c_white, 0, 1);
         x0 += w + 8;
+    }
+}
+
+
+// ---------------------------------------------------------------- Tenna's minigames (Chapter 3)
+//
+// His minigame turns (the music game, Susiezilla, cooking...) are his attacks: every player plays
+// one in their own copy of the fight. Each player's minigame score counts: it goes out with their
+// "turn done", the fight's leader adds everyone's to the fight's score (the one that unlocks his
+// ultimate and wins at 1000), and the leader's "turn go" brings the total to every game.
+
+// obj_tenna_zoom, as the minigame's score is handed to the fight (core.hook).
+function mp_tenna_mg_done(sc)
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || !mp_battle_on())
+        return;
+    // (Test token tennascore: my minigame scores 10 more.)
+    if (mp_test_has("tennascore"))
+    {
+        sc += 10;
+        with (asset_get_index("obj_tenna_minigame_ui"))
+            myscore += 10;
+    }
+    global.mp_ph_tscore += sc;
+    mp_log("tenna: my minigame scored " + string(sc));
+}
+
+// The fight's score as the leader has it (-1: not Tenna's fight).
+function mp_tenna_total()
+{
+    var bg = asset_get_index("obj_tenna_enemy_bg");
+    if (bg < 0 || !instance_exists(bg))
+        return -1;
+    return bg.myscore + bg.addscore;
+}
+
+// The leader, closing a turn: the others' minigame scores join the fight's.
+function mp_tenna_add_others(t)
+{
+    var bg = asset_get_index("obj_tenna_enemy_bg");
+    if (bg < 0 || !instance_exists(bg))
+        return;
+    var add = 0;
+    for (var j = 0; j < 8; j++)
+    {
+        if (j != global.mp_myid && global.mp_pconn[j] && global.mp_tdone_bid[j] == global.mp_bid && global.mp_tdone_turn[j] == t)
+            add += global.mp_tdone_tscore[j];
+    }
+    if (add != 0)
+    {
+        bg.addscore += add;
+        mp_log("turn " + string(t) + ": the others' minigames scored " + string(add) + " (fight score now " + string(bg.myscore + bg.addscore) + ")");
+    }
+}
+
+// Everyone, at the leader's "turn go": the fight's score is the leader's (my own minigame's score
+// still counting up on screen stays part of it).
+function mp_tenna_apply_total(st)
+{
+    if (array_length(st) < 24 || st[23] < 0)
+        return;
+    var bg = asset_get_index("obj_tenna_enemy_bg");
+    if (bg < 0 || !instance_exists(bg))
+        return;
+    if (bg.myscore + bg.addscore != st[23])
+    {
+        bg.myscore = max(0, st[23] - bg.addscore);
+        mp_log("tenna: fight score " + string(st[23]) + " from the leader");
     }
 }

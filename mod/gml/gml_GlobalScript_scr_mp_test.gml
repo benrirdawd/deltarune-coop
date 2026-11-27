@@ -36,6 +36,8 @@
 //   stuck:<n>       fake a stuck sync state n frames after the party setup (F8 must free it)
 //   weak            enemies have 1 HP (battle ends quickly)
 //   sturdy          heroes have 999 HP in fights (long fights)
+//   halfhp          enemies start fights at 45% HP (e.g. Tenna's minigame turns)
+//   tennascore      each Tenna minigame I play scores 10 more
 //   sturdy          heroes have 10 times their HP in fights (long fights)
 //   dbgchar         log every party change made by the shared state, with the call stack
 //   save            save the game to slot 0 once in free roam (for later load tests)
@@ -1325,6 +1327,11 @@ function mp_test_battle_created()
             global.maxhp[c] = max(global.maxhp[c], 999);
             global.hp[c] = global.maxhp[c];
         }
+    }
+    if (global.mp_test != "" && mp_test_has("halfhp"))
+    {
+        for (var hj = 0; hj < 3; hj++)
+            global.monsterhp[hj] = min(global.monsterhp[hj], floor(global.monstermaxhp[hj] * 0.45));
     }
     if (global.mp_test == "" || !mp_test_has("tough"))
         return;

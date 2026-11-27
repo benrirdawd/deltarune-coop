@@ -2178,3 +2178,22 @@ Fixed on the way: while the song played, the host's log got an "interact 1->0" l
 (18,662 in one song), because the song counts as free time for the sync but the previous value
 was taken from the game's own `interact`. **Tested** again (same setup, 450 s): 1 such line on
 the host, 0 on the client; 112 vocal hits, band score 40,070 in the host's game.
+
+## Tenna's fight: every player's minigame score counts (2026-11-27)
+
+Chapter 3's Tenna fight (encounter 121): his minigame turns (the music game, Susiezilla, cooking,
+the shooting gallery...) are his attacks, so every player plays one in their own copy of the
+fight, but only the score in each player's own game counted there, and the games' fight scores
+(the one that unlocks his ultimate and wins at 1000) drifted apart. Now each player's minigame
+score is sent with their "turn done" (message 44); the fight's leader adds the others' to the
+fight's score the game's own way (`addscore`, counted up on screen), and the leader's "turn go"
+(message 45) brings the fight's score to every game (a player's own minigame score still
+counting up stays part of it).
+Choice (simplest, like Spamton NEO's mercy): the sum of everyone's scores.
+Test tokens `halfhp` (enemies start at 45% HP, so his minigame turns begin) and `tennascore`
+(each of my minigames scores 10 more).
+**Tested** (Chapter 3, encounter 121, host Kris + client Susie with `chaos:10:120:60`, 5x): turn 1
+both minigames scored 58, the leader logged "the others' minigames scored 58 (fight score now
+116)" and the client took "fight score 116 from the leader"; turn 2 the same with 16 + 16 = 148
+in both games; the third minigame (the shooting gallery) was running in both when the test ended;
+no crash.
