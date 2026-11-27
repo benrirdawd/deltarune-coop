@@ -53,7 +53,7 @@ each real one).
 | Ch | Minigame | Objects | Today | Idea |
 |---|---|---|---|---|
 | 2 | Dog car | `obj_dogcar_controller` (touching the dog car) | Local | Idea: one drives and the others ride along (mirror). |
-| 2 | Car adventure | `obj_caradventure_*` | Local | One drives and the others watch. |
+| 2 | Car adventure | `obj_caradventure_*` | **Shared cutscene**: one plays the ride beside Queen's car and the others watch it, the moving road too (tile layers sent), and end up with the party (DONE.md 2026-11-27). |
 | 2 | Berdly's coaster | `obj_berdlycoaster_event`, `obj_coaster` | Cutscene: one game plays it and the others mirror it | — |
 | 3 | The board game | `obj_board_*`, `gml/ch3/scr_mp_board` | Own copy, with board pieces drawn as each player's character and other players' pieces shown on the same board screen | Shared board: one board, each player moves their own piece, with shared items and points. L. |
 | 3 | Rhythm game | `obj_rhythmgame` (also in Chapters 4-5) | Own copy | Each player plays their character's chart (the game has three: Kris guitar, Susie drums, Ralsei vocals). Hits are sent and the score is added up. L. **Part 1 done:** the band song starts in everyone's own game after the intro; Ralsei's player sings the vocals (Kris's guitar plays itself in that copy). **Part 2 done:** Susie's player plays the drum chart (her real part, not the story's failing drummer). **Part 3 done:** the SCORE shown is the band's (each part from its player, the same in every game); the win follows Kris's player's fame meter. |
@@ -120,7 +120,7 @@ each real one).
 | 5 | Castle side room | `obj_dw_fcastle_sidepuzzle` | Local: platforming and a sign, nothing to solve together. |
 | 5 | Flower arena puzzle | `obj_flower_arena_puzzle_manager` | Looked at: in no Chapter 5 room (a leftover); nothing to share. |
 | 5 | New glowing tiles, blocks that remember | `obj_glowtile_puzzle_new`, `obj_pushable_block_memory` | Glowing tiles (hard pressure plates room): the solve flag (1431/1432) is checked every frame, so a friend's solve **ends my copy too**; a run of mine going at that moment now ends properly (spikes down, control back; `scr_mp_garden`). `obj_pushable_block_memory` is in no room (a leftover). |
-| 5 | Shape puzzle | `obj_shapepuzzle` | Local (as in Chapter 2). |
+| 5 | Shape puzzle | `obj_shapepuzzle` | Looked at: only in `room_darkbulbTest`, a developer test room. Nothing to share. |
 
 Known limits of the shared puzzles:
 

@@ -736,6 +736,27 @@ and `chat`: 3 turns, identical state in both games; the log has "ping sent", "sa
   host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
   checks pass except `moved` (nobody walks).
 
+## Watching a cutscene: the road moves, and a scene that takes the party along takes me too (2026-11-27)
+
+Found with Chapter 2's ride beside Queen's car (`room_dw_city_traffic_4`, plot 79), which one player
+plays and the others watch (the shared cutscene), as planned in MINIGAMES.md.
+* **The cars and the road ahead were missing for the watchers** (user report). The ride scrolls the
+  road and its parked cars, which are tiles, by moving the room's tile layers (`tilemap_x`). The
+  mirror only sends instances, so the watchers' road stood still and the cars further on never
+  came. Now the leader's game also sends where each of the room's layers and its tiles are
+  (message 90, every 10 frames, all of them, so a late watcher gets them too), and the watchers
+  move their copy of the layers there. The room is built again when the scene ends.
+* **A watcher was sent back 1,364 px behind the party.** A scene that ends in the room it started in
+  sends the watchers back to where they were. The ride ends at the far end of the road, and the
+  watcher went back to the start. User (2026-11-27): in this scene everyone must go with the one
+  who started it, since there is no way back. Now, when the leader ends more than a screen width
+  (640 px) from where I would go back to, I go with the leader.
+* Test, 2 players, client with `chaos:10:120:60` (`work/fol/car7`). The client watched the whole
+  ride (about 100 s), its 3 road tile layers moved as in the host's game, and it ended at
+  2086,250 next to the host at 2040,250 (before the fix: 728,120). All mpcheck checks pass.
+* Looked at, nothing to do: Chapter 5's shape puzzle is only in `room_darkbulbTest`, a developer
+  test room that can't be reached in play.
+
 ## Chapter 2 shape puzzles: a friend's piece moves in my game too (2026-11-27)
 
 * The shape puzzles (the mansion's dark bulb rooms, Shaun's room): a button steers its piece into

@@ -114,6 +114,7 @@ function mp_mirror_lead_tick()
         ds_grid_sort(g, 0, false);
     }
     global.mp_mir_seq += 1;
+    mp_mirror_layers_send();
     var per = 46;
     var chunks = clamp(ceil(n / per), 1, 6);
     // Past 138 sprites (more than 3 datagrams), a frame goes every other frame (the link sends 4
@@ -348,6 +349,13 @@ function mp_mirror_end(rm, ex, ey, edz, from)
     global.mp_mir_after_room = rm >= 0 ? rm : room;
     global.mp_mir_after_until = current_time + 8000;
     var home = mp_mirror_home(rm, edz);
+    // (A scene that took the party far along this same room, like Chapter 2's ride beside Queen's
+    // car: where I was is now behind them, so I go with the leader.)
+    if (is_array(home) && ex > -9999 && point_distance(home[1], home[2], ex, ey) > 640)
+    {
+        mp_log("mirror: the scene took the party " + string(round(point_distance(home[1], home[2], ex, ey))) + " px along: I go with the leader");
+        home = -1;
+    }
     global.mp_mir_home = -1;
     if (is_array(home))
     {
@@ -622,4 +630,85 @@ function mp_mirror_draw()
         if (sprite_exists(it[0]))
             draw_sprite_ext(it[0], it[1], it[2], it[3], it[4], it[5], it[6], it[7], it[8]);
     }
+}
+
+// The room's own layers as the leader's scene moves them: Chapter 2's ride beside Queen's car
+// scrolls the road and its parked cars, which are tiles, by moving the tile layers (tilemap_x).
+// Only instances are in the sprite list, so the others' road stood still and the cars further on
+// never came. The leader's game sends where each layer and its tiles are (message 90, every 10
+// frames, all of them so someone who starts watching late gets them too); the others move their
+// own copy of the room's layers there. The room is built again when the scene ends.
+function mp_mirror_layers_send()
+{
+    if ((global.mp_mir_seq mod 10) != 0)
+        return;
+    var ls = layer_get_all();
+    var n = array_length(ls);
+    if (n == 0 || n > 60)
+        return;
+    mp_begin(90);
+    mp_wu16(room);
+    mp_wu8(n);
+    for (var i = 0; i < n; i++)
+    {
+        var l = ls[i];
+        mp_wstr(layer_get_name(l));
+        buffer_write(global.mp_msg, buffer_f32, layer_get_x(l));
+        buffer_write(global.mp_msg, buffer_f32, layer_get_y(l));
+        var tm = layer_tilemap_get_id(l);
+        var has = tm != -1;
+        mp_wu8(has);
+        if (has)
+        {
+            buffer_write(global.mp_msg, buffer_f32, tilemap_get_x(tm));
+            buffer_write(global.mp_msg, buffer_f32, tilemap_get_y(tm));
+        }
+    }
+    mp_send();
+}
+
+function mp_mirror_layers_recv(from, b)
+{
+    var rm = buffer_read(b, buffer_u16);
+    var n = buffer_read(b, buffer_u8);
+    var use = global.mp_sstate == 5 && from == global.mp_slead && rm == room;
+    var moved = 0;
+    for (var i = 0; i < n; i++)
+    {
+        var nm = buffer_read(b, buffer_string);
+        var lx = buffer_read(b, buffer_f32);
+        var ly = buffer_read(b, buffer_f32);
+        var has = buffer_read(b, buffer_u8);
+        var tx = 0, ty = 0;
+        if (has)
+        {
+            tx = buffer_read(b, buffer_f32);
+            ty = buffer_read(b, buffer_f32);
+        }
+        if (!use)
+            continue;
+        var l = layer_get_id(nm);
+        if (l == -1)
+            continue;
+        if (layer_get_x(l) != lx || layer_get_y(l) != ly)
+        {
+            layer_x(l, lx);
+            layer_y(l, ly);
+            moved++;
+        }
+        if (has)
+        {
+            var tm = layer_tilemap_get_id(l);
+            if (tm != -1 && (tilemap_get_x(tm) != tx || tilemap_get_y(tm) != ty))
+            {
+                tilemap_x(tm, tx);
+                tilemap_y(tm, ty);
+                moved++;
+            }
+        }
+    }
+    if (!variable_global_exists("mp_mir_laylog"))
+        global.mp_mir_laylog = 0;
+    if (moved > 0 && (global.mp_mir_laylog++ mod 30) == 0)
+        mp_log("mirror: " + string(moved) + " of the room's layers moved as in the leader's game");
 }

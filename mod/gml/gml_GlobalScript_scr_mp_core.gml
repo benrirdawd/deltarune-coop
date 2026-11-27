@@ -607,6 +607,11 @@ function mp_handle(type, sender, b, sock, endpos)
         mp_recv_counter(b);
         return;
     }
+    if (type == 90) // the room's layers in the cutscene I watch (scr_mp_mirror)
+    {
+        mp_mirror_layers_recv(sender, b);
+        return;
+    }
     if (type == 89) // a shape puzzle piece a friend steers (scr_mp_shape)
     {
         mp_shape_recv(sender, b);
