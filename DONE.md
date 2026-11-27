@@ -4,6 +4,21 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Sound of Justice, phase 1: a one-hero fight with everyone (2026-11-26)
+
+Chapter 4's Sound of Justice (encounter 176, Susie alone in the dark) was a "special" fight (the
+leader played every hero). It is now a one-hero fight like the Hammer of Justice: the players'
+heroes join Susie, say their entry lines, Gerson's HP is times the heroes, and each player dodges in
+their own game (the darkness is per screen already). One fix was needed: in phase 1 the game's
+`scr_nextact` is written for Susie alone and calls itself until she acts, so another hero's ACT froze
+the game (seen: the host stopped after Kris's ACT). With heroes joined (`mp_ohf_joined`) the usual
+order for several heroes runs there instead.
+**Tested** (Chapter 4, `room_dw_churchb_nongerson`, encounter 176, Kris host + Ralsei client with
+`chaos:10:120:60`, bots, 20x): party 200 -> 213 and HP x3 in both games; the four turns of phase 1
+with the same HP, TP and Gerson HP in both (3974, 3902, 3758), then the game's own intermission and
+phase 2 (encounter 186) in both, its turn 1 the same in both. `mpcheck`: all PASS except "battle":
+phase 2's turn 0 showed the previous fight's TP in the host's game only (TODO).
+
 ## Fights made for one hero: the enemy's HP times the heroes (2026-11-26, Hammer of Justice part 4)
 
 The user's rule for these fights: the enemy has more HP for more players. On the battle's first

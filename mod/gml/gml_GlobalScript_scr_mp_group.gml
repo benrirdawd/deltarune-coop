@@ -760,7 +760,7 @@ function mp_noai_party()
 // hero, the story's hero first. The pulled players take this party from the leader's pull.
 function mp_one_hero_fight()
 {
-    var names = ["obj_hammer_of_justice_enemy"];
+    var names = ["obj_hammer_of_justice_enemy", "obj_sound_of_justice_enemy"];
     for (var m = 0; m < 3; m++)
     {
         if (!global.monster[m])
@@ -1014,4 +1014,11 @@ function mp_ohf_holding()
 {
     return variable_global_exists("mp_ohf_join") && global.mp_ohf_i < array_length(global.mp_ohf_join)
         && instance_exists(obj_battlecontroller) && global.myfight == 0 && global.mnfight == 0;
+}
+
+// In a fight made for one hero, other players' heroes joined it (see mp_one_hero_fight_party).
+function mp_ohf_joined()
+{
+    return variable_global_exists("mp_inited") && mp_on() && variable_global_exists("mp_ohf_join")
+        && array_length(global.mp_ohf_join) > 0 && global.mp_party_local && mp_one_hero_fight();
 }

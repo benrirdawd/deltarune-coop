@@ -854,3 +854,14 @@ blconscale, 0, mp_blcon_tint(), 1)
         var _y = 0;
 @end
 #chapters all
+
+;; Chapter 4's Sound of Justice, first phase: the game's ACT order there is for Susie alone (it calls
+;; scr_nextact again until she acts, forever when another hero acted). With the players' heroes
+;; joined, the usual order for several heroes runs instead (scr_mp_group, mp_ohf_joined).
+#chapters 4
+@find gml_GlobalScript_scr_nextact
+    if (i_ex(obj_sound_of_justice_enemy) && obj_sound_of_justice_enemy.phase == 1)
+@with
+    if (i_ex(obj_sound_of_justice_enemy) && obj_sound_of_justice_enemy.phase == 1 && !mp_ohf_joined())
+@end
+#chapters all
