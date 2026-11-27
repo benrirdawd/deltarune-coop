@@ -2135,3 +2135,18 @@ Test token `rhythmbot` (the vocals hit on time; Kris's player's guitar plays its
 `chaos:10:120:60`, 5x): the intro is watched together, then both play the song in their own game
 (both shown `[rhythm game]`); the client sang 141 vocal notes, score 48,760, band on the stage
 (screenshots); no crash.
+
+## Rhythm game together, part 2: Susie's player drums (2026-11-27)
+
+The user's design: Susie's part gets a real pattern that plays the original sound, instead of her
+failing every note as in the solo game. The game already has a full drum chart for the band song
+(two pads and a bass bar); in the story it is shown failing (scripted wrong hits, the chart crossed
+out in red). Now, when someone plays Susie, in the band song (not the sound check):
+* in Susie's player's game the drum chart is theirs: Left/Z and Right/X for the pads, Down or Up
+  for the bass bar, scored by the chart's own rules; each hit makes Susie strike that drum and
+  sounds with the game's own snare; Kris's guitar plays itself there;
+* in everyone else's game Susie drums her part properly on her own (the chart lit, no red cross).
+Without a Susie player the story's drummer is unchanged.
+**Tested** (Chapter 3, `room_dw_rhythm` plot 130, host Kris + client Susie with `chaos:10:120:60`,
+5x, `rhythmbot`): both play the song in their own game; the client drummed 569 notes, score
+81,470; both screenshots show Susie's chart live with its combo counting; no crash.

@@ -942,7 +942,7 @@ if (mp_basket_press(id))
 @end
 #chapters all
 
-;; Chapter 3's rhythm game: Ralsei's player sings the vocal chart with their keys (scr_mp_rhythm).
+;; Chapter 3's rhythm game: Ralsei's player sings, Susie's player drums, with their keys (scr_mp_rhythm).
 #chapters 3
 @prepend gml_Object_obj_rhythmgame_Step_0
 mp_rhythm_step();
@@ -978,6 +978,6 @@ mp_rhythm_step();
                     notealive[targetnote[notei]] = 0;
 @with
                     notealive[targetnote[notei]] = 0;
-                    mp_rhythm_hit(id);
+                    mp_rhythm_hit(id, i);
 @end
 #chapters all

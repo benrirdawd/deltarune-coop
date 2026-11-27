@@ -243,8 +243,9 @@ a tie goes to the host.
 While you play a minigame (the rhythm game, the chefs, a quiz, a race, climbing...) the other
 players aren't drawn over it, and they see "Playing the rhythm game..." over where you stand.
 In Chapter 3's band song everyone plays the song in their own game; if you play Ralsei you sing:
-the vocal chart's three columns are Left/Z, Down (or Up) and Right/X, and Kris's guitar plays
-itself in your game.
+the vocal chart's three columns are Left/Z, Down (or Up) and Right/X. If you play Susie you play
+the drums for real: the pads are Left/Z and Right/X, the bass bar Down (or Up). Kris's guitar
+plays itself in your game.
 Climbing walls (Chapters 4-5), you see the other climbers on the wall, each as their own character.
 In Chapter 5's platforming sections the others are shown as their own character too (Susie,
 Ralsei; Kris and Noelle use Kris's figure), and the game's own Susie or Ralsei follower is hidden
