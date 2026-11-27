@@ -81,6 +81,30 @@ function mp_mirror_lead_tick()
     var kinds = global.mp_mi_kind;
     var evals = global.mp_mi_eval;
     var nk = array_length(kinds);
+    // (Test token mirdump: every 10 s, the visible objects that draw on their own and send nothing.)
+    if (global.mp_test != "" && (global.mp_mir_seq mod 600) == 0 && mp_test_has("mirdump"))
+    {
+        var dl = "";
+        with (all)
+        {
+            var oi0 = object_index;
+            if (visible && oi0 >= 0 && oi0 < nk && kinds[oi0] == 2 && !mp_mirror_kept(oi0) && !persistent && !variable_instance_exists(id, "mp_mir_hand"))
+                dl += object_get_name(oi0) + "@" + string(depth) + " ";
+        }
+        mp_log("mirdump: " + dl);
+        // (mirdumpall: every visible object, its kind and depth, and the tiles' depth.)
+        if (mp_test_has("mirdumpall"))
+        {
+            var da = "";
+            with (all)
+            {
+                if (visible && !persistent)
+                    da += object_get_name(object_index) + ":" + string(object_index < nk ? kinds[object_index] : -1) + "@" + string(depth) + (sprite_index >= 0 ? ":" + sprite_get_name(sprite_index) + "a" + string(image_alpha) : "") + " ";
+            }
+            mp_log("mirdumpall: cut " + string(mp_mirror_tile_cut()) + " " + da);
+            mp_log("mirdumpall layers: " + mp_mirror_layer_dump());
+        }
+    }
     with (all)
     {
         if (visible && n < 300)
@@ -666,6 +690,18 @@ function mp_mirror_obj_step()
         return;
     }
     mp_mirror_camera();
+    // (Test token mirdumpall, watching: every 10 s, what is still active and showing in my game.)
+    if (global.mp_test != "" && global.mp_sstate == 5 && (global.mp_frame mod 600) == 0 && mp_test_has("mirdumpall"))
+    {
+        var da = "";
+        with (all)
+        {
+            if (visible && !persistent)
+                da += object_get_name(object_index) + "@" + string(depth) + " ";
+        }
+        mp_log("mirdumpall (watching): " + da);
+        mp_log("mirdumpall layers: " + mp_mirror_layer_dump());
+    }
     // Under the text box (which the game draws at its own depth), over the room.
     var d = -9000;
     with (obj_dialoguer)
@@ -784,6 +820,16 @@ function mp_mirror_draw(kind)
 // changed since, then a rotating share of the rest, so a late watcher gets them all; at most 25
 // a message). The others set their own copy of the room's layers so. The room is built again
 // when the scene ends.
+// (Test token mirdumpall: the room's layers, name:depth:visible:x,y:old tiles.)
+function mp_mirror_layer_dump()
+{
+    var ls = layer_get_all();
+    var t = "";
+    for (var i = 0; i < array_length(ls); i++)
+        t += layer_get_name(ls[i]) + ":" + string(layer_get_depth(ls[i])) + ":" + string(layer_get_visible(ls[i])) + ":" + string(layer_get_x(ls[i])) + "," + string(layer_get_y(ls[i])) + ":" + string(mp_mirror_old_tiles(ls[i])) + " ";
+    return t;
+}
+
 function mp_mirror_layer_state(l)
 {
     var tm = layer_tilemap_get_id(l);
@@ -968,7 +1014,7 @@ function mp_mirror_layers_recv(from, b)
 function mp_mirror_keep_init()
 {
     global.mp_mir_keep = [];
-    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight"];
+    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris", "obj_dw_gameshow_screen", "obj_quiz_podium", "obj_ch3_audience", "obj_ch3_GSA02_spotlight", "obj_dw_gameshow_stage_overlay", "obj_dw_tv_funometer"];
     for (var i = 0; i < array_length(names); i++)
     {
         var o = asset_get_index(names[i]);
@@ -984,6 +1030,17 @@ function mp_mirror_keep_init()
         var o = asset_get_index(made[i]);
         if (o >= 0)
             array_push(global.mp_mir_made, o);
+    }
+    // And the ones drawn over another kept one at the same depth in the leader's game (the order of
+    // equal depths is the engine's own, not the same in every game): a step nearer here. Chapter 3's
+    // stage overlay darkens the floor over the TV screen's star background, both at 990000.
+    global.mp_mir_front = [];
+    var front = ["obj_dw_gameshow_stage_overlay"];
+    for (var i = 0; i < array_length(front); i++)
+    {
+        var o = asset_get_index(front[i]);
+        if (o >= 0)
+            array_push(global.mp_mir_front, o);
     }
     global.mp_mir_ksent = ds_map_create();
     global.mp_mir_kroom = -1;
@@ -1231,7 +1288,15 @@ function mp_mirror_set_builtin(inst, nm, v)
         {
             case "@x": if (x != v) { x = v; did = 1; } break;
             case "@y": if (y != v) { y = v; did = 1; } break;
-            case "@depth": if (depth != v) { depth = v; did = 1; } break;
+            case "@depth":
+                var dv = v;
+                for (var fi = 0; fi < array_length(global.mp_mir_front); fi++)
+                {
+                    if (global.mp_mir_front[fi] == object_index)
+                        dv = v - 1;
+                }
+                if (depth != dv) { depth = dv; did = 1; }
+                break;
             case "@sprite_index": if (sprite_index != v && sprite_exists(v)) { sprite_index = v; did = 1; } break;
             case "@image_index": if (image_index != v) { image_index = v; did = 1; } break;
             case "@image_alpha": if (image_alpha != v) { image_alpha = v; did = 1; } break;

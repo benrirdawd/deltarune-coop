@@ -2497,3 +2497,18 @@ with Tenna in front, as the host. Chapter 2's scene 26 again (`pos:1080:240,walk
 165 s): city, Queen's head, the fall, the coaster, the power-up and the GigaQueen fight as before.
 Seen there, already in the earlier run: a caught error at the end of the GigaQueen fight
 (`obj_thrash_intro`, noted under GigaQueen in the TODO). (Test note: `walkto` only acts with `bot`.)
+
+## Chapter 3's show: the stage floor's shade and the fun-o-meter for the watchers (2026-11-27)
+The floor in front of the stage was lit for the watcher and dark in the leader's game: the shade is
+`obj_dw_gameshow_stage_overlay`, which draws rectangles (nothing the mirror can send). It is now
+kept scenery, and so is `obj_dw_tv_funometer` (its Draw picks the meter's sprites by its own state;
+the mirror's guess sent its plain sprite). Kept objects that the leader's game draws over another
+at the same depth get a step nearer in the watcher's game (`global.mp_mir_front`: the overlay over
+the TV screen, both at 990000; equal depths draw in an order of the engine's own).
+New test tokens: `mirdump` (the leader logs, every 10 s, the visible objects that draw on their own
+and send nothing) and `mirdumpall` (every visible object with its kind, depth and sprite, and the
+room's layers; on the watcher too).
+**Tested:** all 5 chapters build; Chapter 3 `room_ch3_gameshowroom`, plot 70 (host Kris + client
+Susie, `chaos:10:120:60`, 78 s): the floor's dark gradient shows on the client as on the host, the
+scene plays to the desert board screen; no errors. Still open: the TV's star dots through the
+gradient (TODO item 8).

@@ -163,8 +163,10 @@ for each, the simplest that keeps the original's feel.
    the tiles drawn behind them, and the sprites an object draws by hand sent through `mp_mir_dse`).
    **Open:** compare other big scenes the same way (host/client `SHOTS` at the same moments), one per
    cycle: Chapter 1's fountain and closet, Chapter 3's show intro and Tenna's spotlight done
-   (2026-11-27, DONE.md); open there: the stage floor under the podiums looks lit for the watcher
-   (dark in the leader's game); Chapter 4's church scenes,
+   (2026-11-27, DONE.md); open there: the stage floor's dark gradient is done, but the TV screen's
+   star background (yellow dots, `spr_dw_tv_starbgtile`, drawn by `obj_dw_gameshow_screen` down to the
+   room's bottom) shows through the gradient's light rows for the watcher only; the layers are the same
+   in both games (`mirdumpall`), the cause is not found yet. Chapter 4's church scenes,
    Chapter 5's castle scenes. An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
 
