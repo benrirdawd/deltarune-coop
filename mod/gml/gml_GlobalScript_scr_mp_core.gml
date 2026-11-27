@@ -607,6 +607,11 @@ function mp_handle(type, sender, b, sock, endpos)
         mp_recv_counter(b);
         return;
     }
+    if (type == 88) // a band part's score in Chapter 3's rhythm game (scr_mp_rhythm)
+    {
+        mp_rhythm_recv(sender, b);
+        return;
+    }
     if (type == 87) // the enemies of the fight a player is in (drawn in front of them on the map)
     {
         mp_foes_recv(sender, b);

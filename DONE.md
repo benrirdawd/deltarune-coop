@@ -2150,3 +2150,20 @@ Without a Susie player the story's drummer is unchanged.
 **Tested** (Chapter 3, `room_dw_rhythm` plot 130, host Kris + client Susie with `chaos:10:120:60`,
 5x, `rhythmbot`): both play the song in their own game; the client drummed 569 notes, score
 81,470; both screenshots show Susie's chart live with its combo counting; no crash.
+
+## Rhythm game together, part 3: one band, one score (2026-11-27)
+
+The SCORE the game shows (its `points`, in the solo game Kris's guitar only) is now the band's: the
+guitar's points from Kris's player plus the drum and vocal chart scores from Susie's and Ralsei's
+players (a part nobody plays adds nothing, as in the solo game). Each player's game counts its own
+player's part and sends it (message 88, every 15 frames); a part played by someone else adds
+nothing by itself (its autoplay gains are taken back) and its player's count is added instead.
+The fame meter, which decides the win at the end, is the guitar's: in the others' games it follows
+Kris's player's (and their losing/quitting, which fades the song out the game's own way).
+Choice (simplest): the sum, as the TODO's design says; the question of what Tenna's evaluation
+should get is in the TODO.
+**Tested** (Chapter 3, `room_dw_rhythm` plot 130, three games: host Kris, clients Susie and Ralsei
+with `chaos:10:120:60`, 5x, `rhythmbot`): every game shows the band's score, e.g. host 25,550 +
+23,780 + 27,770 = 77,100 while the clients showed 77,280 and 77,440 at about the same moment
+(screenshot: SCORE 075606 in Susie's game); no crash. Not seen in this test: a lost song (the
+bots don't miss) and the song's end.

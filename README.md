@@ -245,7 +245,8 @@ players aren't drawn over it, and they see "Playing the rhythm game..." over whe
 In Chapter 3's band song everyone plays the song in their own game; if you play Ralsei you sing:
 the vocal chart's three columns are Left/Z, Down (or Up) and Right/X. If you play Susie you play
 the drums for real: the pads are Left/Z and Right/X, the bass bar Down (or Up). Kris's guitar
-plays itself in your game.
+plays itself in your game. The SCORE is the band's: every player's part adds to it, the same on
+every screen, and the crowd's meter (win or lose) is the one Kris's player plays for.
 Climbing walls (Chapters 4-5), you see the other climbers on the wall, each as their own character.
 In Chapter 5's platforming sections the others are shown as their own character too (Susie,
 Ralsei; Kris and Noelle use Kris's figure), and the game's own Susie or Ralsei follower is hidden

@@ -947,6 +947,25 @@ if (mp_basket_press(id))
 @prepend gml_Object_obj_rhythmgame_Step_0
 mp_rhythm_step();
 
+@prepend gml_Object_obj_rhythmgame_Step_2
+mp_rhythm_end_step();
+
+@prepend gml_Object_obj_rhythmgame_chart_Step_0
+mp_rhythm_chart_pre();
+
+@find gml_Object_obj_rhythmgame_chart_Step_0
+    if (missnotecon == 1)
+    {
+        missnotecon = 0;
+        combo = 0;
+@with
+    mp_rhythm_chart_post(id);
+    if (missnotecon == 1)
+    {
+        missnotecon = 0;
+        combo = 0;
+@end
+
 ;; (A player who joins the song after the intro gets the game's retry start: the band stands
 ;; where a retry puts it.)
 @find gml_Object_obj_ch3_GSB02_Create_0
