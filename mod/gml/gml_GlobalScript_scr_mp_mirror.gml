@@ -37,6 +37,7 @@ function mp_mirror_init()
     mp_mirror_keep_init();
     global.mp_mir_klog = 0;
     global.mp_mir_extra = [];                   // sprites drawn by hand in my scene's objects (mp_mir_dse)
+    global.mp_mir_pix = asset_get_index("spr_pixel_white"); // a 1x1 white sprite: rectangles go as it
     // Text boxes are opened by the followers themselves; the mod's own objects are never sent.
     var never = ["obj_writer", "obj_dialoguer", "obj_face", "obj_smallface", "obj_choicer_neo", "obj_mp_controller", "obj_mp_ghost", "obj_mp_mirror"];
     for (var i = 0; i < array_length(never); i++)
@@ -85,8 +86,9 @@ function mp_mirror_lead_tick()
             var k = 2;
             if (oi >= 0 && oi < nk)
                 k = kinds[oi];
-            // (A kept backdrop draws itself in the watchers' games.)
-            if (k != 2 && mp_mirror_kept(oi))
+            // (A kept backdrop draws itself in the watchers' games; an object drawing by hand sends
+            // what it draws, mp_mir_dse.)
+            if (k != 2 && (mp_mirror_kept(oi) || variable_instance_exists(id, "mp_mir_hand")))
                 k = 2;
             var r = -1;
             if (k == 3)
@@ -871,7 +873,7 @@ function mp_mirror_layers_recv(from, b)
 function mp_mirror_keep_init()
 {
     global.mp_mir_keep = [];
-    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined"];
+    var names = ["obj_ch2_scene26_cityscape", "obj_ch2_scene26_gigaqueen", "obj_looping_tiled_area", "obj_anime_bg_controller", "obj_ch2_scene26_powers_combined", "obj_darkfountain", "obj_fountainkris"];
     for (var i = 0; i < array_length(names); i++)
     {
         var o = asset_get_index(names[i]);
@@ -1104,10 +1106,34 @@ function mp_mirror_set_builtin(inst, nm, v)
 function mp_mir_dse(spr, img, xx, yy, xs, ys, ang, col, al)
 {
     draw_sprite_ext(spr, img, xx, yy, xs, ys, ang, col, al);
+    mp_mir_hand = true;
     if (variable_global_exists("mp_mir_extra") && global.mp_sstate == 1 && mp_on())
     {
         if (array_length(global.mp_mir_extra) >= 200)
             global.mp_mir_extra = [];
         array_push(global.mp_mir_extra, [depth, spr, img, xx, yy, xs, ys, ang, col, al]);
     }
+}
+
+// The same for a filled rectangle (a flash, a fade over the screen, the light of a sealed fountain):
+// it goes as a stretched white pixel in the draw colour and alpha.
+function mp_mir_drect(x1, y1, x2, y2, outline)
+{
+    draw_rectangle(x1, y1, x2, y2, outline);
+    mp_mir_hand = true;
+    if (!outline && variable_global_exists("mp_mir_extra") && global.mp_mir_pix >= 0 && global.mp_sstate == 1 && mp_on())
+    {
+        if (array_length(global.mp_mir_extra) >= 200)
+            global.mp_mir_extra = [];
+        array_push(global.mp_mir_extra, [depth, global.mp_mir_pix, 0, min(x1, x2), min(y1, y2), abs(x2 - x1) + 1, abs(y2 - y1) + 1, 0, draw_get_colour(), draw_get_alpha()]);
+    }
+}
+
+// In place of audio_play_sound in such an object: the watchers hear it too (message 76, as snd_play).
+function mp_mir_aps(snd, pri, loop)
+{
+    var r = audio_play_sound(snd, pri, loop);
+    if (!loop && variable_global_exists("mp_inited"))
+        mp_mirror_snd(snd, 1, 1);
+    return r;
 }

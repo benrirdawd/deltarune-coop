@@ -567,6 +567,40 @@ mp_end_markers();
 @append gml_Object_obj_dialoguer_Other_10
 mp_mirror_dialoguer_made();
 
+;; The dark fountain being sealed (every chapter's end) is drawn by hand: its light, flashes and fades
+;; and its sounds reach the friends watching (scr_mp_mirror: mp_mir_dse, mp_mir_drect, mp_mir_aps).
+@regex gml_Object_obj_darkfountain_event_Draw_0
+\bdraw_sprite_ext\(
+@with
+mp_mir_dse(
+@end
+#chapters 1,2,3,5
+@regex gml_Object_obj_darkfountain_event_Draw_0
+\bdraw_rectangle\(
+@with
+mp_mir_drect(
+@end
+#chapters all
+@regex gml_Object_obj_darkfountain_event_Draw_0
+\baudio_play_sound\(
+@with
+mp_mir_aps(
+@end
+@regex gml_Object_obj_darkfountain_event_Create_0
+\baudio_play_sound\(
+@with
+mp_mir_aps(
+@end
+
+;; The fountain room at every chapter's end: the fountain (it draws itself, and the room's colour)
+;; and Kris and Susie walking up to it are kept scenery; that scene runs only in the leader's game.
+@prepend gml_Object_obj_fountainkris_Step_0
+if (mp_mirror_kept_paused())
+    exit;
+@prepend gml_Object_obj_fountainkris_Alarm_4
+if (mp_mirror_kept_paused())
+    exit;
+
 ;; ...and the sounds of the leader's scene play there too (a kept backdrop's own ones come from there).
 @regex gml_GlobalScript_snd_play
 (function snd_play\([^)]*\)\s*\{)

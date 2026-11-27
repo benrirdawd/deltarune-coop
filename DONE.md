@@ -2415,3 +2415,22 @@ found drawing its sprites by hand.
 `chaos:10:120:60`): at 138-142 s the client shows the cars with Kris, Susie, Ralsei, Berdly and the
 recruits riding them, as the host does (before: walls only); the host's traffic peaked at 17 KB/s
 during the ride (many sprites); no crash.
+
+## Watched cutscenes: the dark fountain at every chapter's end (2026-11-27)
+
+Compared host/client screenshots in Chapter 1's fountain room (`room_cc_fountain`): the watcher saw
+the fountain in other colours and drawn differently, no Susie, and none of the sealing's light.
+- The fountain (`obj_darkfountain`, which draws itself and sets the room's colour) and Kris and
+  Susie walking up to it (`obj_fountainkris`) are kept scenery in every chapter; that scene's Step
+  and alarm run only in the leader's game.
+- The sealing (`obj_darkfountain_event`, made only in the leader's game) draws its light, flash and
+  fades by hand: its `draw_sprite_ext` and `draw_rectangle` now go through `mp_mir_dse` /
+  `mp_mir_drect` (a filled rectangle is sent as a stretched white pixel in the draw colour and
+  alpha), and its sounds (`audio_play_sound`, not `snd_play`) through `mp_mir_aps`, so the
+  watchers hear them.
+**Tested** (Chapter 1, `room_cc_fountain`, host Kris + client Susie, `chaos:10:120:60`): at 45 s the
+client's fountain, Kris and Susie match the host's; the scene played through to the Light World,
+both games entering `room_school_unusedroom` 0.3 s apart; no crash. (On the way, a stray
+`#chapters all` line put inside the hook that makes the multiplayer controller by a failed edit
+kept the mod from starting in Chapter 1; found by building Chapter 1 from each commit, removed
+before committing.)
