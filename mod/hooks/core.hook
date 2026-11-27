@@ -1246,3 +1246,12 @@ if (con == 0 && mp_mirror_resuming())
 if (mp_mirror_kept_paused())
     exit;
 #chapters all
+;; The hit words a scene shows (MISS, UP, DOWN...: obj_dmgwriter's message sprites) reach the
+;; friends watching (scr_mp_mirror: mp_mir_dse; only in a shared scene, not in battle).
+#chapters 2,3,4,5
+@regex gml_Object_obj_dmgwriter_Draw_0
+\bdraw_sprite_ext\(message_sprite,
+@with
+mp_mir_dse(message_sprite,
+@end
+#chapters all

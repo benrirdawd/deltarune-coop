@@ -123,6 +123,13 @@ function mp_mirror_lead_tick()
                 r = script_execute(evals[oi]);
             else if (k != 2 && sprite_index >= 0)
                 r = [sprite_index, image_index, x, y, image_xscale, image_yscale, image_angle, image_blend, image_alpha];
+            // (A one-colour silhouette, Chapter 5's coloured afterimages, obj_marker_fog: its
+            // colour, and 10000 added to the angle as the mark.)
+            if (is_array(r) && oi == global.mp_mir_fogobj && variable_instance_exists(id, "color"))
+            {
+                r[7] = color;
+                r[6] += 10000;
+            }
             if (is_array(r) && sprite_exists(r[0]) && r[8] > 0)
             {
                 var big = max(sprite_get_width(r[0]) * abs(r[4]), sprite_get_height(r[0]) * abs(r[5]));
@@ -495,6 +502,9 @@ function mp_mirror_recv(type, from, b)
             var al = buffer_read(b, buffer_u8);
             var dp = buffer_read(b, buffer_s32);
             items[i] = [spr, fr, xx, yy, xs, ys, ang, make_colour_rgb(cr, cg, cb), al / 255, dp];
+            // (Test token mirfog: the one-colour silhouettes and hand-drawn hit words received.)
+            if (global.mp_test != "" && (ang > 5000 || string_pos("spr_battlemsg", sprite_get_name(spr)) == 1) && mp_test_has("mirfog"))
+                mp_log("mirfog: got " + sprite_get_name(spr) + (ang > 5000 ? " as a silhouette" : "") + " frame " + string(fr));
         }
         global.mp_mir_chunks[c] = [seq, items];
         var h = global.mp_mir_hdr;
@@ -839,7 +849,15 @@ function mp_mirror_draw(kind)
         var it = items[i];
         if (it[9] <= lo || it[9] > hi)
             continue;
-        if (sprite_exists(it[0]))
+        if (!sprite_exists(it[0]))
+            continue;
+        if (it[6] > 5000)
+        {
+            gpu_set_fog(true, it[7], 0, 0);
+            draw_sprite_ext(it[0], it[1], it[2], it[3], it[4], it[5], it[6] - 10000, c_white, it[8]);
+            gpu_set_fog(false, c_white, 0, 0);
+        }
+        else
             draw_sprite_ext(it[0], it[1], it[2], it[3], it[4], it[5], it[6], it[7], it[8]);
     }
 }
@@ -1074,6 +1092,7 @@ function mp_mirror_keep_init()
         if (o >= 0)
             array_push(global.mp_mir_front, o);
     }
+    global.mp_mir_fogobj = asset_get_index("obj_marker_fog");
     global.mp_mir_ksent = ds_map_create();
     global.mp_mir_kroom = -1;
     global.mp_mir_koff = 0;

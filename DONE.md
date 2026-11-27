@@ -2612,3 +2612,21 @@ surfaces of their own) are now kept scenery, the petals' Step paused while watch
 `trig:enter_trigger` (host Kris with `mash` + client Susie, `chaos:10:120:60`, 62 s, shots at
 35/45/55 s, and every 2 s from 44 to 58 s before the change): the client shows the light shafts on
 the left as the host; no errors.
+
+## Hit words and coloured afterimages in watched scenes (2026-11-27)
+Compared the second top staircase (`obj_ch5_DW27`, `room_dw_fcastle_top_staircase_2`, plot 460,
+trigger `enter_trigger`), where Ralsei strikes at Flowery twice. The watcher saw neither the "MISS"
+nor Flowery's coloured trail:
+- The hit words (MISS, UP, DOWN...) are sprites `obj_dmgwriter` draws by hand: its message-sprite
+  calls now go through `mp_mir_dse` (Chapters 2-5; in battle nothing changes, the mirror only works
+  in shared scenes).
+- Flowery's trail is one-colour silhouettes (`obj_marker_fog`: the sprite drawn with the GPU's fog
+  in one colour), which the mirror sent as his plain sprite, or not at all once faded. A sprite in
+  the mirror's list can now be a silhouette: the colour goes as its colour, with 10000 added to its
+  angle as the mark, and the watcher draws it with the fog in that colour.
+New test token `mirfog`: the watcher logs the silhouettes and hit words it gets.
+**Tested:** all 5 chapters build; Chapter 5 `room_dw_fcastle_top_staircase_2`, plot 460,
+`trig:enter_trigger` (host Kris with `mash` + client Susie, `chaos:10:120:60`): the client logs the
+silhouettes (`spr_flowery_kiss`, `spr_flowery_float`...) and `spr_battlemsg` at both strikes, and its
+shots show the "MISS", the slash and the red and orange trail as the host's (shots every second
+from 26 to 36 s); no errors.
