@@ -446,7 +446,7 @@ function mp_test_tick()
             scr_caterpillar_interpolate();
         }
     }
-    // trig:<extflag>: 5 s into the room, stand on the room's obj_trigger with that extflag (a scene
+    // trig:<extflag> (or trig:x<number>, the trigger at that x): 5 s into the room, stand on the room's obj_trigger with that extflag (a scene
     // that starts when the player walks into it, wherever the room's layout makes that far).
     if (mp_test_arg("trig") != "" && !variable_global_exists("mp_test_trigdone") && (!mp_test_has("party") || global.mp_test_state >= 1) && global.mp_test_timer > 300 && global.interact == 0)
     {
@@ -456,6 +456,9 @@ function mp_test_tick()
         with (obj_trigger)
         {
             if (variable_instance_exists(id, "extflag") && extflag == tn)
+                found = id;
+            // ("x840": the trigger at x 840, for one a scene makes with no extflag.)
+            if (string_char_at(tn, 1) == "x" && string_digits(tn) == string_delete(tn, 1, 1) && x == real(string_digits(tn)))
                 found = id;
         }
         if (found != noone)

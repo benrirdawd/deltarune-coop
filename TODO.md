@@ -174,8 +174,11 @@ for each, the simplest that keeps the original's feel.
    done (DONE.md). The top staircase (DW25) done:
    the castle's light shafts and petals (DONE.md). The second staircase (DW27) done: hit words and
    coloured afterimages (DONE.md). After the Flowery fight (DW30) part 1 done: sunset sky, silhouettes, red threads (DONE.md).
-   The flashback's narration (a writer with no box) done (DONE.md). DW30 done (blur too). Other Chapter 5 castle scenes open
-   (DW40, the fountain DW45). An object found drawing by hand gets the `mp_mir_dse` hook or kept
+   The flashback's narration (a writer with no box) done (DONE.md). DW30 done (blur too). DW40 (same room, plot 500, the
+   trigger at x 840; test token `trig:x840`) looked at once: the leader's scene ran ~8 s (interact
+   1->0) and the watcher mirrored ~4 s of it with nothing different to see; then the host's game
+   had 3-second hitches for ~15 s (interact 0, not in a scene). Open: find what DW40 does after
+   `con = 90` and whether those hitches are ours. The fountain DW45 open. An object found drawing by hand gets the `mp_mir_dse` hook or kept
    scenery.
 
 ## Next puzzles to look at (found 2026-11-24, from MINIGAMES.md), one per cycle
