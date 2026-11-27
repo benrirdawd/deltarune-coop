@@ -736,6 +736,16 @@ and `chat`: 3 turns, identical state in both games; the log has "ping sent", "sa
   host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
   checks pass except `moved` (nobody walks).
 
+## Test tool: screenshots and closing the games work with a relative output folder (2026-11-27)
+
+* `mptest.sh` with a relative `MPTEST_OUT` (as in every test here) wrote the games' `.pid` files
+  into the game folder: `run_game.sh` starts the game from there. So no screenshot was ever taken
+  ("no window for process 0"), and a stuck test could not stop its games by id. The output folder
+  is now made absolute first.
+* Test (`work/fol/shot2`, `SHOTS=15`): both `.pid` files written, the screenshots at 15 s and at
+  the end taken (the host's window shows Kris and P2's Susie at the top of the mansion), and both
+  games closed afterwards.
+
 ## Watching a cutscene: layers the scene shows, hides or scrolls (2026-11-27)
 
 * Follow-up of the layer mirroring. Many scenes show or hide a layer of the room

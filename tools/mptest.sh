@@ -7,6 +7,8 @@ set -e
 . "$(dirname "$0")/platform.sh"
 CH=$1; SECS=$2; HT=$3; CT=$4; NC=${5:-1}
 OUT=${MPTEST_OUT:-$ROOT/work/test}
+# (A relative folder would be read from the game folder by run_game.sh, which writes the .pid files there.)
+mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd)
 # MP_SPEED=n runs the games n times faster (test token speed:n). <seconds> and SHOTS stay in game
 # time at normal speed: the first 10 s (starting the games, joining) are real time, the rest is
 # divided by n.
