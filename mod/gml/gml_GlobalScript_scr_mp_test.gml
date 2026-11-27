@@ -38,6 +38,7 @@
 //   sturdy          heroes have 999 HP in fights (long fights)
 //   halfhp          enemies start fights at 45% HP (e.g. Tenna's minigame turns)
 //   tennascore      each Tenna minigame I play scores 10 more
+//   touchsync:<obj> step onto the newest <obj> at the same shared-clock moment as the others
 //   platfight       (Ch5) a platformer enemy fight starts at once, wherever my figure is
 //   sturdy          heroes have 10 times their HP in fights (long fights)
 //   dbgchar         log every party change made by the shared state, with the call stack
@@ -230,6 +231,40 @@ function mp_test_tick()
             }
             else
                 mp_log("[test] touch: no " + tv + " here");
+        }
+    }
+    // touchsync:<object>: once someone else is here, step onto the newest <object> (an overworld
+    // enemy) at the same moment of the shared clock as the others (the next 10 s mark): two
+    // players touching it at once.
+    var tsv = mp_test_arg("touchsync");
+    // (First both stand 70 px under it, and it is held still, so that each game sees the other
+    // player on screen before the touch.)
+    if (tsv != "" && !variable_global_exists("mp_test_tsdone") && instance_exists(obj_mainchara) && global.mp_room_frames > 100 && asset_get_index(tsv) >= 0 && instance_exists(asset_get_index(tsv)))
+    {
+        var tsh = instance_find(asset_get_index(tsv), instance_number(asset_get_index(tsv)) - 1);
+        with (tsh)
+        {
+            x = xstart;
+            y = ystart;
+            speed = 0;
+        }
+        if (!variable_global_exists("mp_test_tsnear"))
+        {
+            global.mp_test_tsnear = 1;
+            obj_mainchara.x += round(((tsh.bbox_left + tsh.bbox_right) - (obj_mainchara.bbox_left + obj_mainchara.bbox_right)) / 2) + (global.mp_myid == 0 ? -20 : 20);
+            obj_mainchara.y += (tsh.bbox_bottom + 70) - obj_mainchara.bbox_top;
+        }
+    }
+    if (tsv != "" && !variable_global_exists("mp_test_tsdone") && global.mp_room_frames > 300 && instance_exists(obj_mainchara) && mp_player_count() > 1 && global.interact == 0 && (floor(mp_clock_now()) mod 10000) < 150)
+    {
+        var tso = asset_get_index(tsv);
+        if (tso >= 0 && instance_exists(tso))
+        {
+            global.mp_test_tsdone = 1;
+            var tsi = instance_find(tso, instance_number(tso) - 1);
+            obj_mainchara.x += round(((tsi.bbox_left + tsi.bbox_right) - (obj_mainchara.bbox_left + obj_mainchara.bbox_right)) / 2);
+            obj_mainchara.y += round(((tsi.bbox_top + tsi.bbox_bottom) - (obj_mainchara.bbox_top + obj_mainchara.bbox_bottom)) / 2);
+            mp_log("[test] touchsync " + tsv + " at clock " + string(floor(mp_clock_now())));
         }
     }
     // bumpflag:<n>:<count>: count story flag n up, count times, every 2 frames (in the same moments of the shared clock) from 300 frames into the

@@ -736,6 +736,22 @@ and `chat`: 3 turns, identical state in both games; the log has "ping sent", "sa
   host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
   checks pass except `moved` (nobody walks).
 
+## Two players touching the same enemy at the same moment: one fight, tested (2026-11-27)
+
+* The host-as-referee item's battle-start step. A tie-break already existed: when another player's
+  touch of the same enemy arrives while my "!" is waiting, the lower player number gets it, and I
+  join their fight. It had never been tested with a real race.
+* New test token `touchsync:<obj>`. Both players stand next to the enemy, which is held still. At
+  the same 10 s mark of the shared clock, both step onto it.
+* Test, Chapter 1 `room_field1`, plot 100, both with `chaos:10:120:60` (`work/fol/tie2`). Both
+  games touched the enemy 0.02 s apart, and both started a fight with both players in it. The
+  client logged "the other player got this enemy" and joined the host's battle. Both games logged
+  the same turns. The enemy stayed gone in both games.
+* Seen in the first try (`work/fol/tie1`, players moved there in the same frame): when neither game
+  has the other player on screen yet, each starts its own solo fight with that enemy, as two
+  players far apart would. Only a test setup does that: a player has to be next to the enemy to
+  touch it.
+
 ## Five players in one session, one fight (2026-11-27)
 
 * Up to 8 players could already join. Tested with 5 for the first time: Chapter 1 `room_field1`
