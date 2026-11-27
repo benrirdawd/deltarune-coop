@@ -736,6 +736,25 @@ and `chat`: 3 turns, identical state in both games; the log has "ping sent", "sa
   host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
   checks pass except `moved` (nobody walks).
 
+## Chapter 2 shape puzzles: a friend's piece moves in my game too (2026-11-27)
+
+* The shape puzzles (the mansion's dark bulb rooms, Shaun's room): a button steers its piece into
+  the outline. It was each player's own, so a friend at the button moved the piece only in their
+  game. Now the steering player's game sends the piece's place and turn when they change (message
+  89, naming the button by where it stands, because a room has several), and the others' piece goes
+  there too. When it fits, their outline lights up with the game's own sound. The solve's story
+  scene stays the solver's (the shared cutscene), so a copy moved by a friend doesn't check the fit
+  itself, and it doesn't send the fit back. My own keys win while I steer a piece myself.
+  `scr_mp_shape`, prepended to the button's Step.
+* New test tokens `shapebot` (the piece I steer moves right every 20 frames) and `shapesolve`
+  (3 s into steering, the piece fits, and the room's scene goes on as with a real fit). The first
+  `shapesolve` left both test games stuck: it marked the fit without starting the room's scene, so
+  the host's game waited forever and the client watched it. Fixed before this test.
+* Test, `room_dw_mansion_darkbulb_1`, plot 104, client with `chaos:10:120:60` (`work/fol/shape4`).
+  The host steered for 4 s, and the client's piece followed each move and turn. The fit lit all
+  three pieces in the client's game. The room's scene played in the host's game and the client saw
+  its text boxes. Both reached plot 105 and could move again. No crash.
+
 ## Two players opening the same chest at the same moment: one item; NPC talk stays local (2026-11-27)
 
 * The host-as-referee item's last step, NPC talk. Talking is each player's own: the others in the

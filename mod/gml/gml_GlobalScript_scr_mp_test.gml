@@ -40,6 +40,8 @@
 //   tennascore      each Tenna minigame I play scores 10 more
 //   touchsync:<obj> step onto the newest <obj> at the same shared-clock moment as the others
 //   touchsyncz:<obj> as touch, at the same shared-clock moment as the others
+//   shapebot        (Ch2) while I steer a shape puzzle piece, it moves right every 20 frames
+//   shapesolve      (Ch2) 3 s into steering a shape puzzle piece, it counts as fitting
 //   platfight       (Ch5) a platformer enemy fight starts at once, wherever my figure is
 //   sturdy          heroes have 10 times their HP in fights (long fights)
 //   dbgchar         log every party change made by the shared state, with the call stack
