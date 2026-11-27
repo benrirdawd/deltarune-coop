@@ -2524,3 +2524,14 @@ leader's surface id means nothing (or something else) in the watcher's game.
 **Tested:** all 5 chapters build; Chapter 4 `room_dw_church_intro1`, plot 105 (host Kris + client
 Susie, `chaos:10:120:60`, 32 s, shots during Susie's "What's with this place?"): the client shows the
 same darkness and light beams as the host; no errors.
+
+## Chapter 5's castle top compared; test token trig (2026-11-27)
+Compared the scene at the top of the flower castle (`obj_ch5_DW22`, `room_dw_fcastle_top_intro`, plot
+435: Asgore's story with its flashback) host vs client: the client watches it all and its screens
+match the host's (text boxes, flashback room, the friends at the top); nothing to fix there.
+To start it, a new test token: `trig:<extflag>` puts the player (and the climbing Kris, when
+climbing) on the room's `obj_trigger` with that extflag 5 s into the test's room, for scenes that
+start when the player walks into a spot the room's layout makes hard to reach with `walkto`.
+**Tested:** all 5 chapters build; Chapter 5 `room_dw_fcastle_top_intro`, plot 435,
+`climb:200,trig:enter_trigger` (host Kris + client Susie, `chaos:10:120:60`, 80 s): the scene starts,
+the client watches it to the end; no errors.

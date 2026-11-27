@@ -446,6 +446,42 @@ function mp_test_tick()
             scr_caterpillar_interpolate();
         }
     }
+    // trig:<extflag>: 5 s into the room, stand on the room's obj_trigger with that extflag (a scene
+    // that starts when the player walks into it, wherever the room's layout makes that far).
+    if (mp_test_arg("trig") != "" && !variable_global_exists("mp_test_trigdone") && (!mp_test_has("party") || global.mp_test_state >= 1) && global.mp_test_timer > 300 && global.interact == 0)
+    {
+        global.mp_test_trigdone = 1;
+        var tn = mp_test_arg("trig");
+        var found = noone;
+        with (obj_trigger)
+        {
+            if (variable_instance_exists(id, "extflag") && extflag == tn)
+                found = id;
+        }
+        if (found != noone)
+        {
+            var tx = (found.bbox_left + found.bbox_right) / 2;
+            var ty = (found.bbox_top + found.bbox_bottom) / 2;
+            with (obj_mainchara)
+            {
+                x = tx - (bbox_right - bbox_left) / 2 - (bbox_left - x);
+                y = ty - (bbox_bottom - bbox_top) / 2 - (bbox_top - y);
+            }
+            // (Climbing: the climbing Kris is the one a climbing scene's trigger looks for.)
+            var ck = asset_get_index("obj_climb_kris");
+            if (ck >= 0)
+            {
+                with (ck)
+                {
+                    x = tx - (bbox_right - bbox_left) / 2 - (bbox_left - x);
+                    y = ty - (bbox_bottom - bbox_top) / 2 - (bbox_top - y);
+                }
+            }
+            mp_log("[test] on the trigger " + tn + " at " + string(tx) + "," + string(ty));
+        }
+        else
+            mp_log("[test] trig: no trigger " + tn + " here");
+    }
     // steamhost: host on Steam 2 s after entering the room (scr_mp_steam)
     if (mp_test_has("steamhost") && global.mp_test_state == 1 && global.mp_test_timer == 60)
         mp_steam_host();
