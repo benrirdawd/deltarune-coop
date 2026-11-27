@@ -632,36 +632,93 @@ function mp_mirror_draw()
     }
 }
 
-// The room's own layers as the leader's scene moves them: Chapter 2's ride beside Queen's car
-// scrolls the road and its parked cars, which are tiles, by moving the tile layers (tilemap_x).
-// Only instances are in the sprite list, so the others' road stood still and the cars further on
-// never came. The leader's game sends where each layer and its tiles are (message 90, every 10
-// frames, all of them so someone who starts watching late gets them too); the others move their
-// own copy of the room's layers there. The room is built again when the scene ends.
+// The room's own layers as the leader's scene changes them: Chapter 2's ride beside Queen's car
+// scrolls the road and its parked cars, which are tiles, by moving the tile layers (tilemap_x);
+// many Chapter 4 and 5 scenes show or hide a layer. Only instances are in the sprite list, so the
+// others' road stood still and the cars further on never came. The leader's game sends where each
+// layer and its tiles are and whether it shows (message 90, every 5 frames: the layers that
+// changed since, then a rotating share of the rest, so a late watcher gets them all; at most 25
+// a message). The others set their own copy of the room's layers so. The room is built again
+// when the scene ends.
+function mp_mirror_layer_state(l)
+{
+    var tm = layer_tilemap_get_id(l);
+    var has = tm != -1;
+    var hs = layer_get_hspeed(l), vs = layer_get_vspeed(l);
+    // (A layer scrolling by its own speed: its place counts as changed only when its speed does,
+    // and every 30 frames, so it isn't sent each time.)
+    var px = layer_get_x(l), py = layer_get_y(l);
+    if (hs != 0 || vs != 0)
+    {
+        px = (global.mp_mir_seq mod 30) == 0 ? px : -1;
+        py = (global.mp_mir_seq mod 30) == 0 ? py : -1;
+    }
+    return [px, py, layer_get_visible(l), has, has ? tilemap_get_x(tm) : 0, has ? tilemap_get_y(tm) : 0, hs, vs];
+}
+
 function mp_mirror_layers_send()
 {
-    if ((global.mp_mir_seq mod 10) != 0)
+    if ((global.mp_mir_seq mod 5) != 0)
         return;
     var ls = layer_get_all();
     var n = array_length(ls);
-    if (n == 0 || n > 60)
+    if (n == 0)
         return;
-    mp_begin(90);
-    mp_wu16(room);
-    mp_wu8(n);
+    if (!variable_global_exists("mp_mir_lsent") || global.mp_mir_lroom != room)
+    {
+        if (variable_global_exists("mp_mir_lsent"))
+            ds_map_destroy(global.mp_mir_lsent);
+        global.mp_mir_lsent = ds_map_create();
+        global.mp_mir_lroom = room;
+        global.mp_mir_loff = 0;
+    }
+    var m = global.mp_mir_lsent;
+    var out = [];
+    var st = array_create(n);
     for (var i = 0; i < n; i++)
     {
-        var l = ls[i];
-        mp_wstr(layer_get_name(l));
-        buffer_write(global.mp_msg, buffer_f32, layer_get_x(l));
-        buffer_write(global.mp_msg, buffer_f32, layer_get_y(l));
-        var tm = layer_tilemap_get_id(l);
-        var has = tm != -1;
-        mp_wu8(has);
-        if (has)
+        st[i] = mp_mirror_layer_state(ls[i]);
+        var k = string(ls[i]);
+        var old = ds_map_find_value(m, k);
+        if (!is_array(old) || !array_equals(old, st[i]))
+            array_push(out, i);
+    }
+    // (A rotating share of the unchanged ones.)
+    for (var j = 0; j < n && array_length(out) < 25; j++)
+    {
+        var i2 = (global.mp_mir_loff + j) mod n;
+        var dup = false;
+        for (var q = 0; q < array_length(out); q++)
         {
-            buffer_write(global.mp_msg, buffer_f32, tilemap_get_x(tm));
-            buffer_write(global.mp_msg, buffer_f32, tilemap_get_y(tm));
+            if (out[q] == i2)
+            {
+                dup = true;
+                break;
+            }
+        }
+        if (!dup)
+            array_push(out, i2);
+    }
+    global.mp_mir_loff = (global.mp_mir_loff + 25) mod n;
+    var cnt = min(25, array_length(out));
+    mp_begin(90);
+    mp_wu16(room);
+    mp_wu8(cnt);
+    for (var c = 0; c < cnt; c++)
+    {
+        var li = out[c];
+        var a = st[li];
+        ds_map_set(m, string(ls[li]), a);
+        mp_wstr(layer_get_name(ls[li]));
+        buffer_write(global.mp_msg, buffer_f32, layer_get_x(ls[li]));
+        buffer_write(global.mp_msg, buffer_f32, layer_get_y(ls[li]));
+        buffer_write(global.mp_msg, buffer_f32, a[6]);
+        buffer_write(global.mp_msg, buffer_f32, a[7]);
+        mp_wu8((a[2] ? 1 : 0) | (a[3] ? 2 : 0));
+        if (a[3])
+        {
+            buffer_write(global.mp_msg, buffer_f32, a[4]);
+            buffer_write(global.mp_msg, buffer_f32, a[5]);
         }
     }
     mp_send();
@@ -678,9 +735,11 @@ function mp_mirror_layers_recv(from, b)
         var nm = buffer_read(b, buffer_string);
         var lx = buffer_read(b, buffer_f32);
         var ly = buffer_read(b, buffer_f32);
-        var has = buffer_read(b, buffer_u8);
+        var lhs = buffer_read(b, buffer_f32);
+        var lvs = buffer_read(b, buffer_f32);
+        var fl = buffer_read(b, buffer_u8);
         var tx = 0, ty = 0;
-        if (has)
+        if (fl & 2)
         {
             tx = buffer_read(b, buffer_f32);
             ty = buffer_read(b, buffer_f32);
@@ -690,13 +749,27 @@ function mp_mirror_layers_recv(from, b)
         var l = layer_get_id(nm);
         if (l == -1)
             continue;
-        if (layer_get_x(l) != lx || layer_get_y(l) != ly)
+        if (layer_get_hspeed(l) != lhs || layer_get_vspeed(l) != lvs)
+        {
+            layer_hspeed(l, lhs);
+            layer_vspeed(l, lvs);
+            moved++;
+        }
+        // (A scrolling one only when it is well off: it scrolls here by itself in between.)
+        var off = max(abs(layer_get_x(l) - lx), abs(layer_get_y(l) - ly));
+        if ((lhs == 0 && lvs == 0) ? off > 0 : off > (abs(lhs) + abs(lvs)) * 12)
         {
             layer_x(l, lx);
             layer_y(l, ly);
             moved++;
         }
-        if (has)
+        var vis = (fl & 1) != 0;
+        if (layer_get_visible(l) != vis)
+        {
+            layer_set_visible(l, vis);
+            moved++;
+        }
+        if (fl & 2)
         {
             var tm = layer_tilemap_get_id(l);
             if (tm != -1 && (tilemap_get_x(tm) != tx || tilemap_get_y(tm) != ty))
@@ -710,5 +783,5 @@ function mp_mirror_layers_recv(from, b)
     if (!variable_global_exists("mp_mir_laylog"))
         global.mp_mir_laylog = 0;
     if (moved > 0 && (global.mp_mir_laylog++ mod 30) == 0)
-        mp_log("mirror: " + string(moved) + " of the room's layers moved as in the leader's game");
+        mp_log("mirror: " + string(moved) + " of the room's layers set as in the leader's game");
 }

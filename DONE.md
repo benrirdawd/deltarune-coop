@@ -736,6 +736,21 @@ and `chat`: 3 turns, identical state in both games; the log has "ping sent", "sa
   host set flag 107 (that room's chest), and both games logged the chest shown open. All mpcheck
   checks pass except `moved` (nobody walks).
 
+## Watching a cutscene: layers the scene shows, hides or scrolls (2026-11-27)
+
+* Follow-up of the layer mirroring. Many scenes show or hide a layer of the room
+  (`layer_set_visible`: about 40 objects in Chapter 2, 125 in Chapter 4 and 130 in Chapter 5) or
+  give it a scroll speed (`layer_vspeed`: the rocks in the scene at the top of Queen's mansion).
+  Message 90 now also carries each layer's visibility and scroll speed. A scrolling layer scrolls
+  by itself in the watchers' game, and is set to the leader's place only when it is well off, so
+  it doesn't move in jumps.
+* Rooms can have many layers, so each message carries the layers that changed since the last one,
+  then a rotating share of the others (a late watcher gets them all), at most 25, every 5 frames.
+* Test, Chapter 2 `room_dw_mansion_top`, plot 165, client with `chaos:10:120:60`
+  (`work/fol/lay1`). The host started the scene and the client watched it. In the middle, the
+  client's game set 4 of the room's layers as in the host's game. All mpcheck checks pass, no
+  crash.
+
 ## Watching a cutscene: the road moves, and a scene that takes the party along takes me too (2026-11-27)
 
 Found with Chapter 2's ride beside Queen's car (`room_dw_city_traffic_4`, plot 79), which one player
