@@ -118,8 +118,12 @@ for each, the simplest that keeps the original's feel.
 
 ## More co-op improvements (found 2026-11-24, from MINIGAMES.md)
 
-1. **Done:** ACTs that open their own little game are played by the hero's owner (DONE.md). Still to
-   run with the real ACTs: the test simulates one (`fakeactg`).
+1. **Done:** ACTs that open their own little game are played by the hero's owner (DONE.md). Run with
+   a real one (Maus' TrapOne, 2026-11-26, DONE.md): the basket now drops at the same place in every
+   game. Still only checked by reading: Tasque Manager's quiz, Tenna's "popular boy", Chapter 5's ACT
+   games. Seen in the test, open: when two games start the same fight on their own in the same frame
+   as one pulls the other in, the pulled game rebuilt the fight after turn 0 and stayed waiting (the
+   test gave both games `battle:54`; with only the host starting it, no stall in 2 runs).
 2. **Done:** Chapter 4 bookshelf puzzle shared; the train tracks stay local on purpose (DONE.md).
    A real piano move was tried (2026-11-25, token `pianoplay`, DONE.md): Kris goes up, plays the piano
    and the keys reach it, but the shelf doesn't slide in any direction, in a room entered with the

@@ -2702,6 +2702,16 @@ function mp_actg_recv(from, b)
         array_push(global.mp_throw_q, [bid, n, ang, pw]);
         return;
     }
+    if (kind == 3)
+    {
+        var st = [];
+        for (var j = 0; j < 7; j++)
+            array_push(st, buffer_read(b, buffer_f64));
+        if (!variable_global_exists("mp_basket_q"))
+            global.mp_basket_q = [];
+        array_push(global.mp_basket_q, [bid, n, st]);
+        return;
+    }
     var res = [n];
     for (var k = 0; k < 6; k++)
         array_push(res, buffer_read(b, buffer_f64));
@@ -2906,4 +2916,60 @@ function mp_ph_mercy_add(s, amount)
         return;
     global.mp_ph_mercy[s] += amount;
     mp_log("my dodging gave enemy " + string(s) + " " + string(amount) + " mercy");
+}
+
+// Maus' baskets (Chapter 2, ACT games): the basket swings from a random start in each game, so the
+// same keys would drop it somewhere else. The ACT's player drops it; the moment is sent (where the
+// swing and the mice are), and every other copy drops from there, so the catch is the same everywhere.
+// Called in place of the basket's button3_p(); inst = the basket.
+function mp_basket_press(inst)
+{
+    if (!variable_global_exists("mp_inited") || !mp_on() || !mp_battle_on() || !global.mp_actg_on)
+        return button3_p();
+    var ms = variable_instance_exists(inst, "monstersiner") ? inst.monstersiner : [0, 0, 0];
+    var sa = variable_instance_exists(inst, "sineradd") ? inst.sineradd : 0;
+    var mg = variable_instance_exists(inst, "magnitude") ? inst.magnitude : 0;
+    if (global.mp_actg_owner == global.mp_myid)
+    {
+        if (!button3_p())
+            return false;
+        mp_begin_b(58);
+        mp_wu8(3);
+        mp_wu16(global.mp_bid);
+        mp_wu16(global.mp_actg_n);
+        mp_wf64(inst.siner);
+        mp_wf64(sa);
+        mp_wf64(mg);
+        for (var i = 0; i < 3; i++)
+            mp_wf64(array_length(ms) > i ? ms[i] : 0);
+        mp_wf64(inst.x);
+        mp_send();
+        mp_log("basket drop sent: siner " + string(inst.siner) + " x " + string(inst.x));
+        return true;
+    }
+    if (!variable_global_exists("mp_basket_q"))
+        global.mp_basket_q = [];
+    var q = global.mp_basket_q;
+    for (var k = 0; k < array_length(q); k++)
+    {
+        if (q[k][0] == global.mp_bid && q[k][1] == global.mp_actg_n)
+        {
+            var st = q[k][2];
+            array_delete(global.mp_basket_q, k, 1);
+            inst.siner = st[0];
+            if (variable_instance_exists(inst, "sineradd"))
+                inst.sineradd = st[1];
+            if (variable_instance_exists(inst, "magnitude"))
+                inst.magnitude = st[2];
+            if (variable_instance_exists(inst, "monstersiner"))
+            {
+                for (var j = 0; j < 3 && j < array_length(inst.monstersiner); j++)
+                    inst.monstersiner[j] = st[3 + j];
+            }
+            inst.x = st[6];
+            mp_log("basket drop played: siner " + string(inst.siner) + " x " + string(inst.x));
+            return true;
+        }
+    }
+    return false;
 }

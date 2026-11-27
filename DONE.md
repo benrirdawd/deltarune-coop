@@ -4,6 +4,20 @@ What was fixed or built, newest reports first, with how each was tested. These a
 that used to be in TODO.md; what is still open is in [`TODO.md`](TODO.md). A row marked "open",
 "re-check" or "not done" here is also listed there.
 
+## Maus' basket (an ACT's own game) is the same in every game (2026-11-26)
+
+The ACT games (MINIGAMES.md) had only been tested with a simulated one (`fakeactg`). With a real one,
+Chapter 2's Maus TrapOne (Kris drops a swinging basket on the mice), the others' copies diverged: the
+basket starts its swing at a random place in each game, so the same keys dropped it elsewhere (seen:
+the client caught a Maus the host missed; its mercy was corrected afterwards). Now the ACT's player
+drops the basket and the moment is sent (the swing and the mice's places, message 58 kind 3); every
+other copy drops from there (`mp_basket_press`, the Maus basket and the split basket). Test tokens:
+`pickact:1:<n>` now works for Kris's ACT list; `throwbot` also presses C during an ACT's game.
+**Tested** (Chapter 2, encounter 54 (two Maus), host Kris with `pickact:1:1` + client Susie with
+`chaos:10:120:60`, 2x, 2 runs): 7 drops, each "sent" and "played" with the same swing and place, the
+same result in both games (2 catches, mercy 100 in both, no correction needed); turns 0-3 the same
+HP, TP and mercy in both. `mpcheck` all PASS.
+
 ## Werewire's ThrowWire: the same throw everywhere, and Susie's Improvise without Kris (2026-11-26)
 
 Chapter 2's Werewire has Kris's ThrowWire: Susie throws Kris at the wire's weak point (aim and

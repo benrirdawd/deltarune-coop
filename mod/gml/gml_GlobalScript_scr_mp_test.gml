@@ -1163,8 +1163,9 @@ function mp_test_input()
             global.tension = real(mp_test_arg("tp"));
             mp_log("test: TP set to " + string(global.tension));
         }
-        // pickact:<char>:<n>: that hero (2 Susie, 3 Ralsei) picks entry n of their MAGIC/ACT list
-        // (the bot's Z does the rest). throwbot: press C now and then while a throw is aimed.
+        // pickact:<char>:<n>: that hero (1 Kris, 2 Susie, 3 Ralsei) picks entry n of their ACT/MAGIC list
+        // (the bot's Z does the rest). throwbot: press C now and then while a throw is aimed
+        // or an ACT's own game runs (e.g. Maus' basket).
         if (mp_test_arg("pickact") != "" && global.myfight == 0 && global.mnfight == 0 && global.charturn < 3 && global.mp_owner[global.charturn] == global.mp_myid)
         {
             var pa = string_split(mp_test_arg("pickact"), ":");
@@ -1174,6 +1175,13 @@ function mp_test_input()
                 {
                     if ((f mod 6) == 0)
                         global.input_pressed[1] = 1;
+                    return;
+                }
+                // Kris: ACT (place 1 in the row), the bot picks the enemy, then entry n of the ACT list.
+                if (real(pa[0]) == 1 && global.bmenuno == 9 && global.bmenucoord[9][global.charturn] < real(pa[1]))
+                {
+                    if ((f mod 6) == 0)
+                        global.input_pressed[(real(pa[1]) - global.bmenucoord[9][global.charturn] >= 2) ? 0 : 1] = 1;
                     return;
                 }
                 // (Keys, not the cursor itself: the others' games replay my keys.)
@@ -1189,7 +1197,7 @@ function mp_test_input()
         {
             var tk = asset_get_index("obj_queen_throwkris");
             var tw = asset_get_index("obj_werewire_throwkris");
-            if ((tk >= 0 && instance_exists(tk)) || (tw >= 0 && instance_exists(tw)))
+            if ((tk >= 0 && instance_exists(tk)) || (tw >= 0 && instance_exists(tw)) || (global.myfight != 0 && mp_actg_running()))
             {
                 global.input_pressed[6] = 1;
                 return;

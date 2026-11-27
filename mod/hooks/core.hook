@@ -926,3 +926,18 @@ mp_ww_back_sprite();
 $1 with (obj_heroralsei) visible = 1;
 @end
 #chapters all
+
+;; Chapter 2, Maus' baskets (ACT games): the ACT's player drops the basket, every copy drops it from
+;; the same place (scr_mp_battle, mp_basket_press).
+#chapters 2
+@regex gml_Object_obj_maus_basket_Step_0
+if \(button3_p\(\)\)
+@with
+if (mp_basket_press(id))
+@end
+@regex gml_Object_obj_maus_split_basket_Step_0
+if \(button3_p\(\)\)
+@with
+if (mp_basket_press(id))
+@end
+#chapters all
